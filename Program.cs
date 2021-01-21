@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -57,11 +58,23 @@ namespace Ngsa.LodeRunner
                 args.Contains("-d") ||
                 args.Contains("--dry-run")))
             {
-#if DEBUG
-                await AsciiArt.DisplayAsciiArt("Core/ascii-art.txt", ConsoleColor.DarkMagenta, AsciiArt.Animation.Dissolve).ConfigureAwait(false);
-#else
-                await AsciiArt.DisplayAsciiArt("Core/ascii-art.txt", ConsoleColor.DarkMagenta, AsciiArt.Animation.None).ConfigureAwait(false);
-#endif
+                const string file = "Core/ascii-art.txt";
+
+                try
+                {
+                    if (File.Exists(file))
+                    {
+                        string txt = File.ReadAllText(file);
+
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Console.WriteLine(txt);
+                        Console.ResetColor();
+                    }
+                }
+                catch
+                {
+                    // ignore any errors
+                }
             }
 
             int ret = await root.InvokeAsync(args).ConfigureAwait(false);
