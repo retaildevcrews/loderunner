@@ -14,6 +14,10 @@ namespace Ngsa.LodeRunner
     /// </summary>
     internal class TimerRequestState : IDisposable
     {
+        private static Semaphore loopController;
+        private System.Timers.Timer timer;
+        private bool disposedValue;
+
         /// <summary>
         /// gets or sets the server name
         /// </summary>
@@ -50,9 +54,9 @@ namespace Ngsa.LodeRunner
         public int ErrorCount { get; set; }
 
         /// <summary>
-        /// gets or sets the random number generator
+        /// Gets or sets a value indicating whether to use random requests
         /// </summary>
-        public Random Random { get; set; }
+        public bool Random { get; set; }
 
         /// <summary>
         /// gets the lock object
@@ -87,10 +91,6 @@ namespace Ngsa.LodeRunner
             timer.Elapsed += TimerEvent;
             timer.Start();
         }
-
-        private static Semaphore loopController;
-        private System.Timers.Timer timer;
-        private bool disposedValue;
 
         private async void TimerEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -131,9 +131,9 @@ namespace Ngsa.LodeRunner
             }
 
             // randomize request index
-            if (Random != null)
+            if (Random)
             {
-                index = Random.Next(0, MaxIndex);
+                index = DateTime.UtcNow.Millisecond % MaxIndex;
             }
 
             Request req = RequestList[index];

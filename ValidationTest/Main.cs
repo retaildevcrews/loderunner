@@ -227,10 +227,7 @@ namespace Ngsa.LodeRunner
                     Token = token,
                 };
 
-                if (config.Random)
-                {
-                    state.Random = new Random(DateTime.UtcNow.Millisecond);
-                }
+                state.Random = config.Random;
 
                 states.Add(state);
 
