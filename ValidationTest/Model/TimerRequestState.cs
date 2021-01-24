@@ -96,16 +96,22 @@ namespace Ngsa.LodeRunner
         {
             int index = 0;
 
+            // exit if cancelled
+            if (Token.IsCancellationRequested)
+            {
+                timer.Stop();
+                timer.Dispose();
+                timer = null;
+                Client.Dispose();
+                Client = null;
+
+                return;
+            }
+
             // verify http client
             if (Client == null)
             {
                 Console.WriteLine($"{ValidationTest.Now}\tError\tTimerState http client is null");
-                return;
-            }
-
-            // exit if cancelled
-            if (Token.IsCancellationRequested)
-            {
                 return;
             }
 
