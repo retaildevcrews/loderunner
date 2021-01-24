@@ -11,6 +11,10 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Ngsa.LodeRunner
 {
@@ -83,13 +87,11 @@ namespace Ngsa.LodeRunner
                 !args.Contains("--version"))
             {
                 // log the shutdown event
-                Dictionary<string, object> log = new Dictionary<string, object>
+                Console.WriteLine(JsonSerializer.Serialize(new Dictionary<string, object>
                 {
                     { "Date", DateTime.UtcNow },
                     { "EventType", "Shutdown" },
-                };
-
-                Console.WriteLine(JsonSerializer.Serialize(log));
+                }));
             }
 
             return ret;
@@ -118,7 +120,7 @@ namespace Ngsa.LodeRunner
             }
 
             // set json options based on --strict-json
-            App.JsonSerializerOptions = new JsonSerializerOptions
+            JsonSerializerOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNameCaseInsensitive = !config.StrictJson,
@@ -141,8 +143,26 @@ namespace Ngsa.LodeRunner
 
                 if (config.RunLoop)
                 {
+                    // configure the web host builder
+                    IHostBuilder builder = Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:8080/");
+                        });
+
+                    IHost host = builder.Build();
+
+                    var t = host.StartAsync(TokenSource.Token);
+
                     // run in a loop
-                    return lrt.RunLoop(config, TokenSource.Token);
+                    int res = lrt.RunLoop(config, TokenSource.Token);
+
+                    await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
+                    host.Dispose();
+                    host = null;
+
+                    return res;
                 }
                 else
                 {
