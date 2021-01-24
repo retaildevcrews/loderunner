@@ -149,13 +149,14 @@ namespace Ngsa.LodeRunner
                             webBuilder.UseUrls($"http://*:8080/");
                         });
 
+                    // build and run the web host
                     IHost host = builder.Build();
-
-                    Task t = host.StartAsync(TokenSource.Token);
+                    _ = host.StartAsync(TokenSource.Token);
 
                     // run in a loop
                     int res = lrt.RunLoop(config, TokenSource.Token);
 
+                    // stop and dispose the web host
                     await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
                     host.Dispose();
                     host = null;
