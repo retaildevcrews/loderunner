@@ -2,9 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.IO;
 using System.Reflection;
-using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 
 namespace Ngsa.LodeRunner

@@ -11,8 +11,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -153,7 +151,7 @@ namespace Ngsa.LodeRunner
 
                     IHost host = builder.Build();
 
-                    var t = host.StartAsync(TokenSource.Token);
+                    Task t = host.StartAsync(TokenSource.Token);
 
                     // run in a loop
                     int res = lrt.RunLoop(config, TokenSource.Token);
