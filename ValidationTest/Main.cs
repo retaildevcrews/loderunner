@@ -234,24 +234,6 @@ namespace Ngsa.LodeRunner
                 state.Run(config.Sleep, config.MaxConcurrent);
             }
 
-            int frequency = int.MaxValue;
-            int initialDelay = int.MaxValue;
-
-            if (config.SummaryMinutes > 0)
-            {
-                foreach (TimerRequestState trs in states)
-                {
-                    // get current summary
-                    int cMin = DateTime.UtcNow.Minute / config.SummaryMinutes * config.SummaryMinutes;
-                    trs.CurrentLogTime = trs.CurrentLogTime.AddMinutes(cMin);
-                    initialDelay = (int)trs.CurrentLogTime.AddMinutes(config.SummaryMinutes).Subtract(DateTime.UtcNow).TotalMilliseconds;
-                    frequency = config.SummaryMinutes * 60 * 1000;
-
-                    // start the summary log timer
-                    using Timer logTimer = new Timer(new TimerCallback(SummaryLogTask), trs, initialDelay, frequency);
-                }
-            }
-
             try
             {
                 // run the wait loop
@@ -509,49 +491,6 @@ namespace Ngsa.LodeRunner
             client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Version.ShortVersion}");
 
             return client;
-        }
-
-        /// <summary>
-        /// Summarize the requests for the hour
-        /// </summary>
-        /// <param name="timerState">TimerState</param>
-        private void SummaryLogTask(object timerState)
-        {
-            if (config.SummaryMinutes < 1)
-            {
-                return;
-            }
-
-            if (timerState is TimerRequestState state)
-            {
-                // exit if cancelled
-                if (state.Token.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                // build the log entry
-                string log = "{ \"logType\": \"summary\", " + $"\"logDate\": \"{state.CurrentLogTime.ToString("o", CultureInfo.InvariantCulture)}Z\", \"tag\": \"{config.Tag}\", ";
-
-                // get the summary values
-                lock (state.Lock)
-                {
-                    log += $"\"requestCount\": {state.Count}, ";
-                    log += $"\"averageDuration\": {(state.Count > 0 ? Math.Round(state.Duration / state.Count, 2) : 0)}, ";
-                    log += $"\"errorCount\": {state.ErrorCount} " + "}";
-
-                    // reset counters
-                    state.Count = 0;
-                    state.Duration = 0;
-                    state.ErrorCount = 0;
-
-                    // set next log time
-                    state.CurrentLogTime = state.CurrentLogTime.AddMinutes(config.SummaryMinutes);
-                }
-
-                // log the summary
-                Console.WriteLine(log);
-            }
         }
 
         /// <summary>
