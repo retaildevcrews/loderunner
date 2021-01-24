@@ -141,16 +141,8 @@ namespace Ngsa.LodeRunner
 
                 if (config.RunLoop)
                 {
-                    // configure the web host builder
-                    IHostBuilder builder = Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:8080/");
-                        });
-
                     // build and run the web host
-                    IHost host = builder.Build();
+                    IHost host = BuildWebHost();
                     _ = host.StartAsync(TokenSource.Token);
 
                     // run in a loop
@@ -198,9 +190,20 @@ namespace Ngsa.LodeRunner
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
         }
 
-        /// <summary>
-        /// Add a ctl-c handler
-        /// </summary>
+        // build the web host
+        private static IHost BuildWebHost()
+        {
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:8080/");
+                        })
+                        .Build();
+        }
+
+        // Add a ctl-c handler
         private static void AddControlCHandler()
         {
             Console.CancelKeyPress += (sender, e) =>
