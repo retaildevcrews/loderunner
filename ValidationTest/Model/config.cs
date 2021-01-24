@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Ngsa.LodeRunner
 {
@@ -129,6 +130,15 @@ namespace Ngsa.LodeRunner
             {
                 BaseUrl += "/";
             }
+
+            // set json options based on --strict-json
+            App.JsonSerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = !StrictJson,
+                AllowTrailingCommas = !StrictJson,
+                ReadCommentHandling = StrictJson ? JsonCommentHandling.Disallow : JsonCommentHandling.Skip,
+            };
         }
     }
 }

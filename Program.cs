@@ -117,15 +117,6 @@ namespace Ngsa.LodeRunner
                 return DoDryRun(config);
             }
 
-            // set json options based on --strict-json
-            JsonSerializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = !config.StrictJson,
-                AllowTrailingCommas = !config.StrictJson,
-                ReadCommentHandling = config.StrictJson ? JsonCommentHandling.Disallow : JsonCommentHandling.Skip,
-            };
-
             // create the test
             try
             {
