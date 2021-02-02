@@ -456,6 +456,8 @@ namespace Ngsa.LodeRunner
                 { "Random", config.Random },
                 { "Verbose", config.Verbose },
                 { "Tag", config.Tag },
+                { "Zone", config.Zone },
+                { "Region", config.Region },
             };
 
             Console.WriteLine(JsonSerializer.Serialize(msg));
@@ -530,10 +532,25 @@ namespace Ngsa.LodeRunner
                     { "ContentLength", perfLog.ContentLength },
                     { "CVector", perfLog.CorrelationVector },
                     { "CVectorBase", perfLog.CorrelationVectorBase },
-                    { "Tag", perfLog.Tag },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
                 };
+
+                // add zone, region tag
+                if (!string.IsNullOrWhiteSpace(config.Zone))
+                {
+                    logDict.Add("Zone", config.Zone);
+                }
+
+                if (!string.IsNullOrWhiteSpace(config.Region))
+                {
+                    logDict.Add("Region", config.Region);
+                }
+
+                if (!string.IsNullOrWhiteSpace(config.Tag))
+                {
+                    logDict.Add("Tag", config.Tag);
+                }
 
                 // log error details
                 if (config.VerboseErrors && valid.ValidationErrors.Count > 0)

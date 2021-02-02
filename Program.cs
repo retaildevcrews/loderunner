@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Ngsa.Middleware;
 
 namespace Ngsa.LodeRunner
 {
@@ -78,7 +79,13 @@ namespace Ngsa.LodeRunner
                 }
             }
 
-            int ret = await root.InvokeAsync(args).ConfigureAwait(false);
+            List<string> argList = args == null ? new List<string>() : new List<string>(args);
+
+            // check env vars
+            argList.AddFromEnvironment("--zone");
+            argList.AddFromEnvironment("--region");
+
+            int ret = await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
 
             if (!args.Contains("-h") &&
                 !args.Contains("--help") &&

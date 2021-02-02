@@ -30,7 +30,9 @@ namespace Ngsa.LodeRunner
 
             root.AddOption(new Option<List<string>>(new string[] { "-s", "--server" }, ParseStringList, true, "Server(s) to test"));
             root.AddOption(new Option<List<string>>(new string[] { "-f", "--files" }, ParseStringList, true, "List of files to test"));
-            root.AddOption(new Option<string>(new string[] { "--tag" }, ParseString, true, "Tag for log and App Insights"));
+            root.AddOption(new Option<string>(new string[] { "--zone" }, ParseString, true, "Zone for logging"));
+            root.AddOption(new Option<string>(new string[] { "--region" }, ParseString, true, "Region for logging"));
+            root.AddOption(new Option<string>(new string[] { "--tag" }, ParseString, true, "Tag for logging"));
             root.AddOption(new Option<int>(new string[] { "-l", "--sleep" }, ParseIntGTZero, true, "Sleep (ms) between each request"));
             root.AddOption(new Option<bool>(new string[] { "-j", "--strict-json" }, ParseBool, true, "Use strict json when parsing"));
             root.AddOption(new Option<string>(new string[] { "-u", "--base-url" }, ParseString, true, "Base url for files"));
@@ -327,6 +329,17 @@ namespace Ngsa.LodeRunner
             Console.WriteLine("dry run");
             Console.WriteLine($"   Server          {config.Server}");
             Console.WriteLine($"   Files (count)   {config.Files.Count}");
+
+            if (!string.IsNullOrWhiteSpace(config.Zone))
+            {
+                Console.WriteLine($"   Zone            {config.Zone}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(config.Region))
+            {
+                Console.WriteLine($"   Region          {config.Region}");
+            }
+
             if (!string.IsNullOrWhiteSpace(config.Tag))
             {
                 Console.WriteLine($"   Tag             {config.Tag}");
