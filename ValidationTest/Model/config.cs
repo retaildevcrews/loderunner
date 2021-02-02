@@ -23,6 +23,16 @@ namespace Ngsa.LodeRunner
         public List<string> Files { get; set; } = new List<string>();
 
         /// <summary>
+        /// gets or sets the zone to log
+        /// </summary>
+        public string Zone { get; set; }
+
+        /// <summary>
+        /// gets or sets the region to log
+        /// </summary>
+        public string Region { get; set; }
+
+        /// <summary>
         /// gets or sets the tag to log
         /// </summary>
         public string Tag { get; set; }
