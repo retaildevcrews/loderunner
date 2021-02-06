@@ -30,6 +30,7 @@ RUN mkdir -p /app/TestFiles && \
     chown -R ngsa:ngsa /app
 
 WORKDIR /app/TestFiles
+EXPOSE 8080
 
 # run as the ngsa user
 USER ngsa
