@@ -4,6 +4,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Prometheus;
 
 namespace Ngsa.LodeRunner
 {
@@ -40,6 +41,17 @@ namespace Ngsa.LodeRunner
 
             // version handler
             app.UseVersion();
+
+            // use routing
+            app.UseRouting();
+            app.UseHttpMetrics();
+
+            // map the controllers
+            app.UseEndpoints(ep =>
+            {
+                ep.MapControllers();
+                ep.MapMetrics();
+            });
         }
     }
 }
