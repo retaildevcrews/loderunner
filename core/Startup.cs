@@ -46,12 +46,8 @@ namespace Ngsa.LodeRunner
             app.UseRouting();
             app.UseHttpMetrics();
 
-            // map the controllers
-            app.UseEndpoints(ep =>
-            {
-                ep.MapControllers();
-                ep.MapMetrics();
-            });
+            // map the metrics
+            app.UseEndpoints(ep => { ep.MapMetrics(); });
         }
     }
 }
