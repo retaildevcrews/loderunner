@@ -13,6 +13,7 @@ using Microsoft.CorrelationVector;
 using Ngsa.LodeRunner.Model;
 using Ngsa.LodeRunner.Validators;
 using Ngsa.Middleware;
+using Prometheus;
 
 namespace Ngsa.LodeRunner
 {
@@ -33,6 +34,8 @@ namespace Ngsa.LodeRunner
 
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
         private Config config;
+
+        public static Counter RequestCounter { get; } = Metrics.CreateCounter("LodeRunnerRequest", "Lode Runner Request");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class

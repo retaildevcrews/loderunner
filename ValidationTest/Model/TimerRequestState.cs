@@ -146,6 +146,8 @@ namespace Ngsa.LodeRunner
 
             try
             {
+                ValidationTest.RequestCounter.Inc();
+
                 // Execute the request
                 PerfLog p = await Test.ExecuteRequest(Client, Server, req).ConfigureAwait(false);
 
