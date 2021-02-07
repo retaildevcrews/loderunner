@@ -36,6 +36,7 @@ namespace Ngsa.LodeRunner
         private Config config;
 
         public static Counter RequestCounter { get; } = Metrics.CreateCounter("LodeRunnerRequest", "Lode Runner Request");
+        public static Histogram RequestDuration { get; } = Metrics.CreateHistogram("LodeRunnerDuration", "Histogram of LodeRunner request duration");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class
@@ -316,61 +317,64 @@ namespace Ngsa.LodeRunner
             PerfLog perfLog;
             ValidationResult valid;
 
-            // send the request
-            using (HttpRequestMessage req = new HttpRequestMessage(new HttpMethod(request.Verb), request.Path))
+            using (RequestDuration.NewTimer())
             {
-                DateTime dt = DateTime.UtcNow;
-
-                // add the headers to the http request
-                if (request.Headers != null && request.Headers.Count > 0)
+                // send the request
+                using (HttpRequestMessage req = new HttpRequestMessage(new HttpMethod(request.Verb), request.Path))
                 {
-                    foreach (string key in request.Headers.Keys)
+                    DateTime dt = DateTime.UtcNow;
+
+                    // add the headers to the http request
+                    if (request.Headers != null && request.Headers.Count > 0)
                     {
-                        req.Headers.Add(key, request.Headers[key]);
+                        foreach (string key in request.Headers.Keys)
+                        {
+                            req.Headers.Add(key, request.Headers[key]);
+                        }
                     }
-                }
 
-                // create correlation vector and add to headers
-                CorrelationVector cv = new CorrelationVector(CorrelationVectorVersion.V2);
-                req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
+                    // create correlation vector and add to headers
+                    CorrelationVector cv = new CorrelationVector(CorrelationVectorVersion.V2);
+                    req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
 
-                // add the body to the http request
-                if (!string.IsNullOrWhiteSpace(request.Body))
-                {
-                    if (!string.IsNullOrWhiteSpace(request.ContentMediaType))
+                    // add the body to the http request
+                    if (!string.IsNullOrWhiteSpace(request.Body))
                     {
-                        req.Content = new StringContent(request.Body, Encoding.UTF8, request.ContentMediaType);
+                        if (!string.IsNullOrWhiteSpace(request.ContentMediaType))
+                        {
+                            req.Content = new StringContent(request.Body, Encoding.UTF8, request.ContentMediaType);
+                        }
+                        else
+                        {
+                            req.Content = new StringContent(request.Body);
+                        }
                     }
-                    else
+
+                    try
                     {
-                        req.Content = new StringContent(request.Body);
+                        // process the response
+                        using HttpResponseMessage resp = await client.SendAsync(req).ConfigureAwait(false);
+                        string body = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                        double duration = DateTime.UtcNow.Subtract(dt).TotalMilliseconds;
+
+                        // validate the response
+                        valid = ResponseValidator.Validate(request, resp, body);
+
+                        // check the performance
+                        perfLog = CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
+
+                        // add correlation vector to perf log
+                        perfLog.CorrelationVector = cv.Value;
+                        perfLog.CorrelationVectorBase = cv.GetBase();
                     }
-                }
-
-                try
-                {
-                    // process the response
-                    using HttpResponseMessage resp = await client.SendAsync(req).ConfigureAwait(false);
-                    string body = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                    double duration = DateTime.UtcNow.Subtract(dt).TotalMilliseconds;
-
-                    // validate the response
-                    valid = ResponseValidator.Validate(request, resp, body);
-
-                    // check the performance
-                    perfLog = CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
-
-                    // add correlation vector to perf log
-                    perfLog.CorrelationVector = cv.Value;
-                    perfLog.CorrelationVectorBase = cv.GetBase();
-                }
-                catch (Exception ex)
-                {
-                    double duration = Math.Round(DateTime.UtcNow.Subtract(dt).TotalMilliseconds, 0);
-                    valid = new ValidationResult { Failed = true };
-                    valid.ValidationErrors.Add($"Exception: {ex.Message}");
-                    perfLog = CreatePerfLog(server, request, valid, duration, 0, 500);
+                    catch (Exception ex)
+                    {
+                        double duration = Math.Round(DateTime.UtcNow.Subtract(dt).TotalMilliseconds, 0);
+                        valid = new ValidationResult { Failed = true };
+                        valid.ValidationErrors.Add($"Exception: {ex.Message}");
+                        perfLog = CreatePerfLog(server, request, valid, duration, 0, 500);
+                    }
                 }
             }
 
