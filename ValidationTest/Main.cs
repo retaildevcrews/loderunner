@@ -65,7 +65,7 @@ namespace Ngsa.LodeRunner
             "Histogram of LodeRunner request duration",
             new HistogramConfiguration
             {
-                Buckets = Histogram.LinearBuckets(.001, .001, 10),
+                Buckets = Histogram.LinearBuckets(1, 1, 10),
                 LabelNames = new string[] { "category" },
             });
 
