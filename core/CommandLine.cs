@@ -7,6 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using Ngsa.Middleware.CommandLine;
 
 namespace Ngsa.LodeRunner
 {
@@ -28,24 +29,24 @@ namespace Ngsa.LodeRunner
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            root.AddOption(new Option<List<string>>(new string[] { "-s", "--server" }, ParseStringList, true, "Server(s) to test"));
-            root.AddOption(new Option<List<string>>(new string[] { "-f", "--files" }, ParseStringList, true, "List of files to test"));
-            root.AddOption(new Option<string>(new string[] { "--zone" }, ParseString, true, "Zone for logging"));
-            root.AddOption(new Option<string>(new string[] { "--region" }, ParseString, true, "Region for logging"));
-            root.AddOption(new Option<string>(new string[] { "--tag" }, ParseString, true, "Tag for logging"));
-            root.AddOption(new Option<int>(new string[] { "-l", "--sleep" }, ParseIntGTZero, true, "Sleep (ms) between each request"));
-            root.AddOption(new Option<bool>(new string[] { "-j", "--strict-json" }, ParseBool, true, "Use strict json when parsing"));
-            root.AddOption(new Option<string>(new string[] { "-u", "--base-url" }, ParseString, true, "Base url for files"));
-            root.AddOption(new Option<bool>(new string[] { "-v", "--verbose" }, ParseBool, true, "Display verbose results"));
-            root.AddOption(new Option<bool>(new string[] { "-r", "--run-loop" }, ParseBool, true, "Run test in an infinite loop"));
-            root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, ParseBool, true, "Log verbose error messages"));
-            root.AddOption(new Option<bool>(new string[] { "--random" }, ParseBool, true, "Run requests randomly (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "--duration" }, ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, ParseIntGTZero, true, "Request timeout (seconds)"));
-            root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, ParseIntGTZero, true, "Max concurrent requests"));
-            root.AddOption(new Option<int>(new string[] { "--max-errors" }, ParseIntGTZero, true, "Max validation errors"));
-            root.AddOption(new Option<int>(new string[] { "--delay-start" }, ParseIntGTZero, true, "Delay test start (seconds)"));
+            root.AddOption(new Option<List<string>>(new string[] { "-s", "--server" }, Parsers.ParseStringList, true, "Server(s) to test"));
+            root.AddOption(new Option<List<string>>(new string[] { "-f", "--files" }, Parsers.ParseStringList, true, "List of files to test"));
+            root.AddOption(new Option<string>(new string[] { "--zone" }, Parsers.ParseString, true, "Zone for logging"));
+            root.AddOption(new Option<string>(new string[] { "--region" }, Parsers.ParseString, true, "Region for logging"));
+            root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
+            root.AddOption(new Option<int>(new string[] { "-l", "--sleep" }, Parsers.ParseIntGTZero, true, "Sleep (ms) between each request"));
+            root.AddOption(new Option<bool>(new string[] { "-j", "--strict-json" }, Parsers.ParseBool, true, "Use strict json when parsing"));
+            root.AddOption(new Option<string>(new string[] { "-u", "--base-url" }, Parsers.ParseString, true, "Base url for files"));
+            root.AddOption(new Option<bool>(new string[] { "-v", "--verbose" }, Parsers.ParseBool, true, "Display verbose results"));
+            root.AddOption(new Option<bool>(new string[] { "-r", "--run-loop" }, Parsers.ParseBool, true, "Run test in an infinite loop"));
+            root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
+            root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
+            root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
+            root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
+            root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
+            root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
+            root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
+            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZero, true, "Delay test start (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
             // these require access to --run-loop so are added at the root level
@@ -76,248 +77,6 @@ namespace Ngsa.LodeRunner
             }
 
             return string.Empty;
-        }
-
-        // parse string command line arg
-        private static string ParseString(ArgumentResult result)
-        {
-            string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                result.ErrorMessage = "result.Parent is null";
-                return null;
-            }
-
-            string val;
-
-            if (result.Tokens.Count == 0)
-            {
-                string env = Environment.GetEnvironmentVariable(name);
-
-                if (string.IsNullOrWhiteSpace(env))
-                {
-                    if (name == "SERVER")
-                    {
-                        result.ErrorMessage = $"--{result.Parent.Symbol.Name} is required";
-                    }
-
-                    return null;
-                }
-                else
-                {
-                    val = env.Trim();
-                }
-            }
-            else
-            {
-                val = result.Tokens[0].Value.Trim();
-            }
-
-            if (string.IsNullOrWhiteSpace(val))
-            {
-                if (name == "SERVER")
-                {
-                    result.ErrorMessage = $"--{result.Parent.Symbol.Name} is required";
-                }
-
-                return null;
-            }
-            else if (val.Length < 3)
-            {
-                result.ErrorMessage = $"--{result.Parent.Symbol.Name} must be at least 3 characters";
-                return null;
-            }
-            else if (val.Length > 100)
-            {
-                result.ErrorMessage = $"--{result.Parent.Symbol.Name} must be 100 characters or less";
-            }
-
-            return val;
-        }
-
-        // parse List<string> command line arg (--files)
-        private static List<string> ParseStringList(ArgumentResult result)
-        {
-            string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                result.ErrorMessage = "result.Parent is null";
-                return null;
-            }
-
-            List<string> val = new List<string>();
-
-            if (result.Tokens.Count == 0)
-            {
-                string env = Environment.GetEnvironmentVariable(name);
-
-                if (string.IsNullOrWhiteSpace(env))
-                {
-                    result.ErrorMessage = $"--{result.Argument.Name} is a required parameter";
-                    return null;
-                }
-
-                string[] files = env.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string f in files)
-                {
-                    val.Add(f.Trim());
-                }
-            }
-            else
-            {
-                for (int i = 0; i < result.Tokens.Count; i++)
-                {
-                    val.Add(result.Tokens[i].Value.Trim());
-                }
-            }
-
-            return val;
-        }
-
-        // parse boolean command line arg
-        private static bool ParseBool(ArgumentResult result)
-        {
-            string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                result.ErrorMessage = "result.Parent is null";
-                return false;
-            }
-
-            string errorMessage = $"--{result.Parent.Symbol.Name} must be true or false";
-            bool val;
-
-            // bool options default to true if value not specified (ie -r and -r true)
-            if (result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == result.Parent.Symbol.Name) is OptionResult res &&
-                !res.IsImplicit &&
-                result.Tokens.Count == 0)
-            {
-                return true;
-            }
-
-            // nothing to validate
-            if (result.Tokens.Count == 0)
-            {
-                string env = Environment.GetEnvironmentVariable(name);
-
-                if (!string.IsNullOrWhiteSpace(env))
-                {
-                    if (bool.TryParse(env, out val))
-                    {
-                        return val;
-                    }
-                    else
-                    {
-                        result.ErrorMessage = errorMessage;
-                        return false;
-                    }
-                }
-
-                // default to true
-                if (result.Parent.Symbol.Name == "verbose-errors")
-                {
-                    return true;
-                }
-
-                if (result.Parent.Symbol.Name == "verbose" &&
-                    result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") is OptionResult resRunLoop &&
-                    !resRunLoop.GetValueOrDefault<bool>())
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            if (!bool.TryParse(result.Tokens[0].Value, out val))
-            {
-                result.ErrorMessage = errorMessage;
-                return false;
-            }
-
-            return val;
-        }
-
-        // parser for integer >= 0
-        private static int ParseIntGEZero(ArgumentResult result)
-        {
-            return ParseInt(result, 0);
-        }
-
-        // parser for integer > 0
-        private static int ParseIntGTZero(ArgumentResult result)
-        {
-            return ParseInt(result, 1);
-        }
-
-        // parser for integer
-        private static int ParseInt(ArgumentResult result, int minValue)
-        {
-            string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                result.ErrorMessage = "result.Parent is null";
-                return -1;
-            }
-
-            string errorMessage = $"--{result.Parent.Symbol.Name} must be an integer >= {minValue}";
-            int val;
-
-            // nothing to validate
-            if (result.Tokens.Count == 0)
-            {
-                string env = Environment.GetEnvironmentVariable(name);
-
-                if (string.IsNullOrWhiteSpace(env))
-                {
-                    return GetCommandDefaultValues(result);
-                }
-                else
-                {
-                    if (!int.TryParse(env, out val) || val < minValue)
-                    {
-                        result.ErrorMessage = errorMessage;
-                        return -1;
-                    }
-
-                    return val;
-                }
-            }
-
-            if (!int.TryParse(result.Tokens[0].Value, out val) || val < minValue)
-            {
-                result.ErrorMessage = errorMessage;
-                return -1;
-            }
-
-            return val;
-        }
-
-        // get default values for command line args
-        private static int GetCommandDefaultValues(ArgumentResult result)
-        {
-            switch (result.Parent.Symbol.Name)
-            {
-                case "max-errors":
-                    return 10;
-                case "max-concurrent":
-                    return 100;
-                case "sleep":
-                    // check run-loop
-                    if (result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") is OptionResult res && res.GetValueOrDefault<bool>())
-                    {
-                        return 1000;
-                    }
-
-                    return 0;
-                case "timeout":
-                    return 30;
-                default:
-                    return 0;
-            }
         }
 
         // handle --dry-run

@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Ngsa.Middleware;
 
 namespace Ngsa.LodeRunner
 {
@@ -80,10 +79,6 @@ namespace Ngsa.LodeRunner
             }
 
             List<string> argList = args == null ? new List<string>() : new List<string>(args);
-
-            // check env vars
-            argList.AddFromEnvironment("--zone");
-            argList.AddFromEnvironment("--region");
 
             int ret = await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
 

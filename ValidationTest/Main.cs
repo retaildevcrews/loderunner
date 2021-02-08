@@ -13,6 +13,7 @@ using Microsoft.CorrelationVector;
 using Ngsa.LodeRunner.Model;
 using Ngsa.LodeRunner.Validators;
 using Ngsa.Middleware;
+using Prometheus;
 
 namespace Ngsa.LodeRunner
 {
@@ -58,6 +59,15 @@ namespace Ngsa.LodeRunner
                 throw new ArgumentException("RequestList is empty");
             }
         }
+
+        public static Histogram RequestDuration { get; } = Metrics.CreateHistogram(
+            "LodeRunnerDuration",
+            "Histogram of LodeRunner request duration",
+            new HistogramConfiguration
+            {
+                Buckets = Histogram.ExponentialBuckets(1, 2, 10),
+                LabelNames = new string[] { "category" },
+            });
 
         /// <summary>
         /// Gets UtcNow as an ISO formatted date string
@@ -370,6 +380,8 @@ namespace Ngsa.LodeRunner
                     perfLog = CreatePerfLog(server, request, valid, duration, 0, 500);
                 }
             }
+
+            RequestDuration.WithLabels(perfLog.Category).Observe(perfLog.Duration);
 
             // log the test
             LogToConsole(request, valid, perfLog);
