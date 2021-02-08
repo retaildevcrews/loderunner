@@ -81,10 +81,6 @@ namespace Ngsa.LodeRunner
 
             List<string> argList = args == null ? new List<string>() : new List<string>(args);
 
-            // check env vars
-            argList.AddFromEnvironment("--zone");
-            argList.AddFromEnvironment("--region");
-
             int ret = await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
 
             if (!args.Contains("-h") &&
