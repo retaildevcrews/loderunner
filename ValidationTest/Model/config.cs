@@ -23,6 +23,11 @@ namespace Ngsa.LodeRunner
         public List<string> Files { get; set; } = new List<string>();
 
         /// <summary>
+        /// Gets or sets a value indicating whether to the use Prometheus flag
+        /// </summary>
+        public bool Prometheus { get; set; }
+
+        /// <summary>
         /// gets or sets the zone to log
         /// </summary>
         public string Zone { get; set; }
