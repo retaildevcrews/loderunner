@@ -66,7 +66,7 @@ namespace Ngsa.LodeRunner
             new HistogramConfiguration
             {
                 Buckets = Histogram.ExponentialBuckets(1, 2, 10),
-                LabelNames = new string[] { "category" },
+                LabelNames = new string[] { "code", "category", "server", "failed", "zone", "region" },
             });
 
         /// <summary>
@@ -381,7 +381,10 @@ namespace Ngsa.LodeRunner
                 }
             }
 
-            RequestDuration.WithLabels(perfLog.Category).Observe(perfLog.Duration);
+            if (config.Prometheus)
+            {
+                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+            }
 
             // log the test
             LogToConsole(request, valid, perfLog);
