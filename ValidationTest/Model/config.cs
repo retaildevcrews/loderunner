@@ -154,6 +154,9 @@ namespace Ngsa.LodeRunner
                 AllowTrailingCommas = !StrictJson,
                 ReadCommentHandling = StrictJson ? JsonCommentHandling.Disallow : JsonCommentHandling.Skip,
             };
+
+            Zone = string.IsNullOrWhiteSpace(Zone) ? string.Empty : Zone;
+            Region = string.IsNullOrWhiteSpace(Region) ? string.Empty : Region;
         }
     }
 }

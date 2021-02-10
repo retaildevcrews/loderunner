@@ -60,14 +60,27 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        public static Histogram RequestDuration { get; } = Metrics.CreateHistogram(
-            "LodeRunnerDuration",
-            "Histogram of LodeRunner request duration",
-            new HistogramConfiguration
+        private Histogram requestDuration = null;
+
+        public Histogram RequestDuration
+        {
+            get
             {
-                Buckets = Histogram.ExponentialBuckets(1, 2, 10),
-                LabelNames = new string[] { "code", "category", "server", "failed", "zone", "region" },
-            });
+                if (config.Prometheus && requestDuration == null)
+                {
+                    requestDuration = Metrics.CreateHistogram(
+                    "LodeRunnerDuration",
+                    "Histogram of LodeRunner request duration",
+                    new HistogramConfiguration
+                    {
+                        Buckets = Histogram.ExponentialBuckets(1, 2, 10),
+                        LabelNames = new string[] { "code", "category", "server", "failed", "zone", "region" },
+                    });
+                }
+
+                return requestDuration;
+            }
+        }
 
         /// <summary>
         /// Gets UtcNow as an ISO formatted date string
@@ -381,13 +394,18 @@ namespace Ngsa.LodeRunner
                 }
             }
 
-            if (config.Prometheus)
-            {
-                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
-            }
-
             // log the test
             LogToConsole(request, valid, perfLog);
+
+            if (config.Prometheus)
+            {
+                if (string.IsNullOrWhiteSpace(perfLog.Category))
+                {
+                    perfLog.Category = string.Empty;
+                }
+
+                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+            }
 
             return perfLog;
         }
