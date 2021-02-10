@@ -33,6 +33,7 @@ namespace Ngsa.LodeRunner
             root.AddOption(new Option<List<string>>(new string[] { "-f", "--files" }, Parsers.ParseStringList, true, "List of files to test"));
             root.AddOption(new Option<string>(new string[] { "--zone" }, Parsers.ParseString, true, "Zone for logging"));
             root.AddOption(new Option<string>(new string[] { "--region" }, Parsers.ParseString, true, "Region for logging"));
+            root.AddOption(new Option<bool>(new string[] { "-p", "--prometheus" }, Parsers.ParseBool, true, "Send metrics to Prometheus"));
             root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
             root.AddOption(new Option<int>(new string[] { "-l", "--sleep" }, Parsers.ParseIntGTZero, true, "Sleep (ms) between each request"));
             root.AddOption(new Option<bool>(new string[] { "-j", "--strict-json" }, Parsers.ParseBool, true, "Use strict json when parsing"));
@@ -106,6 +107,7 @@ namespace Ngsa.LodeRunner
 
             Console.WriteLine($"   Run Loop        {config.RunLoop}");
             Console.WriteLine($"   Sleep           {config.Sleep}");
+            Console.WriteLine($"   Prometheus      {config.Prometheus}");
             Console.WriteLine($"   Verbose Errors  {config.VerboseErrors}");
             Console.WriteLine($"   Strict Json     {config.StrictJson}");
             Console.WriteLine($"   Duration        {config.Duration}");
