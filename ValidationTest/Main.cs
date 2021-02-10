@@ -30,6 +30,7 @@ namespace Ngsa.LodeRunner
             IgnoreNullValues = true,
         };
 
+        private static Histogram requestDuration = null;
         private static List<Request> requestList;
 
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
@@ -60,7 +61,10 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        private Histogram requestDuration = null;
+        /// <summary>
+        /// Gets UtcNow as an ISO formatted date string
+        /// </summary>
+        public static string Now => DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 
         public Histogram RequestDuration
         {
@@ -74,7 +78,7 @@ namespace Ngsa.LodeRunner
                     new HistogramConfiguration
                     {
                         Buckets = Histogram.ExponentialBuckets(1, 2, 10),
-                        LabelNames = new string[] { "code", "category", "server", "failed", "zone", "region" },
+                        LabelNames = new string[] { "code", "category", "mode", "server", "failed", "zone", "region" },
                     });
                 }
 
@@ -82,10 +86,54 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        /// <summary>
-        /// Gets UtcNow as an ISO formatted date string
-        /// </summary>
-        public static string Now => DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+        public static string GetMode(PerfLog perfLog)
+        {
+            if (string.IsNullOrWhiteSpace(perfLog.Category))
+            {
+                perfLog.Category = string.Empty;
+            }
+
+            string mode = perfLog.Category;
+            string path = perfLog.Path.ToLower();
+
+            if (mode.StartsWith("Genre") ||
+                mode.StartsWith("Rating") ||
+                mode.StartsWith("Year"))
+            {
+                perfLog.Category = "Movies";
+                mode = "Query";
+            }
+            else if (perfLog.Path.Contains("movies"))
+            {
+                perfLog.Category = "Movies";
+            }
+            else if (path.Contains("featured"))
+            {
+                perfLog.Category = "Movies";
+            }
+            else if (path.Contains("actors"))
+            {
+                perfLog.Category = "Actors";
+            }
+            else if (path.Contains("genres"))
+            {
+                perfLog.Category = "Genres";
+                mode = "Query";
+            }
+            else if (path.Contains("healthz"))
+            {
+                perfLog.Category = "Healthz";
+                mode = "Healthz";
+            }
+
+            if (mode.ToLowerInvariant().StartsWith("search") ||
+                mode.ToLowerInvariant().StartsWith("paged"))
+            {
+                mode = "Query";
+            }
+
+            return mode;
+        }
 
         /// <summary>
         /// Run the validation test one time
@@ -399,12 +447,10 @@ namespace Ngsa.LodeRunner
 
             if (config.Prometheus)
             {
-                if (string.IsNullOrWhiteSpace(perfLog.Category))
-                {
-                    perfLog.Category = string.Empty;
-                }
+                // this also changes perfLog.Category
+                string mode = GetMode(perfLog);
 
-                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
             }
 
             return perfLog;
