@@ -86,43 +86,40 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        public static string GetMode(PerfLog perfLog)
+        public static string GetMode(PerfLog perfLog, out string category)
         {
-            if (string.IsNullOrWhiteSpace(perfLog.Category))
-            {
-                perfLog.Category = string.Empty;
-            }
+            category = string.IsNullOrEmpty(perfLog.Category) ? string.Empty : perfLog.Category;
 
-            string mode = perfLog.Category;
+            string mode = category;
             string path = perfLog.Path.ToLower();
 
             if (mode.StartsWith("Genre") ||
                 mode.StartsWith("Rating") ||
                 mode.StartsWith("Year"))
             {
-                perfLog.Category = "Movies";
+                category = "Movies";
                 mode = "Query";
             }
             else if (perfLog.Path.Contains("movies"))
             {
-                perfLog.Category = "Movies";
+                category = "Movies";
             }
             else if (path.Contains("featured"))
             {
-                perfLog.Category = "Movies";
+                category = "Movies";
             }
             else if (path.Contains("actors"))
             {
-                perfLog.Category = "Actors";
+                category = "Actors";
             }
             else if (path.Contains("genres"))
             {
-                perfLog.Category = "Genres";
+                category = "Genres";
                 mode = "Query";
             }
             else if (path.Contains("healthz"))
             {
-                perfLog.Category = "Healthz";
+                category = "Healthz";
                 mode = "Healthz";
             }
 
@@ -447,10 +444,10 @@ namespace Ngsa.LodeRunner
 
             if (config.Prometheus)
             {
-                // this also changes perfLog.Category
-                string mode = GetMode(perfLog);
+                // map category and mode to app values
+                string mode = GetMode(perfLog, out string category);
 
-                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), perfLog.Category, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), category, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
             }
 
             return perfLog;
