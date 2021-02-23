@@ -41,9 +41,6 @@ namespace Ngsa.LodeRunner
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
-            // add ctl-c handler
-            AddControlCHandler();
-
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
             root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
@@ -80,21 +77,7 @@ namespace Ngsa.LodeRunner
 
             List<string> argList = args == null ? new List<string>() : new List<string>(args);
 
-            int ret = await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
-
-            if (!args.Contains("-h") &&
-                !args.Contains("--help") &&
-                !args.Contains("--version"))
-            {
-                // log the shutdown event
-                Console.WriteLine(JsonSerializer.Serialize(new Dictionary<string, object>
-                {
-                    { "Date", DateTime.UtcNow },
-                    { "EventType", "Shutdown" },
-                }));
-            }
-
-            return ret;
+            return await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -193,17 +176,8 @@ namespace Ngsa.LodeRunner
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:8080/");
                         })
+                        .UseConsoleLifetime()
                         .Build();
-        }
-
-        // Add a ctl-c handler
-        private static void AddControlCHandler()
-        {
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                e.Cancel = true;
-                TokenSource.Cancel();
-            };
         }
     }
 }
