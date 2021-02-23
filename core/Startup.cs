@@ -2,8 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Prometheus;
 
 namespace Ngsa.LodeRunner
@@ -32,12 +35,36 @@ namespace Ngsa.LodeRunner
         /// Configure the application builder
         /// </summary>
         /// <param name="app">IApplicationBuilder</param>
-        public static void Configure(IApplicationBuilder app)
+        /// <param name="life">IHostApplicationLifetime</param>
+        public static void Configure(IApplicationBuilder app, IHostApplicationLifetime life)
         {
             if (app == null)
             {
                 throw new ArgumentNullException(nameof(app));
             }
+
+            if (life == null)
+            {
+                throw new ArgumentNullException(nameof(life));
+            }
+
+            // signal run loop
+            life.ApplicationStopping.Register(() =>
+            {
+                if (App.TokenSource != null)
+                {
+                    App.TokenSource.Cancel(false);
+                }
+            });
+
+            life.ApplicationStopped.Register(() =>
+            {
+                Console.WriteLine(JsonSerializer.Serialize(new Dictionary<string, object>
+                {
+                    { "Date", DateTime.UtcNow },
+                    { "EventType", "Shutdown" },
+                }));
+            });
 
             // version handler
             app.UseVersion();
