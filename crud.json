@@ -1,6 +1,12 @@
 {
   "requests":
   [
+    {"path":"/api/movies/zz127287800","verb":"POST","perfTarget":{"category":"Upsert"},"validation":{"statusCode":404, "contentType":"text/plain"}},
+    {"path":"/api/movies/tt1272878","verb":"POST","perfTarget":{"category":"Upsert"},"validation":{"statusCode":400,"contentType":"application/problem+json"}},
+
+    {"path":"/api/movies/zz127287800","verb":"DELETE","perfTarget":{"category":"Delete"},"validation":{"statusCode":204}},
+    {"path":"/api/movies/tt1272878","verb":"DELETE","perfTarget":{"category":"Delete"},"validation":{"statusCode":400,"contentType":"application/problem+json"}},
+
     {"path":"/api/actors/nm0000284","perfTarget":{"category":"DirectRead"},"validation":{"statusCode":200}},
     {"path":"/api/movies/zz1272878","verb":"POST","perfTarget":{"category":"Upsert"},"validation":{"statusCode":201}},
     {"path":"/api/movies/zz1272878","verb":"POST","perfTarget":{"category":"Upsert"},"validation":{"statusCode":200}},
