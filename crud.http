@@ -1,0 +1,11 @@
+POST http://localhost:8080/api/movies/zz1272878 HTTP/1.1
+
+###
+
+http://localhost:8080/api/movies/zz1272878
+
+###
+
+DELETE http://localhost:8080/api/movies/zz1272878 HTTP/1.1
+
+###
