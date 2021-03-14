@@ -20,7 +20,7 @@ instances:
               - benchmark.json
               - --prometheus
               - -l
-              - "10"
+              - "100"
   "02":
     build:
       artifact: load-test
@@ -54,6 +54,10 @@ deploy:
     values:
       container:
         image: strati-ms-ngsa/lr/loderunner
+      max:
+        cpu: 2
+      min:
+        cpu: 1
       readinessProbe:
         path: "/version"
       livenessProbe:
