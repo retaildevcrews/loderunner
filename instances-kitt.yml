@@ -55,6 +55,6 @@ deploy:
       container:
         image: strati-ms-ngsa/lr/loderunner
       readinessProbe:
-        enabled: "false" 
+        path: "/version"
       livenessProbe:
-        enabled: "false"
+        path: "/version"
