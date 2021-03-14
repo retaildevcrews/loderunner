@@ -94,8 +94,8 @@ namespace Ngsa.LodeRunner
                 if (config.Prometheus && requestSummary == null)
                 {
                     requestSummary = Metrics.CreateSummary(
-                        "NgsaAppSummary",
-                        "Summary of NGSA App request duration",
+                        "LodeRunnerSummary",
+                        "Summary of LodeRunner request duration",
                         new SummaryConfiguration
                         {
                             SuppressInitialValue = true,
