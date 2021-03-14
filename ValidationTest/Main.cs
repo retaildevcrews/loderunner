@@ -31,6 +31,7 @@ namespace Ngsa.LodeRunner
         };
 
         private static Histogram requestDuration = null;
+        private static Summary requestSummary = null;
         private static List<Request> requestList;
 
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
@@ -78,7 +79,7 @@ namespace Ngsa.LodeRunner
                     new HistogramConfiguration
                     {
                         Buckets = Histogram.ExponentialBuckets(1, 2, 10),
-                        LabelNames = new string[] { "code", "category", "mode", "server", "failed", "zone", "region" },
+                        LabelNames = new string[] { "code", "mode", "server", "failed", "zone", "region" },
                     });
                 }
 
@@ -86,50 +87,26 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        public static string GetMode(PerfLog perfLog, out string category)
+        public Summary RequestSummary
         {
-            category = string.IsNullOrEmpty(perfLog.Category) ? string.Empty : perfLog.Category;
+            get
+            {
+                if (config.Prometheus && requestSummary == null)
+                {
+                    requestSummary = Metrics.CreateSummary(
+                        "NgsaAppSummary",
+                        "Summary of NGSA App request duration",
+                        new SummaryConfiguration
+                        {
+                            SuppressInitialValue = true,
+                            MaxAge = TimeSpan.FromMinutes(5),
+                            Objectives = new List<QuantileEpsilonPair> { new QuantileEpsilonPair(.9, .0), new QuantileEpsilonPair(.95, .0), new QuantileEpsilonPair(.99, .0), new QuantileEpsilonPair(1.0, .0) },
+                            LabelNames = new string[] { "code", "mode", "server", "failed", "zone", "region" },
+                        });
+                }
 
-            string mode = category;
-            string path = perfLog.Path.ToLower();
-
-            if (mode.StartsWith("Genre") ||
-                mode.StartsWith("Rating") ||
-                mode.StartsWith("Year"))
-            {
-                category = "Movies";
-                mode = "Query";
+                return requestSummary;
             }
-            else if (perfLog.Path.Contains("movies"))
-            {
-                category = "Movies";
-            }
-            else if (path.Contains("featured"))
-            {
-                category = "Movies";
-            }
-            else if (path.Contains("actors"))
-            {
-                category = "Actors";
-            }
-            else if (path.Contains("genres"))
-            {
-                category = "Genres";
-                mode = "Query";
-            }
-            else if (path.Contains("healthz"))
-            {
-                category = "Healthz";
-                mode = "Healthz";
-            }
-
-            if (mode.ToLowerInvariant().StartsWith("search") ||
-                mode.ToLowerInvariant().StartsWith("paged"))
-            {
-                mode = "Query";
-            }
-
-            return mode;
         }
 
         /// <summary>
@@ -146,7 +123,7 @@ namespace Ngsa.LodeRunner
                 return -1;
             }
 
-            DisplayStartupMessage(config);
+            //DisplayStartupMessage(config);
 
             int duration;
             PerfLog pl;
@@ -445,9 +422,11 @@ namespace Ngsa.LodeRunner
             if (config.Prometheus)
             {
                 // map category and mode to app values
-                string mode = GetMode(perfLog, out string category);
+                string mode = GetMode(perfLog);
+                string status = GetPrometheusCode(perfLog.StatusCode);
 
-                RequestDuration.WithLabels(perfLog.StatusCode.ToString(), category, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+                RequestDuration.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+                RequestSummary.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
             }
 
             return perfLog;
@@ -511,6 +490,48 @@ namespace Ngsa.LodeRunner
             }
 
             return log;
+        }
+
+        private static string GetMode(PerfLog perfLog)
+        {
+            string mode = string.IsNullOrEmpty(perfLog.Category) ? string.Empty : perfLog.Category;
+            string path = perfLog.Path.ToLower();
+
+            if (path.Contains("healthz"))
+            {
+                mode = "Healthz";
+            }
+            else if (mode.StartsWith("Genre") ||
+                mode.StartsWith("Rating") ||
+                mode.StartsWith("Year") ||
+                path.Contains("genres") ||
+                mode.ToLowerInvariant().StartsWith("search") ||
+                mode.ToLowerInvariant().StartsWith("paged"))
+            {
+                mode = "Query";
+            }
+
+            return mode == "DirectRead" ? "Direct" : mode;
+        }
+
+        private static string GetPrometheusCode(int statusCode)
+        {
+            if (statusCode >= 500)
+            {
+                return "Error";
+            }
+            else if (statusCode == 429)
+            {
+                return "Retry";
+            }
+            else if (statusCode >= 400)
+            {
+                return "Warn";
+            }
+            else
+            {
+                return "OK";
+            }
         }
 
         /// <summary>
@@ -643,6 +664,8 @@ namespace Ngsa.LodeRunner
 
                     logDict.Add("ErrorDetails", errors.Trim());
                 }
+
+                //Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
 
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
