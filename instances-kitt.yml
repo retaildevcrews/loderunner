@@ -56,8 +56,10 @@ deploy:
         image: strati-ms-ngsa/lr/loderunner
       max:
         cpu: 2
+        memory: 2Gi
       min:
         cpu: 1
+        memory: 1Gi
       readinessProbe:
         path: "/version"
       livenessProbe:
