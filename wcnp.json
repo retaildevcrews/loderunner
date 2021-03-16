@@ -1,0 +1,8 @@
+{
+  "requests":
+  [
+    {"path":"/api/movies/tt0473188","perfTarget":{"category":"DirectRead"}},
+    {"path":"/api/movies/tt0473188","perfTarget":{"category":"DirectRead"}},
+    {"path":"/api/movies?genre=Animation","perfTarget":{"category":"Genre100"},"validation":{"jsonArray":{"count":49}}}
+  ]
+}
