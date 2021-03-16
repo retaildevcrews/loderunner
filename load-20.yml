@@ -12,7 +12,6 @@ spec:
       - http://ngsa-in-memory.ms-ngsa.svc.cluster.local:8080
       - -r 
       - -f 
-      - baseline.json
       - benchmark.json
       - -l
       - "50"
