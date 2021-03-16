@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: load-20
+  name: load-100
 spec:
   containers:
-  - name: load-20
+  - name: load-100
     image: docker.prod.walmart.com/strati-ms-ngsa/lr/loderunner
     args:
       - -s
@@ -12,9 +12,9 @@ spec:
       - http://ngsa-in-memory.ms-ngsa.svc.cluster.local:8080
       - -r 
       - -f 
-      - benchmark.json
+      - wcnp.json
       - -l
-      - "50"
+      - "10"
     resources:
       limits:
         memory: 512Mi
