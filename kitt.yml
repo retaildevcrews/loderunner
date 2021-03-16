@@ -32,11 +32,11 @@ deploy:
             - LodeRunnerSummary_count
             - LodeRunnerSummary_sum
   stages:
-    - name: dev
+    - name: azure
       refs: [master]
       target:
         - cluster_id: [eus2-dev-a2]
-    - name: dev-gke
+    - name: gke
       refs: [master]
       target:
         - cluster_id: [useast4-dev-gke01]
