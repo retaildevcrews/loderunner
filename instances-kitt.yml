@@ -20,7 +20,7 @@ instances:
               - wcnp.json
               - --prometheus
               - -l
-              - "100"
+              - "10"
   "02":
     build:
       artifact: load-test
@@ -41,7 +41,7 @@ instances:
               - -f 
               - wcnp.json
               - -l
-              - "100"
+              - "10"
           metrics:
             enabled: false
 
