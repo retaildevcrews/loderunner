@@ -1,0 +1,65 @@
+instances:
+  "01":
+    build:
+      artifact: lr
+      skip: true
+    deploy:
+      skip: false
+      helm:
+        values:
+          scaling:
+            min: 1
+            max: 1
+          container:
+            args: 
+              - -s 
+              - http://ngsa-cosmos.ms-ngsa.svc.cluster.local:8080
+              - http://ngsa-in-memory.ms-ngsa.svc.cluster.local:8080
+              - -r 
+              - -f 
+              - wcnp.json
+              - --prometheus
+              - -l
+              - "10"
+  "02":
+    build:
+      artifact: load-test
+      skip: true
+    deploy:
+      skip: false
+      helm:
+        values:
+          scaling:
+            min: 0
+            enabled: false
+          container:
+            args: 
+              - -s 
+              - http://ngsa-cosmos.ms-ngsa.svc.cluster.local:8080
+              - http://ngsa-in-memory.ms-ngsa.svc.cluster.local:8080
+              - -r 
+              - -f 
+              - wcnp.json
+              - -l
+              - "10"
+          metrics:
+            enabled: false
+
+build:
+  artifact: loderunner
+deploy:
+  skip: true
+  helm:
+    values:
+      container:
+        image: strati-ms-ngsa/lr/loderunner
+      max:
+        cpu: 2
+        memory: 2Gi
+      min:
+        cpu: 1
+        memory: 1Gi
+      readinessProbe:
+        path: "/version"
+      livenessProbe:
+        path: "/version"
