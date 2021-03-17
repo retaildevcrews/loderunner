@@ -1,5 +1,5 @@
 ### build the app
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS test
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
 
 # Copy the source
 COPY . /src
@@ -23,7 +23,7 @@ RUN addgroup -S ngsa && \
     chown -R ngsa:ngsa /home/ngsa
 
 WORKDIR /app
-COPY --from=test /app .
+COPY --from=build /app .
 RUN mkdir -p /app/TestFiles && \
     cp *.json TestFiles && \
     cp perfTargets.txt TestFiles && \

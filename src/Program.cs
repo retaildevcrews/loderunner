@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -41,43 +40,17 @@ namespace Ngsa.LodeRunner
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
+            if (args != null)
+            {
+                DisplayAsciiArt(args);
+            }
+
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
             root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
 
-            if (args == null)
-            {
-                args = Array.Empty<string>();
-            }
-
-            if (!args.Contains("--version") &&
-                (args.Contains("-h") ||
-                args.Contains("--help") ||
-                args.Contains("-d") ||
-                args.Contains("--dry-run")))
-            {
-                const string file = "Core/ascii-art.txt";
-
-                try
-                {
-                    if (File.Exists(file))
-                    {
-                        string txt = File.ReadAllText(file);
-
-                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                        Console.WriteLine(txt);
-                        Console.ResetColor();
-                    }
-                }
-                catch
-                {
-                    // ignore any errors
-                }
-            }
-
-            List<string> argList = args == null ? new List<string>() : new List<string>(args);
-
-            return await root.InvokeAsync(argList.ToArray()).ConfigureAwait(false);
+            // run the command handler
+            return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -164,6 +137,35 @@ namespace Ngsa.LodeRunner
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
+        }
+
+        // ascii art
+        private static void DisplayAsciiArt(string[] args)
+        {
+            if (!args.Contains("--version") &&
+                (args.Contains("-h") ||
+                args.Contains("--help") ||
+                args.Contains("-d") ||
+                args.Contains("--dry-run")))
+            {
+                const string file = "src/Core/ascii-art.txt";
+
+                try
+                {
+                    if (File.Exists(file))
+                    {
+                        string txt = File.ReadAllText(file);
+
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Console.WriteLine(txt);
+                        Console.ResetColor();
+                    }
+                }
+                catch
+                {
+                    // ignore any errors
+                }
+            }
         }
 
         // build the web host

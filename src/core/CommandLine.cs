@@ -24,7 +24,7 @@ namespace Ngsa.LodeRunner
         {
             RootCommand root = new RootCommand
             {
-                Name = "loderunner",
+                Name = "LodeRunner",
                 Description = "Validate API responses",
                 TreatUnmatchedTokensAsErrors = true,
             };
@@ -124,7 +124,7 @@ namespace Ngsa.LodeRunner
         // Display the ASCII art file if it exists
         private static void DisplayAsciiArt()
         {
-            const string file = "core/ascii-art.txt";
+            const string file = "src/core/ascii-art.txt";
 
             if (File.Exists(file))
             {
