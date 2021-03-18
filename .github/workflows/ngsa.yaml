@@ -12,7 +12,7 @@ on:
     paths:
     - 'Dockerfile'
     - '*.csproj'
-    - '*.cs'
+    - '**.cs'
     - '.github/workflows/ngsa.yaml'
 
 jobs:
