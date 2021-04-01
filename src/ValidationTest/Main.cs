@@ -67,6 +67,9 @@ namespace Ngsa.LodeRunner
         /// </summary>
         public static string Now => DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 
+        /// <summary>
+        /// Gets Prometheus Request Duration
+        /// </summary>
         public Histogram RequestDuration
         {
             get
@@ -87,6 +90,9 @@ namespace Ngsa.LodeRunner
             }
         }
 
+        /// <summary>
+        /// Gets Prometheus Request Summary
+        /// </summary>
         public Summary RequestSummary
         {
             get
@@ -492,6 +498,7 @@ namespace Ngsa.LodeRunner
             return log;
         }
 
+        // get request "mode" for logging
         private static string GetMode(PerfLog perfLog)
         {
             string mode = string.IsNullOrEmpty(perfLog.Category) ? string.Empty : perfLog.Category;
@@ -514,6 +521,7 @@ namespace Ngsa.LodeRunner
             return mode == "DirectRead" ? "Direct" : mode;
         }
 
+        // simplify StatusCode for metrics
         private static string GetPrometheusCode(int statusCode)
         {
             if (statusCode >= 500)
@@ -534,9 +542,7 @@ namespace Ngsa.LodeRunner
             }
         }
 
-        /// <summary>
-        /// Display the startup message for RunLoop
-        /// </summary>
+        // Display the startup message for RunLoop
         private static void DisplayStartupMessage(Config config)
         {
             Dictionary<string, object> msg = new Dictionary<string, object>
@@ -560,10 +566,7 @@ namespace Ngsa.LodeRunner
             Console.WriteLine(JsonSerializer.Serialize(msg));
         }
 
-        /// <summary>
-        /// Open an http client
-        /// </summary>
-        /// <param name="index">index of base URL</param>
+        // Open an http client
         private HttpClient OpenClient(int index)
         {
             if (index < 0 || index >= config.Server.Count)
@@ -574,12 +577,8 @@ namespace Ngsa.LodeRunner
             return OpenHttpClient(config.Server[index]);
         }
 
-        /// <summary>
-        /// Opens and configures the shared HttpClient
-        ///
-        /// Disposed in IDispose
-        /// </summary>
-        /// <returns>HttpClient</returns>
+        // Opens and configures the shared HttpClient
+        // Disposed in IDispose
         private HttpClient OpenHttpClient(string host)
         {
             HttpClient client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
@@ -592,11 +591,7 @@ namespace Ngsa.LodeRunner
             return client;
         }
 
-        /// <summary>
-        /// Log the test
-        /// </summary>
-        /// <param name="request">Request</param>
-        /// <param name="perfLog">PerfLog</param>
+        // Log the test results
         private void LogToConsole(Request request, ValidationResult valid, PerfLog perfLog)
         {
             if (request == null)
