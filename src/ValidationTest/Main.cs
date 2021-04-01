@@ -35,7 +35,7 @@ namespace Ngsa.LodeRunner
         private static List<Request> requestList;
 
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
-        private Config config;
+        private readonly Config config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class
@@ -128,8 +128,6 @@ namespace Ngsa.LodeRunner
                 Console.WriteLine("RunOnce:Config is null");
                 return -1;
             }
-
-            //DisplayStartupMessage(config);
 
             int duration;
             PerfLog pl;
@@ -237,7 +235,10 @@ namespace Ngsa.LodeRunner
         /// <returns>0 on success</returns>
         public int RunLoop(Config config, CancellationToken token)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
 
             if (token == null)
             {

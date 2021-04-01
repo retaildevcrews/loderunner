@@ -80,12 +80,9 @@ namespace Ngsa.LodeRunner.Validators
             result.Add(Validate(r.Validation, body));
 
             // check FailOnValidationError
-            if (r.FailOnValidationError)
+            if (r.FailOnValidationError && result.ValidationErrors.Count > 0)
             {
-                if (result.ValidationErrors.Count > 0)
-                {
-                    result.Failed = true;
-                }
+                result.Failed = true;
             }
 
             return result;
@@ -113,7 +110,6 @@ namespace Ngsa.LodeRunner.Validators
                 result.Add(ValidateNotContains(v.NotContains, body));
                 result.Add(ValidateExactMatch(v.ExactMatch, body));
                 result.Add(Validate(v.JsonObject, body));
-
                 result.Add(Validate(v.JsonArray, body));
             }
 
@@ -230,7 +226,6 @@ namespace Ngsa.LodeRunner.Validators
                 result.Add(ValidateJsonArrayLength(jArray, resList));
                 result.Add(ValidateForEach(jArray.ForEach, resList));
                 result.Add(ValidateForAny(jArray.ForAny, resList));
-
                 result.Add(ValidateByIndex(jArray.ByIndex, resList));
             }
             catch (SerializationException se)
