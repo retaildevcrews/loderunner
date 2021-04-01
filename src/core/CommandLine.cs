@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.IO;
 using System.Linq;
 using Ngsa.Middleware.CommandLine;
 
@@ -83,12 +82,10 @@ namespace Ngsa.LodeRunner
         // handle --dry-run
         private static int DoDryRun(Config config)
         {
-            DisplayAsciiArt();
-
             // display the config
             Console.WriteLine("dry run");
-            Console.WriteLine($"   Server          {config.Server}");
-            Console.WriteLine($"   Files (count)   {config.Files.Count}");
+            Console.WriteLine($"   Server          {string.Join(' ', config.Server)}");
+            Console.WriteLine($"   Files           {string.Join(' ', config.Files)}");
 
             if (!string.IsNullOrWhiteSpace(config.Zone))
             {
@@ -119,17 +116,6 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   Verbose         {config.Verbose}");
 
             return 0;
-        }
-
-        // Display the ASCII art file if it exists
-        private static void DisplayAsciiArt()
-        {
-            const string file = "src/core/ascii-art.txt";
-
-            if (File.Exists(file))
-            {
-                Console.WriteLine(File.ReadAllText(file));
-            }
         }
     }
 }
