@@ -42,7 +42,7 @@ namespace Ngsa.LodeRunner
             root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
             root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
             root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
+            //root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
             root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
@@ -58,25 +58,34 @@ namespace Ngsa.LodeRunner
         // validate --duration and --random based on --run-loop
         private static string ValidateRunLoopDependencies(CommandResult result)
         {
+            string errors = string.Empty;
+
             OptionResult runLoopRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") as OptionResult;
             OptionResult durationRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "duration") as OptionResult;
             OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
+            OptionResult promRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "prometheus") as OptionResult;
 
             bool runLoop = runLoopRes.GetValueOrDefault<bool>();
             int? duration = durationRes.GetValueOrDefault<int?>();
             bool random = randomRes.GetValueOrDefault<bool>();
+            bool prometheus = promRes.GetValueOrDefault<bool>();
 
             if (duration != null && duration > 0 && !runLoop)
             {
-                return "--run-loop must be true to use --duration";
+                errors += "--run-loop must be true to use --duration\n";
             }
 
             if (random && !runLoop)
             {
-                return "--run-loop must be true to use --random";
+                errors += "--run-loop must be true to use --random\n";
             }
 
-            return string.Empty;
+            if (prometheus && !runLoop)
+            {
+                errors += "--run-loop must be true to use --prometheus\n";
+            }
+
+            return errors;
         }
 
         // handle --dry-run
