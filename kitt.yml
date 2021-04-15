@@ -23,7 +23,7 @@ deploy:
           endpoints:
           - targetPort: 8080
             path: "/metrics"
-          remoteWriteSampleLimit: 150
+          remoteWriteSampleLimit: 100
           whitelist:
             - LodeRunnerDuration_bucket
             - LodeRunnerDuration_count
@@ -43,4 +43,4 @@ deploy:
 
 notify:
   slack:
-    channelName: "ms-ngsa"
+    channelName: "ms-ngsa-alerts"
