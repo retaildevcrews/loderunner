@@ -45,6 +45,15 @@ namespace Ngsa.LodeRunner
                 DisplayAsciiArt(args);
             }
 
+            // display version info
+            if (args != null && args.Length > 0 && args.Contains("--version"))
+            {
+                Console.WriteLine(Version.AssemblyVersion);
+                return 0;
+            }
+
+
+
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
             root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
