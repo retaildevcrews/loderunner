@@ -460,7 +460,7 @@ namespace Ngsa.LodeRunner
             PerfLog log = new PerfLog(validationResult.ValidationErrors)
             {
                 Server = server,
-                Tag = config.Tag,
+                Tag = string.IsNullOrWhiteSpace(request.Tag) ? config.Tag : request.Tag,
                 Path = request?.Path ?? string.Empty,
                 StatusCode = statusCode,
                 Category = request?.PerfTarget?.Category ?? string.Empty,
@@ -536,6 +536,10 @@ namespace Ngsa.LodeRunner
             else if (statusCode >= 400)
             {
                 return "Warn";
+            }
+            else if (statusCode >= 300)
+            {
+                return "Redirect";
             }
             else
             {

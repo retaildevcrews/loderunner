@@ -47,6 +47,11 @@ namespace Ngsa.LodeRunner.Model
         public PerfTarget PerfTarget { get; set; }
 
         /// <summary>
+        /// Gets or sets the request meta data
+        /// </summary>
+        public string Tag { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the request validation object
         /// </summary>
         public Validation Validation { get; set; }
