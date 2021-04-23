@@ -26,12 +26,6 @@ namespace Ngsa.LodeRunner
         private static Summary requestSummary = null;
         private static List<Request> requestList;
 
-        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            IgnoreNullValues = true,
-        };
-
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
         private readonly Config config;
 
@@ -40,7 +34,7 @@ namespace Ngsa.LodeRunner
         /// </summary>
         /// <param name="config">Config</param>
         /// <param name="options">json serializer options</param>
-        public ValidationTest(Config config, JsonSerializerOptions options)
+        public ValidationTest(Config config)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
@@ -48,11 +42,6 @@ namespace Ngsa.LodeRunner
             }
 
             this.config = config;
-
-            if (options != null)
-            {
-                jsonOptions = options;
-            }
 
             // load the performance targets
             targets = LoadPerfTargets();
@@ -554,25 +543,28 @@ namespace Ngsa.LodeRunner
         // Display the startup message for RunLoop
         private static void DisplayStartupMessage(Config config)
         {
-            Dictionary<string, object> msg = new Dictionary<string, object>
+            if (config.LogFormat == LogFormat.Json || config.LogFormat == LogFormat.JsonPascal)
             {
-                { "Date", DateTime.UtcNow },
-                { "EventType", "Startup" },
-                { "Version", Version.AssemblyVersion },
-                { "Host", string.Join(' ', config.Server) },
-                { "BaseUrl", config.BaseUrl },
-                { "Files", string.Join(' ', config.Files) },
-                { "Sleep", config.Sleep },
-                { "MaxConcurrent", config.MaxConcurrent },
-                { "Duration", config.Duration },
-                { "Random", config.Random },
-                { "Verbose", config.Verbose },
-                { "Tag", config.Tag },
-                { "Zone", config.Zone },
-                { "Region", config.Region },
-            };
+                Dictionary<string, object> msg = new Dictionary<string, object>
+                {
+                    { "Date", DateTime.UtcNow },
+                    { "EventType", "Startup" },
+                    { "Version", Version.AssemblyVersion },
+                    { "Host", string.Join(' ', config.Server) },
+                    { "BaseUrl", config.BaseUrl },
+                    { "Files", string.Join(' ', config.Files) },
+                    { "Sleep", config.Sleep },
+                    { "MaxConcurrent", config.MaxConcurrent },
+                    { "Duration", config.Duration },
+                    { "Random", config.Random },
+                    { "Verbose", config.Verbose },
+                    { "Tag", config.Tag },
+                    { "Zone", config.Zone },
+                    { "Region", config.Region },
+                };
 
-            Console.WriteLine(JsonSerializer.Serialize(msg, jsonOptions));
+                Console.WriteLine(JsonSerializer.Serialize(msg, config.JsonOptions));
+            }
         }
 
         // Open an http client
@@ -621,7 +613,11 @@ namespace Ngsa.LodeRunner
             // don't log ignore requests
             if (request.PerfTarget?.Category != "Ignore")
             {
-                Dictionary<string, object> logDict = new Dictionary<string, object>
+                Dictionary<string, object> logDict = null;
+
+                if (config.LogFormat == LogFormat.Json || config.LogFormat == LogFormat.JsonPascal)
+                {
+                    logDict = new Dictionary<string, object>
                 {
                     { "Date", perfLog.Date },
                     { "Server", perfLog.Server },
@@ -637,41 +633,87 @@ namespace Ngsa.LodeRunner
                     { "Category", perfLog.Category },
                 };
 
-                // add zone, region tag
-                if (!string.IsNullOrWhiteSpace(config.Zone))
-                {
-                    logDict.Add("Zone", config.Zone);
-                }
-
-                if (!string.IsNullOrWhiteSpace(config.Region))
-                {
-                    logDict.Add("Region", config.Region);
-                }
-
-                if (!string.IsNullOrWhiteSpace(config.Tag))
-                {
-                    logDict.Add("Tag", config.Tag);
-                }
-
-                // log error details
-                if (config.VerboseErrors && valid.ValidationErrors.Count > 0)
-                {
-                    string errors = string.Empty;
-
-                    // add up to 5 detailed errors
-                    int max = valid.ValidationErrors.Count > 5 ? 5 : valid.ValidationErrors.Count;
-
-                    for (int i = 0; i < max; i++)
+                    // add zone, region tag
+                    if (!string.IsNullOrWhiteSpace(config.Zone))
                     {
-                        errors += valid.ValidationErrors[i].Trim() + "\t";
+                        logDict.Add("Zone", config.Zone);
                     }
 
-                    logDict.Add("ErrorDetails", errors.Trim());
+                    if (!string.IsNullOrWhiteSpace(config.Region))
+                    {
+                        logDict.Add("Region", config.Region);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(config.Tag))
+                    {
+                        logDict.Add("Tag", config.Tag);
+                    }
+
+                    // log error details
+                    if (config.VerboseErrors && valid.ValidationErrors.Count > 0)
+                    {
+                        string errors = string.Empty;
+
+                        // add up to 5 detailed errors
+                        int max = valid.ValidationErrors.Count > 5 ? 5 : valid.ValidationErrors.Count;
+
+                        for (int i = 0; i < max; i++)
+                        {
+                            errors += valid.ValidationErrors[i].Trim() + "\t";
+                        }
+
+                        logDict.Add("ErrorDetails", errors.Trim());
+                    }
                 }
 
-                //Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
+                switch (config.LogFormat)
+                {
+                    case LogFormat.JsonPascal:
+                    case LogFormat.Json:
+                        Console.WriteLine(JsonSerializer.Serialize(logDict, config.JsonOptions));
+                        break;
+                    case LogFormat.Tsv:
+                        if (!config.RunLoop || config.Verbose || perfLog.StatusCode > 399 || valid.Failed || valid.ValidationErrors.Count > 0)
+                        {
+                            // log tab delimited
+                            string log = $"{perfLog.Date.ToString("o", CultureInfo.InvariantCulture)}\t{perfLog.Server}\t{perfLog.StatusCode}\t{valid.ValidationErrors.Count}\t{perfLog.Duration}\t{perfLog.ContentLength}\t{perfLog.CorrelationVector}\t";
 
-                Console.WriteLine(JsonSerializer.Serialize(logDict, jsonOptions));
+                            // log tag if set
+                            if (string.IsNullOrEmpty(perfLog.Tag))
+                            {
+                                perfLog.Tag = "-";
+                            }
+
+                            // default quartile to -
+                            string quartile = "-";
+
+                            if (string.IsNullOrEmpty(perfLog.Category))
+                            {
+                                perfLog.Category = "-";
+                            }
+
+                            if (perfLog.Quartile != null && perfLog.Quartile > 0 && perfLog.Quartile <= 4)
+                            {
+                                quartile = perfLog.Quartile.ToString();
+                            }
+
+                            log += $"{perfLog.Tag}\t{quartile}\t{perfLog.Category}\t{request.Verb}\t{perfLog.Path}";
+
+                            // log error details
+                            if (config.VerboseErrors && valid.ValidationErrors.Count > 0)
+                            {
+                                log += "\n  " + string.Join("\n  ", perfLog.Errors);
+                            }
+
+                            Console.WriteLine(log);
+                        }
+
+                        break;
+                    case LogFormat.None:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

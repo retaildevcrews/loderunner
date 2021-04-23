@@ -21,13 +21,9 @@ namespace Ngsa.LodeRunner
     public sealed partial class App
     {
         /// <summary>
-        /// Gets or sets json serialization options
+        /// Gets or sets the app config
         /// </summary>
-        public static JsonSerializerOptions JsonOptions { get; set; } = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            IgnoreNullValues = true,
-        };
+        public static Config Config { get; set; } = new Config();
 
         /// <summary>
         /// Gets cancellation token
@@ -84,13 +80,13 @@ namespace Ngsa.LodeRunner
             // set json format options
             if (config.LogFormat == LogFormat.Json)
             {
-                JsonOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                config.JsonOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             }
 
             // create the test
             try
             {
-                ValidationTest lrt = new ValidationTest(config, JsonOptions);
+                ValidationTest lrt = new ValidationTest(config);
 
                 if (config.DelayStart > 0)
                 {

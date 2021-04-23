@@ -13,14 +13,14 @@ namespace Ngsa.LodeRunner
     public class Config
     {
         /// <summary>
-        /// gets or sets the server / url
+        /// gets the server / url
         /// </summary>
-        public List<string> Server { get; set; }
+        public List<string> Server { get; } = new List<string>();
 
         /// <summary>
-        /// gets or sets the list of files to read
+        /// gets the list of files to read
         /// </summary>
-        public List<string> Files { get; set; } = new List<string>();
+        public List<string> Files { get; } = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether to the use Prometheus flag
@@ -110,7 +110,7 @@ namespace Ngsa.LodeRunner
         /// <summary>
         /// gets or sets output log format
         /// </summary>
-        public LogFormat LogFormat { get; set; } = LogFormat.Json;
+        public LogFormat LogFormat { get; set; }
 
         /// <summary>
         /// gets or sets the prefix to add to partial URLs
@@ -126,6 +126,15 @@ namespace Ngsa.LodeRunner
         /// gets or sets a value indicating whether to display a test summary
         /// </summary>
         public bool XmlSummary { get; set; }
+
+        /// <summary>
+        /// gets the json serializer options
+        /// </summary>
+        public JsonSerializerOptions JsonOptions { get; } = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
+        };
 
         /// <summary>
         /// Set the default config values
@@ -162,13 +171,12 @@ namespace Ngsa.LodeRunner
             }
 
             // set json options based on --strict-json
-            App.JsonOptions = new JsonSerializerOptions
+            if (StrictJson)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = !StrictJson,
-                AllowTrailingCommas = !StrictJson,
-                ReadCommentHandling = StrictJson ? JsonCommentHandling.Disallow : JsonCommentHandling.Skip,
-            };
+                JsonOptions.PropertyNameCaseInsensitive = false;
+                JsonOptions.AllowTrailingCommas = false;
+                JsonOptions.ReadCommentHandling = JsonCommentHandling.Disallow;
+            }
 
             Zone = string.IsNullOrWhiteSpace(Zone) ? string.Empty : Zone;
             Region = string.IsNullOrWhiteSpace(Region) ? string.Empty : Region;

@@ -141,7 +141,7 @@ namespace Ngsa.LodeRunner.Validators
             try
             {
                 // deserialize the json into an IDictionary
-                IDictionary<string, object> dict = JsonSerializer.Deserialize<ExpandoObject>(body, App.JsonOptions);
+                IDictionary<string, object> dict = JsonSerializer.Deserialize<ExpandoObject>(body, App.Config.JsonOptions);
 
                 // set to new so validation fails
                 if (dict == null)
@@ -221,7 +221,7 @@ namespace Ngsa.LodeRunner.Validators
             try
             {
                 // deserialize the json
-                List<dynamic> resList = JsonSerializer.Deserialize<List<dynamic>>(body, App.JsonOptions);
+                List<dynamic> resList = JsonSerializer.Deserialize<List<dynamic>>(body, App.Config.JsonOptions);
 
                 result.Add(ValidateJsonArrayLength(jArray, resList));
                 result.Add(ValidateForEach(jArray.ForEach, resList));
@@ -440,7 +440,7 @@ namespace Ngsa.LodeRunner.Validators
                     foreach (Validation fe in validationList)
                     {
                         // call validate recursively
-                        result.Add(Validate(fe, JsonSerializer.Serialize(doc, App.JsonOptions)));
+                        result.Add(Validate(fe, JsonSerializer.Serialize(doc, App.Config.JsonOptions)));
                     }
                 }
             }
@@ -471,7 +471,7 @@ namespace Ngsa.LodeRunner.Validators
                     foreach (dynamic doc in documentList)
                     {
                         // call validate recursively
-                        vr = Validate(fa, JsonSerializer.Serialize(doc, App.JsonOptions));
+                        vr = Validate(fa, JsonSerializer.Serialize(doc, App.Config.JsonOptions));
 
                         // value was found
                         if (!vr.Failed && vr.ValidationErrors.Count == 0)
@@ -546,12 +546,12 @@ namespace Ngsa.LodeRunner.Validators
                         if (property.Field == null)
                         {
                             // set the body to entire doc
-                            fieldBody = JsonSerializer.Serialize(element, App.JsonOptions);
+                            fieldBody = JsonSerializer.Serialize(element, App.Config.JsonOptions);
                         }
                         else
                         {
                             // set the body to the field
-                            fieldBody = JsonSerializer.Serialize(element.GetProperty(property.Field), App.JsonOptions);
+                            fieldBody = JsonSerializer.Serialize(element.GetProperty(property.Field), App.Config.JsonOptions);
                         }
 
                         // validate recursively
