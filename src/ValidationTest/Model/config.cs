@@ -43,7 +43,7 @@ namespace Ngsa.LodeRunner
         public string Tag { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should run in a loop
+        /// Gets or sets a value indicating whether to run in a loop
         /// </summary>
         public bool RunLoop { get; set; }
 
@@ -58,7 +58,7 @@ namespace Ngsa.LodeRunner
         public int Duration { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should use random tests vs. sequential
+        /// Gets or sets a value indicating whether to use random tests vs. sequential
         /// </summary>
         public bool Random { get; set; }
 
@@ -83,7 +83,7 @@ namespace Ngsa.LodeRunner
         public int MaxErrors { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should do a dry run
+        /// Gets or sets a value indicating whether to do a dry run
         /// </summary>
         public bool DryRun { get; set; }
 
@@ -98,7 +98,7 @@ namespace Ngsa.LodeRunner
         public int SummaryMinutes { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should display verbose errors or just the count
+        /// Gets or sets a value indicating whether to display verbose errors or just the count
         /// </summary>
         public bool VerboseErrors { get; set; }
 
@@ -108,9 +108,29 @@ namespace Ngsa.LodeRunner
         public int DelayStart { get; set; }
 
         /// <summary>
-        /// gets or sets a value indicating whether we should use strict json parsing
+        /// gets or sets a value indicating whether to use strict json parsing
         /// </summary>
         public bool StrictJson { get; set; }
+
+        /// <summary>
+        /// gets or sets output log format
+        /// </summary>
+        public LogFormat LogFormat { get; set; } = LogFormat.Json;
+
+        /// <summary>
+        /// gets or sets the prefix to add to partial URLs
+        /// </summary>
+        public string WebvPrefix { get; set; }
+
+        /// <summary>
+        /// gets or sets the suffix to add to partial URLs
+        /// </summary>
+        public string WebvSuffix { get; set; }
+
+        /// <summary>
+        /// gets or sets a value indicating whether to display a test summary
+        /// </summary>
+        public bool XmlSummary { get; set; }
 
         /// <summary>
         /// Set the default config values

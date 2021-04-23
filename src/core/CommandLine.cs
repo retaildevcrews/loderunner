@@ -10,6 +10,11 @@ using Ngsa.Middleware.CommandLine;
 
 namespace Ngsa.LodeRunner
 {
+    public enum LogFormat
+    {
+        Json, Tsv, None
+    }
+
     /// <summary>
     /// Main application class
     /// </summary>
@@ -28,26 +33,30 @@ namespace Ngsa.LodeRunner
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            root.AddOption(new Option<List<string>>(new string[] { "-s", "--server" }, Parsers.ParseStringList, true, "Server(s) to test"));
-            root.AddOption(new Option<List<string>>(new string[] { "-f", "--files" }, Parsers.ParseStringList, true, "List of files to test"));
-            root.AddOption(new Option<string>(new string[] { "--zone" }, Parsers.ParseString, true, "Zone for logging"));
-            root.AddOption(new Option<string>(new string[] { "--region" }, Parsers.ParseString, true, "Region for logging"));
-            root.AddOption(new Option<bool>(new string[] { "-p", "--prometheus" }, Parsers.ParseBool, true, "Send metrics to Prometheus"));
-            root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
-            root.AddOption(new Option<int>(new string[] { "-l", "--sleep" }, Parsers.ParseIntGTZero, true, "Sleep (ms) between each request"));
-            root.AddOption(new Option<bool>(new string[] { "-j", "--strict-json" }, Parsers.ParseBool, true, "Use strict json when parsing"));
-            root.AddOption(new Option<string>(new string[] { "-u", "--base-url" }, Parsers.ParseString, true, "Base url for files"));
-            root.AddOption(new Option<bool>(new string[] { "-v", "--verbose" }, Parsers.ParseBool, true, "Display verbose results"));
-            root.AddOption(new Option<bool>(new string[] { "-r", "--run-loop" }, Parsers.ParseBool, true, "Run test in an infinite loop"));
-            root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
-            root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
+            root.AddOption(new Option<List<string>>(new string[] { "--server", "-s" }, Parsers.ParseStringList, true, "Server(s) to test"));
+            root.AddOption(new Option<List<string>>(new string[] { "--files", "-f" }, Parsers.ParseStringList, true, "List of files to test"));
+            root.AddOption(new Option<string>(new string[] { "--base-url", "-u" }, Parsers.ParseString, true, "Base url for files"));
+            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZero, true, "Delay test start (seconds)"));
             root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
-            //root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
+            root.AddOption(new Option<LogFormat>(new string[] { "--log-format" }, "Log Format"));
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
-            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZero, true, "Delay test start (seconds)"));
-            root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
+            root.AddOption(new Option<bool>(new string[] { "--prometheus", "-p" }, Parsers.ParseBool, true, "Send metrics to Prometheus"));
+            root.AddOption(new Option<string>(new string[] { "--region" }, Parsers.ParseString, true, "Region for logging"));
+            root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
+            root.AddOption(new Option<bool>(new string[] { "--run-loop", "-r" }, Parsers.ParseBool, true, "Run test in an infinite loop"));
+            root.AddOption(new Option<int>(new string[] { "--sleep", "-l" }, Parsers.ParseIntGTZero, true, "Sleep (ms) between each request"));
+            root.AddOption(new Option<bool>(new string[] { "--strict-json", "-j" }, Parsers.ParseBool, true, "Use strict json when parsing"));
+            root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
+            root.AddOption(new Option<int>(new string[] { "--timeout", "-t" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
+            root.AddOption(new Option<bool>(new string[] { "--verbose", "-v" }, Parsers.ParseBool, true, "Display verbose results"));
+            root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
+            root.AddOption(new Option<string>(new string[] { "--webv-prefix" }, () => "https://", "Prefix for server URLs"));
+            root.AddOption(new Option<string>(new string[] { "--webv-suffix" }, () => ".azurewebsites.net", "Suffix for server URLs"));
+            root.AddOption(new Option<bool>(new string[] { "--xml-summary", "-x" }, "Display test summary in XML format"));
+            root.AddOption(new Option<string>(new string[] { "--zone" }, Parsers.ParseString, true, "Zone for logging"));
+            root.AddOption(new Option<bool>(new string[] { "--dry-run", "-d" }, "Validates configuration"));
+            root.AddOption(new Option<bool>(new string[] { "--version" }, "Show version information"));
 
             // these require access to --run-loop so are added at the root level
             root.AddValidator(ValidateRunLoopDependencies);
@@ -96,33 +105,38 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   Server          {string.Join(' ', config.Server)}");
             Console.WriteLine($"   Files           {string.Join(' ', config.Files)}");
 
+            if (!string.IsNullOrWhiteSpace(config.Region))
+            {
+                Console.WriteLine($"   Region          {config.Region}");
+            }
+
             if (!string.IsNullOrWhiteSpace(config.Zone))
             {
                 Console.WriteLine($"   Zone            {config.Zone}");
             }
 
-            if (!string.IsNullOrWhiteSpace(config.Region))
-            {
-                Console.WriteLine($"   Region          {config.Region}");
-            }
+            Console.WriteLine($"   Delay Start     {config.DelayStart}");
+            Console.WriteLine($"   Duration        {config.Duration}");
+            Console.WriteLine($"   Log Format      {config.LogFormat}");
+            Console.WriteLine($"   Max Concurrent  {config.MaxConcurrent}");
+            Console.WriteLine($"   Max Errors      {config.MaxErrors}");
+            Console.WriteLine($"   Prometheus      {config.Prometheus}");
+            Console.WriteLine($"   Random          {config.Random}");
+            Console.WriteLine($"   Run Loop        {config.RunLoop}");
+            Console.WriteLine($"   Sleep           {config.Sleep}");
+            Console.WriteLine($"   Strict Json     {config.StrictJson}");
 
             if (!string.IsNullOrWhiteSpace(config.Tag))
             {
                 Console.WriteLine($"   Tag             {config.Tag}");
             }
 
-            Console.WriteLine($"   Run Loop        {config.RunLoop}");
-            Console.WriteLine($"   Sleep           {config.Sleep}");
-            Console.WriteLine($"   Prometheus      {config.Prometheus}");
-            Console.WriteLine($"   Verbose Errors  {config.VerboseErrors}");
-            Console.WriteLine($"   Strict Json     {config.StrictJson}");
-            Console.WriteLine($"   Duration        {config.Duration}");
-            Console.WriteLine($"   Delay Start     {config.DelayStart}");
-            Console.WriteLine($"   Max Concurrent  {config.MaxConcurrent}");
-            Console.WriteLine($"   Max Errors      {config.MaxErrors}");
-            Console.WriteLine($"   Random          {config.Random}");
             Console.WriteLine($"   Timeout         {config.Timeout}");
             Console.WriteLine($"   Verbose         {config.Verbose}");
+            Console.WriteLine($"   Verbose Errors  {config.VerboseErrors}");
+            Console.WriteLine($"   WebV Prefix     {config.WebvPrefix}");
+            Console.WriteLine($"   WebV Suffix     {config.WebvSuffix}");
+            Console.WriteLine($"   XML Summary     {config.XmlSummary}");
 
             return 0;
         }
