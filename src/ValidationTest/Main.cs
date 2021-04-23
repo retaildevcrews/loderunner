@@ -22,17 +22,15 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public partial class ValidationTest
     {
-        /// <summary>
-        /// Correlation Vector http header name
-        /// </summary>
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
-        {
-            IgnoreNullValues = true,
-        };
-
         private static Histogram requestDuration = null;
         private static Summary requestSummary = null;
         private static List<Request> requestList;
+
+        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
+        };
 
         private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
         private readonly Config config;
@@ -41,7 +39,8 @@ namespace Ngsa.LodeRunner
         /// Initializes a new instance of the <see cref="ValidationTest"/> class
         /// </summary>
         /// <param name="config">Config</param>
-        public ValidationTest(Config config)
+        /// <param name="options">json serializer options</param>
+        public ValidationTest(Config config, JsonSerializerOptions options)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
@@ -49,6 +48,11 @@ namespace Ngsa.LodeRunner
             }
 
             this.config = config;
+
+            if (options != null)
+            {
+                jsonOptions = options;
+            }
 
             // load the performance targets
             targets = LoadPerfTargets();
@@ -568,7 +572,7 @@ namespace Ngsa.LodeRunner
                 { "Region", config.Region },
             };
 
-            Console.WriteLine(JsonSerializer.Serialize(msg));
+            Console.WriteLine(JsonSerializer.Serialize(msg, jsonOptions));
         }
 
         // Open an http client
@@ -667,7 +671,7 @@ namespace Ngsa.LodeRunner
 
                 //Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
 
-                Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
+                Console.WriteLine(JsonSerializer.Serialize(logDict, jsonOptions));
             }
         }
     }

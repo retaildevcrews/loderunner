@@ -23,15 +23,16 @@ namespace Ngsa.LodeRunner
         /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
-        public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
+        public static JsonSerializerOptions JsonOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
         };
 
         /// <summary>
-        /// Gets or sets cancellation token
+        /// Gets cancellation token
         /// </summary>
-        public static CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
+        public static CancellationTokenSource TokenSource { get; } = new CancellationTokenSource();
 
         /// <summary>
         /// Main entry point
@@ -40,21 +41,19 @@ namespace Ngsa.LodeRunner
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
-            if (args != null)
-            {
-                DisplayAsciiArt(args, "ascii-art.txt");
-            }
-
             // display version info
+            // there is a bug in System.CommandLine that causes the built-in version handler to fail
             if (args != null && args.Length > 0 && args.Contains("--version"))
             {
                 Console.WriteLine(Version.AssemblyVersion);
                 return 0;
             }
 
+            DisplayAsciiArt(args, "ascii-art.txt");
+
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
-            root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
+            root.Handler = CommandHandler.Create((Config cfg) => Run(cfg));
 
             // run the command handler
             return await root.InvokeAsync(args).ConfigureAwait(false);
@@ -82,10 +81,16 @@ namespace Ngsa.LodeRunner
                 return DoDryRun(config);
             }
 
+            // set json format options
+            if (config.LogFormat == LogFormat.Json)
+            {
+                JsonOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            }
+
             // create the test
             try
             {
-                ValidationTest lrt = new ValidationTest(config);
+                ValidationTest lrt = new ValidationTest(config, JsonOptions);
 
                 if (config.DelayStart > 0)
                 {

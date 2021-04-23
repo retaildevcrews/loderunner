@@ -15,6 +15,7 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public enum LogFormat
     {
+        JsonPascal,
         Json,
         Tsv,
         None,
@@ -46,7 +47,7 @@ namespace Ngsa.LodeRunner
             root.AddOption(EnvVarOption(new string[] { "--base-url", "-u" }, "Base url for files", string.Empty));
             root.AddOption(EnvVarOption<int>(new string[] { "--delay-start" }, "Delay test start (seconds)", 0, 0));
             root.AddOption(EnvVarOption<int>(new string[] { "--duration" }, "Test duration (seconds)  (requires --run-loop)", 0, 0));
-            root.AddOption(EnvVarOption(new string[] { "--log-format" }, "Log Format", LogFormat.Json));
+            root.AddOption(EnvVarOption(new string[] { "--log-format" }, "Log Format", LogFormat.JsonPascal));
             root.AddOption(EnvVarOption<int>(new string[] { "--max-concurrent" }, "Max concurrent requests", 100, 1));
             root.AddOption(EnvVarOption<int>(new string[] { "--max-errors" }, "Max validation errors", 10, 0));
             root.AddOption(EnvVarOption(new string[] { "--prometheus", "-p" }, "Send metrics to Prometheus", false));
@@ -291,12 +292,9 @@ namespace Ngsa.LodeRunner
         // Display the ASCII art file if it exists
         private static void DisplayAsciiArt(string[] args, string file)
         {
-            if (args != null &&
-                !args.Contains("--version") &&
-                (args.Contains("-h") ||
-                 args.Contains("--help") ||
-                 args.Contains("--dry-run") ||
-                 args.Contains("-d")))
+            if (args != null && !args.Contains("--version") &&
+                (args.Contains("-h") || args.Contains("--help") ||
+                 args.Contains("--dry-run") || args.Contains("-d")))
             {
                 string path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), file);
 

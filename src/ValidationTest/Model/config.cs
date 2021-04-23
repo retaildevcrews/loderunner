@@ -162,7 +162,7 @@ namespace Ngsa.LodeRunner
             }
 
             // set json options based on --strict-json
-            App.JsonSerializerOptions = new JsonSerializerOptions
+            App.JsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNameCaseInsensitive = !StrictJson,

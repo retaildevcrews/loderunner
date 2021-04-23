@@ -165,7 +165,7 @@ namespace Ngsa.LodeRunner
 
             if (!string.IsNullOrWhiteSpace(content))
             {
-                return JsonSerializer.Deserialize<Dictionary<string, PerfTarget>>(content, App.JsonSerializerOptions);
+                return JsonSerializer.Deserialize<Dictionary<string, PerfTarget>>(content, App.JsonOptions);
             }
 
             // return empty dictionary - perf targets are not required
@@ -188,13 +188,13 @@ namespace Ngsa.LodeRunner
                 try
                 {
                     // try to parse the json
-                    data = JsonSerializer.Deserialize<InputJson>(json, App.JsonSerializerOptions);
+                    data = JsonSerializer.Deserialize<InputJson>(json, App.JsonOptions);
                 }
                 catch
                 {
                     // try to read the array of Requests style document
                     // this is being deprecated in v1.4
-                    list = JsonSerializer.Deserialize<List<Request>>(json, App.JsonSerializerOptions);
+                    list = JsonSerializer.Deserialize<List<Request>>(json, App.JsonOptions);
                 }
 
                 // replace placedholders with environment variables
@@ -208,7 +208,7 @@ namespace Ngsa.LodeRunner
                         }
 
                         // reload from json
-                        data = JsonSerializer.Deserialize<InputJson>(json, App.JsonSerializerOptions);
+                        data = JsonSerializer.Deserialize<InputJson>(json, App.JsonOptions);
                     }
 
                     list = data.Requests;
