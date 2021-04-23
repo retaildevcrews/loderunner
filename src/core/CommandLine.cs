@@ -5,14 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
-using Ngsa.Middleware.CommandLine;
 
 namespace Ngsa.LodeRunner
 {
+    /// <summary>
+    /// Log format
+    /// </summary>
     public enum LogFormat
     {
-        Json, Tsv, None
+        Json,
+        Tsv,
+        None,
     }
 
     /// <summary>
@@ -20,6 +25,9 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public sealed partial class App
     {
+        // capture parse errors from env vars
+        private static readonly List<string> EnvVarErrors = new List<string>();
+
         /// <summary>
         /// Build the RootCommand for parsing
         /// </summary>
@@ -33,28 +41,28 @@ namespace Ngsa.LodeRunner
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            root.AddOption(new Option<List<string>>(new string[] { "--server", "-s" }, Parsers.ParseStringList, true, "Server(s) to test"));
-            root.AddOption(new Option<List<string>>(new string[] { "--files", "-f" }, Parsers.ParseStringList, true, "List of files to test"));
-            root.AddOption(new Option<string>(new string[] { "--base-url", "-u" }, Parsers.ParseString, true, "Base url for files"));
-            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZero, true, "Delay test start (seconds)"));
-            root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
-            root.AddOption(new Option<LogFormat>(new string[] { "--log-format" }, "Log Format"));
-            root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
-            root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
-            root.AddOption(new Option<bool>(new string[] { "--prometheus", "-p" }, Parsers.ParseBool, true, "Send metrics to Prometheus"));
-            root.AddOption(new Option<string>(new string[] { "--region" }, Parsers.ParseString, true, "Region for logging"));
-            root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
-            root.AddOption(new Option<bool>(new string[] { "--run-loop", "-r" }, Parsers.ParseBool, true, "Run test in an infinite loop"));
-            root.AddOption(new Option<int>(new string[] { "--sleep", "-l" }, Parsers.ParseIntGTZero, true, "Sleep (ms) between each request"));
-            root.AddOption(new Option<bool>(new string[] { "--strict-json", "-j" }, Parsers.ParseBool, true, "Use strict json when parsing"));
-            root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
-            root.AddOption(new Option<int>(new string[] { "--timeout", "-t" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
-            root.AddOption(new Option<bool>(new string[] { "--verbose", "-v" }, Parsers.ParseBool, true, "Display verbose results"));
-            root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
-            root.AddOption(new Option<string>(new string[] { "--webv-prefix" }, () => "https://", "Prefix for server URLs"));
-            root.AddOption(new Option<string>(new string[] { "--webv-suffix" }, () => ".azurewebsites.net", "Suffix for server URLs"));
-            root.AddOption(new Option<bool>(new string[] { "--xml-summary", "-x" }, "Display test summary in XML format"));
-            root.AddOption(new Option<string>(new string[] { "--zone" }, Parsers.ParseString, true, "Zone for logging"));
+            root.AddOption(EnvVarOption<List<string>>(new string[] { "--server", "-s" }, "Server(s) to test (required)", null));
+            root.AddOption(EnvVarOption<List<string>>(new string[] { "--files", "-f" }, "List of files to test (required)", null));
+            root.AddOption(EnvVarOption(new string[] { "--base-url", "-u" }, "Base url for files", string.Empty));
+            root.AddOption(EnvVarOption<int>(new string[] { "--delay-start" }, "Delay test start (seconds)", 0, 0));
+            root.AddOption(EnvVarOption<int>(new string[] { "--duration" }, "Test duration (seconds)  (requires --run-loop)", 0, 0));
+            root.AddOption(EnvVarOption(new string[] { "--log-format" }, "Log Format", LogFormat.Json));
+            root.AddOption(EnvVarOption<int>(new string[] { "--max-concurrent" }, "Max concurrent requests", 100, 1));
+            root.AddOption(EnvVarOption<int>(new string[] { "--max-errors" }, "Max validation errors", 10, 0));
+            root.AddOption(EnvVarOption(new string[] { "--prometheus", "-p" }, "Send metrics to Prometheus", false));
+            root.AddOption(EnvVarOption(new string[] { "--random" }, "Run requests randomly (requires --run-loop)", false));
+            root.AddOption(EnvVarOption(new string[] { "--region" }, "Region for logging", "dev"));
+            root.AddOption(EnvVarOption(new string[] { "--run-loop", "-r" }, "Run test in an infinite loop", false));
+            root.AddOption(EnvVarOption(new string[] { "--strict-json", "-j" }, "Use strict json when parsing", false));
+            root.AddOption(EnvVarOption<int>(new string[] { "--sleep", "-l" }, "Sleep (ms) between each request", 0, 0));
+            root.AddOption(EnvVarOption(new string[] { "--tag" }, "Tag for log and App Insights", string.Empty));
+            root.AddOption(EnvVarOption<int>(new string[] { "--timeout", "-t" }, "Request timeout (seconds)", 30, 1));
+            root.AddOption(EnvVarOption(new string[] { "--verbose", "-v" }, "Display verbose results", false));
+            root.AddOption(EnvVarOption(new string[] { "--verbose-errors" }, "Log verbose error messages", false));
+            root.AddOption(EnvVarOption(new string[] { "--webv-prefix" }, "Server address prefix", "https://"));
+            root.AddOption(EnvVarOption(new string[] { "--webv-suffix" }, "Server address suffix", ".azurewebsites.net"));
+            root.AddOption(EnvVarOption(new string[] { "--xml-summary" }, "Display test summary in XML", false));
+            root.AddOption(EnvVarOption(new string[] { "--zone" }, "Zone for logging", "dev"));
             root.AddOption(new Option<bool>(new string[] { "--dry-run", "-d" }, "Validates configuration"));
             root.AddOption(new Option<bool>(new string[] { "--version" }, "Show version information"));
 
@@ -95,6 +103,145 @@ namespace Ngsa.LodeRunner
             }
 
             return errors;
+        }
+
+        // insert env vars as default
+        private static Option EnvVarOption<T>(string[] names, string description, T defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            // this will throw on bad names
+            string env = GetValueFromEnvironment(names, out string key);
+
+            T value = defaultValue;
+
+            // set default to environment value if set
+            if (!string.IsNullOrWhiteSpace(env))
+            {
+                if (defaultValue.GetType().IsEnum)
+                {
+                    if (Enum.TryParse(defaultValue.GetType(), env, true, out object result))
+                    {
+                        value = (T)result;
+                    }
+                    else
+                    {
+                        EnvVarErrors.Add($"Environment variable {key} is invalid");
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        value = (T)Convert.ChangeType(env, typeof(T));
+                    }
+                    catch
+                    {
+                        EnvVarErrors.Add($"Environment variable {key} is invalid");
+                    }
+                }
+            }
+
+            return new Option<T>(names, () => value, description);
+        }
+
+        // insert env vars as default
+        private static Option EnvVarOption<T>(string[] names, string description, List<string> defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            // this will throw on bad names
+            string env = GetValueFromEnvironment(names, out string key);
+
+            List<string> value = defaultValue;
+
+            // set default to environment value if set
+            if (!string.IsNullOrWhiteSpace(env))
+            {
+                string[] items = env.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                value = new List<string>(items);
+            }
+
+            return new Option<List<string>>(names, () => value, description);
+        }
+
+        // insert env vars as default with min val for ints
+        private static Option EnvVarOption<T>(string[] names, string description, int defaultValue, int minValue)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentNullException(nameof(description));
+            }
+
+            // this will throw on bad names
+            string env = GetValueFromEnvironment(names, out string key);
+
+            int value = defaultValue;
+
+            // set default to environment value if set
+            if (!string.IsNullOrWhiteSpace(env))
+            {
+                if (!int.TryParse(env, out value))
+                {
+                    EnvVarErrors.Add($"Environment variable {key} is invalid");
+                }
+            }
+
+            Option<int> opt = new Option<int>(names, () => value, description);
+
+            opt.AddValidator((res) =>
+            {
+                string s = string.Empty;
+                int val;
+
+                try
+                {
+                    val = (int)res.GetValueOrDefault();
+
+                    if (val < minValue)
+                    {
+                        s = $"{names[0]} must be >= {minValue}";
+                    }
+                }
+                catch
+                {
+                }
+
+                return s;
+            });
+
+            return opt;
+        }
+
+        // check for environment variable value
+        private static string GetValueFromEnvironment(string[] names, out string key)
+        {
+            if (names == null ||
+                names.Length < 1 ||
+                names[0].Trim().Length < 4)
+            {
+                throw new ArgumentNullException(nameof(names));
+            }
+
+            for (int i = 1; i < names.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(names[i]) ||
+                    names[i].Length != 2 ||
+                    names[i][0] != '-')
+                {
+                    throw new ArgumentException($"Invalid command line parameter at position {i}", nameof(names));
+                }
+            }
+
+            key = names[0][2..].Trim().ToUpperInvariant().Replace('-', '_');
+
+            return Environment.GetEnvironmentVariable(key);
         }
 
         // handle --dry-run
@@ -139,6 +286,27 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   XML Summary     {config.XmlSummary}");
 
             return 0;
+        }
+
+        // Display the ASCII art file if it exists
+        private static void DisplayAsciiArt(string[] args, string file)
+        {
+            if (args != null &&
+                !args.Contains("--version") &&
+                (args.Contains("-h") ||
+                 args.Contains("--help") ||
+                 args.Contains("--dry-run") ||
+                 args.Contains("-d")))
+            {
+                string path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), file);
+
+                if (File.Exists(path))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    Console.WriteLine(File.ReadAllText(path));
+                    Console.ResetColor();
+                }
+            }
         }
     }
 }

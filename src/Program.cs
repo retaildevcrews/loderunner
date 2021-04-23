@@ -42,7 +42,7 @@ namespace Ngsa.LodeRunner
         {
             if (args != null)
             {
-                DisplayAsciiArt(args);
+                DisplayAsciiArt(args, "ascii-art.txt");
             }
 
             // display version info
@@ -51,8 +51,6 @@ namespace Ngsa.LodeRunner
                 Console.WriteLine(Version.AssemblyVersion);
                 return 0;
             }
-
-
 
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
@@ -146,35 +144,6 @@ namespace Ngsa.LodeRunner
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
-        }
-
-        // ascii art
-        private static void DisplayAsciiArt(string[] args)
-        {
-            if (!args.Contains("--version") &&
-                (args.Contains("-h") ||
-                args.Contains("--help") ||
-                args.Contains("-d") ||
-                args.Contains("--dry-run")))
-            {
-                const string file = "src/Core/ascii-art.txt";
-
-                try
-                {
-                    if (File.Exists(file))
-                    {
-                        string txt = File.ReadAllText(file);
-
-                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                        Console.WriteLine(txt);
-                        Console.ResetColor();
-                    }
-                }
-                catch
-                {
-                    // ignore any errors
-                }
-            }
         }
 
         // build the web host

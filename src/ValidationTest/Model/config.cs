@@ -93,11 +93,6 @@ namespace Ngsa.LodeRunner
         public string BaseUrl { get; set; }
 
         /// <summary>
-        /// gets or sets the summary generation time in minutes
-        /// </summary>
-        public int SummaryMinutes { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to display verbose errors or just the count
         /// </summary>
         public bool VerboseErrors { get; set; }
