@@ -190,6 +190,13 @@ namespace Ngsa.Middleware.CommandLine
             return ParseIntOrMatch(result, 1, -1);
         }
 
+        /// <summary>
+        /// Parses the value as integer and is making sure that either it meets the minvalue condition or it is equals to matchValue
+        /// </summary>
+        /// <param name="result">Argument Result</param>
+        /// <param name="minValue">The minimum value to check against</param>
+        /// <param name="matchValue">The value that must match</param>
+        /// <returns>Returns the arg value if condition is met, otherwise returns -1</returns>
         public static int ParseIntOrMatch(ArgumentResult result, int minValue, int matchValue)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
