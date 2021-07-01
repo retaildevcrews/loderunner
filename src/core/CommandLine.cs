@@ -47,7 +47,7 @@ namespace Ngsa.LodeRunner
             root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
-            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZero, true, "Delay test start (seconds)"));
+            root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGTZeroOrNegOne, true, "Delay test start (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
             // these require access to --run-loop so are added at the root level

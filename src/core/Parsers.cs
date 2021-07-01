@@ -184,6 +184,55 @@ namespace Ngsa.Middleware.CommandLine
             return ParseInt(result, 1);
         }
 
+        // parser for integer > 0 or = -1
+        public static int ParseIntGTZeroOrNegOne(ArgumentResult result)
+        {
+            return ParseIntOrMatch(result, 1, -1);
+        }
+
+        public static int ParseIntOrMatch(ArgumentResult result, int minValue, int matchValue)
+        {
+            string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                result.ErrorMessage = "result.Parent is null";
+                return -1;
+            }
+
+            string errorMessage = $"--{result.Parent.Symbol.Name} must be an integer >= {minValue} or = {matchValue}";
+            int val;
+
+            // nothing to validate
+            if (result.Tokens.Count == 0)
+            {
+                string env = Environment.GetEnvironmentVariable(name);
+
+                if (string.IsNullOrWhiteSpace(env))
+                {
+                    return GetCommandDefaultValues(result);
+                }
+                else
+                {
+                    if (!int.TryParse(env, out val) || (val < minValue && val != matchValue))
+                    {
+                        result.ErrorMessage = errorMessage;
+                        return -1;
+                    }
+
+                    return val;
+                }
+            }
+
+            if (!int.TryParse(result.Tokens[0].Value, out val) || (val < minValue && val != matchValue))
+            {
+                result.ErrorMessage = errorMessage;
+                return -1;
+            }
+
+            return val;
+        }
+
         // parser for integer
         public static int ParseInt(ArgumentResult result, int minValue)
         {

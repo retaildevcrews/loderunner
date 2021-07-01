@@ -80,7 +80,13 @@ namespace Ngsa.LodeRunner
             {
                 ValidationTest lrt = new ValidationTest(config);
 
-                if (config.DelayStart > 0)
+                if (config.DelayStart == -1)
+                {
+                    Console.WriteLine($"Waiting indefinitely to start test ...\n");
+                    // wait indefinitely
+                    await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+                }
+                else if (config.DelayStart > 0)
                 {
                     Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
 
