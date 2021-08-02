@@ -77,7 +77,7 @@ namespace Ngsa.Middleware.CommandLine
                 return null;
             }
 
-            List<string> val = new List<string>();
+            List<string> val = new ();
 
             if (result.Tokens.Count == 0)
             {
@@ -184,22 +184,14 @@ namespace Ngsa.Middleware.CommandLine
             return ParseInt(result, 1);
         }
 
-        // parser for integer > 0 or = -1
-        public static int ParseIntGTZeroOrNegOne(ArgumentResult result)
+        // parser for integer >=-1
+        public static int ParseIntGENegOne(ArgumentResult result)
         {
-            return ParseInt(result, 1, -1);
+            return ParseInt(result, -1);
         }
 
-        /// <summary>
-        /// Parses the ArgumentResult value as integer then verifies if meets the minimum value condition or is equals to matchValue if not null.
-        /// </summary>
-        /// <param name="result">The ArgumentResult object to get parsed</param>
-        /// <param name="minValue">The minimum value.</param>
-        /// <param name="matchValue">The match value.</param>
-        /// <returns>
-        ///   Negative one (-1) if parsing failes and set the result.ErrorMessage, otherwise returns the integer value.
-        /// </returns>
-        public static int ParseInt(ArgumentResult result, int minValue, int? matchValue = null)
+        // parser for integer
+        public static int ParseInt(ArgumentResult result, int minValue)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
 
@@ -210,11 +202,6 @@ namespace Ngsa.Middleware.CommandLine
             }
 
             string errorMessage = $"--{result.Parent.Symbol.Name} must be an integer >= {minValue}";
-            if (matchValue != null)
-            {
-                errorMessage += $" or must be an integer = {matchValue}";
-            }
-
             int val;
 
             // nothing to validate
@@ -228,7 +215,7 @@ namespace Ngsa.Middleware.CommandLine
                 }
                 else
                 {
-                    if (!ParseIntAndValidateCondition(env, out val,  minValue, matchValue))
+                    if (!int.TryParse(env, out val) || val < minValue)
                     {
                         result.ErrorMessage = errorMessage;
                         return -1;
@@ -238,7 +225,7 @@ namespace Ngsa.Middleware.CommandLine
                 }
             }
 
-            if (!ParseIntAndValidateCondition(result.Tokens[0].Value, out val, minValue, matchValue))
+            if (!int.TryParse(result.Tokens[0].Value, out val) || val < minValue)
             {
                 result.ErrorMessage = errorMessage;
                 return -1;
@@ -269,24 +256,6 @@ namespace Ngsa.Middleware.CommandLine
                 default:
                     return 0;
             }
-        }
-
-        /// <summary>
-        /// Try to parse a String as Integer, if so, then verifies that meets the minimum value condition or is equals to matchValue if not null.
-        /// </summary>
-        /// <param name="stringValue">The string to be parsed</param>
-        /// <param name="intValue">The integer value after successfully parsed as integer</param>
-        /// <param name="minValue">The min value to check against</param>
-        /// <param name="matchValue">The match value to check against</param>
-        /// <returns>True if successfully parsed and met condition, otherwise false</returns>
-        private static bool ParseIntAndValidateCondition(string stringValue, out int intValue, int minValue, int? matchValue = null)
-        {
-            if (!int.TryParse(stringValue, out intValue) || (intValue < minValue && (matchValue == null || intValue != matchValue)))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }
