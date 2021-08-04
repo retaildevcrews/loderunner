@@ -77,7 +77,7 @@ namespace Ngsa.Middleware.CommandLine
                 return null;
             }
 
-            List<string> val = new List<string>();
+            List<string> val = new ();
 
             if (result.Tokens.Count == 0)
             {
@@ -182,6 +182,12 @@ namespace Ngsa.Middleware.CommandLine
         public static int ParseIntGTZero(ArgumentResult result)
         {
             return ParseInt(result, 1);
+        }
+
+        // parser for integer >=-1
+        public static int ParseIntGENegOne(ArgumentResult result)
+        {
+            return ParseInt(result, -1);
         }
 
         // parser for integer

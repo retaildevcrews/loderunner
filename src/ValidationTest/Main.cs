@@ -25,7 +25,7 @@ namespace Ngsa.LodeRunner
         /// <summary>
         /// Correlation Vector http header name
         /// </summary>
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions JsonOptions = new ()
         {
             IgnoreNullValues = true,
         };
@@ -34,7 +34,7 @@ namespace Ngsa.LodeRunner
         private static Summary requestSummary = null;
         private static List<Request> requestList;
 
-        private readonly Dictionary<string, PerfTarget> targets = new Dictionary<string, PerfTarget>();
+        private readonly Dictionary<string, PerfTarget> targets = new ();
         private Config config;
 
         /// <summary>
@@ -248,12 +248,12 @@ namespace Ngsa.LodeRunner
 
             DisplayStartupMessage(config);
 
-            List<TimerRequestState> states = new List<TimerRequestState>();
+            List<TimerRequestState> states = new ();
 
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new TimerRequestState
+                TimerRequestState state = new ()
                 {
                     Server = svr,
                     Client = OpenHttpClient(svr),
@@ -354,7 +354,7 @@ namespace Ngsa.LodeRunner
             ValidationResult valid;
 
             // send the request
-            using (HttpRequestMessage req = new HttpRequestMessage(new HttpMethod(request.Verb), request.Path))
+            using (HttpRequestMessage req = new (new HttpMethod(request.Verb), request.Path))
             {
                 DateTime dt = DateTime.UtcNow;
 
@@ -368,7 +368,7 @@ namespace Ngsa.LodeRunner
                 }
 
                 // create correlation vector and add to headers
-                CorrelationVector cv = new CorrelationVector(CorrelationVectorVersion.V2);
+                CorrelationVector cv = new (CorrelationVectorVersion.V2);
                 req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
 
                 // add the body to the http request
@@ -445,7 +445,7 @@ namespace Ngsa.LodeRunner
             }
 
             // map the parameters
-            PerfLog log = new PerfLog(validationResult.ValidationErrors)
+            PerfLog log = new (validationResult.ValidationErrors)
             {
                 Server = server,
                 Tag = config.Tag,
@@ -534,7 +534,7 @@ namespace Ngsa.LodeRunner
         /// </summary>
         private static void DisplayStartupMessage(Config config)
         {
-            Dictionary<string, object> msg = new Dictionary<string, object>
+            Dictionary<string, object> msg = new ()
             {
                 { "Date", DateTime.UtcNow },
                 { "EventType", "Startup" },
@@ -577,7 +577,7 @@ namespace Ngsa.LodeRunner
         /// <returns>HttpClient</returns>
         private HttpClient OpenHttpClient(string host)
         {
-            HttpClient client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
+            HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
             {
                 Timeout = new TimeSpan(0, 0, config.Timeout),
                 BaseAddress = new Uri(host),
@@ -612,7 +612,7 @@ namespace Ngsa.LodeRunner
             // don't log ignore requests
             if (request.PerfTarget?.Category != "Ignore")
             {
-                Dictionary<string, object> logDict = new Dictionary<string, object>
+                Dictionary<string, object> logDict = new ()
                 {
                     { "Date", perfLog.Date },
                     { "Server", perfLog.Server },
