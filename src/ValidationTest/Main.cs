@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -581,9 +582,14 @@ namespace Ngsa.LodeRunner
             HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
             {
                 Timeout = new TimeSpan(0, 0, config.Timeout),
-                BaseAddress = new Uri(host),
             };
+            Uri baseAddress = new Uri(host);
+            client.BaseAddress = baseAddress;
             client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Version.ShortVersion}");
+
+            // clear DNS cache
+            ServicePointManager.FindServicePoint(baseAddress).ConnectionLeaseTimeout = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
+            ServicePointManager.DnsRefreshTimeout = 0;
 
             return client;
         }
