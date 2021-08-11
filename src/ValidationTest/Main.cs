@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -388,8 +387,6 @@ namespace Ngsa.LodeRunner
 
                 try
                 {
-                    // ServicePointManager.FindServicePoint(client.BaseAddress).ConnectionLeaseTimeout = 1000;
-
                     // process the response
                     using HttpResponseMessage resp = await client.SendAsync(req).ConfigureAwait(false);
                     string body = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
