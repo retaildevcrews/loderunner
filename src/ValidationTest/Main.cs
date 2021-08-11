@@ -388,6 +388,8 @@ namespace Ngsa.LodeRunner
 
                 try
                 {
+                    // ServicePointManager.FindServicePoint(client.BaseAddress).ConnectionLeaseTimeout = 1000;
+
                     // process the response
                     using HttpResponseMessage resp = await client.SendAsync(req).ConfigureAwait(false);
                     string body = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -489,6 +491,24 @@ namespace Ngsa.LodeRunner
             return log;
         }
 
+        /// <summary>
+        /// Opens and configures the shared HttpClient
+        ///
+        /// Disposed in IDispose
+        /// </summary>
+        /// <returns>HttpClient</returns>
+        public HttpClient OpenHttpClient(string host)
+        {
+            HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
+            {
+                Timeout = new TimeSpan(0, 0, config.Timeout),
+                BaseAddress = new Uri(host),
+            };
+            client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Version.ShortVersion}");
+
+            return client;
+        }
+
         private static string GetMode(PerfLog perfLog)
         {
             string mode = string.IsNullOrEmpty(perfLog.Category) ? string.Empty : perfLog.Category;
@@ -569,29 +589,6 @@ namespace Ngsa.LodeRunner
             }
 
             return OpenHttpClient(config.Server[index]);
-        }
-
-        /// <summary>
-        /// Opens and configures the shared HttpClient
-        ///
-        /// Disposed in IDispose
-        /// </summary>
-        /// <returns>HttpClient</returns>
-        private HttpClient OpenHttpClient(string host)
-        {
-            HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
-            {
-                Timeout = new TimeSpan(0, 0, config.Timeout),
-            };
-            Uri baseAddress = new Uri(host);
-            client.BaseAddress = baseAddress;
-            client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Version.ShortVersion}");
-
-            // clear DNS cache
-            ServicePointManager.FindServicePoint(baseAddress).ConnectionLeaseTimeout = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
-            ServicePointManager.DnsRefreshTimeout = 0;
-
-            return client;
         }
 
         /// <summary>

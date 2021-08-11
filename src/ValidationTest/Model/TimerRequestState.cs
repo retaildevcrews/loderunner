@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using Ngsa.LodeRunner.Model;
@@ -133,6 +134,8 @@ namespace Ngsa.LodeRunner
                 if (Index >= MaxIndex)
                 {
                     Index = 0;
+                    Client.Dispose();
+                    Client = Test.OpenHttpClient(Server);
                 }
             }
 
