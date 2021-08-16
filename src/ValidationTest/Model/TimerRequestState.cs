@@ -16,6 +16,7 @@ namespace Ngsa.LodeRunner
     {
         private static Semaphore loopController;
         private System.Timers.Timer timer;
+        private System.Timers.Timer clientRefreshTimer;
         private bool disposedValue;
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Ngsa.LodeRunner
 
         public List<Request> RequestList { get; set; }
 
-        public void Run(double interval, int maxConcurrent)
+        public void Run(double interval, int maxConcurrent, int clientRefreshinterval)
         {
             loopController = new Semaphore(maxConcurrent, maxConcurrent);
 
@@ -90,6 +91,17 @@ namespace Ngsa.LodeRunner
             };
             timer.Elapsed += TimerEvent;
             timer.Start();
+
+            // timer for updating http client
+            if (clientRefreshinterval > 0)
+            {
+                clientRefreshTimer = new System.Timers.Timer(clientRefreshinterval)
+                {
+                    Enabled = true,
+                };
+                clientRefreshTimer.Elapsed += ClientRefreshTimerEvent;
+                clientRefreshTimer.Start();
+            }
         }
 
         private async void TimerEvent(object sender, System.Timers.ElapsedEventArgs e)
@@ -133,8 +145,6 @@ namespace Ngsa.LodeRunner
                 if (Index >= MaxIndex)
                 {
                     Index = 0;
-                    Client.Dispose();
-                    Client = Test.OpenHttpClient(Server);
                 }
             }
 
@@ -166,6 +176,17 @@ namespace Ngsa.LodeRunner
 
             // make sure to release the semaphore
             loopController.Release();
+        }
+
+        private void ClientRefreshTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            // lock the state to create new http client
+            lock (Lock)
+            {
+                Client.Dispose();
+                Client = Test.OpenHttpClient(Server);
+                Console.WriteLine($"{DateTime.Now}\t");
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:Elements should be ordered by access", Justification = "grouping IDispose methods")]

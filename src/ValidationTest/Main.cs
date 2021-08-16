@@ -272,7 +272,7 @@ namespace Ngsa.LodeRunner
 
                 states.Add(state);
 
-                state.Run(config.Sleep, config.MaxConcurrent);
+                state.Run(config.Sleep, config.MaxConcurrent, config.ClientRefresh * 1000);
             }
 
             try
