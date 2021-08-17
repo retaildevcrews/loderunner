@@ -590,7 +590,7 @@ namespace Ngsa.LodeRunner
         /// <returns>HttpClient</returns>
         private HttpClient OpenHttpClient(string host)
         {
-            HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
+            HttpClient client = new (httpSocketHandler)
             {
                 Timeout = new TimeSpan(0, 0, config.Timeout),
                 BaseAddress = new Uri(host),
