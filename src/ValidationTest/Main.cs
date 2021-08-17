@@ -36,6 +36,7 @@ namespace Ngsa.LodeRunner
 
         private readonly Dictionary<string, PerfTarget> targets = new ();
         private Config config;
+        private static SocketsHttpHandler httpSocketHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class
@@ -59,6 +60,17 @@ namespace Ngsa.LodeRunner
             if (requestList == null || requestList.Count == 0)
             {
                 throw new ArgumentException("RequestList is empty");
+            }
+
+            // use socketshttphandler to avoid stale DNS and socket exhaustion problems
+            httpSocketHandler = new ()
+            {
+                AllowAutoRedirect = false,
+            };
+
+            if (config.ClientRefresh > 0)
+            {
+                httpSocketHandler.PooledConnectionLifetime = TimeSpan.FromSeconds(config.ClientRefresh);
             }
         }
 
@@ -272,7 +284,7 @@ namespace Ngsa.LodeRunner
 
                 states.Add(state);
 
-                state.Run(config.Sleep, config.MaxConcurrent, config.ClientRefresh * 1000);
+                state.Run(config.Sleep, config.MaxConcurrent);
             }
 
             try
@@ -496,7 +508,7 @@ namespace Ngsa.LodeRunner
         /// <returns>HttpClient</returns>
         public HttpClient OpenHttpClient(string host)
         {
-            HttpClient client = new (new HttpClientHandler { AllowAutoRedirect = false })
+            HttpClient client = new (httpSocketHandler)
             {
                 Timeout = new TimeSpan(0, 0, config.Timeout),
                 BaseAddress = new Uri(host),
