@@ -78,10 +78,10 @@ namespace Ngsa.LodeRunner
             // create the test
             try
             {
-                ValidationTest lrt = new (config);
-
                 if (config.DelayStart == -1)
                 {
+                    LoadSecrets(config);
+
                     Console.WriteLine($"Waiting indefinitely to start test ...\n");
 
                     // wait indefinitely
@@ -94,6 +94,8 @@ namespace Ngsa.LodeRunner
                     // wait to start the test run
                     await Task.Delay(config.DelayStart * 1000, TokenSource.Token).ConfigureAwait(false);
                 }
+
+                ValidationTest lrt = new (config);
 
                 if (config.RunLoop)
                 {
@@ -187,6 +189,27 @@ namespace Ngsa.LodeRunner
                         })
                         .UseConsoleLifetime()
                         .Build();
+        }
+
+        /// <summary>
+        /// Load secrets from volume.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        private static void LoadSecrets(Config config)
+        {
+            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
+
+            // set the Cosmos server name for logging
+            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
+
+            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
+
+            if (ndx > 0)
+            {
+                config.CosmosName = config.CosmosName.Remove(ndx);
+            }
+
+            config.CosmosDal = new DataAccessLayer.CosmosDal(config);
         }
     }
 }

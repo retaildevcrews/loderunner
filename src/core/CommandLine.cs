@@ -49,35 +49,68 @@ namespace Ngsa.LodeRunner
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
             root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGENegOne, true, "Delay test start (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
+            root.AddOption(new Option<string>(new string[] { "--secrets-volume" }, Parsers.ParseString, true, "Secrets Volume Path"));
 
-            // these require access to --run-loop so are added at the root level
-            root.AddValidator(ValidateRunLoopDependencies);
+            // validate dependencies
+            root.AddValidator(ValidateDependencies);
 
             return root;
         }
 
-        // validate --duration and --random based on --run-loop
-        private static string ValidateRunLoopDependencies(CommandResult result)
+        /// <summary>Validates combinations of parameters and dependencies.</summary>
+        /// <param name="result">The ComandResult object</param>
+        /// <returns> empty string if no issues found </returns>
+        private static string ValidateDependencies(CommandResult result)
         {
+            string msg = string.Empty;
+
             OptionResult runLoopRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") as OptionResult;
             OptionResult durationRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "duration") as OptionResult;
             OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
+            OptionResult secretsRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "secrets-volume") as OptionResult;
+            OptionResult delayStartRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "delay-start") as OptionResult;
 
             bool runLoop = runLoopRes.GetValueOrDefault<bool>();
             int? duration = durationRes.GetValueOrDefault<int?>();
             bool random = randomRes.GetValueOrDefault<bool>();
+            string secrets = secretsRes?.GetValueOrDefault<string>();
+            int? delayStart = delayStartRes.GetValueOrDefault<int?>();
 
             if (duration != null && duration > 0 && !runLoop)
             {
-                return "--run-loop must be true to use --duration";
+                msg += "--run-loop must be true to use --duration\n";
             }
-
-            if (random && !runLoop)
+            else if (random && !runLoop)
             {
-                return "--run-loop must be true to use --random";
+                msg += "--run-loop must be true to use --random\n";
             }
 
-            return string.Empty;
+            // validate secrets volume on delay start
+            if (delayStart == -1 && string.IsNullOrWhiteSpace(secrets))
+            {
+                msg += "--secrets-volume cannot be empty when --delay-start is equals to -1\n";
+            }
+            else if (!string.IsNullOrWhiteSpace(secrets) && delayStart != -1)
+            {
+                msg += $"--secrets-volume requires --delay-start to be equals to negative one (-1)\n";
+            }
+            else if (delayStart == -1)
+            {
+                try
+                {
+                    // validate secrets-volume exists
+                    if (!Directory.Exists(secrets))
+                    {
+                        msg += $"--secrets-volume ({secrets}) does not exist\n";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    msg += $"--secrets-volume exception: {ex.Message}\n";
+                }
+            }
+
+            return msg;
         }
 
         // handle --dry-run
@@ -87,7 +120,7 @@ namespace Ngsa.LodeRunner
 
             // display the config
             Console.WriteLine("dry run");
-            Console.WriteLine($"   Server          {config.Server}");
+            Console.WriteLine($"   Server          {string.Join(',', config.Server)}");
             Console.WriteLine($"   Files (count)   {config.Files.Count}");
 
             if (!string.IsNullOrWhiteSpace(config.Zone))
@@ -117,6 +150,7 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   Random          {config.Random}");
             Console.WriteLine($"   Timeout         {config.Timeout}");
             Console.WriteLine($"   Verbose         {config.Verbose}");
+            Console.WriteLine($"   Secrets Volume  {config.SecretsVolume}");
 
             return 0;
         }
