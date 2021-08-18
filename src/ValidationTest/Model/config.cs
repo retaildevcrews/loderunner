@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Ngsa.LodeRunner.DataAccessLayer;
 
 namespace Ngsa.LodeRunner
 {
@@ -68,7 +69,7 @@ namespace Ngsa.LodeRunner
         public bool Verbose { get; set; }
 
         /// <summary>
-        /// gets or sets the the request time out in seconds
+        /// gets or sets the request time out in seconds
         /// </summary>
         public int Timeout { get; set; }
 
@@ -111,6 +112,30 @@ namespace Ngsa.LodeRunner
         /// gets or sets a value indicating whether we should use strict json parsing
         /// </summary>
         public bool StrictJson { get; set; }
+
+        /// <summary>Gets or sets Data Access Layer for CosmosDB </summary>
+        /// <value>The cosmos data access layer interface</value>
+        public IDAL CosmosDal { get; set; }
+
+        /// <summary>Gets or sets the max retry attempts for cosmos requests.</summary>
+        /// <value>The retries.</value>
+        public int Retries { get; set; } = 10;
+
+        /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
+        /// <value>Time in seconds</value>
+        public int CosmosTimeout { get; set; }
+
+        /// <summary>Gets or sets the secrets.</summary>
+        /// <value>The secrets.</value>
+        public Secrets Secrets { get; set; }
+
+        /// <summary>Gets or sets the secrets volume.</summary>
+        /// <value>The secrets volume.</value>
+        public string SecretsVolume { get; set; } = "secrets";
+
+        /// <summary>Gets or sets the name of the cosmos.</summary>
+        /// <value>The name of the cosmos.</value>
+        public string CosmosName { get; set; } = string.Empty;
 
         /// <summary>
         /// Set the default config values
