@@ -78,7 +78,7 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --server string1 [string2 string3]
   - -s
   - SERVER
-    - server Url (i.e. `https://ngsa-central-asb-test.cse.ms`)
+    - server Url (i.e. `https://MyServerDomainName.com`)
     - `required`
 - --files file1 [file2 file3 ...]
   - -f
@@ -93,7 +93,16 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --delay-start int
   - DELAY_START
     - delay starting the validation test for int seconds
+    - if --delay-start is equals to `-1` then --secrets-volume must be present and exist
+    - if --delay-start is anything other than `-1` then secrets are ignored
+    - if --delay-start is set to `-1` and --secrets-volume exists, Loderunner will start and await indefinitely to start test
     - default `0`
+- --secrets-volume string
+  - SECRETS_VOLUME
+    - secrets location
+    - if --secrets-volume is present then --delay-start must be equals to `-1`
+    - if --secrets-volume is present then secrets directory must exist.
+    - default `secrets`
 - --max-errors int
   - MAX_ERRORS
     - end test after max-errors
