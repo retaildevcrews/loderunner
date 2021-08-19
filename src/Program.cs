@@ -12,6 +12,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Ngsa.LodeRunner.DataAccessLayer;
+using Ngsa.LodeRunner.Services;
 
 namespace Ngsa.LodeRunner
 {
@@ -209,7 +211,11 @@ namespace Ngsa.LodeRunner
                 config.CosmosName = config.CosmosName.Remove(ndx);
             }
 
-            config.CosmosDal = new DataAccessLayer.CosmosDal(config);
+            //config.CosmosDal = new DataAccessLayer.CosmosDal(config);
+
+            config.CosmosDalManager = new DalManager(config);
+
+            //config.CosmosDalManager.ClientStatusService?.PostReady("ready");
         }
     }
 }
