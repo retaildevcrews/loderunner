@@ -84,19 +84,6 @@ namespace Ngsa.LodeRunner.Services
 
             //config.CosmosDalManager.ClientStatusService?.PostReady("ready");
         }
-
-        private static async Task<int> TestRun(string runConfig)
-        {
-            // build the System.CommandLine.RootCommand
-            RootCommand root = App.BuildRootCommand();
-            root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
-
-            string[] argsConfig = runConfig.Split(' ').ToArray();
-
-            // run the command handler
-            return await root.InvokeAsync(argsConfig).ConfigureAwait(false);
-        }
-
         private async Task<int> Start()
         {
             if (config.DelayStart > 0)
@@ -150,10 +137,11 @@ namespace Ngsa.LodeRunner.Services
 
             await Task.Delay(10000, App.TokenSource.Token).ConfigureAwait(false);
 
-            string runConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5";
+            string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5".Split(' ').ToArray();
+            //string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --dry-run".Split(' ').ToArray();
 
             // Test run l8r from run config
-            await TestRun(runConfig);
+            await App.Main(argsConfig);
 
             Console.WriteLine($"\nTest completed, waiting indefinitely to start test ...\n");
 
