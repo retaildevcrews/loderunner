@@ -84,6 +84,7 @@ namespace Ngsa.LodeRunner.Services
 
             //config.CosmosDalManager.ClientStatusService?.PostReady("ready");
         }
+
         private async Task<int> Start()
         {
             if (config.DelayStart > 0)
@@ -138,6 +139,7 @@ namespace Ngsa.LodeRunner.Services
             await Task.Delay(10000, App.TokenSource.Token).ConfigureAwait(false);
 
             string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5".Split(' ').ToArray();
+
             //string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --dry-run".Split(' ').ToArray();
 
             // Test run l8r from run config
