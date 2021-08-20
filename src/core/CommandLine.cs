@@ -57,6 +57,48 @@ namespace Ngsa.LodeRunner
             return root;
         }
 
+        // handle --dry-run
+        internal static int DoDryRun(Config config)
+        {
+            DisplayAsciiArt();
+
+            // display the config
+            Console.WriteLine("dry run");
+            Console.WriteLine($"   Server          {string.Join(',', config.Server)}");
+            Console.WriteLine($"   Files (count)   {config.Files.Count}");
+
+            if (!string.IsNullOrWhiteSpace(config.Zone))
+            {
+                Console.WriteLine($"   Zone            {config.Zone}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(config.Region))
+            {
+                Console.WriteLine($"   Region          {config.Region}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(config.Tag))
+            {
+                Console.WriteLine($"   Tag             {config.Tag}");
+            }
+
+            Console.WriteLine($"   Run Loop        {config.RunLoop}");
+            Console.WriteLine($"   Sleep           {config.Sleep}");
+            Console.WriteLine($"   Prometheus      {config.Prometheus}");
+            Console.WriteLine($"   Verbose Errors  {config.VerboseErrors}");
+            Console.WriteLine($"   Strict Json     {config.StrictJson}");
+            Console.WriteLine($"   Duration        {config.Duration}");
+            Console.WriteLine($"   Delay Start     {config.DelayStart}");
+            Console.WriteLine($"   Max Concurrent  {config.MaxConcurrent}");
+            Console.WriteLine($"   Max Errors      {config.MaxErrors}");
+            Console.WriteLine($"   Random          {config.Random}");
+            Console.WriteLine($"   Timeout         {config.Timeout}");
+            Console.WriteLine($"   Verbose         {config.Verbose}");
+            Console.WriteLine($"   Secrets Volume  {config.SecretsVolume}");
+
+            return 0;
+        }
+
         /// <summary>Validates combinations of parameters and dependencies.</summary>
         /// <param name="result">The ComandResult object</param>
         /// <returns> empty string if no issues found </returns>
@@ -111,48 +153,6 @@ namespace Ngsa.LodeRunner
             }
 
             return msg;
-        }
-
-        // handle --dry-run
-        private static int DoDryRun(Config config)
-        {
-            DisplayAsciiArt();
-
-            // display the config
-            Console.WriteLine("dry run");
-            Console.WriteLine($"   Server          {string.Join(',', config.Server)}");
-            Console.WriteLine($"   Files (count)   {config.Files.Count}");
-
-            if (!string.IsNullOrWhiteSpace(config.Zone))
-            {
-                Console.WriteLine($"   Zone            {config.Zone}");
-            }
-
-            if (!string.IsNullOrWhiteSpace(config.Region))
-            {
-                Console.WriteLine($"   Region          {config.Region}");
-            }
-
-            if (!string.IsNullOrWhiteSpace(config.Tag))
-            {
-                Console.WriteLine($"   Tag             {config.Tag}");
-            }
-
-            Console.WriteLine($"   Run Loop        {config.RunLoop}");
-            Console.WriteLine($"   Sleep           {config.Sleep}");
-            Console.WriteLine($"   Prometheus      {config.Prometheus}");
-            Console.WriteLine($"   Verbose Errors  {config.VerboseErrors}");
-            Console.WriteLine($"   Strict Json     {config.StrictJson}");
-            Console.WriteLine($"   Duration        {config.Duration}");
-            Console.WriteLine($"   Delay Start     {config.DelayStart}");
-            Console.WriteLine($"   Max Concurrent  {config.MaxConcurrent}");
-            Console.WriteLine($"   Max Errors      {config.MaxErrors}");
-            Console.WriteLine($"   Random          {config.Random}");
-            Console.WriteLine($"   Timeout         {config.Timeout}");
-            Console.WriteLine($"   Verbose         {config.Verbose}");
-            Console.WriteLine($"   Secrets Volume  {config.SecretsVolume}");
-
-            return 0;
         }
 
         // Display the ASCII art file if it exists

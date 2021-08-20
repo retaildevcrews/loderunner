@@ -68,76 +68,8 @@ namespace Ngsa.LodeRunner
                 return -1;
             }
 
-            // set any missing values
-            config.SetDefaultValues();
-
-            // don't run the test on a dry run
-            if (config.DryRun)
-            {
-                return DoDryRun(config);
-            }
-
-            // create the test
-            try
-            {
-                if (config.DelayStart == -1)
-                {
-                    LoadSecrets(config);
-
-                    Console.WriteLine($"Waiting indefinitely to start test ...\n");
-
-                    // wait indefinitely
-                    await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
-                }
-                else if (config.DelayStart > 0)
-                {
-                    Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
-
-                    // wait to start the test run
-                    await Task.Delay(config.DelayStart * 1000, TokenSource.Token).ConfigureAwait(false);
-                }
-
-                ValidationTest lrt = new (config);
-
-                if (config.RunLoop)
-                {
-                    // build and run the web host
-                    IHost host = BuildWebHost();
-                    _ = host.StartAsync(TokenSource.Token);
-
-                    // run in a loop
-                    int res = lrt.RunLoop(config, TokenSource.Token);
-
-                    // stop and dispose the web host
-                    await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-                    host.Dispose();
-                    host = null;
-
-                    return res;
-                }
-                else
-                {
-                    // run one iteration
-                    return await lrt.RunOnce(config, TokenSource.Token).ConfigureAwait(false);
-                }
-            }
-            catch (TaskCanceledException tce)
-            {
-                // log exception
-                if (!tce.Task.IsCompleted)
-                {
-                    Console.WriteLine($"Exception: {tce}");
-                    return 1;
-                }
-
-                // task is completed
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\nException:{ex.Message}");
-                return 1;
-            }
+            using var l8rService = new LodeRunnerService(config);
+            return await l8rService.StartService();
         }
 
         /// <summary>
@@ -148,6 +80,20 @@ namespace Ngsa.LodeRunner
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
+        }
+
+        // build the web host
+        internal static IHost BuildWebHost()
+        {
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:8080/");
+                        })
+                        .UseConsoleLifetime()
+                        .Build();
         }
 
         // ascii art
@@ -177,45 +123,6 @@ namespace Ngsa.LodeRunner
                     // ignore any errors
                 }
             }
-        }
-
-        // build the web host
-        private static IHost BuildWebHost()
-        {
-            // configure the web host builder
-            return Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:8080/");
-                        })
-                        .UseConsoleLifetime()
-                        .Build();
-        }
-
-        /// <summary>
-        /// Load secrets from volume.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        private static void LoadSecrets(Config config)
-        {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
-
-            // set the Cosmos server name for logging
-            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
-
-            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
-
-            if (ndx > 0)
-            {
-                config.CosmosName = config.CosmosName.Remove(ndx);
-            }
-
-            //config.CosmosDal = new DataAccessLayer.CosmosDal(config);
-
-            config.CosmosDalManager = new DalManager(config);
-
-            //config.CosmosDalManager.ClientStatusService?.PostReady("ready");
         }
     }
 }

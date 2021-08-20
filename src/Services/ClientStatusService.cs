@@ -27,7 +27,7 @@ namespace Ngsa.LodeRunner.Services
 
         public async Task PostStarting(string message, DateTime? lastUpdated = null)
         {
-            lastUpdated ??= DateTime.Now;
+            lastUpdated ??= DateTime.UtcNow;
 
             var entry = new ClientStatus
             {
