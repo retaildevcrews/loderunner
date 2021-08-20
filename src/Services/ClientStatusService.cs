@@ -2,7 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Ngsa.DataAccessLayer.Model.Validators;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
 using Ngsa.LodeRunner.Interfaces;
@@ -15,9 +18,13 @@ namespace Ngsa.LodeRunner.Services
     internal class ClientStatusService : IClientStatusService
     {
         private readonly IClientStatusRepository clientStatusRepository;
+        private readonly IModelValidator<ClientStatus> validator;
+
         public ClientStatusService(IClientStatusRepository clientStatusRepository)
         {
             this.clientStatusRepository = clientStatusRepository;
+
+            this.validator = new ClientStatusValidator();
         }
 
         public Task PostReady(string message, DateTime? lastUpdated)
@@ -33,7 +40,7 @@ namespace Ngsa.LodeRunner.Services
             {
                 EntityType = EntityType.ClientStatus,
                 PartitionKey = EntityType.ClientStatus.ToString(),
-                StateDuration = -1,
+                StatusDuration = -1,
                 Status = ClientStatusType.Starting,
                 Message = message,
                 LastUpdated = lastUpdated ?? DateTime.UtcNow,
@@ -41,7 +48,17 @@ namespace Ngsa.LodeRunner.Services
             };
 
             clientStatusRepository.GenerateId(entry);
-            await clientStatusRepository.CreateDocumentAsync(entry).ConfigureAwait(false);
+
+            var errors = this.validator.Validate(entry).Errors.ToList();
+            if (errors.Count > 0)
+            {
+                var errorMsg = string.Join('\n', errors);
+                throw new ApplicationException($"PostStarting validation failed - {message}\n{errorMsg}\n\n");
+            }
+            else
+            {
+                await clientStatusRepository.CreateDocumentAsync(entry).ConfigureAwait(false);
+            }
         }
 
         public Task PostTerminating(string message, DateTime? lastUpdated)

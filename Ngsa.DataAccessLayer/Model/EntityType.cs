@@ -6,6 +6,9 @@ using Newtonsoft.Json.Converters;
 
 namespace Ngsa.LodeRunner.DataAccessLayer.Model
 {
+    /// <summary>
+    /// Entity Types.
+    /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EntityType
     {

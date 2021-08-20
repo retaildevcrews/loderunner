@@ -9,14 +9,29 @@ using System.Threading.Tasks;
 
 namespace Ngsa.LodeRunner.DataAccessLayer
 {
+    /// <summary>
+    /// ClientStatusRepository Settings.
+    /// </summary>
     public class ClientStatusRepositorySettings : CosmosDBSettings
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientStatusRepositorySettings"/> class.
+        /// </summary>
         public ClientStatusRepositorySettings()
         {
         }
 
+        /// <summary>
+        /// Gets or sets the name of the collection.
+        /// </summary>
+        /// <value>
+        /// The name of the collection.
+        /// </value>
         public string CollectionName { get; set; }
 
+        /// <summary>
+        /// Validates this instance.
+        /// </summary>
         public override void Validate()
         {
             base.Validate();

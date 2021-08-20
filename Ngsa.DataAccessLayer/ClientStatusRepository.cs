@@ -11,6 +11,9 @@ using Ngsa.LodeRunner.DataAccessLayer.Model;
 
 namespace Ngsa.LodeRunner.DataAccessLayer
 {
+    /// <summary>
+    ///   ClientStatus Repository.
+    /// </summary>
     public class ClientStatusRepository : CosmosDBRepository<ClientStatus>, IClientStatusRepository
     {
         private const string DefaultColumnIdValue = "1";
@@ -18,21 +21,30 @@ namespace Ngsa.LodeRunner.DataAccessLayer
 
         private readonly ClientStatusRepositorySettings settings;
 
+        /// <summary>Initializes a new instance of the <see cref="ClientStatusRepository" /> class.</summary>
+        /// <param name="settings">The settings.</param>
+        /// <exception cref="System.ApplicationException">Repository test for {this.Id} failed.</exception>
         public ClientStatusRepository(ClientStatusRepositorySettings settings)
             : base(settings)
         {
             this.settings = settings;
 
-            if (!Test().Result)
+            if (!this.Test().Result)
             {
                 throw new ApplicationException($"Repository test for {this.Id} failed.");
             }
         }
 
-        public override string CollectionName => settings.CollectionName;
+        /// <inheritdoc/>
+        public override string CollectionName => this.settings.CollectionName;
+
+        /// <inheritdoc/>
         public override string ColumnIdValue => DefaultColumnIdValue;
+
+        /// <inheritdoc/>
         public override string PartitionKeyValue => DefaultPartitionKeyValue;
 
+        /// <inheritdoc/>
         public override string GenerateId(ClientStatus entity)
         {
             if (string.IsNullOrWhiteSpace(entity.Id))

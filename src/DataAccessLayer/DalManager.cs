@@ -37,17 +37,10 @@ namespace Ngsa.LodeRunner.DataAccessLayer
             cosmosDBSettings.Validate();
 
             var clientStatusRespository = new ClientStatusRepository(cosmosDBSettings);
+
             clientStatusService = new ClientStatusService(clientStatusRespository);
 
-            try
-            {
-                await ClientStatusService.PostStarting("Starting LodeRunner").ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                // TODO: how do we handle Key rotation
-                // https://docs.microsoft.com/en-us/azure/cosmos-db/troubleshoot-unauthorized
-            }
+            await ClientStatusService.PostStarting("Starting LodeRunner").ConfigureAwait(false);
 
             //TODO: create other services
         }

@@ -3,12 +3,49 @@
 
 namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// CosmosDB Settings Interface.
+    /// </summary>
     public interface ICosmosDBSettings
     {
+        /// <summary>
+        /// Gets the retries.
+        /// </summary>
+        /// <value>
+        /// The retries.
+        /// </value>
         int Retries { get; }
+
+        /// <summary>
+        /// Gets the timeout.
+        /// </summary>
+        /// <value>
+        /// The timeout.
+        /// </value>
         int Timeout { get; }
+
+        /// <summary>
+        /// Gets the URI.
+        /// </summary>
+        /// <value>
+        /// The URI.
+        /// </value>
         string Uri { get; }
+
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        /// <value>
+        /// The key.
+        /// </value>
         string Key { get; }
+
+        /// <summary>
+        /// Gets the name of the database.
+        /// </summary>
+        /// <value>
+        /// The name of the database.
+        /// </value>
         string DatabaseName { get; }
     }
 }

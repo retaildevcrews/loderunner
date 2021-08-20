@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 
 namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// Repository Interface.
+    /// </summary>
     public interface IRepository
     {
+        /// <summary>
+        /// Tests this instance.
+        /// </summary>
+        /// <returns>true if passed , otherwise false.</returns>
         Task<bool> Test();
     }
 }

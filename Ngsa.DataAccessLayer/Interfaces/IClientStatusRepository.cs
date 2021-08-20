@@ -5,6 +5,9 @@ using Ngsa.LodeRunner.DataAccessLayer.Model;
 
 namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
 {
+    /// <summary>
+    /// ClientStatus Repository Interface.
+    /// </summary>
     public interface IClientStatusRepository : ICosmosDBRepository<ClientStatus>
     {
     }
