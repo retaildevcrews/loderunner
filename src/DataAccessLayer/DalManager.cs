@@ -26,7 +26,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         {
             var cosmosDBSettings = new ClientStatusRepositorySettings()
             {
-                CollectionName = "clientStatus",
+                CollectionName = config.Secrets.CosmosCollection,
                 Retries = config.Retries,
                 Timeout = config.CosmosTimeout,
                 Uri = config.Secrets.CosmosServer,
