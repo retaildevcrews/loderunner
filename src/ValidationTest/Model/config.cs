@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Ngsa.LodeRunner.DataAccessLayer;
-using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 
 namespace Ngsa.LodeRunner
 {
@@ -113,12 +111,6 @@ namespace Ngsa.LodeRunner
         /// gets or sets a value indicating whether we should use strict json parsing
         /// </summary>
         public bool StrictJson { get; set; }
-
-        /// <summary>Gets or sets Data Access Layer for CosmosDB </summary>
-        /// <value>The cosmos data access layer interface</value>
-        public IDAL CosmosDal { get; set; }
-
-        public IDalManager CosmosDalManager { get; set; }
 
         /// <summary>Gets or sets the max retry attempts for cosmos requests.</summary>
         /// <value>The retries.</value>

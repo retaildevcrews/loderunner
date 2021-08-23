@@ -6,7 +6,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
     /// <summary>
     /// CosmosDB Settings Interface.
     /// </summary>
-    public interface ICosmosDBSettings
+    public interface ICosmosDBSettings : ISettingsValidator
     {
         /// <summary>
         /// Gets the retries.

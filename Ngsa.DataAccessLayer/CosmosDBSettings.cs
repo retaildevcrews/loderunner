@@ -10,7 +10,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
     /// CosmosDB Settings.
     /// </summary>
     /// <seealso cref="Ngsa.LodeRunner.DataAccessLayer.Interfaces.ICosmosDBSettings" />
-    public class CosmosDBSettings : ICosmosDBSettings
+    public class CosmosDBSettings : ISettingsValidator, ICosmosDBSettings
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDBSettings"/> class.

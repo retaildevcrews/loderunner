@@ -7,14 +7,24 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ngsa.LodeRunner.DataAccessLayer;
+using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
+using Ngsa.LodeRunner.DataAccessLayer.Model;
+using Ngsa.LodeRunner.Interfaces;
 
 namespace Ngsa.LodeRunner.Services
 {
-    internal class LodeRunnerService : IDisposable
+    /// <summary>
+    /// Represents the LodeRunnerService and contains the main functionality of the class.
+    /// </summary>
+    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="Ngsa.LodeRunner.Interfaces.ILodeRunnerService" />
+    internal partial class LodeRunnerService : IDisposable
     {
         private readonly Config config;
+
         public LodeRunnerService(Config config)
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
@@ -22,7 +32,7 @@ namespace Ngsa.LodeRunner.Services
 
         public void Dispose()
         {
-            //GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         public async Task<int> StartService()
@@ -66,7 +76,28 @@ namespace Ngsa.LodeRunner.Services
             }
         }
 
-        private static void LoadSecrets(Config config)
+        public IClientStatusService GetClientStatusService()
+        {
+            return ServiceProvider.GetService<IClientStatusService>();
+        }
+
+        private static void ValidateSettings(ServiceProvider provider)
+        {
+            var settings = provider.GetServices<ISettingsValidator>();
+            foreach (var validator in settings)
+            {
+                try
+                {
+                    validator.Validate();
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException($"Failed to validate application configuration", ex);
+                }
+            }
+        }
+
+        private void LoadSecrets(Config config)
         {
             config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
 
@@ -80,9 +111,32 @@ namespace Ngsa.LodeRunner.Services
                 config.CosmosName = config.CosmosName.Remove(ndx);
             }
 
-            config.CosmosDalManager = new DalManager(config);
+            RegisterServices();
 
-            //config.CosmosDalManager.ClientStatusService?.PostReady("ready");
+            ValidateSettings(this.ServiceProvider);
+        }
+
+        private void RegisterServices()
+        {
+            var serviceBuilder = new ServiceCollection();
+
+            serviceBuilder
+                .AddSingleton<ClientStatusRepositorySettings>(x => new ClientStatusRepositorySettings()
+                {
+                    CollectionName = config.Secrets.CosmosCollection,
+                    Retries = config.Retries,
+                    Timeout = config.CosmosTimeout,
+                    Uri = config.Secrets.CosmosServer,
+                    Key = config.Secrets.CosmosKey,
+                    DatabaseName = config.Secrets.CosmosDatabase,
+                })
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<ClientStatusRepositorySettings>())
+                .AddSingleton<ClientStatusRepository>()
+                .AddSingleton<IClientStatusRepository, ClientStatusRepository>(provider => provider.GetRequiredService<ClientStatusRepository>())
+                .AddSingleton<ClientStatusService>()
+                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>());
+
+            ServiceProvider = serviceBuilder.BuildServiceProvider();
         }
 
         private async Task<int> Start()
@@ -132,26 +186,39 @@ namespace Ngsa.LodeRunner.Services
 
             Console.WriteLine($"Waiting indefinitely to start test ...\n");
 
-            // **************** for testing purpose only -- BEGIN ************************
+            // **************** Testing Config update  only -- BEGIN ************************
 
             // Simulate to wait 10 secs then execute a test run
 
-            await Task.Delay(10000, App.TokenSource.Token).ConfigureAwait(false);
+            //await Task.Delay(10000, App.TokenSource.Token).ConfigureAwait(false);
 
-            string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5".Split(' ').ToArray();
+            //string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5".Split(' ').ToArray();
 
-            //string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --dry-run".Split(' ').ToArray();
+            //// Test run l8r from run config
+            //await App.Main(argsConfig);
 
-            // Test run l8r from run config
-            await App.Main(argsConfig);
-
-            Console.WriteLine($"\nTest completed, waiting indefinitely to start test ...\n");
+            //Console.WriteLine($"\nTest completed, waiting indefinitely to start test ...\n");
 
             // **************** for testing purpose only -- END ************************
+
+
+            // ****************** testing Service pattern -- BEGIN**************************
+            //await Task.Delay(3000, App.TokenSource.Token).ConfigureAwait(false);
+
+            //await GetClientStatusService().PostStarting("Starting LodeRunner").ConfigureAwait(false);
+            // ****************** testing Service pattern -- END **************************
 
             await Task.Delay(config.DelayStart, App.TokenSource.Token).ConfigureAwait(false);
 
             return 1;
         }
+    }
+
+    /// <summary>
+    /// Implements the ILodeRunnerService class, fix StyleCopAnalyzer violation #SA1201
+    /// </summary>
+    internal partial class LodeRunnerService : ILodeRunnerService
+    {
+        public ServiceProvider ServiceProvider { get; private set; }
     }
 }
