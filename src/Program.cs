@@ -21,8 +21,6 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public sealed partial class App
     {
-        private static System.Timers.Timer timer;
-
         /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
@@ -68,7 +66,7 @@ namespace Ngsa.LodeRunner
             // TODO when merging with DAL, need to register delegate to update cosmos
         }
 
-        public static void OnTimedEvent(object source, System.Timers.ElapsedEventArgs e)
+        public static void OnStatusUpdateTimer(object source, System.Timers.ElapsedEventArgs e)
         {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
         }
@@ -100,23 +98,34 @@ namespace Ngsa.LodeRunner
             {
                 if (config.DelayStart == -1)
                 {
-                    ProcessingEventBus.StatusChanged += UpdateCosmosStatus;
-                    ProcessingEventBus.StatusChanged += LogStatusChange;
-                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("test", "initializing"));
+                    ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
+                    ProcessingEventBus.StatusUpdate += LogStatusChange;
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Initializing", "test init"));
 
+                    // TODO Initialize processing event bus
                     LoadSecrets(config);
+                    // TODO Initialize DAL
 
-                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("test", "Awaiting changes"));
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Ready", "test ready"));
+                    try
+                    {
+                        // wait indefinitely
+                        await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+                    }
+                    catch (TaskCanceledException tce)
+                    {
+                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", tce.Message));
+                    }
+                    catch (OperationCanceledException oce)
+                    {
+                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", oce.Message));
+                    }
+                    finally
+                    {
+                        ProcessingEventBus.Dispose();
+                    }
 
-                    // wait indefinitely
-                    // await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
-
-                    timer = new System.Timers.Timer();
-                    timer.Interval = 5000; //TODO change this to App.Config.Frequency * 1000
-                    timer.Elapsed += OnTimedEvent;
-
-                    // Start the timer, it will be called after Interval
-                    timer.Start();
+                    return 1;
                 }
                 else if (config.DelayStart > 0)
                 {
