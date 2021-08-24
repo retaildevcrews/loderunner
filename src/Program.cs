@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Ngsa.LodeRunner.Events;
 
 namespace Ngsa.LodeRunner
 {
@@ -20,6 +21,8 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public sealed partial class App
     {
+        private static System.Timers.Timer timer;
+
         /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
@@ -53,6 +56,23 @@ namespace Ngsa.LodeRunner
             return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
+        //TODO Move to proper location - testing for now
+        public static void LogStatusChange(object sender, ClientStatusEventArgs args)
+        {
+            Console.WriteLine(args.Message);
+        }
+
+        //TODO Move to proper location - testing for now
+        public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
+        {
+            // TODO when merging with DAL, need to register delegate to update cosmos
+        }
+
+        public static void OnTimedEvent(object source, System.Timers.ElapsedEventArgs e)
+        {
+            Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
+        }
+
         /// <summary>
         /// System.CommandLine.CommandHandler implementation
         /// </summary>
@@ -80,12 +100,23 @@ namespace Ngsa.LodeRunner
             {
                 if (config.DelayStart == -1)
                 {
+                    ProcessingEventBus.StatusChanged += UpdateCosmosStatus;
+                    ProcessingEventBus.StatusChanged += LogStatusChange;
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("test", "initializing"));
+
                     LoadSecrets(config);
 
-                    Console.WriteLine($"Waiting indefinitely to start test ...\n");
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("test", "Awaiting changes"));
 
                     // wait indefinitely
-                    await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+                    // await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+
+                    timer = new System.Timers.Timer();
+                    timer.Interval = 5000; //TODO change this to App.Config.Frequency * 1000
+                    timer.Elapsed += OnTimedEvent;
+
+                    // Start the timer, it will be called after Interval
+                    timer.Start();
                 }
                 else if (config.DelayStart > 0)
                 {
