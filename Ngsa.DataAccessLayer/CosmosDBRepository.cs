@@ -89,22 +89,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         public abstract string CollectionName { get; }
 
         /// <summary>
-        /// Gets the column identifier value.
-        /// </summary>
-        /// <value>
-        /// The column identifier value.
-        /// </value>
-        public abstract string ColumnIdValue { get; }
-
-        /// <summary>
-        /// Gets the partition key value.
-        /// </summary>
-        /// <value>
-        /// The partition key value.
-        /// </value>
-        public abstract string PartitionKeyValue { get; }
-
-        /// <summary>
         /// Gets the name of the database.
         /// </summary>
         /// <value>

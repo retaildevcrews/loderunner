@@ -16,9 +16,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer
     /// </summary>
     public class ClientStatusRepository : CosmosDBRepository<ClientStatus>, IClientStatusRepository
     {
-        private const string DefaultColumnIdValue = "1";
-        private const string DefaultPartitionKeyValue = "ClientStatus";
-
         private readonly ClientStatusRepositorySettings settings;
 
         /// <summary>Initializes a new instance of the <see cref="ClientStatusRepository" /> class.</summary>
@@ -37,12 +34,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer
 
         /// <inheritdoc/>
         public override string CollectionName => this.settings.CollectionName;
-
-        /// <inheritdoc/>
-        public override string ColumnIdValue => DefaultColumnIdValue;
-
-        /// <inheritdoc/>
-        public override string PartitionKeyValue => DefaultPartitionKeyValue;
 
         /// <inheritdoc/>
         public override string GenerateId(ClientStatus entity)

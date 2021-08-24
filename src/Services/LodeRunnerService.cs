@@ -201,7 +201,6 @@ namespace Ngsa.LodeRunner.Services
 
             // **************** for testing purpose only -- END ************************
 
-
             // ****************** testing Service pattern -- BEGIN**************************
             //await Task.Delay(3000, App.TokenSource.Token).ConfigureAwait(false);
 
