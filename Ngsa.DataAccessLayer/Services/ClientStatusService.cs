@@ -8,18 +8,21 @@ using System.Threading.Tasks;
 using Ngsa.DataAccessLayer.Model.Validators;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
-using Ngsa.LodeRunner.Interfaces;
 
 namespace Ngsa.LodeRunner.Services
 {
     /// <summary>
-    ///   Client Status Service
+    ///   Client Status Service.
     /// </summary>
-    internal class ClientStatusService : IClientStatusService
+    public class ClientStatusService : IClientStatusService
     {
         private readonly IClientStatusRepository clientStatusRepository;
         private readonly IModelValidator<ClientStatus> validator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
+        /// </summary>
+        /// <param name="clientStatusRepository">The client status repository.</param>
         public ClientStatusService(IClientStatusRepository clientStatusRepository)
         {
             this.clientStatusRepository = clientStatusRepository;
@@ -27,11 +30,25 @@ namespace Ngsa.LodeRunner.Services
             this.validator = new ClientStatusValidator();
         }
 
+        /// <summary>
+        /// Posts the ready.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="lastUpdated">The last updated.</param>
+        /// <returns>
+        /// The Task.
+        /// </returns>
         public Task PostReady(string message, DateTime? lastUpdated)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Posts the starting.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="lastUpdated">The last updated.</param>
+        /// <returns>Created Document task.</returns>
         public async Task PostStarting(string message, DateTime? lastUpdated = null)
         {
             lastUpdated ??= DateTime.UtcNow;
@@ -47,7 +64,7 @@ namespace Ngsa.LodeRunner.Services
                 LoadClient = new LoadClient(),
             };
 
-            clientStatusRepository.GenerateId(entry);
+            this.clientStatusRepository.GenerateId(entry);
 
             var errors = this.validator.Validate(entry).Errors.ToList();
             if (errors.Count > 0)
@@ -57,15 +74,31 @@ namespace Ngsa.LodeRunner.Services
             }
             else
             {
-                await clientStatusRepository.CreateDocumentAsync(entry).ConfigureAwait(false);
+                await this.clientStatusRepository.CreateDocumentAsync(entry).ConfigureAwait(false);
             }
         }
 
+        /// <summary>
+        /// Posts the terminating.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="lastUpdated">The last updated.</param>
+        /// <returns>
+        /// The Task.
+        /// </returns>
         public Task PostTerminating(string message, DateTime? lastUpdated)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Posts the testing.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="lastUpdated">The last updated.</param>
+        /// <returns>
+        /// The Task.
+        /// </returns>
         public Task PostTesting(string message, DateTime? lastUpdated)
         {
             throw new NotImplementedException();

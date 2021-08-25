@@ -105,7 +105,14 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         public string Id => $"{this.DatabaseName}:{this.CollectionName}";
 
         // NOTE: CosmosDB library currently wraps the Newtonsoft JSON serializer.  Align Attributes and Converters to Newtonsoft on the domain models.
-        private CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
+
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <value>
+        /// The client.
+        /// </value>
+        protected CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
                                                     .WithRequestTimeout(TimeSpan.FromSeconds(this.CosmosTimeout))
                                                     .WithThrottlingRetryOptions(TimeSpan.FromSeconds(this.CosmosTimeout), this.CosmosMaxRetries)
                                                     .WithSerializerOptions(new CosmosSerializationOptions
@@ -263,12 +270,13 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// Get a proxy to the container.
         /// </summary>
         /// <param name="client">An instance of <see cref="CosmosClient"/>.</param>
+        /// <param name="collectionName">The Collection name.</param>
         /// <returns>An instance of <see cref="Container"/>.</returns>
-        internal Container GetContainer(CosmosClient client)
+        internal Container GetContainer(CosmosClient client, string collectionName = null)
         {
             try
             {
-                var container = client.GetContainer(this.settings.DatabaseName, this.CollectionName);
+                var container = client.GetContainer(this.settings.DatabaseName, collectionName ?? this.CollectionName);
 
                 this.containerProperties = this.GetContainerProperties(container).Result;
                 var partitionKeyName = this.containerProperties.PartitionKeyPath.TrimStart('/');

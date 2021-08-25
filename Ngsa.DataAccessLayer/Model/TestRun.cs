@@ -34,7 +34,7 @@ namespace Ngsa.DataAccessLayer.Model
         /// <value>
         /// The type of the entity.
         /// </value>
-        public EntityType EntityType { get; set; }
+        public EntityType EntityType { get; set; } = EntityType.Unassigned;
 
         /// <summary>
         /// Gets or sets the name.

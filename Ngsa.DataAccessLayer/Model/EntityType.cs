@@ -26,5 +26,15 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// TestRun entity type
         /// </summary>
         TestRun,
+
+        /// <summary>
+        /// The load client
+        /// </summary>
+        LoadClient,
+
+        /// <summary>
+        /// Unassigned entity type
+        /// </summary>
+        Unassigned,
     }
 }
