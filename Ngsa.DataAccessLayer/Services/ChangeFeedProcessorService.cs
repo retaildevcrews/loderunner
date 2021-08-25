@@ -16,7 +16,6 @@ namespace Ngsa.LodeRunner.Services
     /// Represents the Change Feed Processor Service and contains the main functionality of the class.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <seealso cref="" />
     public partial class ChangeFeedProcessorService<TEntity>
         where TEntity : class
     {
@@ -55,9 +54,9 @@ namespace Ngsa.LodeRunner.Services
         }
 
         /// <summary>
-        /// Start the Change Feed Processor to listen for changes and process them with the HandleChangesAsync implementation
+        /// Start the Change Feed Processor to listen for changes and process them with the HandleChangesAsync implementation.
         /// </summary>
-        /// <returns>ChangeFeedProcessor Task</returns>
+        /// <returns>ChangeFeedProcessor Task.</returns>
         private async Task<ChangeFeedProcessor> StartChangeFeedProcessorAsync(ChangeFeedProcessorSettings changeFeedProcessorSettings)
         {
             this.changeFeedProcessor = this.changeFeedProcessorRepository.SourceContainer
@@ -73,17 +72,20 @@ namespace Ngsa.LodeRunner.Services
         }
     }
 
+#pragma warning disable CS1710 // XML comment has a duplicate typeparam tag since it is a partial class
     /// <summary>
     /// Implements the ILodeRunnerService class, fix StyleCopAnalyzer violation #SA1201.
     /// </summary>
-    /// <param name="changes">The changes.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public partial class ChangeFeedProcessorService<TEntity> : IChangeFeedProcessorService
+#pragma warning restore CS1710 // XML comment has a duplicate typeparam tag since it is a partial class
         where TEntity : class
     {
         /// <summary>
         /// The HandleChangesEventHandler delegate.
         /// </summary>
+        /// <param name="changes">The changes.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns> The delegated task.</returns>
         public delegate Task HandleChangesEventHandler(IReadOnlyCollection<TEntity> changes, CancellationToken cancellationToken);
 

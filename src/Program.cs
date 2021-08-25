@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Ngsa.LodeRunner.DataAccessLayer;
+using Ngsa.LodeRunner.Events;
 using Ngsa.LodeRunner.Services;
 
 namespace Ngsa.LodeRunner
@@ -53,6 +54,18 @@ namespace Ngsa.LodeRunner
 
             // run the command handler
             return await root.InvokeAsync(args).ConfigureAwait(false);
+        }
+
+        //TODO Move to proper location when merging with DAL
+        public static void LogStatusChange(object sender, ClientStatusEventArgs args)
+        {
+            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
+        }
+
+        //TODO Move to proper location when merging with DAL
+        public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
+        {
+            // TODO when merging with DAL, need to register delegate to update cosmos
         }
 
         /// <summary>

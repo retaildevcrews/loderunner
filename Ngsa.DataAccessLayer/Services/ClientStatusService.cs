@@ -31,6 +31,25 @@ namespace Ngsa.LodeRunner.Services
         }
 
         /// <summary>
+        /// Posts the specified status.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="lastUpdated">The last updated.</param>
+        /// <returns>The Task.</returns>
+        public async Task Post(ClientStatusType status, string message, DateTime? lastUpdated)
+        {
+            switch (status)
+            {
+                case ClientStatusType.Ready: await this.PostReady(message, lastUpdated); break;
+                case ClientStatusType.Starting: await this.PostStarting(message, lastUpdated); break;
+                case ClientStatusType.Terminating: await this.PostTerminating(message, lastUpdated); break;
+                case ClientStatusType.Testing: await this.PostTesting(message, lastUpdated); break;
+                default: throw new ApplicationException($"ClientStatus Service Post failed - Status type {status} is invalid.");
+            }
+        }
+
+        /// <summary>
         /// Posts the ready.
         /// </summary>
         /// <param name="message">The message.</param>

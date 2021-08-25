@@ -44,6 +44,10 @@
     <AdditionalFiles Include="src\stylecop.json" />
   </ItemGroup>
 
+   <ItemGroup>
+    <None Remove="src\events\" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="src\.editorconfig" />
   </ItemGroup>
@@ -63,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="src\events\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Ngsa.DataAccessLayer\Ngsa.DataAccessLayer.csproj" />

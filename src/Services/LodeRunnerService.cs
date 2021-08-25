@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Ngsa.LodeRunner.DataAccessLayer;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
+using Ngsa.LodeRunner.Events;
 using Ngsa.LodeRunner.Interfaces;
 
 namespace Ngsa.LodeRunner.Services
@@ -79,6 +80,19 @@ namespace Ngsa.LodeRunner.Services
         public IClientStatusService GetClientStatusService()
         {
             return ServiceProvider.GetService<IClientStatusService>();
+        }
+
+        //TODO Move to proper location when merging with DAL
+        public void LogStatusChange(object sender, ClientStatusEventArgs args)
+        {
+            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
+        }
+
+        //TODO Move to proper location when merging with DAL
+        public void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
+        {
+            // TODO when merging with DAL, need to register delegate to update cosmos
+            //await GetClientStatusService().PostStarting(args.Message, args.LastUpdated).ConfigureAwait(false);
         }
 
         private static void ValidateSettings(ServiceProvider provider)
@@ -182,32 +196,34 @@ namespace Ngsa.LodeRunner.Services
 
         private async Task<int> StartAndWait()
         {
+            ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
+            ProcessingEventBus.StatusUpdate += LogStatusChange;
+
+            //TODO change event status to enum, update message
+            ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
+
             LoadSecrets(config);
 
-            Console.WriteLine($"Waiting indefinitely to start test ...\n");
+            // TODO Initialize DAL
 
-            // **************** Testing Config update  only -- BEGIN ************************
-
-            // Simulate to wait 10 secs then execute a test run
-
-            //await Task.Delay(10000, App.TokenSource.Token).ConfigureAwait(false);
-
-            //string[] argsConfig = "-s https://worka.aks-sb.com -f memory-baseline.json memory-baseline.json --delay-start 5".Split(' ').ToArray();
-
-            //// Test run l8r from run config
-            //await App.Main(argsConfig);
-
-            //Console.WriteLine($"\nTest completed, waiting indefinitely to start test ...\n");
-
-            // **************** for testing purpose only -- END ************************
-
-            // ****************** testing Service pattern -- BEGIN**************************
-            //await Task.Delay(3000, App.TokenSource.Token).ConfigureAwait(false);
-
-            //await GetClientStatusService().PostStarting("Starting LodeRunner").ConfigureAwait(false);
-            // ****************** testing Service pattern -- END **************************
-
-            await Task.Delay(config.DelayStart, App.TokenSource.Token).ConfigureAwait(false);
+            ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, "Ready - test ready"));
+            try
+            {
+                // wait indefinitely
+                await Task.Delay(config.DelayStart, App.TokenSource.Token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException tce)
+            {
+                ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {tce.Message}"));
+            }
+            catch (OperationCanceledException oce)
+            {
+                ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {oce.Message}"));
+            }
+            finally
+            {
+                ProcessingEventBus.Dispose();
+            }
 
             return 1;
         }
