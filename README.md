@@ -1,10 +1,10 @@
 # NGSA Loderunner - A web request validation tool
 
-Loderunner (L8s) is an internal web request validation tool that we use to run end-to-end tests and long-running smoke tests.
+Loderunner (L8r) is an internal web request validation tool that we use to run end-to-end tests and long-running smoke tests.
 
 ## Quick Start
 
-L8s can be run as a docker container, since it is available at gitcr.io, most of its features and functionality are inherited from its parent code base [WebV](https://github.com/microsoft/webvalidate).
+L8r can be run as a docker container, since it is available at gitcr.io, most of its features and functionality are inherited from its parent code base [WebV](https://github.com/microsoft/webvalidate).
 
 ## Running as a docker container
 
@@ -15,11 +15,13 @@ docker pull ghcr.io/retaildevcrews/ngsa-lr:beta
 
 ```
 
-Experiment with L8s
+Experiment with L8r
+
+Run L8r with --help option, this should output command line options shown [below](#command-line-parameters)
 
 ```bash
-# run L8s with --help option; this should output command line options shown below
 docker run ghcr.io/retaildevcrews/ngsa-lr:beta --help
+
 ```
 
 Run benchmark and baseline test files
@@ -33,7 +35,7 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta -s "https://DomainName" -f b
 
 Loderunner uses both environment variables as well as command line options for configuration. Command flags take precedence over environment variables.
 
-Loderunner works in two distinct modes. The default mode processes the input file(s) in sequential order one time and exits. The "run loop" mode runs in a continuous loop until stopped or for the specified duration. Some environment variables and command flags are only valid if run loop is specified and L8s will exit and display usage information. Some parameters have different default values depending on the mode of execution.
+Loderunner works in two distinct modes. The default mode processes the input file(s) in sequential order one time and exits. The "run loop" mode runs in a continuous loop until stopped or for the specified duration. Some environment variables and command flags are only valid if run loop is specified and L8r will exit and display usage information. Some parameters have different default values depending on the mode of execution.
 
 ### Example Arguments for Long Running Tests
 
@@ -76,7 +78,7 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --server string1 [string2 string3]
   - -s
   - SERVER
-    - server Url (i.e. `https://ngsa-central-asb-test.cse.ms`)
+    - server Url (i.e. `https://MyServerDomainName.com`)
     - `required`
 - --files file1 [file2 file3 ...]
   - -f
@@ -91,7 +93,16 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --delay-start int
   - DELAY_START
     - delay starting the validation test for int seconds
+    - if --delay-start is equals to `-1` then --secrets-volume must be present and exist
+    - if --delay-start is anything other than `-1` then secrets are ignored
+    - if --delay-start is set to `-1` and --secrets-volume exists, Loderunner will start and await indefinitely to start test
     - default `0`
+- --secrets-volume string
+  - SECRETS_VOLUME
+    - secrets location
+    - if --secrets-volume is present then --delay-start must be equals to `-1`
+    - if --secrets-volume is present then secrets directory must exist.
+    - default `secrets`
 - --max-errors int
   - MAX_ERRORS
     - end test after max-errors
