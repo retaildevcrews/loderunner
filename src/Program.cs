@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Ngsa.LodeRunner.Events;
 
 namespace Ngsa.LodeRunner
 {
@@ -53,6 +54,18 @@ namespace Ngsa.LodeRunner
             return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
+        //TODO Move to proper location when merging with DAL
+        public static void LogStatusChange(object sender, ClientStatusEventArgs args)
+        {
+            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
+        }
+
+        //TODO Move to proper location when merging with DAL
+        public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
+        {
+            // TODO when merging with DAL, need to register delegate to update cosmos
+        }
+
         /// <summary>
         /// System.CommandLine.CommandHandler implementation
         /// </summary>
@@ -80,12 +93,35 @@ namespace Ngsa.LodeRunner
             {
                 if (config.DelayStart == -1)
                 {
+                    ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
+                    ProcessingEventBus.StatusUpdate += LogStatusChange;
+
+                    //TODO change event status to enum, update message
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Initializing", "test init"));
+
                     LoadSecrets(config);
+                    // TODO Initialize DAL
 
-                    Console.WriteLine($"Waiting indefinitely to start test ...\n");
+                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Ready", "test ready"));
+                    try
+                    {
+                        // wait indefinitely
+                        await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+                    }
+                    catch (TaskCanceledException tce)
+                    {
+                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", tce.Message));
+                    }
+                    catch (OperationCanceledException oce)
+                    {
+                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", oce.Message));
+                    }
+                    finally
+                    {
+                        ProcessingEventBus.Dispose();
+                    }
 
-                    // wait indefinitely
-                    await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
+                    return 1;
                 }
                 else if (config.DelayStart > 0)
                 {
