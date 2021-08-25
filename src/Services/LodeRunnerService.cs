@@ -25,6 +25,7 @@ namespace Ngsa.LodeRunner.Services
     internal partial class LodeRunnerService : IDisposable
     {
         private readonly Config config;
+        private ClientStatus clientStatus;
 
         public LodeRunnerService(Config config)
         {
@@ -85,14 +86,13 @@ namespace Ngsa.LodeRunner.Services
         //TODO Move to proper location when merging with DAL
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
-            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
+            Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); //TODO fix LogStatusChange implementation
         }
 
         //TODO Move to proper location when merging with DAL
-        public void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
+        public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            // TODO when merging with DAL, need to register delegate to update cosmos
-            //await GetClientStatusService().PostStarting(args.Message, args.LastUpdated).ConfigureAwait(false);
+            this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
         }
 
         private static void ValidateSettings(ServiceProvider provider)
@@ -145,8 +145,14 @@ namespace Ngsa.LodeRunner.Services
                     DatabaseName = config.Secrets.CosmosDatabase,
                 })
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<ClientStatusRepositorySettings>())
+
+                // Add Repositories
                 .AddSingleton<ClientStatusRepository>()
                 .AddSingleton<IClientStatusRepository, ClientStatusRepository>(provider => provider.GetRequiredService<ClientStatusRepository>())
+                .AddSingleton<LoadClientRepository>()
+                .AddSingleton<ILoadClientRepository, LoadClientRepository>(provider => provider.GetRequiredService<LoadClientRepository>())
+
+                // Add Services
                 .AddSingleton<ClientStatusService>()
                 .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>());
 
@@ -196,15 +202,12 @@ namespace Ngsa.LodeRunner.Services
 
         private async Task<int> StartAndWait()
         {
+            LoadSecrets(config);
+
             ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += LogStatusChange;
 
-            //TODO change event status to enum, update message
             ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
-
-            LoadSecrets(config);
-
-            // TODO Initialize DAL
 
             ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, "Ready - test ready"));
             try

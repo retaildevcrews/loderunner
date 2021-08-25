@@ -35,8 +35,8 @@ namespace Ngsa.DataAccessLayer.Model.Validators
                 .GreaterThan(minDate);
             this.RuleFor(m => m.StatusDuration)
                 .GreaterThan(0);
-            this.RuleFor(m => m.Status)
-                .NotEmpty();
+            this.RuleFor(m => m.Status).
+                IsInEnum();
             this.RuleFor(m => m.LoadClient)
                 .NotNull()
                 .SetValidator(new LoadClientValidator());

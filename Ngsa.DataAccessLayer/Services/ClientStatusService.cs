@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Ngsa.DataAccessLayer.Model.Validators;
@@ -17,15 +16,18 @@ namespace Ngsa.LodeRunner.Services
     public class ClientStatusService : IClientStatusService
     {
         private readonly IClientStatusRepository clientStatusRepository;
+        private readonly ILoadClientRepository loadClientRepository;
         private readonly IModelValidator<ClientStatus> validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
         /// <param name="clientStatusRepository">The client status repository.</param>
-        public ClientStatusService(IClientStatusRepository clientStatusRepository)
+        /// <param name="loadClientRepository">The load client repository.</param>
+        public ClientStatusService(IClientStatusRepository clientStatusRepository, ILoadClientRepository loadClientRepository)
         {
             this.clientStatusRepository = clientStatusRepository;
+            this.loadClientRepository = loadClientRepository;
 
             this.validator = new ClientStatusValidator();
         }
@@ -33,33 +35,25 @@ namespace Ngsa.LodeRunner.Services
         /// <summary>
         /// Posts the specified status.
         /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
+        /// <param name="lastUpdated">The last updated.</param>
         /// <param name="status">The status.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
-        /// <returns>The Task.</returns>
-        public async Task Post(ClientStatusType status, string message, DateTime? lastUpdated)
-        {
-            switch (status)
-            {
-                case ClientStatusType.Ready: await this.PostReady(message, lastUpdated); break;
-                case ClientStatusType.Starting: await this.PostStarting(message, lastUpdated); break;
-                case ClientStatusType.Terminating: await this.PostTerminating(message, lastUpdated); break;
-                case ClientStatusType.Testing: await this.PostTesting(message, lastUpdated); break;
-                default: throw new ApplicationException($"ClientStatus Service Post failed - Status type {status} is invalid.");
-            }
-        }
-
-        /// <summary>
-        /// Posts the ready.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
         /// <returns>
         /// The Task.
         /// </returns>
-        public Task PostReady(string message, DateTime? lastUpdated)
+        public async Task<ClientStatus> Post(string message, ClientStatus clientStatus, DateTime lastUpdated, ClientStatusType status)
         {
-            throw new NotImplementedException();
+            return status switch
+            {
+                ClientStatusType.Ready => await this.PostUpdate(message, clientStatus, lastUpdated, status),
+                ClientStatusType.Starting => await this.PostStarting(message, lastUpdated),
+                ClientStatusType.Testing => await this.PostUpdate(message, clientStatus, lastUpdated, status),
+                ClientStatusType.Terminating => await this.PostUpdate(message, clientStatus, lastUpdated, status),
+
+                // TODO: how to invalid ClientType
+                _ => throw new ApplicationException($"ClientStatus Service Post failed - Status type {status} is invalid."),
+            };
         }
 
         /// <summary>
@@ -67,60 +61,109 @@ namespace Ngsa.LodeRunner.Services
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="lastUpdated">The last updated.</param>
-        /// <returns>Created Document task.</returns>
-        public async Task PostStarting(string message, DateTime? lastUpdated = null)
+        /// <returns>
+        /// The Task.
+        /// </returns>
+        public async Task<ClientStatus> PostStarting(string message, DateTime lastUpdated)
         {
-            lastUpdated ??= DateTime.UtcNow;
-
-            var entry = new ClientStatus
+            // TODO: need to set the correct data, this is just and example
+            // Create a new ClientStatus Entry
+            var clientStatusEntry = new ClientStatus
             {
                 EntityType = EntityType.ClientStatus,
                 PartitionKey = EntityType.ClientStatus.ToString(),
-                StatusDuration = -1,
+                StatusDuration = 1,
                 Status = ClientStatusType.Starting,
                 Message = message,
-                LastUpdated = lastUpdated ?? DateTime.UtcNow,
-                LoadClient = new LoadClient(),
+                LastUpdated = lastUpdated,
+                LoadClient = new LoadClient
+                {
+                    EntityType = EntityType.LoadClient,
+                    Version = "0.3.0 - 717 - 1030",
+                    Name = "Central - az - central - us - 2",
+                    Region = "Central",
+                    Zone = "az-central-us",
+                    Prometheus = false,
+                    StartupArgs = "--delay - start - 1--secrets - volume secrets",
+                    StartTime = lastUpdated,
+                },
             };
 
-            this.clientStatusRepository.GenerateId(entry);
+            // Generate Entry Id
+            this.clientStatusRepository.GenerateId(clientStatusEntry);
 
-            var errors = this.validator.Validate(entry).Errors.ToList();
+            this.loadClientRepository.GenerateId(clientStatusEntry.LoadClient);
+
+            // Validate Entry
+            var errors = this.validator.Validate(clientStatusEntry).Errors.ToList();
             if (errors.Count > 0)
             {
-                var errorMsg = string.Join('\n', errors);
+                var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
+                var errorMsg = string.Join('\n', errorsList);
+
+                // TODO: how to handle validation errors
                 throw new ApplicationException($"PostStarting validation failed - {message}\n{errorMsg}\n\n");
             }
             else
             {
-                await this.clientStatusRepository.CreateDocumentAsync(entry).ConfigureAwait(false);
+                var createStatusTask = Task.Run(() => this.clientStatusRepository.CreateDocumentAsync(clientStatusEntry).Result);
+
+                // NOTE: We need to make sure the item is created before to move on since it is Cached at the LodeService and utilized to update Status later on.
+                createStatusTask.Wait();
+
+                return await createStatusTask;
             }
         }
 
         /// <summary>
-        /// Posts the terminating.
+        /// Posts the ready.
         /// </summary>
         /// <param name="message">The message.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="lastUpdated">The last updated.</param>
+        /// <param name="status">Client Status Type.</param>
         /// <returns>
         /// The Task.
         /// </returns>
-        public Task PostTerminating(string message, DateTime? lastUpdated)
+        public async Task<ClientStatus> PostUpdate(string message, ClientStatus clientStatus, DateTime lastUpdated, ClientStatusType status)
         {
-            throw new NotImplementedException();
-        }
+            if (clientStatus == null)
+            {
+                // TODO: What to if it is null
+                throw new ApplicationException($"PostReady failed - clientStatus cannot be null.");
+            }
 
-        /// <summary>
-        /// Posts the testing.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
-        /// <returns>
-        /// The Task.
-        /// </returns>
-        public Task PostTesting(string message, DateTime? lastUpdated)
-        {
-            throw new NotImplementedException();
+            // Update Entity
+            clientStatus.LastUpdated = lastUpdated;
+            clientStatus.Message = message;
+            clientStatus.Status = status;
+
+            // Validate Entity
+            var errors = this.validator.Validate(clientStatus).Errors.ToList();
+            if (errors.Count > 0)
+            {
+                var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
+                var errorMsg = string.Join('\n', errorsList);
+
+                // TODO: how to handle validation errors
+                throw new ApplicationException($"PostReady validation failed - {message}\n{errorMsg}\n\n");
+            }
+            else
+            {
+                if (status == ClientStatusType.Terminating)
+                {
+                    var terminatingStatusTask = Task.Run(() => this.clientStatusRepository.UpsertDocumentAsync(clientStatus).Result);
+
+                    // NOTE: We need to make sure the update is posted back to Cosmos before to terminate the application.
+                    terminatingStatusTask.Wait();
+
+                    return await terminatingStatusTask;
+                }
+                else
+                {
+                    return await this.clientStatusRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
+                }
+            }
         }
     }
 }

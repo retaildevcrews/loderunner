@@ -22,8 +22,6 @@ namespace Ngsa.DataAccessLayer.Model.Validators
 
             this.RuleFor(m => m.Id)
                 .NotEmpty();
-            this.RuleFor(m => m.PartitionKey)
-                .NotEmpty();
             this.RuleFor(m => m.EntityType)
                 .IsInEnum();
             this.RuleFor(m => m.Version)

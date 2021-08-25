@@ -14,6 +14,12 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
     /// </summary>
     internal interface IChangeFeedProcessorService
     {
+        /// <summary>
+        /// Gets the change feed processor.
+        /// </summary>
+        /// <value>
+        /// The change feed processor.
+        /// </value>
         ChangeFeedProcessor ChangeFeedProcessor { get; }
     }
 }

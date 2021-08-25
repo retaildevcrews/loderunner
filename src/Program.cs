@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,25 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public sealed partial class App
     {
+        private static HandlerRoutine consoleHandler;
+
+        // A delegate type to be used as the handler routine for SetConsoleCtrlHandler.
+        public delegate bool HandlerRoutine(CtrlTypes ctrlType);
+
+        // An enumerated type for the control messages sent to the handler routine.
+        public enum CtrlTypes
+        {
+            /// <summary>
+            /// The control c event
+            /// </summary>
+            CtrlCEvent = 0,
+
+            /// <summary>
+            /// The control close event
+            /// </summary>
+            CtrlCloseEvent = 2,
+        }
+
         /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
@@ -43,6 +63,12 @@ namespace Ngsa.LodeRunner
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
+            //save a reference so it does not get GC'd
+            consoleHandler = new HandlerRoutine(ConsoleCtrlCheck);
+
+            //set our handler here that will trap exit
+            SetConsoleCtrlHandler(consoleHandler, true);
+
             if (args != null)
             {
                 DisplayAsciiArt(args);
@@ -54,18 +80,6 @@ namespace Ngsa.LodeRunner
 
             // run the command handler
             return await root.InvokeAsync(args).ConfigureAwait(false);
-        }
-
-        //TODO Move to proper location when merging with DAL
-        public static void LogStatusChange(object sender, ClientStatusEventArgs args)
-        {
-            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
-        }
-
-        //TODO Move to proper location when merging with DAL
-        public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
-        {
-            // TODO when merging with DAL, need to register delegate to update cosmos
         }
 
         /// <summary>
@@ -95,6 +109,9 @@ namespace Ngsa.LodeRunner
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
         }
 
+        [DllImport("Kernel32")]
+        internal static extern bool SetConsoleCtrlHandler(HandlerRoutine handler, bool add);
+
         // build the web host
         internal static IHost BuildWebHost()
         {
@@ -107,6 +124,24 @@ namespace Ngsa.LodeRunner
                         })
                         .UseConsoleLifetime()
                         .Build();
+        }
+
+        /// <summary>
+        /// Consoles the control check.
+        /// </summary>
+        /// <param name="ctrlType">Type of the control.</param>
+        /// <returns>True if handled </returns>
+        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        {
+            switch (ctrlType)
+            {
+                case CtrlTypes.CtrlCEvent:
+                case CtrlTypes.CtrlCloseEvent:
+                    TokenSource.Cancel(true);
+                    break;
+            }
+
+            return true;
         }
 
         // ascii art
