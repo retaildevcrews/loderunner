@@ -54,13 +54,13 @@ namespace Ngsa.LodeRunner
             return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        //TODO Move to proper location - testing for now
+        //TODO Move to proper location when merging with DAL
         public static void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             Console.WriteLine(args.Message);
         }
 
-        //TODO Move to proper location - testing for now
+        //TODO Move to proper location when merging with DAL
         public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
             // TODO when merging with DAL, need to register delegate to update cosmos
@@ -100,6 +100,8 @@ namespace Ngsa.LodeRunner
                 {
                     ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
                     ProcessingEventBus.StatusUpdate += LogStatusChange;
+
+                    //TODO change event status to enum, update message
                     ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Initializing", "test init"));
 
                     // TODO Initialize processing event bus
