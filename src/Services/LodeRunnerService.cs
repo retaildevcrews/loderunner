@@ -22,10 +22,11 @@ namespace Ngsa.LodeRunner.Services
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="Ngsa.LodeRunner.Interfaces.ILodeRunnerService" />
-    internal partial class LodeRunnerService : IDisposable
+    internal partial class LodeRunnerService : IDisposable, ILodeRunnerService
     {
         private readonly Config config;
         private ClientStatus clientStatus;
+        private bool cosmosConfigInitialized = false;
 
         public LodeRunnerService(Config config)
         {
@@ -37,6 +38,10 @@ namespace Ngsa.LodeRunner.Services
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Starts the service and uses the Configuration to determine the Start mode.
+        /// </summary>
+        /// <returns>The Task with exit code.</returns>
         public async Task<int> StartService()
         {
             // set any missing values
@@ -95,6 +100,11 @@ namespace Ngsa.LodeRunner.Services
             this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Validates the settings.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        /// <exception cref="System.ApplicationException">Failed to validate application configuration</exception>
         private static void ValidateSettings(ServiceProvider provider)
         {
             var settings = provider.GetServices<ISettingsValidator>();
@@ -111,7 +121,11 @@ namespace Ngsa.LodeRunner.Services
             }
         }
 
-        private void LoadSecrets(Config config)
+        /// <summary>
+        /// Loads the secrets.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        private static void LoadSecrets(Config config)
         {
             config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
 
@@ -124,41 +138,12 @@ namespace Ngsa.LodeRunner.Services
             {
                 config.CosmosName = config.CosmosName.Remove(ndx);
             }
-
-            RegisterServices();
-
-            ValidateSettings(this.ServiceProvider);
         }
 
-        private void RegisterServices()
-        {
-            var serviceBuilder = new ServiceCollection();
-
-            serviceBuilder
-                .AddSingleton<ClientStatusRepositorySettings>(x => new ClientStatusRepositorySettings()
-                {
-                    CollectionName = config.Secrets.CosmosCollection,
-                    Retries = config.Retries,
-                    Timeout = config.CosmosTimeout,
-                    Uri = config.Secrets.CosmosServer,
-                    Key = config.Secrets.CosmosKey,
-                    DatabaseName = config.Secrets.CosmosDatabase,
-                })
-                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<ClientStatusRepositorySettings>())
-
-                // Add Repositories
-                .AddSingleton<ClientStatusRepository>()
-                .AddSingleton<IClientStatusRepository, ClientStatusRepository>(provider => provider.GetRequiredService<ClientStatusRepository>())
-                .AddSingleton<LoadClientRepository>()
-                .AddSingleton<ILoadClientRepository, LoadClientRepository>(provider => provider.GetRequiredService<LoadClientRepository>())
-
-                // Add Services
-                .AddSingleton<ClientStatusService>()
-                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>());
-
-            ServiceProvider = serviceBuilder.BuildServiceProvider();
-        }
-
+        /// <summary>
+        /// Starts a loderunner instance.
+        /// </summary>
+        /// <returns>The Task with exit code.</returns>
         private async Task<int> Start()
         {
             if (config.DelayStart > 0)
@@ -195,14 +180,22 @@ namespace Ngsa.LodeRunner.Services
             }
         }
 
+        /// <summary>
+        /// Starts a loderunner instance on dry run.
+        /// </summary>
+        /// <returns>The Task with exit code.</returns>
         private Task<int> StartDryRun()
         {
             return Task.Run(() => App.DoDryRun(config));
         }
 
+        /// <summary>
+        /// Starts a loderunner instance and wait to start test.
+        /// </summary>
+        /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
-            LoadSecrets(config);
+            InitializeCosmosConfiguration();
 
             ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += LogStatusChange;
@@ -229,6 +222,55 @@ namespace Ngsa.LodeRunner.Services
             }
 
             return 1;
+        }
+
+        /// <summary>
+        /// Initializes the cosmos configuration.
+        /// </summary>
+        private void InitializeCosmosConfiguration()
+        {
+            if (!cosmosConfigInitialized)
+            {
+                LoadSecrets(config);
+
+                RegisterServices();
+
+                ValidateSettings(this.ServiceProvider);
+
+                cosmosConfigInitialized = true;
+            }
+        }
+
+        /// <summary>
+        /// Registers the services.
+        /// </summary>
+        private void RegisterServices()
+        {
+            var serviceBuilder = new ServiceCollection();
+
+            serviceBuilder
+                .AddSingleton<ClientStatusRepositorySettings>(x => new ClientStatusRepositorySettings()
+                {
+                    CollectionName = config.Secrets.CosmosCollection,
+                    Retries = config.Retries,
+                    Timeout = config.CosmosTimeout,
+                    Uri = config.Secrets.CosmosServer,
+                    Key = config.Secrets.CosmosKey,
+                    DatabaseName = config.Secrets.CosmosDatabase,
+                })
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<ClientStatusRepositorySettings>())
+
+                // Add Repositories
+                .AddSingleton<ClientStatusRepository>()
+                .AddSingleton<IClientStatusRepository, ClientStatusRepository>(provider => provider.GetRequiredService<ClientStatusRepository>())
+                .AddSingleton<LoadClientRepository>()
+                .AddSingleton<ILoadClientRepository, LoadClientRepository>(provider => provider.GetRequiredService<LoadClientRepository>())
+
+                // Add Services
+                .AddSingleton<ClientStatusService>()
+                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>());
+
+            ServiceProvider = serviceBuilder.BuildServiceProvider();
         }
     }
 

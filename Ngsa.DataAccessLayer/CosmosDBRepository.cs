@@ -22,7 +22,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         private static CosmosClient client;
         private readonly ICosmosDBSettings settings;
 
-        // private readonly CosmosConfig options; this will be use is InternalCosmosDBSqlQuery is implemented
+        private readonly CosmosConfig options;
         private readonly object lockObj = new ();
         private Container container;
         private ContainerProperties containerProperties;
@@ -37,15 +37,12 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         {
             this.settings = settings;
 
-            // this.options = new CosmosConfig
-            // {
-            //    MaxRows = MaxPageSize,
-            //    Timeout = CosmosTimeout,
-            //    Retries = settings.Retries,
-            //    Timeout = settings.Timeout,
-            // };
-            this.CosmosTimeout = settings.Timeout;
-            this.CosmosMaxRetries = settings.Retries;
+            this.options = new CosmosConfig
+            {
+                MaxRows = this.MaxPageSize,
+                Timeout = this.settings.Timeout,
+                Retries = this.settings.Retries,
+            };
         }
 
         /// <summary>
@@ -63,22 +60,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// The maximum size of the page.
         /// </value>
         public int MaxPageSize { get; set; } = 1000;
-
-        /// <summary>
-        /// Gets or sets the cosmos timeout.
-        /// </summary>
-        /// <value>
-        /// The cosmos timeout.
-        /// </value>
-        public int CosmosTimeout { get; set; } = 60;
-
-        /// <summary>
-        /// Gets or sets the cosmos maximum retries.
-        /// </summary>
-        /// <value>
-        /// The cosmos maximum retries.
-        /// </value>
-        public int CosmosMaxRetries { get; set; } = 10;
 
         /// <summary>
         /// Gets the name of the collection.
@@ -113,8 +94,8 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// The client.
         /// </value>
         protected CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
-                                                    .WithRequestTimeout(TimeSpan.FromSeconds(this.CosmosTimeout))
-                                                    .WithThrottlingRetryOptions(TimeSpan.FromSeconds(this.CosmosTimeout), this.CosmosMaxRetries)
+                                                    .WithRequestTimeout(TimeSpan.FromSeconds(this.settings.Timeout))
+                                                    .WithThrottlingRetryOptions(TimeSpan.FromSeconds(this.settings.Timeout), this.settings.Retries)
                                                     .WithSerializerOptions(new CosmosSerializationOptions
                                                     {
                                                         PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
@@ -304,6 +285,53 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         protected async Task<ContainerProperties> GetContainerProperties(Container container = null)
         {
             return (await (container ?? this.Container).ReadContainerAsync().ConfigureAwait(false)).Resource;
+        }
+
+        /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <param name="sql">Query to be executed.</param>
+        /// <param name="options">Query options.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        protected async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery(string sql, QueryRequestOptions options = null)
+        {
+            // run query
+            var query = this.Container.GetItemQueryIterator<TEntity>(sql, requestOptions: options ?? this.options.QueryRequestOptions);
+
+            var results = new List<TEntity>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                {
+                    results.Add(doc);
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <param name="queryDefinition">Query to be executed.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        protected async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery(QueryDefinition queryDefinition)
+        {
+            // run query
+            var query = this.Container.GetItemQueryIterator<TEntity>(queryDefinition, requestOptions: this.options.QueryRequestOptions);
+
+            var results = new List<TEntity>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                {
+                    results.Add(doc);
+                }
+            }
+
+            return results;
         }
 
         /// <summary>

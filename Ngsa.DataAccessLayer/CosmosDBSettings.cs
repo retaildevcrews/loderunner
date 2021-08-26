@@ -20,20 +20,20 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         }
 
         /// <summary>
-        /// Gets or sets the retries.
+        /// Gets or sets the cosmos maximum retries.
         /// </summary>
         /// <value>
         /// The retries.
         /// </value>
-        public int Retries { get; set; }
+        public int Retries { get; set; } = 10;
 
         /// <summary>
-        /// Gets or sets the timeout.
+        /// Gets or sets the cosmos timeout.
         /// </summary>
         /// <value>
         /// The timeout.
         /// </value>
-        public int Timeout { get; set; }
+        public int Timeout { get; set; } = 60;
 
         /// <summary>
         /// Gets or sets the URI.
