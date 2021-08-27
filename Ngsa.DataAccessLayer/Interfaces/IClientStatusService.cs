@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
 
@@ -39,5 +40,18 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// <param name="status">The status.</param>
         /// <returns>The Task.</returns>
         Task<ClientStatus> PostUpdate(string message, ClientStatus clientStatus, DateTime lastUpdated, ClientStatusType status);
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>The corresponding Enity.</returns>
+        Task<ClientStatus> Get(string id);
+
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>all items for a given type.</returns>
+        Task<IEnumerable<ClientStatus>> GetAll();
     }
 }

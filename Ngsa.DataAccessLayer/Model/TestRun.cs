@@ -10,40 +10,8 @@ namespace Ngsa.DataAccessLayer.Model
     /// <summary>
     /// TestRun Model.
     /// </summary>
-    public class TestRun : IBaseLoadEntityModel
+    public class TestRun : BaseEntityModel
     {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the partition key.
-        /// </summary>
-        /// <value>
-        /// The partition key.
-        /// </value>
-        public string PartitionKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the entity.
-        /// </summary>
-        /// <value>
-        /// The type of the entity.
-        /// </value>
-        public EntityType EntityType { get; set; } = EntityType.Unassigned;
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
-
         /// <summary>
         /// Gets or sets the load test configuration.
         /// </summary>

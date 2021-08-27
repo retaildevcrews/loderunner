@@ -47,5 +47,13 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// The name of the database.
         /// </value>
         string DatabaseName { get; }
+
+        /// <summary>
+        /// Gets or sets the name of the collection.
+        /// </summary>
+        /// <value>
+        /// The name of the collection.
+        /// </value>
+        string CollectionName { get; set; }
     }
 }

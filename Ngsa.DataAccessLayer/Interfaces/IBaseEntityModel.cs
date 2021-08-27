@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace Ngsa.LodeRunner.DataAccessLayer.Model
+using Ngsa.LodeRunner.DataAccessLayer.Model;
+
+namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
 {
     /// <summary>
     /// Base LoadEntity Model Interface.
     /// </summary>
-    internal interface IBaseLoadEntityModel
+    internal interface IBaseEntityModel
     {
         /// <summary>
         /// Gets or sets the identifier.
@@ -14,23 +16,23 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// <value>
         /// The identifier.
         /// </value>
-        public string Id { get; set; }
+        string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the partition key.
+        /// Gets the partition key.
         /// </summary>
         /// <value>
         /// The partition key.
         /// </value>
-        public string PartitionKey { get; set; }
+        string PartitionKey { get; }
 
         /// <summary>
-        /// Gets or sets the type of the entity.
+        /// Gets  the type of the entity.
         /// </summary>
         /// <value>
         /// The type of the entity.
         /// </value>
-        public EntityType EntityType { get; set; }
+        EntityType EntityType { get; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -38,6 +40,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// <value>
         /// The name.
         /// </value>
-        public string Name { get; set; }
+        string Name { get; set; }
     }
 }

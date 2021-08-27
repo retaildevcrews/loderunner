@@ -3,39 +3,16 @@
 
 using System;
 using Ngsa.DataAccessLayer.Model;
+using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 
 namespace Ngsa.LodeRunner.DataAccessLayer.Model
 {
     /// <summary>
     /// LoadClient Model.
     /// </summary>
-    /// <seealso cref="Ngsa.LodeRunner.DataAccessLayer.Model.IBaseLoadEntityModel" />
-    public class LoadClient : IBaseLoadEntityModel
+    /// <seealso cref="Ngsa.LodeRunner.DataAccessLayer.Model.BaseEntityModel" />
+    public class LoadClient : BaseEntityModel
     {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the partition key.
-        /// </summary>
-        /// <value>
-        /// The partition key.
-        /// </value>
-        public string PartitionKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the entity.
-        /// </summary>
-        /// <value>
-        /// The type of the entity.
-        /// </value>
-        public EntityType EntityType { get; set; } = EntityType.Unassigned;
-
         /// <summary>
         /// Gets or sets the version.
         /// </summary>
@@ -43,14 +20,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// The version.
         /// </value>
         public string Version { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the region.

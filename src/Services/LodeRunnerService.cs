@@ -88,6 +88,11 @@ namespace Ngsa.LodeRunner.Services
             return ServiceProvider.GetService<IClientStatusService>();
         }
 
+        public ILoadTestConfigService GetLoadTestConfigService()
+        {
+            return ServiceProvider.GetService<ILoadTestConfigService>();
+        }
+
         //TODO Move to proper location when merging with DAL
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
@@ -99,6 +104,18 @@ namespace Ngsa.LodeRunner.Services
         {
             this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
         }
+
+        // TEST only
+        //public void TestServicesAndCosmosDBRepository()
+        //{
+        //    var clientStatus = GetClientStatusService().Get("aae1e564-9505-406d-939d-95d61b066c54").Result;
+
+        //    var clientStatusList = GetClientStatusService().GetAll().Result;
+
+        //    var loadTestList = GetLoadTestConfigService().GetAll().Result;
+
+        //    var loadTest = GetLoadTestConfigService().Get("a0bfe57b-1535-4d19-aaac-477548ad913f").Result;
+        //}
 
         /// <summary>
         /// Validates the settings.
@@ -197,6 +214,8 @@ namespace Ngsa.LodeRunner.Services
         {
             InitializeCosmosConfiguration();
 
+            // TestServicesAndCosmosDBRepository();
+
             ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += LogStatusChange;
 
@@ -249,7 +268,7 @@ namespace Ngsa.LodeRunner.Services
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
-                .AddSingleton<ClientStatusRepositorySettings>(x => new ClientStatusRepositorySettings()
+                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
                 {
                     CollectionName = config.Secrets.CosmosCollection,
                     Retries = config.Retries,
@@ -258,17 +277,19 @@ namespace Ngsa.LodeRunner.Services
                     Key = config.Secrets.CosmosKey,
                     DatabaseName = config.Secrets.CosmosDatabase,
                 })
-                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<ClientStatusRepositorySettings>())
+                .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
-                // Add Repositories
-                .AddSingleton<ClientStatusRepository>()
-                .AddSingleton<IClientStatusRepository, ClientStatusRepository>(provider => provider.GetRequiredService<ClientStatusRepository>())
-                .AddSingleton<LoadClientRepository>()
-                .AddSingleton<ILoadClientRepository, LoadClientRepository>(provider => provider.GetRequiredService<LoadClientRepository>())
+                // Add CosmosDB Repository
+                .AddSingleton<CosmosDBRepository>()
+                .AddSingleton<ICosmosDBRepository, CosmosDBRepository>(provider => provider.GetRequiredService<CosmosDBRepository>())
 
                 // Add Services
                 .AddSingleton<ClientStatusService>()
-                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>());
+                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>())
+
+                .AddSingleton<LoadTestConfigService>()
+                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
 
             ServiceProvider = serviceBuilder.BuildServiceProvider();
         }

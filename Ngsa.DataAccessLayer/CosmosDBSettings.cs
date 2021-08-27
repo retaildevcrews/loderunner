@@ -60,6 +60,14 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         public string DatabaseName { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the collection.
+        /// </summary>
+        /// <value>
+        /// The name of the collection.
+        /// </value>
+        public string CollectionName { get; set; }
+
+        /// <summary>
         /// Validates this instance.
         /// </summary>
         public virtual void Validate()
@@ -77,6 +85,11 @@ namespace Ngsa.LodeRunner.DataAccessLayer
             if (string.IsNullOrWhiteSpace(this.DatabaseName))
             {
                 throw new ConfigurationErrorsException($"{this.GetType().Name}: DatabaseName is invalid");
+            }
+
+            if (string.IsNullOrEmpty(this.CollectionName))
+            {
+                throw new ConfigurationErrorsException($"{this.GetType().Name}: CollectionName is invalid");
             }
         }
     }

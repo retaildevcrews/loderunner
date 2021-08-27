@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Ngsa.DataAccessLayer.Model.Validators;
@@ -13,23 +14,44 @@ namespace Ngsa.LodeRunner.Services
     /// <summary>
     ///   Client Status Service.
     /// </summary>
-    public class ClientStatusService : IClientStatusService
+    public class ClientStatusService : BaseService, IClientStatusService
     {
-        private readonly IClientStatusRepository clientStatusRepository;
-        private readonly ILoadClientRepository loadClientRepository;
+        private readonly ICosmosDBRepository cosmosDBRepository;
         private readonly IModelValidator<ClientStatus> validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
-        /// <param name="clientStatusRepository">The client status repository.</param>
-        /// <param name="loadClientRepository">The load client repository.</param>
-        public ClientStatusService(IClientStatusRepository clientStatusRepository, ILoadClientRepository loadClientRepository)
+        /// <param name="cosmosDBRepository">The cosmos database repository.</param>
+        public ClientStatusService(ICosmosDBRepository cosmosDBRepository)
+            : base(cosmosDBRepository)
         {
-            this.clientStatusRepository = clientStatusRepository;
-            this.loadClientRepository = loadClientRepository;
+            this.cosmosDBRepository = cosmosDBRepository;
 
             this.validator = new ClientStatusValidator();
+        }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The corresponding Enity.
+        /// </returns>
+        public async Task<ClientStatus> Get(string id)
+        {
+            return await this.Get<ClientStatus>(id);
+        }
+
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns>
+        /// all items for a given type.
+        /// </returns>
+        public async Task<IEnumerable<ClientStatus>> GetAll()
+        {
+            return await this.GetAll<ClientStatus>();
         }
 
         /// <summary>
@@ -70,15 +92,12 @@ namespace Ngsa.LodeRunner.Services
             // Create a new ClientStatus Entry
             var clientStatusEntry = new ClientStatus
             {
-                EntityType = EntityType.ClientStatus,
-                PartitionKey = EntityType.ClientStatus.ToString(),
                 StatusDuration = 1,
                 Status = ClientStatusType.Starting,
                 Message = message,
                 LastUpdated = lastUpdated,
                 LoadClient = new LoadClient
                 {
-                    EntityType = EntityType.LoadClient,
                     Version = "0.3.0 - 717 - 1030",
                     Name = "Central - az - central - us - 2",
                     Region = "Central",
@@ -88,11 +107,6 @@ namespace Ngsa.LodeRunner.Services
                     StartTime = lastUpdated,
                 },
             };
-
-            // Generate Entry Id
-            this.clientStatusRepository.GenerateId(clientStatusEntry);
-
-            this.loadClientRepository.GenerateId(clientStatusEntry.LoadClient);
 
             // Validate Entry
             var errors = this.validator.Validate(clientStatusEntry).Errors.ToList();
@@ -106,7 +120,7 @@ namespace Ngsa.LodeRunner.Services
             }
             else
             {
-                var createStatusTask = Task.Run(() => this.clientStatusRepository.CreateDocumentAsync(clientStatusEntry).Result);
+                var createStatusTask = Task.Run(() => this.cosmosDBRepository.CreateDocumentAsync(clientStatusEntry).Result);
 
                 // NOTE: We need to make sure the item is created before to move on since it is Cached at the LodeService and utilized to update Status later on.
                 createStatusTask.Wait();
@@ -152,7 +166,7 @@ namespace Ngsa.LodeRunner.Services
             {
                 if (status == ClientStatusType.Terminating)
                 {
-                    var terminatingStatusTask = Task.Run(() => this.clientStatusRepository.UpsertDocumentAsync(clientStatus).Result);
+                    var terminatingStatusTask = Task.Run(() => this.cosmosDBRepository.UpsertDocumentAsync(clientStatus).Result);
 
                     // NOTE: We need to make sure the update is posted back to Cosmos before to terminate the application.
                     terminatingStatusTask.Wait();
@@ -161,7 +175,7 @@ namespace Ngsa.LodeRunner.Services
                 }
                 else
                 {
-                    return await this.clientStatusRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
+                    return await this.cosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
                 }
             }
         }

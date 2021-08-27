@@ -15,9 +15,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
     /// <summary>
     ///   CosmosDBRepository.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public abstract class CosmosDBRepository<TEntity> : ICosmosDBRepository<TEntity>, IDisposable
-                                                where TEntity : class
+    public sealed class CosmosDBRepository : ICosmosDBRepository, IDisposable
     {
         private static CosmosClient client;
         private readonly ICosmosDBSettings settings;
@@ -29,11 +27,11 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         private PropertyInfo partitionKeyPI;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CosmosDBRepository{TEntity}" /> class.
-        /// Data Access Layer Constructor.
+        /// Initializes a new instance of the <see cref="CosmosDBRepository"/> class.
         /// </summary>
-        /// <param name="settings">Instance of settings for a ComosDB.</param>
-        protected CosmosDBRepository(ICosmosDBSettings settings)
+        /// <param name="settings">The settings.</param>
+        /// <exception cref="System.ApplicationException">Repository test for {this.Id} failed.</exception>
+        public CosmosDBRepository(ICosmosDBSettings settings)
         {
             this.settings = settings;
 
@@ -43,6 +41,11 @@ namespace Ngsa.LodeRunner.DataAccessLayer
                 Timeout = this.settings.Timeout,
                 Retries = this.settings.Retries,
             };
+
+            if (!this.Test().Result)
+            {
+                throw new ApplicationException($"Repository test for {this.Id} failed.");
+            }
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// <value>
         /// The name of the collection.
         /// </value>
-        public abstract string CollectionName { get; }
+        public string CollectionName => this.settings.CollectionName;
 
         /// <summary>
         /// Gets the name of the database.
@@ -93,7 +96,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// <value>
         /// The client.
         /// </value>
-        protected CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
+        private CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
                                                     .WithRequestTimeout(TimeSpan.FromSeconds(this.settings.Timeout))
                                                     .WithThrottlingRetryOptions(TimeSpan.FromSeconds(this.settings.Timeout), this.settings.Retries)
                                                     .WithSerializerOptions(new CosmosSerializationOptions
@@ -104,30 +107,13 @@ namespace Ngsa.LodeRunner.DataAccessLayer
                                                     })
                                                     .Build();
 
-        private Container Container
-        {
-            get
-            {
-                lock (this.lockObj)
-                {
-                    return this.container ??= this.GetContainer(this.Client);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generates the identifier.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns>the Id.</returns>
-        public abstract string GenerateId(TEntity entity);
-
         /// <summary>
         /// Resolves the partition key.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="entity">The entity.</param>
         /// <returns>The Partition key.</returns>
-        public virtual PartitionKey ResolvePartitionKey(TEntity entity)
+        public PartitionKey ResolvePartitionKey<TEntity>(TEntity entity)
         {
             try
             {
@@ -145,67 +131,73 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// <summary>
         /// Given a document id and its partition value, retrieve the document, if it exists.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">ObjectId of the document.</param>
         /// <param name="partitionKey">Value of the partitionkey for the document.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> GetByIdAsync(string id, string partitionKey)
+        public async Task<TEntity> GetByIdAsync<TEntity>(string id, string partitionKey)
         {
-            var result = await this.GetByIdWithMetaAsync(id, partitionKey).ConfigureAwait(false);
-            return result?.Resource;
+            var result = await this.GetByIdWithMetaAsync<TEntity>(id, partitionKey).ConfigureAwait(false);
+            return result.Resource;
         }
 
         /// <summary>
         /// Gets the by identifier with meta asynchronous.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <param name="partitionKey">The partition key.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<ItemResponse<TEntity>> GetByIdWithMetaAsync(string id, string partitionKey)
+        public async Task<ItemResponse<TEntity>> GetByIdWithMetaAsync<TEntity>(string id, string partitionKey)
         {
-            return await this.Container.ReadItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
+            return await this.Container<TEntity>().ReadItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Replaces the document asynchronous.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <param name="newDocument">The new document.</param>
         /// <param name="reqOptions">The req options.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> ReplaceDocumentAsync(string id, TEntity newDocument, ItemRequestOptions reqOptions)
+        public async Task<TEntity> ReplaceDocumentAsync<TEntity>(string id, TEntity newDocument, ItemRequestOptions reqOptions)
         {
-            return await this.Container.ReplaceItemAsync<TEntity>(newDocument, id, this.ResolvePartitionKey(newDocument), reqOptions).ConfigureAwait(false);
+            return await this.Container<TEntity>().ReplaceItemAsync(newDocument, id, this.ResolvePartitionKey(newDocument), reqOptions).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Creates the document asynchronous.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> CreateDocumentAsync(TEntity newDocument)
+        public async Task<TEntity> CreateDocumentAsync<TEntity>(TEntity newDocument)
         {
-            return await this.Container.CreateItemAsync<TEntity>(newDocument, this.ResolvePartitionKey(newDocument)).ConfigureAwait(false);
+            return await this.Container<TEntity>().CreateItemAsync(newDocument, this.ResolvePartitionKey(newDocument)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Upserts the document asynchronous.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
         /// <returns>An instance of the document.</returns>
-        public async Task<TEntity> UpsertDocumentAsync(TEntity newDocument)
+        public async Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument)
         {
-            return await this.Container.UpsertItemAsync<TEntity>(newDocument, this.ResolvePartitionKey(newDocument)).ConfigureAwait(false);
+            return await this.Container<TEntity>().UpsertItemAsync(newDocument, this.ResolvePartitionKey(newDocument)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Deletes the document asynchronous.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <param name="partitionKey">The partition key.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> DeleteDocumentAsync(string id, string partitionKey)
+        public async Task<TEntity> DeleteDocumentAsync<TEntity>(string id, string partitionKey)
         {
-            return await this.Container.DeleteItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
+            return await this.Container<TEntity>().DeleteItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -214,7 +206,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// <returns>
         /// true if passed , otherwise false.
         /// </returns>
-        public virtual async Task<bool> Test()
+        public async Task<bool> Test()
         {
             if (string.IsNullOrEmpty(this.CollectionName))
             {
@@ -248,18 +240,68 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         }
 
         /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="sql">Query to be executed.</param>
+        /// <param name="options">Query options.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        public async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery<TEntity>(string sql, QueryRequestOptions options = null)
+        {
+            // run query
+            var query = this.Container<TEntity>().GetItemQueryIterator<TEntity>(sql, requestOptions: options ?? this.options.QueryRequestOptions);
+
+            var results = new List<TEntity>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                {
+                    results.Add(doc);
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="queryDefinition">Query to be executed.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        public async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery<TEntity>(QueryDefinition queryDefinition)
+        {
+            // run query
+            var query = this.Container<TEntity>().GetItemQueryIterator<TEntity>(queryDefinition, requestOptions: this.options.QueryRequestOptions);
+
+            var results = new List<TEntity>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                {
+                    results.Add(doc);
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
         /// Get a proxy to the container.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="client">An instance of <see cref="CosmosClient"/>.</param>
         /// <param name="collectionName">The Collection name.</param>
         /// <returns>An instance of <see cref="Container"/>.</returns>
-        internal Container GetContainer(CosmosClient client, string collectionName = null)
+        internal Container GetContainer<TEntity>(CosmosClient client, string collectionName = null)
         {
             try
             {
                 var container = client.GetContainer(this.settings.DatabaseName, collectionName ?? this.CollectionName);
 
-                this.containerProperties = this.GetContainerProperties(container).Result;
+                this.containerProperties = this.GetContainerProperties<TEntity>(container).Result;
                 var partitionKeyName = this.containerProperties.PartitionKeyPath.TrimStart('/');
                 this.partitionKeyPI = typeof(TEntity).GetProperty(partitionKeyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (this.partitionKeyPI is null)
@@ -278,60 +320,26 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         }
 
         /// <summary>
+        /// Containers this instance.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <returns>The Container.</returns>
+        private Container Container<TEntity>()
+        {
+            lock (this.lockObj)
+            {
+                return this.container ??= this.GetContainer<TEntity>(this.Client);
+            }
+        }
+
+        /// <summary>
         /// Get the properties for the container.
         /// </summary>
         /// <param name="container">Instance of a container or null.</param>
         /// <returns>An instance of <see cref="ContainerProperties"/> or null.</returns>
-        protected async Task<ContainerProperties> GetContainerProperties(Container container = null)
+        private async Task<ContainerProperties> GetContainerProperties<TEntity>(Container container = null)
         {
-            return (await (container ?? this.Container).ReadContainerAsync().ConfigureAwait(false)).Resource;
-        }
-
-        /// <summary>
-        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
-        /// </summary>
-        /// <param name="sql">Query to be executed.</param>
-        /// <param name="options">Query options.</param>
-        /// <returns>Enumerable list of objects of type T.</returns>
-        protected async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery(string sql, QueryRequestOptions options = null)
-        {
-            // run query
-            var query = this.Container.GetItemQueryIterator<TEntity>(sql, requestOptions: options ?? this.options.QueryRequestOptions);
-
-            var results = new List<TEntity>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
-        /// </summary>
-        /// <param name="queryDefinition">Query to be executed.</param>
-        /// <returns>Enumerable list of objects of type T.</returns>
-        protected async Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery(QueryDefinition queryDefinition)
-        {
-            // run query
-            var query = this.Container.GetItemQueryIterator<TEntity>(queryDefinition, requestOptions: this.options.QueryRequestOptions);
-
-            var results = new List<TEntity>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-
-            return results;
+            return (await (container ?? this.Container<TEntity>()).ReadContainerAsync().ConfigureAwait(false)).Resource;
         }
 
         /// <summary>
