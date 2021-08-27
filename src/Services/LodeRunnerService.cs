@@ -2,13 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Ngsa.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
@@ -104,24 +101,6 @@ namespace Ngsa.LodeRunner.Services
         {
             this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
         }
-
-        ////TEST only
-        //public void TestServicesAndCosmosDBRepository()
-        //{
-        //    // ClientStatusService
-        //    var clientStatus = GetClientStatusService().Get("aae1e564-9505-406d-939d-95d61b066c54").Result;
-
-        //    var clientStatusList = GetClientStatusService().GetAll().Result;
-
-        //    var clientStatusCount = GetClientStatusService().GetCount().Result;
-
-        //    var mostRecentClientStatus = GetClientStatusService().GetMostRecent(5).Result;
-
-        //    // LoadTestConfigService
-        //    var loadTestList = GetLoadTestConfigService().GetAll().Result;
-
-        //    var loadTest = GetLoadTestConfigService().Get("a0bfe57b-1535-4d19-aaac-477548ad913f").Result;
-        //}
 
         /// <summary>
         /// Validates the settings.
@@ -220,8 +199,6 @@ namespace Ngsa.LodeRunner.Services
         {
             InitializeCosmosConfiguration();
 
-            // TestServicesAndCosmosDBRepository();
-
             ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += LogStatusChange;
 
@@ -258,7 +235,9 @@ namespace Ngsa.LodeRunner.Services
             {
                 LoadSecrets(config);
 
-                RegisterServices();
+                var serviceBuilder = RegisterInitalPersistentObjects();
+
+                RegisterServices(serviceBuilder);
 
                 ValidateSettings(this.ServiceProvider);
 
@@ -267,11 +246,31 @@ namespace Ngsa.LodeRunner.Services
         }
 
         /// <summary>
-        /// Registers the services.
+        /// Registers the persistent objects.
         /// </summary>
-        private void RegisterServices()
+        /// <returns>The Service Collection</returns>
+        private ServiceCollection RegisterInitalPersistentObjects()
         {
             var serviceBuilder = new ServiceCollection();
+
+            serviceBuilder
+               .AddSingleton<IConfig>(this.config);
+
+            return serviceBuilder;
+        }
+
+        /// <summary>
+        /// Registers the services.
+        /// </summary>
+        /// <param name="serviceBuilder">The service builder.</param>
+        /// <returns>The Service Collection</returns>
+        /// <exception cref="System.Exception">serviceBuilder is null</exception>
+        private ServiceCollection RegisterServices(ServiceCollection serviceBuilder)
+        {
+            if (serviceBuilder == null)
+            {
+                throw new Exception("serviceBuilder is null");
+            }
 
             serviceBuilder
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
@@ -298,6 +297,8 @@ namespace Ngsa.LodeRunner.Services
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
 
             ServiceProvider = serviceBuilder.BuildServiceProvider();
+
+            return serviceBuilder;
         }
     }
 

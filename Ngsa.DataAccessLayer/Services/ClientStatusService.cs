@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Ngsa.DataAccessLayer.Interfaces;
 using Ngsa.DataAccessLayer.Model.Validators;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 using Ngsa.LodeRunner.DataAccessLayer.Model;
@@ -16,18 +17,18 @@ namespace Ngsa.LodeRunner.Services
     /// </summary>
     public class ClientStatusService : BaseService, IClientStatusService
     {
-        private readonly ICosmosDBRepository cosmosDBRepository;
         private readonly IModelValidator<ClientStatus> validator;
+        private readonly IConfig config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
         /// <param name="cosmosDBRepository">The cosmos database repository.</param>
-        public ClientStatusService(ICosmosDBRepository cosmosDBRepository)
+        /// <param name="config">The loderunner configuration.</param>
+        public ClientStatusService(ICosmosDBRepository cosmosDBRepository, IConfig config)
             : base(cosmosDBRepository)
         {
-            this.cosmosDBRepository = cosmosDBRepository;
-
+            this.config = config;
             this.validator = new ClientStatusValidator();
         }
 
@@ -111,7 +112,7 @@ namespace Ngsa.LodeRunner.Services
         /// </returns>
         public async Task<ClientStatus> PostStarting(string message, DateTime lastUpdated)
         {
-            // TODO: need to set the correct data, this is just and example
+            // TODO: need to set the correct data, this is just an example
             // Create a new ClientStatus Entry
             var clientStatusEntry = new ClientStatus
             {
@@ -119,16 +120,7 @@ namespace Ngsa.LodeRunner.Services
                 Status = ClientStatusType.Starting,
                 Message = message,
                 LastUpdated = lastUpdated,
-                LoadClient = new LoadClient
-                {
-                    Version = "0.3.0 - 717 - 1030",
-                    Name = "Central - az - central - us - 2",
-                    Region = "Central",
-                    Zone = "az-central-us",
-                    Prometheus = false,
-                    StartupArgs = "--delay - start - 1--secrets - volume secrets",
-                    StartTime = lastUpdated,
-                },
+                LoadClient = LoadClient.GetNew(this.config, lastUpdated),
             };
 
             // Validate Entry
@@ -143,7 +135,7 @@ namespace Ngsa.LodeRunner.Services
             }
             else
             {
-                var createStatusTask = Task.Run(() => this.cosmosDBRepository.CreateDocumentAsync(clientStatusEntry).Result);
+                var createStatusTask = Task.Run(() => this.CosmosDBRepository.CreateDocumentAsync(clientStatusEntry).Result);
 
                 // NOTE: We need to make sure the item is created before to move on since it is Cached at the LodeService and utilized to update Status later on.
                 createStatusTask.Wait();
@@ -189,7 +181,7 @@ namespace Ngsa.LodeRunner.Services
             {
                 if (status == ClientStatusType.Terminating)
                 {
-                    var terminatingStatusTask = Task.Run(() => this.cosmosDBRepository.UpsertDocumentAsync(clientStatus).Result);
+                    var terminatingStatusTask = Task.Run(() => this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).Result);
 
                     // NOTE: We need to make sure the update is posted back to Cosmos before to terminate the application.
                     terminatingStatusTask.Wait();
@@ -198,7 +190,7 @@ namespace Ngsa.LodeRunner.Services
                 }
                 else
                 {
-                    return await this.cosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
+                    return await this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
                 }
             }
         }

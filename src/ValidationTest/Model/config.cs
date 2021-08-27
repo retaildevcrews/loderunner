@@ -4,13 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Ngsa.DataAccessLayer.Interfaces;
 
 namespace Ngsa.LodeRunner
 {
     /// <summary>
     /// Web Validation Test Configuration
     /// </summary>
-    public class Config
+    public class Config : IConfig
     {
         /// <summary>
         /// gets or sets the server / url

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Ngsa.LodeRunner.DataAccessLayer.Model
 {
     /// <summary>
-    ///   ClientStatus is primarily for conveying the curent status, time of that status, and the LoadClient settings to consuming apps.
+    ///   ClientStatus is primarily for conveying the current status, time of that status, and the LoadClient settings to consuming apps.
     /// </summary>
     public class ClientStatus : BaseEntityModel
     {
@@ -52,5 +52,13 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// The load client.
         /// </value>
         public LoadClient LoadClient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Time to live in seconds.
+        /// </summary>
+        /// <value>
+        /// The TTL.
+        /// </value>
+        public int Ttl { get; set; } = 60;
     }
 }

@@ -8,7 +8,7 @@ using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 namespace Ngsa.LodeRunner.DataAccessLayer.Model
 {
     /// <summary>
-    ///   BaseLoadEntityModel is base abstract class for all entities and model.
+    ///   BaseEntityModel is base abstract class for all entities and model.
     /// </summary>
     public abstract class BaseEntityModel : IBaseEntityModel
     {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using Ngsa.DataAccessLayer.Interfaces;
 using Ngsa.DataAccessLayer.Model;
 using Ngsa.LodeRunner.DataAccessLayer.Interfaces;
 
@@ -60,5 +61,25 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Model
         /// The start time.
         /// </value>
         public DateTime StartTime { get; set; }
+
+        /// <summary>
+        /// Gets the new.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="lastUpdated">The last updated date time.</param>
+        /// <returns>a new LoadClient entity.</returns>
+        public static LoadClient GetNew(IConfig config, DateTime lastUpdated)
+        {
+            return new LoadClient
+            {
+                Version = "0.3.0 - 717 - 1030",
+                Name = "Central - az - central - us - 2",
+                Region = string.IsNullOrWhiteSpace(config.Region) == true ? "Central" : config.Region,
+                Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? "az-central-us" : config.Zone,
+                Prometheus = config.Prometheus,
+                StartupArgs = $"--delay-start {config.DelayStart} --secrets-volume {config.SecretsVolume}",
+                StartTime = lastUpdated,
+            };
+        }
     }
 }
