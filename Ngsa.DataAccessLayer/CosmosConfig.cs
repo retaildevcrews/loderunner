@@ -11,7 +11,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
     /// <summary>
     /// Internal class for Cosmos config.
     /// </summary>
-    internal class CosmosConfig
+    internal sealed class CosmosConfig
     {
         /// <summary>
         /// The query request options.

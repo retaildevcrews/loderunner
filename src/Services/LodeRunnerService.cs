@@ -105,13 +105,19 @@ namespace Ngsa.LodeRunner.Services
             this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
         }
 
-        // TEST only
+        ////TEST only
         //public void TestServicesAndCosmosDBRepository()
         //{
+        //    // ClientStatusService
         //    var clientStatus = GetClientStatusService().Get("aae1e564-9505-406d-939d-95d61b066c54").Result;
 
         //    var clientStatusList = GetClientStatusService().GetAll().Result;
 
+        //    var clientStatusCount = GetClientStatusService().GetCount().Result;
+
+        //    var mostRecentClientStatus = GetClientStatusService().GetMostRecent(5).Result;
+
+        //    // LoadTestConfigService
         //    var loadTestList = GetLoadTestConfigService().GetAll().Result;
 
         //    var loadTest = GetLoadTestConfigService().Get("a0bfe57b-1535-4d19-aaac-477548ad913f").Result;

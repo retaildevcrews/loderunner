@@ -55,6 +55,29 @@ namespace Ngsa.LodeRunner.Services
         }
 
         /// <summary>
+        /// Gets the count asynchronous.
+        /// </summary>
+        /// <returns>
+        /// Items Count EntityType equals ClientStatus.
+        /// </returns>
+        public async Task<int> GetCount()
+        {
+            return await this.GetCountAsync<ClientStatus>();
+        }
+
+        /// <summary>
+        /// Gets the most recent asynchronous.
+        /// </summary>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// all the number of items for a given type.
+        /// </returns>
+        public async Task<IEnumerable<ClientStatus>> GetMostRecent(int limit = 1)
+        {
+            return await this.GetMostRecentAsync<ClientStatus>(limit);
+        }
+
+        /// <summary>
         /// Posts the specified status.
         /// </summary>
         /// <param name="message">The message.</param>

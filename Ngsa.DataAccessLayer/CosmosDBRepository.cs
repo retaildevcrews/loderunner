@@ -289,6 +289,33 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         }
 
         /// <summary>
+        /// Internals the cosmos database SQL query scalar.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="defaultValue">The return default value.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// The Scalar query TResult result.
+        /// </returns>
+        public async Task<TResult> InternalCosmosDBSqlQueryScalar<TEntity, TResult>(string sql, TResult defaultValue, QueryRequestOptions options = null)
+        {
+            var query = this.Container<TEntity>().GetItemQueryIterator<TResult>(sql, requestOptions: options ?? this.options.QueryRequestOptions);
+
+            if (query.HasMoreResults)
+            {
+                var countResponse = await query.ReadNextAsync().ConfigureAwait(false);
+
+                return countResponse.Resource.Any() ? countResponse.Resource.First() : defaultValue;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
+        /// <summary>
         /// Get a proxy to the container.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>

@@ -100,5 +100,16 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// <param name="queryDefinition">The query definition.</param>
         /// <returns>The query result.</returns>
         Task<IEnumerable<TEntity>> InternalCosmosDBSqlQuery<TEntity>(QueryDefinition queryDefinition);
+
+        /// <summary>
+        /// Internals the cosmos database SQL query scalar.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="defaultValue">The return default value.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The Scalar query TResult result.</returns>
+        Task<TResult> InternalCosmosDBSqlQueryScalar<TEntity, TResult>(string sql, TResult defaultValue, QueryRequestOptions options = null);
     }
 }

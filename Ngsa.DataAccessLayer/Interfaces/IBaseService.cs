@@ -26,5 +26,20 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <returns>all items for a given type.</returns>
         Task<IEnumerable<TEntity>> GetAll<TEntity>();
+
+        /// <summary>
+        /// Gets the most recent asynchronous.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="limit">The limit.</param>
+        /// <returns>all items for a given type.</returns>
+        Task<IEnumerable<TEntity>> GetMostRecentAsync<TEntity>(int limit = 1);
+
+        /// <summary>
+        /// Gets the count asynchronous.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <returns>Item count that match the Entity type.</returns>
+        Task<int> GetCountAsync<TEntity>();
     }
 }

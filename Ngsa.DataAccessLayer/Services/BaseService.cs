@@ -15,7 +15,7 @@ namespace Ngsa.LodeRunner.Services
     /// <summary>
     ///   Client Status Service.
     /// </summary>
-    public partial class BaseService : IBaseService
+    public abstract partial class BaseService : IBaseService
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseService"/> class.
@@ -48,13 +48,43 @@ namespace Ngsa.LodeRunner.Services
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
-            string sql = $"select * from m where m.entityType='{entityType}'";
+            string sql = $"SELECT * from e WHERE e.entityType='{entityType}' ORDER BY e._ts DESC";
 
-            var getAllClientStatusTask = Task.Run(() => this.CosmosDBRepository.InternalCosmosDBSqlQuery<TEntity>(sql).Result);
+            return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TEntity>(sql).ConfigureAwait(false);
+        }
 
-            getAllClientStatusTask.Wait();
+        /// <summary>
+        /// Gets the most recent asynchronous.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="limit">The limit.</param>
+        /// <returns>
+        /// all items for a given type.
+        /// </returns>
+        public virtual async Task<IEnumerable<TEntity>> GetMostRecentAsync<TEntity>(int limit = 1)
+        {
+            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
-            return await getAllClientStatusTask;
+            string sql = $"SELECT * FROM e WHERE e.entityType='{entityType}' ORDER BY e._ts DESC OFFSET 0 LIMIT {limit}";
+
+            return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TEntity>(sql).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Gets the count asynchronous.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <returns>
+        /// Item count that match the Entity type.
+        /// </returns>
+        public virtual async Task<int> GetCountAsync<TEntity>()
+        {
+            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
+
+            string sql = $"SELECT VALUE COUNT(1) FROM e where e.entityType='{entityType}'";
+
+            int defaultValue = 0;
+            return await this.CosmosDBRepository.InternalCosmosDBSqlQueryScalar<TEntity, int>(sql, defaultValue).ConfigureAwait(false);
         }
     }
 
