@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+#define release
 
 using System;
 using System.CommandLine;
@@ -93,6 +94,11 @@ namespace Ngsa.LodeRunner
             {
                 if (config.DelayStart == -1)
                 {
+#if release
+                    Console.WriteLine("Starting in waiting mode (delay == -1) is only supported in debug builds presently.");
+                    return -1;
+#endif
+
                     ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
                     ProcessingEventBus.StatusUpdate += LogStatusChange;
 
