@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
@@ -72,8 +73,9 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
+        /// <param name="cancellationToken">The Cancellation Token.</param>
         /// <returns>An instance of the document or null.</returns>
-        Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument);
+        Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes the document asynchronous.
@@ -111,5 +113,11 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// <param name="options">The options.</param>
         /// <returns>The Scalar query TResult result.</returns>
         Task<TResult> InternalCosmosDBSqlQueryScalar<TEntity, TResult>(string sql, TResult defaultValue, QueryRequestOptions options = null);
+
+        /// <summary>
+        /// Determines whether [is cosmos database ready].
+        /// </summary>
+        /// <returns>True is Cosmos DB has not exceeded the number of request units per second, otherwise false.</returns>
+        Task<bool> IsCosmosDBReady();
     }
 }

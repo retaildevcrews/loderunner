@@ -54,7 +54,7 @@ namespace Ngsa.LodeRunner
         /// <summary>
         /// Gets or sets cancellation token
         /// </summary>
-        public static CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
+        public static CancellationTokenSource CancelTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
         /// Main entry point
@@ -137,7 +137,7 @@ namespace Ngsa.LodeRunner
             {
                 case CtrlTypes.CtrlCEvent:
                 case CtrlTypes.CtrlCloseEvent:
-                    TokenSource.Cancel(true);
+                    CancelTokenSource.Cancel(true);
                     break;
             }
 

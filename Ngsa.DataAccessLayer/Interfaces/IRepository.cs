@@ -17,6 +17,6 @@ namespace Ngsa.LodeRunner.DataAccessLayer.Interfaces
         /// Tests this instance.
         /// </summary>
         /// <returns>true if passed , otherwise false.</returns>
-        Task<bool> Test();
+        Task<bool> CreateClient();
     }
 }

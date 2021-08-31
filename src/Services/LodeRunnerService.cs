@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,12 +23,22 @@ namespace Ngsa.LodeRunner.Services
     internal partial class LodeRunnerService : IDisposable, ILodeRunnerService
     {
         private readonly Config config;
+        private readonly LoadClient loadClient;
         private ClientStatus clientStatus;
-        private bool cosmosConfigInitialized = false;
 
         public LodeRunnerService(Config config)
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
+
+            this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow);
+
+            this.clientStatus = new ClientStatus
+            {
+                // TODO: need to set the correct StatusDuration, this is just an example
+                StatusDuration = 1,
+                Status = ClientStatusType.Starting,
+                LoadClient = this.loadClient,
+            };
         }
 
         public void Dispose()
@@ -99,7 +110,9 @@ namespace Ngsa.LodeRunner.Services
         //TODO Move to proper location when merging with DAL
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            this.clientStatus = await GetClientStatusService().Post(args.Message, this.clientStatus, args.LastUpdated, args.Status).ConfigureAwait(false);
+            this.clientStatus = await GetClientStatusService().PostUpdate(args.Message, args.LastUpdated, args.Status, App.CancelTokenSource.Token).ConfigureAwait(false);
+
+            //TODO : Add try catch and write log , then exit App?
         }
 
         /// <summary>
@@ -153,7 +166,7 @@ namespace Ngsa.LodeRunner.Services
                 Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
 
                 // wait to start the test run
-                await Task.Delay(config.DelayStart * 1000, App.TokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(config.DelayStart * 1000, App.CancelTokenSource.Token).ConfigureAwait(false);
             }
 
             ValidationTest lrt = new (config);
@@ -162,10 +175,10 @@ namespace Ngsa.LodeRunner.Services
             {
                 // build and run the web host
                 IHost host = App.BuildWebHost();
-                _ = host.StartAsync(App.TokenSource.Token);
+                _ = host.StartAsync(App.CancelTokenSource.Token);
 
                 // run in a loop
-                int res = lrt.RunLoop(config, App.TokenSource.Token);
+                int res = lrt.RunLoop(config, App.CancelTokenSource.Token);
 
                 // stop and dispose the web host
                 await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
@@ -178,7 +191,7 @@ namespace Ngsa.LodeRunner.Services
             else
             {
                 // run one iteration
-                return await lrt.RunOnce(config, App.TokenSource.Token).ConfigureAwait(false);
+                return await lrt.RunOnce(config, App.CancelTokenSource.Token).ConfigureAwait(false);
             }
         }
 
@@ -197,7 +210,7 @@ namespace Ngsa.LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
-            InitializeCosmosConfiguration();
+            InitAndRegister();
 
             ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += LogStatusChange;
@@ -208,7 +221,7 @@ namespace Ngsa.LodeRunner.Services
             try
             {
                 // wait indefinitely
-                await Task.Delay(config.DelayStart, App.TokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(config.DelayStart, App.CancelTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException tce)
             {
@@ -227,35 +240,47 @@ namespace Ngsa.LodeRunner.Services
         }
 
         /// <summary>
-        /// Initializes the cosmos configuration.
+        /// Initializes and Register.
         /// </summary>
-        private void InitializeCosmosConfiguration()
+        private void InitAndRegister()
         {
-            if (!cosmosConfigInitialized)
-            {
-                LoadSecrets(config);
+            LoadSecrets(config);
 
-                var serviceBuilder = RegisterInitalPersistentObjects();
+            var serviceBuilder = RegisterSystemObjects();
 
-                RegisterServices(serviceBuilder);
+            ValidateSettings(this.ServiceProvider);
 
-                ValidateSettings(this.ServiceProvider);
-
-                cosmosConfigInitialized = true;
-            }
+            RegisterServices(serviceBuilder);
         }
 
         /// <summary>
-        /// Registers the persistent objects.
+        /// Registers system objects.
         /// </summary>
         /// <returns>The Service Collection</returns>
-        private ServiceCollection RegisterInitalPersistentObjects()
+        private ServiceCollection RegisterSystemObjects()
         {
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
-               .AddSingleton<IConfig>(this.config);
+                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
+                {
+                    CollectionName = config.Secrets.CosmosCollection,
+                    Retries = config.Retries,
+                    Timeout = config.CosmosTimeout,
+                    Uri = config.Secrets.CosmosServer,
+                    Key = config.Secrets.CosmosKey,
+                    DatabaseName = config.Secrets.CosmosDatabase,
+                })
+                .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
+                // System objects required during Constructors
+                .AddSingleton<ClientStatus>(this.clientStatus)
+                .AddSingleton<IConfig>(this.config)
+                .AddSingleton<CancellationTokenSource>(App.CancelTokenSource);
+
+            // We need to create service provider here since it utilized when Validating Settings
+            ServiceProvider = serviceBuilder.BuildServiceProvider();
             return serviceBuilder;
         }
 
@@ -273,17 +298,6 @@ namespace Ngsa.LodeRunner.Services
             }
 
             serviceBuilder
-                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
-                {
-                    CollectionName = config.Secrets.CosmosCollection,
-                    Retries = config.Retries,
-                    Timeout = config.CosmosTimeout,
-                    Uri = config.Secrets.CosmosServer,
-                    Key = config.Secrets.CosmosKey,
-                    DatabaseName = config.Secrets.CosmosDatabase,
-                })
-                .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
-                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
                 // Add CosmosDB Repository
                 .AddSingleton<CosmosDBRepository>()
@@ -296,6 +310,7 @@ namespace Ngsa.LodeRunner.Services
                 .AddSingleton<LoadTestConfigService>()
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
 
+            // We build service provider here since new objects were added to the collection
             ServiceProvider = serviceBuilder.BuildServiceProvider();
 
             return serviceBuilder;

@@ -51,9 +51,9 @@ namespace Ngsa.LodeRunner
             // signal run loop
             life.ApplicationStopping.Register(() =>
             {
-                if (App.TokenSource != null)
+                if (App.CancelTokenSource != null)
                 {
-                    App.TokenSource.Cancel(false);
+                    App.CancelTokenSource.Cancel(false);
                 }
             });
 

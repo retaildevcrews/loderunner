@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
@@ -42,7 +43,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
                 Retries = this.settings.Retries,
             };
 
-            if (!this.Test().Result)
+            if (!this.CreateClient().Result)
             {
                 throw new ApplicationException($"Repository test for {this.Id} failed.");
             }
@@ -182,10 +183,11 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
+        /// <param name="cancellationToken">The Cancellation Token.</param>
         /// <returns>An instance of the document.</returns>
-        public async Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument)
+        public async Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default)
         {
-            return await this.Container<TEntity>().UpsertItemAsync(newDocument, this.ResolvePartitionKey(newDocument)).ConfigureAwait(false);
+            return await this.Container<TEntity>().UpsertItemAsync(newDocument, this.ResolvePartitionKey(newDocument), null, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -206,7 +208,7 @@ namespace Ngsa.LodeRunner.DataAccessLayer
         /// <returns>
         /// true if passed , otherwise false.
         /// </returns>
-        public async Task<bool> Test()
+        public async Task<bool> CreateClient()
         {
             if (string.IsNullOrEmpty(this.CollectionName))
             {
@@ -313,6 +315,20 @@ namespace Ngsa.LodeRunner.DataAccessLayer
             {
                 return defaultValue;
             }
+        }
+
+        /// <summary>
+        /// Determines whether [is cosmos database ready].
+        /// </summary>
+        /// <returns>
+        /// True is Cosmos DB has not exceeded the number of request units per second, otherwise false.
+        /// </returns>
+        public async Task<bool> IsCosmosDBReady()
+        {
+            Database database = this.Client.GetDatabase(this.settings.DatabaseName);
+            DatabaseResponse response = await database.ReadAsync();
+
+            return response.StatusCode == System.Net.HttpStatusCode.OK;
         }
 
         /// <summary>
