@@ -53,7 +53,7 @@ namespace Ngsa.LodeRunner
             {
                 if (App.CancelTokenSource != null)
                 {
-                    App.CancelTokenSource.Cancel(false);
+                    App.CancelTokenSource.Cancel(false); // TODO: Do we need to pass 'true' to throw and bubble up the exception?
                 }
             });
 

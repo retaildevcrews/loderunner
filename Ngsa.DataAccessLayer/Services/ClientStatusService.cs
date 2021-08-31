@@ -40,7 +40,7 @@ namespace Ngsa.LodeRunner.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>
-        /// The corresponding Enity.
+        /// The corresponding Entity.
         /// </returns>
         public async Task<ClientStatus> Get(string id)
         {

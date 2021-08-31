@@ -24,9 +24,10 @@ namespace Ngsa.LodeRunner.Services
     {
         private readonly Config config;
         private readonly LoadClient loadClient;
+        private readonly CancellationTokenSource cancellationTokenSource;
         private ClientStatus clientStatus;
 
-        public LodeRunnerService(Config config)
+        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
 
@@ -39,6 +40,8 @@ namespace Ngsa.LodeRunner.Services
                 Status = ClientStatusType.Starting,
                 LoadClient = this.loadClient,
             };
+
+            this.cancellationTokenSource = cancellationTokenSource;
         }
 
         public void Dispose()
@@ -78,16 +81,16 @@ namespace Ngsa.LodeRunner.Services
                 if (!tce.Task.IsCompleted)
                 {
                     Console.WriteLine($"Exception: {tce}");
-                    return 1;
+                    return SystemConstants.ExitFail;
                 }
 
                 // task is completed
-                return 0;
+                return SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"\nException:{ex.Message}");
-                return 1;
+                return SystemConstants.ExitFail;
             }
         }
 
@@ -110,7 +113,7 @@ namespace Ngsa.LodeRunner.Services
         //TODO Move to proper location when merging with DAL
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            this.clientStatus = await GetClientStatusService().PostUpdate(args.Message, args.LastUpdated, args.Status, App.CancelTokenSource.Token).ConfigureAwait(false);
+            this.clientStatus = await GetClientStatusService().PostUpdate(args.Message, args.LastUpdated, args.Status, cancellationTokenSource.Token).ConfigureAwait(false);
 
             //TODO : Add try catch and write log , then exit App?
         }
@@ -166,7 +169,7 @@ namespace Ngsa.LodeRunner.Services
                 Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
 
                 // wait to start the test run
-                await Task.Delay(config.DelayStart * 1000, App.CancelTokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
 
             ValidationTest lrt = new (config);
@@ -175,10 +178,10 @@ namespace Ngsa.LodeRunner.Services
             {
                 // build and run the web host
                 IHost host = App.BuildWebHost();
-                _ = host.StartAsync(App.CancelTokenSource.Token);
+                _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
-                int res = lrt.RunLoop(config, App.CancelTokenSource.Token);
+                int res = lrt.RunLoop(config, this.cancellationTokenSource.Token);
 
                 // stop and dispose the web host
                 await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
@@ -191,7 +194,7 @@ namespace Ngsa.LodeRunner.Services
             else
             {
                 // run one iteration
-                return await lrt.RunOnce(config, App.CancelTokenSource.Token).ConfigureAwait(false);
+                return await lrt.RunOnce(config, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
         }
 
@@ -221,7 +224,7 @@ namespace Ngsa.LodeRunner.Services
             try
             {
                 // wait indefinitely
-                await Task.Delay(config.DelayStart, App.CancelTokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(config.DelayStart, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException tce)
             {
@@ -236,7 +239,7 @@ namespace Ngsa.LodeRunner.Services
                 ProcessingEventBus.Dispose();
             }
 
-            return 1;
+            return SystemConstants.ExitSuccess;
         }
 
         /// <summary>
@@ -277,7 +280,7 @@ namespace Ngsa.LodeRunner.Services
                 // System objects required during Constructors
                 .AddSingleton<ClientStatus>(this.clientStatus)
                 .AddSingleton<IConfig>(this.config)
-                .AddSingleton<CancellationTokenSource>(App.CancelTokenSource);
+                .AddSingleton<CancellationTokenSource>(this.cancellationTokenSource);
 
             // We need to create service provider here since it utilized when Validating Settings
             ServiceProvider = serviceBuilder.BuildServiceProvider();

@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="src\core\SystemContstants.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
   
     <PackageReference Include="FluentValidation" Version="10.3.1" />
   
@@ -45,6 +49,7 @@
   </ItemGroup>
 
    <ItemGroup>
+    <None Remove="src\core\NewFile.txt" />
     <None Remove="src\events\" />
   </ItemGroup>
 

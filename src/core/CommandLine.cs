@@ -96,7 +96,7 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   Verbose         {config.Verbose}");
             Console.WriteLine($"   Secrets Volume  {config.SecretsVolume}");
 
-            return 0;
+            return SystemConstants.ExitSuccess;
         }
 
         /// <summary>Validates combinations of parameters and dependencies.</summary>
@@ -136,20 +136,9 @@ namespace Ngsa.LodeRunner
             {
                 msg += $"--secrets-volume requires --delay-start to be equals to negative one (-1)\n";
             }
-            else if (delayStart == -1)
+            else if (delayStart == -1 && !Directory.Exists(secrets))
             {
-                try
-                {
-                    // validate secrets-volume exists
-                    if (!Directory.Exists(secrets))
-                    {
-                        msg += $"--secrets-volume ({secrets}) does not exist\n";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    msg += $"--secrets-volume exception: {ex.Message}\n";
-                }
+                msg += $"--secrets-volume ({secrets}) does not exist\n";
             }
 
             return msg;

@@ -52,9 +52,9 @@ namespace Ngsa.LodeRunner
         };
 
         /// <summary>
-        /// Gets or sets cancellation token
+        /// Gets cancellation token
         /// </summary>
-        public static CancellationTokenSource CancelTokenSource { get; set; } = new CancellationTokenSource();
+        public static CancellationTokenSource CancelTokenSource { get; private set; } = new CancellationTokenSource();
 
         /// <summary>
         /// Main entry point
@@ -92,10 +92,10 @@ namespace Ngsa.LodeRunner
             if (config == null)
             {
                 Console.WriteLine("CommandOptions is null");
-                return -1;
+                return SystemConstants.ExitFail;
             }
 
-            using var l8rService = new LodeRunnerService(config);
+            using var l8rService = new LodeRunnerService(config, CancelTokenSource);
             return await l8rService.StartService();
         }
 
