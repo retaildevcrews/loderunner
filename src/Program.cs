@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-#define release
+#define release  //TODO: Remove during M4 dev
 
 using System;
 using System.CommandLine;
