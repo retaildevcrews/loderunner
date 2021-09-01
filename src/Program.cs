@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-#define release
+#define release  //TODO: Remove during M4 dev
 
 using System;
 using System.CommandLine;
@@ -94,19 +94,23 @@ namespace Ngsa.LodeRunner
             {
                 if (config.DelayStart == -1)
                 {
+#pragma warning disable CS0162 // This is temporary while were in transition so that code not ready for beta/prod is unreachable in the releae package.  It will be removed in M4.
+
 #if release
                     Console.WriteLine("Starting in waiting mode (delay == -1) is only supported in debug builds presently.");
                     return -1;
 #endif
 
                     ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
+#pragma warning restore CS0162 // Unreachable code detected
                     ProcessingEventBus.StatusUpdate += LogStatusChange;
 
                     //TODO change event status to enum, update message
                     ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Initializing", "test init"));
 
                     LoadSecrets(config);
-                    // TODO Initialize DAL
+
+                    //TODO Initialize DAL when we integrate the data layer
 
                     ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Ready", "test ready"));
                     try

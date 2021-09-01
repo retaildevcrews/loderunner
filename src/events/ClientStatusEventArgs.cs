@@ -6,15 +6,15 @@ namespace Ngsa.LodeRunner.Events
 {
     public class ClientStatusEventArgs : EventArgs
     {
-        public DateTime LastUpdated { get; set; }
-        public string Status { get; set; } //TODO Convert status to enum when merging with dal
-        public string Message { get; set; }
-
         public ClientStatusEventArgs(string status, string message)
         {
             LastUpdated = DateTime.UtcNow;
             Status = status;
             Message = message;
         }
+
+        public DateTime LastUpdated { get; set; }
+        public string Status { get; set; } //TODO Convert status to enum when merging with dal
+        public string Message { get; set; }
     }
 }
