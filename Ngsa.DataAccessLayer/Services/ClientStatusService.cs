@@ -16,7 +16,7 @@ namespace Ngsa.LodeRunner.Services
     /// <summary>
     ///   Client Status Service.
     /// </summary>
-    public partial class ClientStatusService : BaseService, IClientStatusService
+    public class ClientStatusService : BaseService, IClientStatusService
     {
         private readonly IModelValidator<ClientStatus> validator;
         private readonly ClientStatus clientStatus;
@@ -34,6 +34,14 @@ namespace Ngsa.LodeRunner.Services
             this.clientStatus = clientStatus;
             cancellationTokenSource.Token.Register(this.TerminateService);
         }
+
+        /// <summary>
+        /// Gets the client status.
+        /// </summary>
+        /// <value>
+        /// The client status.
+        /// </value>
+        public ClientStatus ClientStatus => this.clientStatus;
 
         /// <summary>
         /// Gets the specified identifier.
@@ -167,19 +175,5 @@ namespace Ngsa.LodeRunner.Services
                 return true;
             }
         }
-    }
-
-    /// <summary>
-    /// Implements the ClientStatusService class, fix StyleCopAnalyzer violation #SA1201.
-    /// </summary>
-    public partial class ClientStatusService
-    {
-        /// <summary>
-        /// Gets the client status.
-        /// </summary>
-        /// <value>
-        /// The client status.
-        /// </value>
-        public ClientStatus ClientStatus => this.clientStatus;
     }
 }

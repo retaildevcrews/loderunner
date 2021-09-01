@@ -15,7 +15,7 @@ namespace Ngsa.LodeRunner.Services
     /// <summary>
     ///   Client Status Service.
     /// </summary>
-    public abstract partial class BaseService : IBaseService
+    public abstract class BaseService : IBaseService
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseService"/> class.
@@ -25,6 +25,14 @@ namespace Ngsa.LodeRunner.Services
         {
             this.CosmosDBRepository = cosmosDBRepository;
         }
+
+        /// <summary>
+        /// Gets the cosmos database repository.
+        /// </summary>
+        /// <value>
+        /// The cosmos database repository.
+        /// </value>
+        protected ICosmosDBRepository CosmosDBRepository { get; private set; }
 
         /// <summary>
         /// Gets the specified identifier.
@@ -86,19 +94,5 @@ namespace Ngsa.LodeRunner.Services
             int defaultValue = 0;
             return await this.CosmosDBRepository.InternalCosmosDBSqlQueryScalar<TEntity, int>(sql, defaultValue).ConfigureAwait(false);
         }
-    }
-
-    /// <summary>
-    /// Implements the BaseService class, fix StyleCopAnalyzer violation #SA1201.
-    /// </summary>
-    public partial class BaseService
-    {
-        /// <summary>
-        /// Gets the cosmos database repository.
-        /// </summary>
-        /// <value>
-        /// The cosmos database repository.
-        /// </value>
-        protected ICosmosDBRepository CosmosDBRepository { get; private set; }
     }
 }
