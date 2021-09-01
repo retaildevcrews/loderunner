@@ -13,7 +13,6 @@ namespace Ngsa.LodeRunner.Events
 
         public static event EventHandler<ClientStatusEventArgs> StatusUpdate = (sender, e) => { };
 
-
         public static void OnStatusUpdate(object sender, ClientStatusEventArgs args)
         {
             lastStatusSender = sender;
@@ -21,7 +20,7 @@ namespace Ngsa.LodeRunner.Events
 
             if (statusUpdateTimer == default(Timer))
             {
-                statusUpdateTimer = new Timer();
+                statusUpdateTimer = new ();
                 statusUpdateTimer.Interval = 5000; //TODO change this to App.Config.Frequency * 1000
                 statusUpdateTimer.Elapsed += OnStatusTimerEvent;
             }
@@ -31,7 +30,6 @@ namespace Ngsa.LodeRunner.Events
 
             statusUpdateTimer.Start();
         }
-
 
         public static void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
         {
