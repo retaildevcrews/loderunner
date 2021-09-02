@@ -12,9 +12,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ngsa.LodeRunner.DataAccessLayer;
-using Ngsa.LodeRunner.Events;
 using Ngsa.LodeRunner.Services;
 
 namespace Ngsa.LodeRunner
@@ -24,6 +23,11 @@ namespace Ngsa.LodeRunner
     /// </summary>
     public sealed partial class App
     {
+        /// <summary>
+        /// Gets cancellation token
+        /// </summary>
+        private static CancellationTokenSource cancelTokenSource;
+
         private static HandlerRoutine consoleHandler;
 
         // A delegate type to be used as the handler routine for SetConsoleCtrlHandler.
@@ -52,17 +56,14 @@ namespace Ngsa.LodeRunner
         };
 
         /// <summary>
-        /// Gets cancellation token
-        /// </summary>
-        public static CancellationTokenSource CancelTokenSource { get; private set; } = new CancellationTokenSource();
-
-        /// <summary>
         /// Main entry point
         /// </summary>
         /// <param name="args">Command Line Parameters</param>
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
+            cancelTokenSource = new CancellationTokenSource();
+
             //save a reference so it does not get GC'd
             consoleHandler = new HandlerRoutine(ConsoleCtrlCheck);
 
@@ -95,7 +96,7 @@ namespace Ngsa.LodeRunner
                 return SystemConstants.ExitFail;
             }
 
-            using var l8rService = new LodeRunnerService(config, CancelTokenSource);
+            using var l8rService = new LodeRunnerService(config, cancelTokenSource);
             return await l8rService.StartService();
         }
 
@@ -119,6 +120,10 @@ namespace Ngsa.LodeRunner
             return Host.CreateDefaultBuilder()
                         .ConfigureWebHostDefaults(webBuilder =>
                         {
+                            webBuilder.ConfigureServices(services =>
+                            {
+                                services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                            });
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:8080/");
                         })
@@ -134,10 +139,10 @@ namespace Ngsa.LodeRunner
         private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
         {
             switch (ctrlType)
-            {
+             {
                 case CtrlTypes.CtrlCEvent:
                 case CtrlTypes.CtrlCloseEvent:
-                    CancelTokenSource.Cancel(true);
+                    cancelTokenSource.Cancel(true);
                     break;
             }
 

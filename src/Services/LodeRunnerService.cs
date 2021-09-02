@@ -20,7 +20,7 @@ namespace Ngsa.LodeRunner.Services
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="Ngsa.LodeRunner.Interfaces.ILodeRunnerService" />
-    internal partial class LodeRunnerService : IDisposable, ILodeRunnerService
+    internal class LodeRunnerService : IDisposable, ILodeRunnerService
     {
         private readonly Config config;
         private readonly LoadClient loadClient;
@@ -43,6 +43,14 @@ namespace Ngsa.LodeRunner.Services
 
             this.cancellationTokenSource = cancellationTokenSource;
         }
+
+        /// <summary>
+        /// Gets the service provider.
+        /// </summary>
+        /// <value>
+        /// The service provider.
+        /// </value>
+        public ServiceProvider ServiceProvider { get; private set; }
 
         public void Dispose()
         {
@@ -318,13 +326,5 @@ namespace Ngsa.LodeRunner.Services
 
             return serviceBuilder;
         }
-    }
-
-    /// <summary>
-    /// Implements the ILodeRunnerService class, fix StyleCopAnalyzer violation #SA1201
-    /// </summary>
-    internal partial class LodeRunnerService : ILodeRunnerService
-    {
-        public ServiceProvider ServiceProvider { get; private set; }
     }
 }
