@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -26,7 +26,7 @@ namespace Ngsa.LodeRunner.Events
     public partial class ClientStatusEventArgs
     {
         public DateTime LastUpdated { get; set; }
-        public ClientStatusType Status { get; set; } //TODO Convert status to enum when merging with dal
+        public ClientStatusType Status { get; set; }
         public string Message { get; set; }
     }
 }
