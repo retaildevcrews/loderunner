@@ -120,7 +120,7 @@ namespace Ngsa.LodeRunner
             if (config == null)
             {
                 Console.WriteLine("RunOnce:Config is null");
-                return -1;
+                return SystemConstants.ExitFail;
             }
 
             //DisplayStartupMessage(config);
@@ -229,6 +229,7 @@ namespace Ngsa.LodeRunner
         /// <param name="config">Config</param>
         /// <param name="token">CancellationToken</param>
         /// <returns>0 on success</returns>
+        /// <returns>1 on failure</returns>
         public int RunLoop(Config config, CancellationToken token)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -303,11 +304,11 @@ namespace Ngsa.LodeRunner
                 if (!tce.Task.IsCompleted)
                 {
                     Console.WriteLine($"Exception: {tce}");
-                    return 1;
+                    return SystemConstants.ExitFail;
                 }
 
                 // task is completed
-                return 0;
+                return SystemConstants.ExitSuccess;
             }
             catch (OperationCanceledException oce)
             {
@@ -315,20 +316,20 @@ namespace Ngsa.LodeRunner
                 if (!token.IsCancellationRequested)
                 {
                     Console.Write($"Exception: {oce}");
-                    return 1;
+                    return SystemConstants.ExitFail;
                 }
 
                 // Operation was cancelled
-                return 0;
+                return SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex}");
-                return -1;
+                return SystemConstants.ExitFail;
             }
 
             // graceful exit
-            return 0;
+            return SystemConstants.ExitSuccess;
         }
 
         /// <summary>

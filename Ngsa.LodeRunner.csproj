@@ -18,7 +18,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />
+    <Compile Remove="Ngsa.DataAccessLayer\**" />
+    <Content Remove="Ngsa.DataAccessLayer\**" />
+    <EmbeddedResource Remove="Ngsa.DataAccessLayer\**" />
+    <None Remove="Ngsa.DataAccessLayer\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\core\SystemContstants.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+  
+    <PackageReference Include="FluentValidation" Version="10.3.1" />
+  
     <PackageReference Include="prometheus-net.AspNetCore" Version="4.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -38,6 +51,7 @@
   </ItemGroup>
 
    <ItemGroup>
+    <None Remove="src\core\NewFile.txt" />
     <None Remove="src\events\" />
   </ItemGroup>
 
@@ -61,6 +75,9 @@
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="src\events\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Ngsa.DataAccessLayer\Ngsa.DataAccessLayer.csproj" />
   </ItemGroup>
 
 </Project>

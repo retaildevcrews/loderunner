@@ -57,64 +57,8 @@ namespace Ngsa.LodeRunner
             return root;
         }
 
-        /// <summary>Validates combinations of parameters and dependencies.</summary>
-        /// <param name="result">The ComandResult object</param>
-        /// <returns> empty string if no issues found </returns>
-        private static string ValidateDependencies(CommandResult result)
-        {
-            string msg = string.Empty;
-
-            OptionResult runLoopRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") as OptionResult;
-            OptionResult durationRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "duration") as OptionResult;
-            OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
-            OptionResult secretsRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "secrets-volume") as OptionResult;
-            OptionResult delayStartRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "delay-start") as OptionResult;
-
-            bool runLoop = runLoopRes.GetValueOrDefault<bool>();
-            int? duration = durationRes.GetValueOrDefault<int?>();
-            bool random = randomRes.GetValueOrDefault<bool>();
-            string secrets = secretsRes?.GetValueOrDefault<string>();
-            int? delayStart = delayStartRes.GetValueOrDefault<int?>();
-
-            if (duration != null && duration > 0 && !runLoop)
-            {
-                msg += "--run-loop must be true to use --duration\n";
-            }
-            else if (random && !runLoop)
-            {
-                msg += "--run-loop must be true to use --random\n";
-            }
-
-            // validate secrets volume on delay start
-            if (delayStart == -1 && string.IsNullOrWhiteSpace(secrets))
-            {
-                msg += "--secrets-volume cannot be empty when --delay-start is equals to -1\n";
-            }
-            else if (!string.IsNullOrWhiteSpace(secrets) && delayStart != -1)
-            {
-                msg += $"--secrets-volume requires --delay-start to be equals to negative one (-1)\n";
-            }
-            else if (delayStart == -1)
-            {
-                try
-                {
-                    // validate secrets-volume exists
-                    if (!Directory.Exists(secrets))
-                    {
-                        msg += $"--secrets-volume ({secrets}) does not exist\n";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    msg += $"--secrets-volume exception: {ex.Message}\n";
-                }
-            }
-
-            return msg;
-        }
-
         // handle --dry-run
-        private static int DoDryRun(Config config)
+        internal static int DoDryRun(Config config)
         {
             DisplayAsciiArt();
 
@@ -152,7 +96,52 @@ namespace Ngsa.LodeRunner
             Console.WriteLine($"   Verbose         {config.Verbose}");
             Console.WriteLine($"   Secrets Volume  {config.SecretsVolume}");
 
-            return 0;
+            return SystemConstants.ExitSuccess;
+        }
+
+        /// <summary>Validates combinations of parameters and dependencies.</summary>
+        /// <param name="result">The ComandResult object</param>
+        /// <returns> empty string if no issues found </returns>
+        private static string ValidateDependencies(CommandResult result)
+        {
+            string msg = string.Empty;
+
+            OptionResult runLoopRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") as OptionResult;
+            OptionResult durationRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "duration") as OptionResult;
+            OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
+            OptionResult secretsRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "secrets-volume") as OptionResult;
+            OptionResult delayStartRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "delay-start") as OptionResult;
+
+            bool runLoop = runLoopRes.GetValueOrDefault<bool>();
+            int? duration = durationRes.GetValueOrDefault<int?>();
+            bool random = randomRes.GetValueOrDefault<bool>();
+            string secrets = secretsRes?.GetValueOrDefault<string>();
+            int? delayStart = delayStartRes.GetValueOrDefault<int?>();
+
+            if (duration != null && duration > 0 && !runLoop)
+            {
+                msg += "--run-loop must be true to use --duration\n";
+            }
+            else if (random && !runLoop)
+            {
+                msg += "--run-loop must be true to use --random\n";
+            }
+
+            // validate secrets volume on delay start
+            if (delayStart == -1 && string.IsNullOrWhiteSpace(secrets))
+            {
+                msg += "--secrets-volume cannot be empty when --delay-start is equals to -1\n";
+            }
+            else if (!string.IsNullOrWhiteSpace(secrets) && delayStart != -1)
+            {
+                msg += $"--secrets-volume requires --delay-start to be equals to negative one (-1)\n";
+            }
+            else if (delayStart == -1 && !Directory.Exists(secrets))
+            {
+                msg += $"--secrets-volume ({secrets}) does not exist\n";
+            }
+
+            return msg;
         }
 
         // Display the ASCII art file if it exists

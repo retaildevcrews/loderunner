@@ -1,6 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-#define release  //TODO: Remove during M4 dev
 
 using System;
 using System.CommandLine;
@@ -8,12 +7,14 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ngsa.LodeRunner.Events;
+using Ngsa.LodeRunner.Services;
 
 namespace Ngsa.LodeRunner
 {
@@ -23,6 +24,30 @@ namespace Ngsa.LodeRunner
     public sealed partial class App
     {
         /// <summary>
+        /// Gets cancellation token
+        /// </summary>
+        private static CancellationTokenSource cancelTokenSource;
+
+        private static HandlerRoutine consoleHandler;
+
+        // A delegate type to be used as the handler routine for SetConsoleCtrlHandler.
+        public delegate bool HandlerRoutine(CtrlTypes ctrlType);
+
+        // An enumerated type for the control messages sent to the handler routine.
+        public enum CtrlTypes
+        {
+            /// <summary>
+            /// The control c event
+            /// </summary>
+            CtrlCEvent = 0,
+
+            /// <summary>
+            /// The control close event
+            /// </summary>
+            CtrlCloseEvent = 2,
+        }
+
+        /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
@@ -31,17 +56,20 @@ namespace Ngsa.LodeRunner
         };
 
         /// <summary>
-        /// Gets or sets cancellation token
-        /// </summary>
-        public static CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
-
-        /// <summary>
         /// Main entry point
         /// </summary>
         /// <param name="args">Command Line Parameters</param>
         /// <returns>0 on success</returns>
         public static async Task<int> Main(string[] args)
         {
+            cancelTokenSource = new CancellationTokenSource();
+
+            //save a reference so it does not get GC'd
+            consoleHandler = new HandlerRoutine(ConsoleCtrlCheck);
+
+            //set our handler here that will trap exit
+            SetConsoleCtrlHandler(consoleHandler, true);
+
             if (args != null)
             {
                 DisplayAsciiArt(args);
@@ -55,18 +83,6 @@ namespace Ngsa.LodeRunner
             return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        //TODO Move to proper location when merging with DAL
-        public static void LogStatusChange(object sender, ClientStatusEventArgs args)
-        {
-            Console.WriteLine(args.Message); //TODO fix LogStatusChange implementation
-        }
-
-        //TODO Move to proper location when merging with DAL
-        public static void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
-        {
-            // TODO when merging with DAL, need to register delegate to update cosmos
-        }
-
         /// <summary>
         /// System.CommandLine.CommandHandler implementation
         /// </summary>
@@ -77,111 +93,11 @@ namespace Ngsa.LodeRunner
             if (config == null)
             {
                 Console.WriteLine("CommandOptions is null");
-                return -1;
+                return SystemConstants.ExitFail;
             }
 
-            // set any missing values
-            config.SetDefaultValues();
-
-            // don't run the test on a dry run
-            if (config.DryRun)
-            {
-                return DoDryRun(config);
-            }
-
-            // create the test
-            try
-            {
-                if (config.DelayStart == -1)
-                {
-#pragma warning disable CS0162 // This is temporary while were in transition so that code not ready for beta/prod is unreachable in the releae package.  It will be removed in M4.
-
-#if release
-                    Console.WriteLine("Starting in waiting mode (delay == -1) is only supported in debug builds presently.");
-                    return -1;
-#endif
-
-                    ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
-#pragma warning restore CS0162 // Unreachable code detected
-                    ProcessingEventBus.StatusUpdate += LogStatusChange;
-
-                    //TODO change event status to enum, update message
-                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Initializing", "test init"));
-
-                    LoadSecrets(config);
-
-                    //TODO Initialize DAL when we integrate the data layer
-
-                    ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Ready", "test ready"));
-                    try
-                    {
-                        // wait indefinitely
-                        await Task.Delay(config.DelayStart, TokenSource.Token).ConfigureAwait(false);
-                    }
-                    catch (TaskCanceledException tce)
-                    {
-                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", tce.Message));
-                    }
-                    catch (OperationCanceledException oce)
-                    {
-                        ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs("Terminating", oce.Message));
-                    }
-                    finally
-                    {
-                        ProcessingEventBus.Dispose();
-                    }
-
-                    return 1;
-                }
-                else if (config.DelayStart > 0)
-                {
-                    Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
-
-                    // wait to start the test run
-                    await Task.Delay(config.DelayStart * 1000, TokenSource.Token).ConfigureAwait(false);
-                }
-
-                ValidationTest lrt = new (config);
-
-                if (config.RunLoop)
-                {
-                    // build and run the web host
-                    IHost host = BuildWebHost();
-                    _ = host.StartAsync(TokenSource.Token);
-
-                    // run in a loop
-                    int res = lrt.RunLoop(config, TokenSource.Token);
-
-                    // stop and dispose the web host
-                    await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
-                    host.Dispose();
-                    host = null;
-
-                    return res;
-                }
-                else
-                {
-                    // run one iteration
-                    return await lrt.RunOnce(config, TokenSource.Token).ConfigureAwait(false);
-                }
-            }
-            catch (TaskCanceledException tce)
-            {
-                // log exception
-                if (!tce.Task.IsCompleted)
-                {
-                    Console.WriteLine($"Exception: {tce}");
-                    return 1;
-                }
-
-                // task is completed
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\nException:{ex.Message}");
-                return 1;
-            }
+            using var l8rService = new LodeRunnerService(config, cancelTokenSource);
+            return await l8rService.StartService();
         }
 
         /// <summary>
@@ -192,6 +108,45 @@ namespace Ngsa.LodeRunner
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
+        }
+
+        [DllImport("Kernel32")]
+        internal static extern bool SetConsoleCtrlHandler(HandlerRoutine handler, bool add);
+
+        // build the web host
+        internal static IHost BuildWebHost()
+        {
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.ConfigureServices(services =>
+                            {
+                                services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                            });
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:8080/");
+                        })
+                        .UseConsoleLifetime()
+                        .Build();
+        }
+
+        /// <summary>
+        /// Consoles the control check.
+        /// </summary>
+        /// <param name="ctrlType">Type of the control.</param>
+        /// <returns>True if handled </returns>
+        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        {
+            switch (ctrlType)
+             {
+                case CtrlTypes.CtrlCEvent:
+                case CtrlTypes.CtrlCloseEvent:
+                    cancelTokenSource.Cancel(true);
+                    break;
+            }
+
+            return true;
         }
 
         // ascii art
@@ -221,41 +176,6 @@ namespace Ngsa.LodeRunner
                     // ignore any errors
                 }
             }
-        }
-
-        // build the web host
-        private static IHost BuildWebHost()
-        {
-            // configure the web host builder
-            return Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:8080/");
-                        })
-                        .UseConsoleLifetime()
-                        .Build();
-        }
-
-        /// <summary>
-        /// Load secrets from volume.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        private static void LoadSecrets(Config config)
-        {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
-
-            // set the Cosmos server name for logging
-            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
-
-            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
-
-            if (ndx > 0)
-            {
-                config.CosmosName = config.CosmosName.Remove(ndx);
-            }
-
-            config.CosmosDal = new DataAccessLayer.CosmosDal(config);
         }
     }
 }

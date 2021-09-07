@@ -5,6 +5,9 @@ using System;
 using System.Timers;
 namespace Ngsa.LodeRunner.Events
 {
+    /// <summary>
+    /// Represents the Processing Event Bus.
+    /// </summary>
     public static class ProcessingEventBus
     {
         private static Timer statusUpdateTimer = default;
@@ -13,6 +16,11 @@ namespace Ngsa.LodeRunner.Events
 
         public static event EventHandler<ClientStatusEventArgs> StatusUpdate = (sender, e) => { };
 
+        /// <summary>
+        /// Called when [status update].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public static void OnStatusUpdate(object sender, ClientStatusEventArgs args)
         {
             lastStatusSender = sender;
@@ -31,12 +39,20 @@ namespace Ngsa.LodeRunner.Events
             statusUpdateTimer.Start();
         }
 
+        /// <summary>
+        /// Called when [status timer event].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
         public static void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
         {
             lastStatusArgs.LastUpdated = DateTime.UtcNow;
             OnStatusUpdate(lastStatusSender, lastStatusArgs);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
         public static void Dispose()
         {
             statusUpdateTimer.Stop();

@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prometheus;
 
@@ -48,12 +50,14 @@ namespace Ngsa.LodeRunner
                 throw new ArgumentNullException(nameof(life));
             }
 
+            CancellationTokenSource cancellationTokenSource = app.ApplicationServices.GetRequiredService<CancellationTokenSource>();
+
             // signal run loop
             life.ApplicationStopping.Register(() =>
             {
-                if (App.TokenSource != null)
+                if (cancellationTokenSource != null)
                 {
-                    App.TokenSource.Cancel(false);
+                    cancellationTokenSource.Cancel(false); // TODO: Do we need to pass 'true' to throw and bubble up the exception?
                 }
             });
 
