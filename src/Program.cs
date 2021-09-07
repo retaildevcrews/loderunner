@@ -28,25 +28,6 @@ namespace Ngsa.LodeRunner
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
 
-        private static HandlerRoutine consoleHandler;
-
-        // A delegate type to be used as the handler routine for SetConsoleCtrlHandler.
-        public delegate bool HandlerRoutine(CtrlTypes ctrlType);
-
-        // An enumerated type for the control messages sent to the handler routine.
-        public enum CtrlTypes
-        {
-            /// <summary>
-            /// The control c event
-            /// </summary>
-            CtrlCEvent = 0,
-
-            /// <summary>
-            /// The control close event
-            /// </summary>
-            CtrlCloseEvent = 2,
-        }
-
         /// <summary>
         /// Gets or sets json serialization options
         /// </summary>
@@ -63,12 +44,6 @@ namespace Ngsa.LodeRunner
         public static async Task<int> Main(string[] args)
         {
             cancelTokenSource = new CancellationTokenSource();
-
-            //save a reference so it does not get GC'd
-            consoleHandler = new HandlerRoutine(ConsoleCtrlCheck);
-
-            //set our handler here that will trap exit
-            SetConsoleCtrlHandler(consoleHandler, true);
 
             if (args != null)
             {
@@ -110,9 +85,6 @@ namespace Ngsa.LodeRunner
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
         }
 
-        [DllImport("Kernel32")]
-        internal static extern bool SetConsoleCtrlHandler(HandlerRoutine handler, bool add);
-
         // build the web host
         internal static IHost BuildWebHost()
         {
@@ -129,24 +101,6 @@ namespace Ngsa.LodeRunner
                         })
                         .UseConsoleLifetime()
                         .Build();
-        }
-
-        /// <summary>
-        /// Consoles the control check.
-        /// </summary>
-        /// <param name="ctrlType">Type of the control.</param>
-        /// <returns>True if handled </returns>
-        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
-        {
-            switch (ctrlType)
-             {
-                case CtrlTypes.CtrlCEvent:
-                case CtrlTypes.CtrlCloseEvent:
-                    cancelTokenSource.Cancel(true);
-                    break;
-            }
-
-            return true;
         }
 
         // ascii art
