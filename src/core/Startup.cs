@@ -55,7 +55,7 @@ namespace Ngsa.LodeRunner
             // signal run loop
             life.ApplicationStopping.Register(() =>
             {
-                if (cancellationTokenSource != null)
+                if (cancellationTokenSource != null && !cancellationTokenSource.IsCancellationRequested)
                 {
                     cancellationTokenSource.Cancel(false); // TODO: Do we need to pass 'true' to throw and bubble up the exception?
                 }
