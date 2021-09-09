@@ -45,6 +45,8 @@ namespace Ngsa.LodeRunner
         {
             cancelTokenSource = new CancellationTokenSource();
 
+            RegisterTerminationEvents();
+
             if (args != null)
             {
                 DisplayAsciiArt(args);
@@ -101,6 +103,26 @@ namespace Ngsa.LodeRunner
                         })
                         .UseConsoleLifetime()
                         .Build();
+        }
+
+        /// <summary>
+        /// Registers the termination events.
+        /// </summary>
+        private static void RegisterTerminationEvents()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
+            {
+                if (!cancelTokenSource.IsCancellationRequested)
+                {
+                    cancelTokenSource.Cancel(false);
+                }
+            };
+
+            Console.CancelKeyPress += (_, e) =>
+            {
+                e.Cancel = true;
+                cancelTokenSource.Cancel(false);
+            };
         }
 
         // ascii art
