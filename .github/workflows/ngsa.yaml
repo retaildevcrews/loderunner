@@ -35,8 +35,8 @@ jobs:
 
     - name: Docker Build
       run: |
-        docker build . -t image
-        
+        docker build ./src -t image -f ./src/LodeRunner/Dockerfile
+
     - name: Docker Tag and Push
       run: |
 
