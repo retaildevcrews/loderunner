@@ -48,6 +48,7 @@ namespace LodeRunner
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
             root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGENegOne, true, "Delay test start (seconds)"));
+            root.AddOption(new Option<int>(new string[] { "--client-refresh" }, Parsers.ParseIntGTZero, true, "How often to refresh HTTP client (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
             root.AddOption(new Option<string>(new string[] { "--secrets-volume" }, Parsers.ParseString, true, "Secrets Volume Path"));
 
@@ -89,6 +90,7 @@ namespace LodeRunner
             Console.WriteLine($"   Strict Json     {config.StrictJson}");
             Console.WriteLine($"   Duration        {config.Duration}");
             Console.WriteLine($"   Delay Start     {config.DelayStart}");
+            Console.WriteLine($"   Client Refresh  {config.ClientRefresh}");
             Console.WriteLine($"   Max Concurrent  {config.MaxConcurrent}");
             Console.WriteLine($"   Max Errors      {config.MaxErrors}");
             Console.WriteLine($"   Random          {config.Random}");

@@ -134,6 +134,11 @@ namespace LodeRunner
         public string CosmosName { get; set; } = string.Empty;
 
         /// <summary>
+        /// gets or sets the seconds to refresh the http client
+        /// </summary>
+        public int ClientRefresh { get; set; }
+
+        /// <summary>
         /// Set the default config values
         /// </summary>
         public void SetDefaultValues()
