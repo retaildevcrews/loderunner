@@ -1,0 +1,58 @@
+{
+	"name": "RelayRunner",
+	"dockerFile": "Dockerfile",
+
+	// do not change these if you want Docker in Docker support
+	"runArgs": [ "--init", "--privileged" ],
+	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind" ],
+	"overrideCommand": false,
+
+	// some base images require a specific user name
+	"remoteUser": "vscode",
+
+	// set container specific settings
+	"settings": {
+		"terminal.integrated.defaultProfile.linux": "zsh"
+	},
+
+	"forwardPorts": [
+		30000,
+		30080,
+		30088,
+		32000,
+		32080,
+		32088,
+		3000,
+		8080
+	],
+
+	// add labels
+	"portsAttributes": {
+		"6443": {"label": "k3d" },
+		"30000": { "label": "Prometheus" },
+		"30080": { "label": "Ngsa-Memory" },
+		"30088": { "label": "LodeRunner" },
+		"32000": { "label": "Grafana" },
+		"32080": { "label": "RelayRunner-Client" },
+		"32088": { "label": "RelayRunner-Backend" },
+		"3000": { "label": "Local Dev RelayRunner-Backend"},
+		"8080": { "label": "Local Dev RelayRunner-Backend"}
+	},
+
+	// Install extensions
+	"extensions": [
+		"davidanson.vscode-markdownlint",
+		"gruntfuggly.todo-tree",
+		"ms-azuretools.vscode-docker",
+		"mutantdino.resourcemonitor",
+		"humao.rest-client",
+		"jebbs.plantuml"
+	],
+	// Run Bash script in .devcontainer directory
+	// Use 'onCreateCommand' to run commands on container creation.
+	"onCreateCommand": "/bin/bash ./.devcontainer/on-create.sh",
+	// Use 'postCreateCommand' to run commands after container creation.
+	"postCreateCommand": "/bin/bash ./.devcontainer/post-create.sh",
+	// Use 'postStartCommand' to run commands after container start
+	"postStartCommand": "/bin/bash ./.devcontainer/post-start.sh"
+}
