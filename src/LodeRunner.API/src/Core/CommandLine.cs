@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Main application class
@@ -251,40 +251,6 @@ namespace LodeRunner.API.Application
 
             // return error message(s) or string.empty
             return msg;
-        }
-
-        // display Ascii Art
-        private static void DisplayAsciiArt(string[] args)
-        {
-            if (args != null)
-            {
-                ReadOnlySpan<string> cmd = new (args);
-
-                if (!cmd.Contains("--version") &&
-                    (cmd.Contains("-h") ||
-                    cmd.Contains("--help")))
-                {
-                    const string file = "ascii-art.txt";
-                    try
-                    {
-                        if (File.Exists(file))
-                        {
-                            string txt = File.ReadAllText(file);
-
-                            if (!string.IsNullOrWhiteSpace(txt))
-                            {
-                                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                                Console.WriteLine(txt);
-                                Console.ResetColor();
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // ignore any errors
-                    }
-                }
-            }
         }
     }
 }

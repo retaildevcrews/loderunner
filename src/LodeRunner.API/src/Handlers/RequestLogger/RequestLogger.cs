@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
-using LodeRunner.API.Application;
+using LodeRunner.API;
 using LodeRunner.API.Middleware.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;

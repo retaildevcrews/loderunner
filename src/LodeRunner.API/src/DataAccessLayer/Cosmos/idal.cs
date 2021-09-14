@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 
-namespace LodeRunner.API.Application.DataAccessLayer
+namespace LodeRunner.API.DataAccessLayer
 {
     /// <summary>
     /// Data Access Layer for CosmosDB Interface

@@ -9,7 +9,7 @@ using LodeRunner.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Cosmos Health Check

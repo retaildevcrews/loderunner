@@ -8,7 +8,7 @@ using LodeRunner.API.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 
-namespace LodeRunner.API.Application.DataAccessLayer
+namespace LodeRunner.API.DataAccessLayer
 {
     /// <summary>
     /// Data Access Layer for CosmosDB

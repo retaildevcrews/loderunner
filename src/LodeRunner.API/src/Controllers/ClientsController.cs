@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using LodeRunner.API.Application.Data;
+using LodeRunner.API.Data;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LodeRunner.API.Application.Controllers
+namespace LodeRunner.API.Controllers
 {
     /// <summary>
     /// Handle all of the /api/clients requests

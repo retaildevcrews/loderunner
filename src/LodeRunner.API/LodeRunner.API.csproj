@@ -74,5 +74,9 @@
 	  </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LodeRunner.Data\LodeRunner.Data.csproj" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

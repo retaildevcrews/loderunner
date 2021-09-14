@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using LodeRunner.API.Application.Data;
-using LodeRunner.API.Application.DataAccessLayer;
+using LodeRunner.API.Data;
+using LodeRunner.API.DataAccessLayer;
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Configurations for App

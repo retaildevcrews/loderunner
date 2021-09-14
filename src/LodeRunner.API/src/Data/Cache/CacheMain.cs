@@ -4,11 +4,11 @@
 using System;
 using System.Net;
 using System.Runtime.Caching;
-using LodeRunner.API.Application.DataAccessLayer;
+using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LodeRunner.API.Application.Data
+namespace LodeRunner.API.Data
 {
     /// <summary>
     /// Cached Data

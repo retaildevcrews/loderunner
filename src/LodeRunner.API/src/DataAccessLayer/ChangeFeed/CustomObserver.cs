@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing;
 
-namespace LodeRunner.API.Application.ChangeFeed
+namespace LodeRunner.API.ChangeFeed
 {
     public class CustomObserver : IChangeFeedObserver
     {

@@ -11,7 +11,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents;
 using Newtonsoft.Json;
 
-namespace LodeRunner.API.Application.Data
+namespace LodeRunner.API.Data
 {
     /// <summary>
     /// Data Access Layer for CosmosDB

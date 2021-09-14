@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Application secrets

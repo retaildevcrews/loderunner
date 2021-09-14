@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     public static class CosmosHealthCheckBuilderExtensions
     {

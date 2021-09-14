@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
@@ -14,15 +17,33 @@ using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Main application class
     /// </summary>
     public sealed partial class App
     {
+        /// <summary>
+        /// File containing ASCII art.
+        /// </summary>
+        public const string AsciiFile = "ascii-art.txt";
+
         // capture parse errors from env vars
         private static readonly List<string> EnvVarErrors = new ();
+
+        /// <summary>
+        /// Gets cancellation token
+        /// </summary>
+        private static CancellationTokenSource cancelTokenSource;
+
+        /// <summary>
+        /// Gets or sets json serialization options
+        /// </summary>
+        public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
 
         // App configuration values
         public static Config Config { get; } = new ();
@@ -33,16 +54,19 @@ namespace LodeRunner.API.Application
         /// </summary>
         /// <param name="args">command line args</param>
         /// <returns>0 == success</returns>
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            DisplayAsciiArt(args);
+            if (args != null)
+            {
+                DisplayAsciiArt(args);
+            }
 
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
-            root.Handler = CommandHandler.Create<Config>(RunApp);
+            root.Handler = CommandHandler.Create((Config cfg) => App.RunApp(cfg));
 
             // run the app
-            return root.Invoke(args);
+            return await root.InvokeAsync(args).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -58,6 +82,8 @@ namespace LodeRunner.API.Application
             {
                 // copy command line values
                 Config.SetConfig(config);
+
+                //TODO: Convert this to data service model
 
                 // load secrets from volume
                 LoadSecrets();
@@ -81,7 +107,7 @@ namespace LodeRunner.API.Application
                 }
 
                 // setup sigterm handler
-                CancellationTokenSource ctCancel = SetupSigTermHandler(host, logger);
+                App.cancelTokenSource = SetupSigTermHandler(host, logger);
 
                 // start the webserver
                 Task w = host.RunAsync();
@@ -96,7 +122,7 @@ namespace LodeRunner.API.Application
                 await w.ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
-                return ctCancel.IsCancellationRequested ? 0 : -1;
+                return cancelTokenSource.IsCancellationRequested ? 0 : -1;
             }
             catch (Exception ex)
             {
@@ -172,6 +198,42 @@ namespace LodeRunner.API.Application
             };
 
             return ctCancel;
+        }
+
+        /// <summary>
+        /// Displays ASCII art for help and dry run executions.
+        /// </summary>
+        /// <param name="args">CLI arguments</param>
+        private static void DisplayAsciiArt(string[] args)
+        {
+            if (args != null)
+            {
+                if (!args.Contains("--version") &&
+                    (args.Contains("-h") ||
+                    args.Contains("--help") ||
+                    args.Contains("-d") ||
+                    args.Contains("--dry-run")))
+                {
+                    try
+                    {
+                        if (File.Exists(AsciiFile))
+                        {
+                            string txt = File.ReadAllText(AsciiFile);
+
+                            if (!string.IsNullOrWhiteSpace(txt))
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                                Console.WriteLine(txt);
+                                Console.ResetColor();
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // ignore any errors
+                    }
+                }
+            }
         }
 
         private static async Task<IChangeFeedProcessor> RunChangeFeedProcessor()

@@ -3,13 +3,13 @@
 
 using System;
 using System.Threading.Tasks;
-using LodeRunner.API.Application.DataAccessLayer;
+using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Application.Controllers
+namespace LodeRunner.API.Controllers
 {
     /// <summary>
     /// Handle the /healthz* requests

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using LodeRunner.API.Models;
 using Microsoft.Azure.Documents;
 
-namespace LodeRunner.API.Application.Data
+namespace LodeRunner.API.Data
 {
     /// <summary>
     /// Data Access Layer for Cache Interface

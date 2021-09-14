@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Azure.Cosmos;
 
-namespace LodeRunner.API.Application.DataAccessLayer
+namespace LodeRunner.API.DataAccessLayer
 {
     /// <summary>
     /// Internal class for Cosmos config

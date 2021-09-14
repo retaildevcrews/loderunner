@@ -7,14 +7,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Application.DataAccessLayer;
+using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Application
+namespace LodeRunner.API
 {
     /// <summary>
     /// Cosmos Health Check

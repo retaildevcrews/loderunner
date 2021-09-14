@@ -8,7 +8,7 @@ using LodeRunner.API.Models;
 using LodeRunner.API.Models.Enum;
 using Microsoft.Azure.Cosmos;
 
-namespace LodeRunner.API.Application.DataAccessLayer
+namespace LodeRunner.API.DataAccessLayer
 {
     /// <summary>
     /// Data Access Layer for CosmosDB

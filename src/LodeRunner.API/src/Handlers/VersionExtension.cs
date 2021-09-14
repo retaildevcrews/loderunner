@@ -3,7 +3,7 @@
 
 using System;
 using System.Reflection;
-using LodeRunner.API.Application;
+using LodeRunner.API;
 using Microsoft.AspNetCore.Builder;
 
 namespace LodeRunner.API.Middleware

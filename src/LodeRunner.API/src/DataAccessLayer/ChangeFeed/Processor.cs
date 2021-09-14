@@ -7,7 +7,7 @@ using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using ChangeFeedProcessorBuilder = Microsoft.Azure.Documents.ChangeFeedProcessor.ChangeFeedProcessorBuilder;
 
-namespace LodeRunner.API.Application.ChangeFeed
+namespace LodeRunner.API.ChangeFeed
 {
     public class Processor
     {
