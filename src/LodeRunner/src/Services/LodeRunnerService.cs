@@ -121,7 +121,12 @@ namespace LodeRunner.Services
         // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            this.clientStatus = await GetClientStatusService().PostUpdate(args.Message, args.LastUpdated, args.Status, cancellationTokenSource.Token).ConfigureAwait(false);
+            // Update Entity, TODO: do we need a lock here?
+            clientStatus.LastUpdated = args.LastUpdated;
+            clientStatus.Message = args.Message;
+            clientStatus.Status = args.Status;
+
+            this.clientStatus = await GetClientStatusService().PostUpdate(this.clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
 
             //TODO : Add try catch and write log , then exit App?
         }
@@ -262,6 +267,8 @@ namespace LodeRunner.Services
             ValidateSettings(this.ServiceProvider);
 
             RegisterServices(serviceBuilder);
+
+            RegisterCancellationTokensForServices();
         }
 
         /// <summary>
@@ -283,13 +290,9 @@ namespace LodeRunner.Services
                     DatabaseName = config.Secrets.CosmosDatabase,
                 })
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
-                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());
 
-                // System objects required during Constructors
-                // TODO: Remove registration of clientStatus object
-                .AddSingleton<ClientStatus>(this.clientStatus)
-                .AddSingleton<IConfig>(this.config)
-                .AddSingleton<CancellationTokenSource>(this.cancellationTokenSource);
+                // Add other System objects required during Constructor
 
             // We need to create service provider here since it utilized when Validating Settings
             ServiceProvider = serviceBuilder.BuildServiceProvider();
@@ -326,6 +329,18 @@ namespace LodeRunner.Services
             ServiceProvider = serviceBuilder.BuildServiceProvider();
 
             return serviceBuilder;
+        }
+
+        /// <summary>
+        /// Registers the cancellation tokens for services.
+        /// This method will allows to register multiple Cancellation tokens with different purposes for different Services.
+        /// </summary>
+        private void RegisterCancellationTokensForServices()
+        {
+            this.cancellationTokenSource.Token.Register(() =>
+            {
+                GetClientStatusService().TerminateService(this.clientStatus);
+            });
         }
     }
 }

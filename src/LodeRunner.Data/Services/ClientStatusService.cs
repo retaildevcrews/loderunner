@@ -19,31 +19,16 @@ namespace LodeRunner.Services
     public class ClientStatusService : BaseService, IClientStatusService
     {
         private readonly IModelValidator<ClientStatus> validator;
-        private readonly ClientStatus clientStatus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
         /// <param name="cosmosDBRepository">The cosmos database repository.</param>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        /// TODO: Remove ClientStatus from contstructor
-        public ClientStatusService(ICosmosDBRepository cosmosDBRepository, ClientStatus clientStatus, CancellationTokenSource cancellationTokenSource)
+        public ClientStatusService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
             this.validator = new ClientStatusValidator();
-            this.clientStatus = clientStatus;
-            cancellationTokenSource.Token.Register(this.TerminateService);
         }
-
-        /// <summary>
-        /// Gets the client status.
-        /// </summary>
-        /// <value>
-        /// The client status.
-        /// </value>
-        /// TODO: Remove field as ClientStatus objects will be held in the app scope instead of the service scope
-        public ClientStatus ClientStatus => this.clientStatus;
 
         /// <summary>
         /// Gets the specified identifier.
@@ -94,52 +79,44 @@ namespace LodeRunner.Services
         /// <summary>
         /// Posts the update.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
-        /// <param name="status">The status.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="cancellationToken">the cancellation token.</param>
         /// <returns>
         /// The Task.
         /// </returns>
-        // TODO: Change signature to accept a ClientStatus object instead of discrete values
-        public Task<ClientStatus> PostUpdate(string message, DateTime lastUpdated, ClientStatusType status, CancellationToken cancellationToken)
+        public Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                return new Task<ClientStatus>(() => this.clientStatus);
+                return new Task<ClientStatus>(() => clientStatus);
             }
 
-            if (this.clientStatus == null)
+            if (clientStatus == null)
             {
                 // TODO: What to do if it is null
                 throw new ApplicationException($"PostReady failed - clientStatus cannot be null.");
             }
 
-            lock (this.clientStatus)
+            lock (clientStatus)
             {
-                // Update Entity
-                this.clientStatus.LastUpdated = lastUpdated;
-                this.clientStatus.Message = message;
-                this.clientStatus.Status = status;
-
                 // Validate Entity
-                if (!this.ValidateEntity(message))
+                if (!this.ValidateEntity(clientStatus.Message, clientStatus))
                 {
                     // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => this.clientStatus);
+                    return new Task<ClientStatus>(() => clientStatus);
                 }
 
-                // Should I check for IsCosmosDBReady
+                // Update Entity
                 if (this.CosmosDBRepository.IsCosmosDBReady().Result)
                 {
-                    return this.CosmosDBRepository.UpsertDocumentAsync(this.clientStatus, cancellationToken);
+                    return this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
 
                     // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => this.clientStatus);
+                    return new Task<ClientStatus>(() => clientStatus);
                 }
             }
         }
@@ -147,24 +124,26 @@ namespace LodeRunner.Services
         /// <summary>
         /// Terminates the service.
         /// </summary>
-        private void TerminateService()
+        /// <param name="clientStatus">The ClientStatus entity.</param>
+        public void TerminateService(ClientStatus clientStatus)
         {
             // Update Entity
-            this.clientStatus.LastUpdated = DateTime.UtcNow;
-            this.clientStatus.Message = "Termination requested via Cancellation Token.";
-            this.clientStatus.Status = ClientStatusType.Terminating;
+            clientStatus.LastUpdated = DateTime.UtcNow;
+            clientStatus.Message = "Termination requested via Cancellation Token.";
+            clientStatus.Status = ClientStatusType.Terminating;
 
-            this.CosmosDBRepository.UpsertDocumentAsync(this.clientStatus).ConfigureAwait(false);
+            this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Validates the entity.
         /// </summary>
         /// <param name="message">The message.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <returns>True if entity passed IModelValidator validation, otherwise false.</returns>
-        private bool ValidateEntity(string message)
+        private bool ValidateEntity(string message, ClientStatus clientStatus)
         {
-            var errors = this.validator.Validate(this.clientStatus).Errors.ToList();
+            var errors = this.validator.Validate(clientStatus).Errors.ToList();
             if (errors.Count > 0)
             {
                 var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
