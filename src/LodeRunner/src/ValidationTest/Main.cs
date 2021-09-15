@@ -33,10 +33,10 @@ namespace LodeRunner
         private static Histogram requestDuration = null;
         private static Summary requestSummary = null;
         private static List<Request> requestList;
+        private static SocketsHttpHandler httpSocketHandler;
 
         private readonly Dictionary<string, PerfTarget> targets = new ();
         private Config config;
-        private static SocketsHttpHandler httpSocketHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class

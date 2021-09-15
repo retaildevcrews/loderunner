@@ -4,9 +4,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Data.Model;
 using LodeRunner.Events;
 using LodeRunner.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -117,7 +118,7 @@ namespace LodeRunner.Services
             Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); //TODO fix LogStatusChange implementation
         }
 
-        //TODO Move to proper location when merging with DAL
+        // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
             this.clientStatus = await GetClientStatusService().PostUpdate(args.Message, args.LastUpdated, args.Status, cancellationTokenSource.Token).ConfigureAwait(false);
@@ -285,6 +286,7 @@ namespace LodeRunner.Services
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
                 // System objects required during Constructors
+                // TODO: Remove registration of clientStatus object
                 .AddSingleton<ClientStatus>(this.clientStatus)
                 .AddSingleton<IConfig>(this.config)
                 .AddSingleton<CancellationTokenSource>(this.cancellationTokenSource);

@@ -4,7 +4,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace LodeRunner.Data.Model
+namespace LodeRunner.Core.Models
 {
     /// <summary>
     /// Client Status Types.

@@ -5,6 +5,9 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LodeRunner.API.Middleware;
+using LodeRunner.Data;
+using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -140,6 +143,18 @@ namespace LodeRunner.API
                     options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+
+            services
+                // Add CosmosDB Repository
+                .AddSingleton<CosmosDBRepository>()
+                .AddSingleton<ICosmosDBRepository, CosmosDBRepository>(provider => provider.GetRequiredService<CosmosDBRepository>())
+
+                // Add Services
+                .AddSingleton<ClientStatusService>()
+                .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>())
+
+                .AddSingleton<LoadTestConfigService>()
+                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
         }
     }
 }

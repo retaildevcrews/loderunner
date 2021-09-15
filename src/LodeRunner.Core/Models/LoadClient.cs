@@ -2,14 +2,14 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using LodeRunner.Data.Interfaces;
+using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner.Data.Model
+namespace LodeRunner.Core.Models
 {
     /// <summary>
     /// LoadClient Model.
     /// </summary>
-    /// <seealso cref="LodeRunner.Data.Model.BaseEntityModel" />
+    /// <seealso cref="LodeRunner.Core.Models.BaseEntityModel" />
     public class LoadClient : BaseEntityModel
     {
         /// <summary>

@@ -83,11 +83,10 @@ namespace LodeRunner.API
                 // copy command line values
                 Config.SetConfig(config);
 
-                //TODO: Convert this to data service model
-
                 // load secrets from volume
                 LoadSecrets();
 
+                //TODO: Convert this to data service model
                 // create the cosmos data access layer
                 Config.CosmosDal = new DataAccessLayer.CosmosDal(Config.Secrets, Config);
 

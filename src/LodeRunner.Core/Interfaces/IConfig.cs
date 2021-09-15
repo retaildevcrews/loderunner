@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace LodeRunner.Data.Interfaces
+namespace LodeRunner.Core.Interfaces
 {
     /// <summary>
     /// The Config Interface.

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace LodeRunner.Data.Model
+namespace LodeRunner.Core.Models
 {
     /// <summary>
     ///   ClientStatus is primarily for conveying the current status, time of that status, and the LoadClient settings to consuming apps.

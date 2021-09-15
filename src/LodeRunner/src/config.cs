@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using LodeRunner.Data.Interfaces;
+using LodeRunner.Core.Interfaces;
 
 namespace LodeRunner
 {

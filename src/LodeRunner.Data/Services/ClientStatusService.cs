@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Data.Model;
-using LodeRunner.Data.Model.Validators;
 
 namespace LodeRunner.Services
 {
@@ -26,6 +27,7 @@ namespace LodeRunner.Services
         /// <param name="cosmosDBRepository">The cosmos database repository.</param>
         /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
+        /// TODO: Remove ClientStatus from contstructor
         public ClientStatusService(ICosmosDBRepository cosmosDBRepository, ClientStatus clientStatus, CancellationTokenSource cancellationTokenSource)
             : base(cosmosDBRepository)
         {
@@ -40,6 +42,7 @@ namespace LodeRunner.Services
         /// <value>
         /// The client status.
         /// </value>
+        /// TODO: Remove field as ClientStatus objects will be held in the app scope instead of the service scope
         public ClientStatus ClientStatus => this.clientStatus;
 
         /// <summary>
@@ -98,6 +101,7 @@ namespace LodeRunner.Services
         /// <returns>
         /// The Task.
         /// </returns>
+        // TODO: Change signature to accept a ClientStatus object instead of discrete values
         public Task<ClientStatus> PostUpdate(string message, DateTime lastUpdated, ClientStatusType status, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)

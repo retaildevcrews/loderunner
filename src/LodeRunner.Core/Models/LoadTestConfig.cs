@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace LodeRunner.Data.Model
+namespace LodeRunner.Core.Models
 {
     /// <summary>
     /// LoadRestConfig Model.

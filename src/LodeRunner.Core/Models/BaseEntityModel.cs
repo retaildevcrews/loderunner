@@ -2,10 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using LodeRunner.Data.Extensions;
-using LodeRunner.Data.Interfaces;
+using LodeRunner.Core.Extensions;
+using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner.Data.Model
+namespace LodeRunner.Core.Models
 {
     /// <summary>
     ///   BaseEntityModel is base abstract class for all entities and model.

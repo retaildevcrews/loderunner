@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using LodeRunner.Data.Model;
+using LodeRunner.Core.Models;
 
-namespace LodeRunner.Data.Interfaces
+namespace LodeRunner.Core.Interfaces
 {
     /// <summary>
     /// Base LoadEntity Model Interface.
     /// </summary>
-    internal interface IBaseEntityModel
+    public interface IBaseEntityModel
     {
         /// <summary>
         /// Gets or sets the identifier.

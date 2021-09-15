@@ -3,9 +3,9 @@
 
 using System;
 using FluentValidation;
-using LodeRunner.Data.Interfaces;
+using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner.Data.Model.Validators
+namespace LodeRunner.Core.Models.Validators
 {
     /// <summary>
     /// ClientStatusValidator.

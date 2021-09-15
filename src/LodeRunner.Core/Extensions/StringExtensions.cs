@@ -5,12 +5,12 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace LodeRunner.Data.Extensions
+namespace LodeRunner.Core.Extensions
 {
     /// <summary>
     /// Provides String Extension methods.
     /// </summary>
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         /// <summary>
         /// Get the Enum from string.

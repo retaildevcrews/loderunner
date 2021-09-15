@@ -3,7 +3,7 @@
 
 using FluentValidation.Results;
 
-namespace LodeRunner.Data.Interfaces
+namespace LodeRunner.Core.Interfaces
 {
     /// <summary>
     /// Model Validator Interface.
