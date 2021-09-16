@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 COPY ./LodeRunner.sln /src/
 COPY ./LodeRunner /src/LodeRunner
 COPY ./LodeRunner.Data /src/LodeRunner.Data
+COPY ./LodeRunner.Core /src/LodeRunner.Core
 
 ### Build the release app
 WORKDIR /src
