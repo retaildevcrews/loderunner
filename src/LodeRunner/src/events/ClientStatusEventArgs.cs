@@ -2,8 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using LodeRunner.Data.Model;
+using LodeRunner.Core.Models;
 
+// TODO: Move to LodeRunner.Core.Events namespace in a LodeRunner.Core lib
 namespace LodeRunner.Events
 {
     /// <summary>

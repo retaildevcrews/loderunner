@@ -1,0 +1,58 @@
+@startuml ClientStatus Flow
+
+participant "LodeRunner::start" as start
+participant "LodeRunner::DAL" as DAL
+participant "InternalMessageBus" as BUS
+participant "StatusUpdateListeners" as StatusListeners
+participant "LogListener" as Log
+participant "UpdatePoolStatus" as PoolListener
+
+[o-> start: Start LodeRunner in wait state
+
+start -> BUS: "Starting" message
+activate BUS
+BUS -> StatusListeners
+StatusListeners -> Log : Log starting status
+note right
+    include starting configuration values
+end note
+Log --> StatusListeners
+StatusListeners --> BUS
+BUS --> start
+deactivate BUS
+start -> start: validate start-up config
+start -> start: ensure secrets
+start -> start: establish dataconnections and changefeed
+start -> DAL: connect and configure
+DAL --> start
+start -> BUS: "Ready" message
+activate BUS
+BUS -> StatusListeners
+StatusListeners -> Log : Write Ready status 
+note right
+    should include CosmosDB & ChangeFeed information
+end note
+Log --> StatusListeners
+StatusListeners -> PoolListener 
+activate PoolListener
+PoolListener -> DAL
+DAL -> CosmosDB: Update storage with current status
+note right
+    information including zone, region, Id of the particular client
+end note
+CosmosDB --> DAL
+DAL --> PoolListener
+PoolListener -> PoolListener: Setup reresh timer
+note right
+    Update status every 5 secs 
+    use last status and fresh timestamp 
+    to ensure that the status is current
+    and is not evicted based on TTL
+end note
+PoolListener --> StatusListeners
+deactivate PoolListener
+StatusListeners --> BUS
+BUS --> start
+deactivate BUS
+
+@enduml

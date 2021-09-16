@@ -16,6 +16,8 @@ namespace LodeRunner.Events
 
         public static event EventHandler<ClientStatusEventArgs> StatusUpdate = (sender, e) => { };
 
+        // TODO: Move to LodeRunner.Core.Events namespace in a LodeRunner.Core lib
+
         /// <summary>
         /// Called when [status update].
         /// </summary>
@@ -38,6 +40,8 @@ namespace LodeRunner.Events
 
             statusUpdateTimer.Start();
         }
+
+        // TODO: Move liveness timer to LodeRunnerService
 
         /// <summary>
         /// Called when [status timer event].

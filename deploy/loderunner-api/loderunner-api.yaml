@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: loderunner-api
+  labels:
+    app: loderunner-api
+
+spec:
+  containers:
+  - name: app
+    image: ghcr.io/retaildevcrews/loderunner-api:beta
+    imagePullPolicy: Always
+    readinessProbe:
+      initialDelaySeconds: 5
+      httpGet:
+        path: /version
+        port: 8080
+    livenessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 300
+      httpGet:
+        path: /healthz
+        port: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: loderunner-api
+  labels:
+    app: loderunner-api
+spec:
+  type: NodePort
+  selector:
+    app: loderunner-api
+  ports:
+  - port: 8080
+    nodePort: 32088

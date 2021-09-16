@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LodeRunner", "LodeRunner\Lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LodeRunner.Data", "LodeRunner.Data\LodeRunner.Data.csproj", "{E176AD9C-EB69-4CF2-862E-52E60470521B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LodeRunner.Core", "LodeRunner.Core\LodeRunner.Core.csproj", "{4B295C66-EF90-4D3E-8C49-DA7D25BC9FAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E176AD9C-EB69-4CF2-862E-52E60470521B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E176AD9C-EB69-4CF2-862E-52E60470521B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E176AD9C-EB69-4CF2-862E-52E60470521B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B295C66-EF90-4D3E-8C49-DA7D25BC9FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B295C66-EF90-4D3E-8C49-DA7D25BC9FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B295C66-EF90-4D3E-8C49-DA7D25BC9FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B295C66-EF90-4D3E-8C49-DA7D25BC9FAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

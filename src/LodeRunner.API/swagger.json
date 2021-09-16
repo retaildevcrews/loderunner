@@ -1,0 +1,258 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "relayrunner",
+    "version": "1.0"
+  },
+  "paths": {
+    "{urlPrefix}/api/clients": {
+      "get": {
+        "tags": [ "Clients" ],
+        "summary": "Get Clients",
+        "description": "Returns an array of `Client` documents",
+        "responses": {
+          "200": {
+            "description": "Array of `Client` documents or empty array if not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Client"
+                  }
+                },
+                "example": [
+                  {
+                    "entityType": "Client",
+                    "loadClientId": "7abcc308-14c4-43eb-b1ee-e351f4db2a08",
+                    "name": "Central - az - central - us - 2",
+                    "version": "0.3.0 - 717 - 1030",
+                    "region": "Central",
+                    "zone": "az-central-us",
+                    "prometheus": false,
+                    "startupArgs": "--delay - start - 1--secrets - volume secrets",
+                    "startTime": "2021-08-26T23:49:28.3828277Z",
+                    "clientStatusId": "c7975154-c88f-4188-8ca7-dba13ae7c9b2",
+                    "lastUpdated": "2021-08-26T23:49:56.6804331Z",
+                    "statusDuration": 1,
+                    "status": "Terminating",
+                    "message": "Terminating - A task was canceled."
+                  },
+                  {
+                    "entityType": "Client",
+                    "loadClientId": "9c65a8b8-e1f7-44d0-98b1-0c5960ceac2f",
+                    "name": "Central - az - central - us - 2",
+                    "version": "0.3.0 - 717 - 1030",
+                    "region": "Central",
+                    "zone": "az-central-us",
+                    "prometheus": false,
+                    "startupArgs": "--delay - start - 1--secrets - volume secrets",
+                    "startTime": "2021-08-27T16:14:29.3745704Z",
+                    "clientStatusId": "b6f3e9f3-6a22-4978-9bfa-fc62cf6cfbe0",
+                    "lastUpdated": "2021-08-27T16:14:34.5804522Z",
+                    "statusDuration": 1,
+                    "status": "Ready",
+                    "message": "Ready - test ready"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "{urlPrefix}/api/clients/{clientStatusId}": {
+      "get": {
+        "tags": [ "Clients" ],
+        "summary": "Get Client by ClientStatus ID",
+        "description": "Get a single `Client` document by clientStatusId",
+        "parameters": [
+          {
+            "in": "path",
+            "name":  "clientStatusId",
+            "description": "ClientStatus ID of Client to get",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "`Client`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Client"
+                },
+                "example": [
+                  {
+                    "entityType": "Client",
+                    "loadClientId": "9c65a8b8-e1f7-44d0-98b1-0c5960ceac2f",
+                    "name": "Central - az - central - us - 2",
+                    "version": "0.3.0 - 717 - 1030",
+                    "region": "Central",
+                    "zone": "az-central-us",
+                    "prometheus": false,
+                    "startupArgs": "--delay - start - 1--secrets - volume secrets",
+                    "startTime": "2021-08-27T16:14:29.3745704Z",
+                    "clientStatusId": "b6f3e9f3-6a22-4978-9bfa-fc62cf6cfbe0",
+                    "lastUpdated": "2021-08-27T16:14:34.5804522Z",
+                    "statusDuration": 1,
+                    "status": "Ready",
+                    "message": "Ready - test ready"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "{urlPrefix}/healthz": {
+      "get": {
+        "tags": [ "Health Check" ],
+        "summary": "Health Check (simple)",
+        "description": "Returns a text/plain health status (pass, warn or fail)",
+        "responses": {
+          "200": {
+            "description": "`string` (pass, warn or fail)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "pass"
+              }
+            }
+          }
+        }
+      }
+    },
+    "{urlPrefix}/healthz/ietf": {
+      "get": {
+        "tags": [ "Health Check" ],
+        "summary": "Health Check (IETF)",
+        "description": "Returns an `IetfHealthCheck` document from the Health Check",
+        "responses": {
+          "200": {
+            "description": "`IetfHealthCheck`",
+            "content": {
+              "application/health+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IetfHealthCheck"
+                },
+                "example": {
+                  "status": "pass",
+                  "serviceId": "relayrunner",
+                  "description": "relayrunner Health Check",
+                  "instance": "0",
+                  "version": "1.0.0502.0026",
+                  "checks": {
+                    "getClientByClientStatusId:responseTime": {
+                      "status": "pass",
+                      "componentId": "getClientByClientStatusId",
+                      "componentType": "datastore",
+                      "observedUnit": "ms",
+                      "observedValue": 1.4,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "searchClient:responseTime": {
+                      "status": "pass",
+                      "componentId": "searchClient",
+                      "componentType": "datastore",
+                      "observedUnit": "ms",
+                      "observedValue": 38.11,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Client": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string" 
+          } ,
+          "loadClientId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "prometheus": {
+            "type": "boolean"
+          },
+          "startArgs": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "date-time"
+          },
+          "clientStatusId": {
+            "type": "string"
+          },
+          "lastUpdated": {
+            "type": "date-time"
+          },
+          "statusDuration": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "IetfHealthCheck": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "checks": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

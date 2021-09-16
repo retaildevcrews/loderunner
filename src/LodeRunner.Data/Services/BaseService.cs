@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LodeRunner.Data.Extensions;
+using LodeRunner.Core.Extensions;
+using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Data.Model;
 
 namespace LodeRunner.Services
 {

@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Data.Model;
-using LodeRunner.Data.Model.Validators;
 
 namespace LodeRunner.Services
 {
@@ -18,29 +19,16 @@ namespace LodeRunner.Services
     public class ClientStatusService : BaseService, IClientStatusService
     {
         private readonly IModelValidator<ClientStatus> validator;
-        private readonly ClientStatus clientStatus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
         /// <param name="cosmosDBRepository">The cosmos database repository.</param>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        public ClientStatusService(ICosmosDBRepository cosmosDBRepository, ClientStatus clientStatus, CancellationTokenSource cancellationTokenSource)
+        public ClientStatusService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
             this.validator = new ClientStatusValidator();
-            this.clientStatus = clientStatus;
-            cancellationTokenSource.Token.Register(this.TerminateService);
         }
-
-        /// <summary>
-        /// Gets the client status.
-        /// </summary>
-        /// <value>
-        /// The client status.
-        /// </value>
-        public ClientStatus ClientStatus => this.clientStatus;
 
         /// <summary>
         /// Gets the specified identifier.
@@ -89,85 +77,65 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Posts the update.
+        ///    Posts the update.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
-        /// <param name="status">The status.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="cancellationToken">the cancellation token.</param>
         /// <returns>
-        /// The Task.
+        ///    The Task<ClientStatus> with updated ClientStatus if CosmosDB post is ready. 
+        ///    Otherwise, it returns null.
         /// </returns>
-        public Task<ClientStatus> PostUpdate(string message, DateTime lastUpdated, ClientStatusType status, CancellationToken cancellationToken)
+        public Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return new Task<ClientStatus>(() => this.clientStatus);
-            }
+            var returnValue = new Task<ClientStatus>(() => null);
 
-            if (this.clientStatus == null)
+            if (clientStatus != null && !cancellationToken.IsCancellationRequested)
             {
-                // TODO: What to do if it is null
-                throw new ApplicationException($"PostReady failed - clientStatus cannot be null.");
-            }
-
-            lock (this.clientStatus)
-            {
-                // Update Entity
-                this.clientStatus.LastUpdated = lastUpdated;
-                this.clientStatus.Message = message;
-                this.clientStatus.Status = status;
-
-                // Validate Entity
-                if (!this.ValidateEntity(message))
+                // Update Entity if CosmosDB connection is ready and the object is valid
+                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.ValidateEntity(clientStatus))
                 {
-                    // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => this.clientStatus);
-                }
-
-                // Should I check for IsCosmosDBReady
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result)
-                {
-                    return this.CosmosDBRepository.UpsertDocumentAsync(this.clientStatus, cancellationToken);
+                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
-                    // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => this.clientStatus);
                 }
             }
+
+            return returnValue;
         }
 
         /// <summary>
         /// Terminates the service.
         /// </summary>
-        private void TerminateService()
+        /// <param name="clientStatus">The ClientStatus entity.</param>
+        public void TerminateService(ClientStatus clientStatus)
         {
             // Update Entity
-            this.clientStatus.LastUpdated = DateTime.UtcNow;
-            this.clientStatus.Message = "Termination requested via Cancellation Token.";
-            this.clientStatus.Status = ClientStatusType.Terminating;
+            clientStatus.LastUpdated = DateTime.UtcNow;
+            clientStatus.Message = "Termination requested via Cancellation Token.";
+            clientStatus.Status = ClientStatusType.Terminating;
 
-            this.CosmosDBRepository.UpsertDocumentAsync(this.clientStatus).ConfigureAwait(false);
+            this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Validates the entity.
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <returns>True if entity passed IModelValidator validation, otherwise false.</returns>
-        private bool ValidateEntity(string message)
+        // TODO: Review for converting to generic extension method so it can be used to visit and validate an object type.
+        private bool ValidateEntity(ClientStatus clientStatus)
         {
-            var errors = this.validator.Validate(this.clientStatus).Errors.ToList();
+            var errors = this.validator.Validate(clientStatus).Errors.ToList();
             if (errors.Count > 0)
             {
                 var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
                 var errorMsg = string.Join('\n', errorsList);
 
-                // TODO: how to handle validation errors
-                throw new ApplicationException($"PostReady validation failed - {message}\n{errorMsg}\n\n");
+                // TODO: Log error information
+
+                return false;
             }
             else
             {

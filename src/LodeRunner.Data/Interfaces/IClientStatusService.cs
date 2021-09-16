@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.Data.Model;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -17,18 +17,16 @@ namespace LodeRunner.Data.Interfaces
         /// <summary>
         /// Posts the update.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="lastUpdated">The last updated.</param>
-        /// <param name="status">The status.</param>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The Updated clientStatus entity.</returns>
-        Task<ClientStatus> PostUpdate(string message, DateTime lastUpdated, ClientStatusType status, CancellationToken cancellationToken);
+        Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>The corresponding Enity.</returns>
+        /// <returns>The corresponding Entity.</returns>
         Task<ClientStatus> Get(string id);
 
         /// <summary>
@@ -49,5 +47,11 @@ namespace LodeRunner.Data.Interfaces
         /// </summary>
         /// <returns>Items Count EntityType equals ClientStatus.</returns>
         Task<int> GetCount();
+
+        /// <summary>
+        /// Terminates the service.
+        /// </summary>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
+        void TerminateService(ClientStatus clientStatus);
     }
 }

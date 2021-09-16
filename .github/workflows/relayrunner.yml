@@ -1,0 +1,87 @@
+#name: Build RelayRunner
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#    paths:
+#      - 'Dockerfile'
+#      - '**.js'
+#      - '**.css'
+#      - '*.csproj'
+#      - '**.cs'
+#      - '.github/workflows/relayrunner.yml'
+#
+#jobs:
+#
+#  build:
+#
+#    runs-on: ubuntu-latest
+#    env:
+#      DOCKER_REPO: ghcr.io/retaildevcrews/relayrunner
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#
+#    - name: Login to Container Registry
+#      uses: docker/login-action@v1
+#      with:
+#        registry: ghcr.io
+#        username: ${{ secrets.GHCR_ID }}
+#        password: ${{ secrets.GHCR_PAT }}
+#
+#    - name: Docker Build Backend
+#      run: |
+#        docker build -t relayrunner-backend ./backend
+#    - name: Docker Run Backend
+#      run: |
+#           
+#            docker run --name backend -d --rm -p 80:8080 relayrunner-backend
+#
+#    - name: Run Linter on Client
+#      uses: actions/setup-node@v2
+#      with:
+#        node-version: '14'
+#    - name: Install npm packages
+#      run: npm install --prefix ./client
+#    - name: Run Linter on ./client 
+#      run: npm run lint --prefix ./client      
+#
+#    - name: Docker Build Client
+#      run: |
+#        docker build -t relayrunner-client ./client
+#
+#    - name: Docker Run Client
+#      run: |
+#           
+#            docker run --name client -d --rm -p 8080:80 relayrunner-client
+#
+#            echo "Waiting for web server to start ..."
+#        
+#            wait_time=10        
+#            sleep $wait_time
+#            # wait up to 30 seconds for web server to start
+#            while true
+#            do
+#                if curl localhost:8080 ; then
+#                    echo -e "\n web server is running"
+#                    break
+#                fi
+#                if [ $wait_time -gt 30 ] ; then
+#                  echo -e "\n timeout waiting for web server to start"
+#                  exit 1
+#                fi
+#                
+#                sleep 1
+#                ((wait_time=wait_time+1))
+#            done
+#
+#    - name: Docker Tag and Push
+#      run: |
+#        # tag the images 
+#        docker tag relayrunner-backend $DOCKER_REPO:backend
+#        docker tag relayrunner-client $DOCKER_REPO:client
+#        # Push to the repo
+#        docker push -a $DOCKER_REPO
+#

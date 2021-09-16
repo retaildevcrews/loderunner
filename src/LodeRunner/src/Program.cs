@@ -23,6 +23,11 @@ namespace LodeRunner
     public sealed partial class App
     {
         /// <summary>
+        /// File path for ascii art display.
+        /// </summary>
+        public const string AsciiFile = "src/Core/ascii-art.txt";
+
+        /// <summary>
         /// Gets cancellation token
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
@@ -133,13 +138,11 @@ namespace LodeRunner
                 args.Contains("-d") ||
                 args.Contains("--dry-run")))
             {
-                const string file = "src/Core/ascii-art.txt";
-
                 try
                 {
-                    if (File.Exists(file))
+                    if (File.Exists(AsciiFile))
                     {
-                        string txt = File.ReadAllText(file);
+                        string txt = File.ReadAllText(AsciiFile);
 
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine(txt);

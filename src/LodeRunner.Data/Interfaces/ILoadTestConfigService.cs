@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LodeRunner.Data.Model;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.Data.Interfaces
 {
