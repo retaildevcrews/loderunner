@@ -77,42 +77,32 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Posts the update.
+        ///    Posts the update.
         /// </summary>
         /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <param name="cancellationToken">the cancellation token.</param>
         /// <returns>
-        /// The Task.
+        ///    The Task<ClientStatus> with updated ClientStatus if CosmosDB post is ready. 
+        ///    Otherwise, it returns null.
         /// </returns>
         public Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return new Task<ClientStatus>(() => clientStatus);
-            }
+            var returnValue = new Task<ClientStatus>(() => null);
 
-            if (clientStatus != null)
+            if (clientStatus != null && !cancellationToken.IsCancellationRequested)
             {
-                // Validate Entity
-                if (!this.ValidateEntity(clientStatus.Message, clientStatus))
+                // Update Entity if CosmosDB connection is ready and the object is valid
+                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.ValidateEntity(clientStatus))
                 {
-                    // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => clientStatus);
-                }
-
-                // Update Entity
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result)
-                {
-                    return this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
+                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
-                    // we return a task with the current ClientStatus.
-                    return new Task<ClientStatus>(() => clientStatus);
                 }
             }
+
+            return returnValue;
         }
 
         /// <summary>
@@ -132,10 +122,10 @@ namespace LodeRunner.Services
         /// <summary>
         /// Validates the entity.
         /// </summary>
-        /// <param name="message">The message.</param>
         /// <param name="clientStatus">The ClientStatus entity.</param>
         /// <returns>True if entity passed IModelValidator validation, otherwise false.</returns>
-        private bool ValidateEntity(string message, ClientStatus clientStatus)
+        // TODO: Review for converting to generic extension method so it can be used to visit and validate an object type.
+        private bool ValidateEntity(ClientStatus clientStatus)
         {
             var errors = this.validator.Validate(clientStatus).Errors.ToList();
             if (errors.Count > 0)
@@ -143,8 +133,9 @@ namespace LodeRunner.Services
                 var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
                 var errorMsg = string.Join('\n', errorsList);
 
-                // TODO: how to handle validation errors
-                throw new ApplicationException($"PostReady validation failed - {message}\n{errorMsg}\n\n");
+                // TODO: Log error information
+
+                return false;
             }
             else
             {
