@@ -91,13 +91,7 @@ namespace LodeRunner.Services
                 return new Task<ClientStatus>(() => clientStatus);
             }
 
-            if (clientStatus == null)
-            {
-                // TODO: What to do if it is null
-                throw new ApplicationException($"PostReady failed - clientStatus cannot be null.");
-            }
-
-            lock (clientStatus)
+            if (clientStatus != null)
             {
                 // Validate Entity
                 if (!this.ValidateEntity(clientStatus.Message, clientStatus))
