@@ -145,6 +145,7 @@ namespace LodeRunner.API
                 });
 
             services
+
                 // Add CosmosDB Repository
                 .AddSingleton<CosmosDBRepository>()
                 .AddSingleton<ICosmosDBRepository, CosmosDBRepository>(provider => provider.GetRequiredService<CosmosDBRepository>())
