@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
+using LodeRunner.Data.ChangeFeed;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore;
@@ -107,7 +108,7 @@ namespace LodeRunner.API
                 logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
 
                 // start CosmosDB Change Feed Processor
-                ChangeFeedProcessor = await RunChangeFeedProcessor();
+                ChangeFeedProcessor = await GetChangeFeedService().RunChangeFeedProcessor();
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -140,6 +141,15 @@ namespace LodeRunner.API
         private static ILoadTestConfigService GetLoadTestConfigService()
         {
             return (ILoadTestConfigService)host.Services.GetService(typeof(LoadTestConfigService));
+        }
+
+        /// <summary>
+        /// Gets the change feed service.
+        /// </summary>
+        /// <returns>The ChangeFeed Service.</returns>
+        private static IChangeFeedService GetChangeFeedService()
+        {
+            return (IChangeFeedService)host.Services.GetService(typeof(ChangeFeedService));
         }
 
         /// <summary>
@@ -263,29 +273,6 @@ namespace LodeRunner.API
                     }
                 }
             }
-        }
-
-        private static async Task<IChangeFeedProcessor> RunChangeFeedProcessor()
-        {
-            const string ChangeFeedLeaseName = "RRAPI";
-
-            DocumentCollectionInfo feedCollectionInfo = new ()
-            {
-                DatabaseName = Config.Secrets.CosmosDatabase,
-                CollectionName = Config.Secrets.CosmosCollection,
-                Uri = new Uri(Config.Secrets.CosmosServer),
-                MasterKey = Config.Secrets.CosmosKey,
-            };
-
-            DocumentCollectionInfo leaseCollectionInfo = new ()
-            {
-                DatabaseName = Config.Secrets.CosmosDatabase,
-                CollectionName = ChangeFeedLeaseName,
-                Uri = new Uri(Config.Secrets.CosmosServer),
-                MasterKey = Config.Secrets.CosmosKey,
-            };
-
-            return await ChangeFeed.Processor.RunAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo);
         }
     }
 }
