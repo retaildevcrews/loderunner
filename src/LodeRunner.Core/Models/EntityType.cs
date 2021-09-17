@@ -13,6 +13,11 @@ namespace LodeRunner.Core.Models
     public enum EntityType
     {
         /// <summary>
+        /// Represents a front end compatible representation of ClientStatus
+        /// </summary>
+        Client,
+
+        /// <summary>
         /// ClientStatus entity type
         /// </summary>
         ClientStatus,

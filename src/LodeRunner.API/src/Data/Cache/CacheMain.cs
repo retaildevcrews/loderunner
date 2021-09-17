@@ -4,8 +4,8 @@
 using System;
 using System.Net;
 using System.Runtime.Caching;
-using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Middleware;
+using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LodeRunner.API.Data
@@ -22,14 +22,16 @@ namespace LodeRunner.API.Data
             NotFoundError = "Cached values not found",
         };
 
-        private static IDAL cosmosDal;
+        private static IClientStatusService clientStatusService;
+        private static ILoadTestConfigService loadTestConfigService;
         private readonly MemoryCache cache;
         private bool disposedValue;
 
-        public Cache(Config config)
+        public Cache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService)
         {
             cache = new MemoryCache("cache");
-            cosmosDal = config.CosmosDal;
+            Cache.clientStatusService = clientStatusService;
+            Cache.loadTestConfigService = loadTestConfigService;
             SetClientCache();
         }
 

@@ -7,9 +7,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -27,18 +27,18 @@ namespace LodeRunner.API
         private static JsonSerializerOptions jsonOptions;
 
         private readonly ILogger logger;
-        private readonly IDAL dal;
+        private readonly IClientStatusService clientStatusService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosHealthCheck"/> class.
         /// </summary>
         /// <param name="logger">ILogger</param>
-        /// <param name="dal">IDAL</param>
-        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IDAL dal)
+        /// <param name="clientStatusService">the clientStatusService </param>
+        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService)
         {
             // save to member vars
             this.logger = logger;
-            this.dal = dal;
+            this.clientStatusService = clientStatusService;
 
             // setup serialization options
             if (jsonOptions == null)

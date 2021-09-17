@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using LodeRunner.API.Models.Enum;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Models
 {
@@ -37,7 +37,7 @@ namespace LodeRunner.API.Models
         public string ClientStatusId { get; set; }
         public DateTime LastUpdated { get; set; }
         public int StatusDuration { get; set; }
-        public Status Status { get; set; }
+        public ClientStatusType Status { get; set; }
         public string Message { get; set; }
     }
 }

@@ -11,6 +11,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
+using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
@@ -36,6 +38,11 @@ namespace LodeRunner.API
         /// Gets cancellation token
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
+
+        /// <summary>
+        /// The Web Host
+        /// </summary>
+        private static IWebHost host = null;
 
         /// <summary>
         /// Gets or sets json serialization options
@@ -80,36 +87,21 @@ namespace LodeRunner.API
 
             try
             {
-                // copy command line values
-                Config.SetConfig(config);
-
-                // load secrets from volume
-                LoadSecrets();
-
-                //TODO: Convert this to data service model
-                // create the cosmos data access layer
-                Config.CosmosDal = new DataAccessLayer.CosmosDal(Config.Secrets, Config);
-
-                // create cache with initial values
-                Config.Cache = new Data.Cache(Config);
-
-                // set the logger config
-                RequestLogger.CosmosName = Config.CosmosName;
-                NgsaLog.LogLevel = Config.LogLevel;
-
-                // build the host
-                IWebHost host = BuildHost();
+                Init(config);
 
                 if (host == null)
                 {
                     return -1;
                 }
 
+                // create cache with initial values
+                Config.Cache = new Data.Cache(GetClientStatusService(), GetLoadTestConfigService());
+
                 // setup sigterm handler
                 App.cancelTokenSource = SetupSigTermHandler(host, logger);
 
                 // start the webserver
-                Task w = host.RunAsync();
+                Task hostRun = host.RunAsync();
 
                 // log startup messages
                 logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
@@ -118,7 +110,7 @@ namespace LodeRunner.API
                 ChangeFeedProcessor = await RunChangeFeedProcessor();
 
                 // this doesn't return except on ctl-c or sigterm
-                await w.ConfigureAwait(false);
+                await hostRun.ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return cancelTokenSource.IsCancellationRequested ? 0 : -1;
@@ -130,6 +122,44 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Gets the client status service.
+        /// </summary>
+        /// <returns>The IClientStatusService</returns>
+        private static IClientStatusService GetClientStatusService()
+        {
+            return (IClientStatusService)host.Services.GetService(typeof(ClientStatusService));
+        }
+
+        /// <summary>
+        /// Gets the load test configuration service.
+        /// </summary>
+        /// <returns>The ILoadTestConfigService </returns>
+        private static ILoadTestConfigService GetLoadTestConfigService()
+        {
+            return (ILoadTestConfigService)host.Services.GetService(typeof(LoadTestConfigService));
+        }
+
+        /// <summary>
+        /// Initializes the specified configuration.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        private static void Init(Config config)
+        {
+            // copy command line values
+            Config.SetConfig(config);
+
+            // load secrets from volume
+            LoadSecrets();
+
+            // set the logger config
+            RequestLogger.CosmosName = Config.CosmosName;
+            NgsaLog.LogLevel = Config.LogLevel;
+
+            // build the host will register Data Access Services in Startup.
+            host = BuildHost();
         }
 
         // load secrets from volume

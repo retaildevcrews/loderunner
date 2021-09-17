@@ -145,6 +145,17 @@ namespace LodeRunner.API
                 });
 
             services
+                  .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
+                  {
+                      CollectionName = App.Config.Secrets.CosmosCollection,
+                      Retries = App.Config.Retries,
+                      Timeout = App.Config.CosmosTimeout,
+                      Uri = App.Config.Secrets.CosmosServer,
+                      Key = App.Config.Secrets.CosmosKey,
+                      DatabaseName = App.Config.Secrets.CosmosDatabase,
+                  })
+                .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
                 // Add CosmosDB Repository
                 .AddSingleton<CosmosDBRepository>()

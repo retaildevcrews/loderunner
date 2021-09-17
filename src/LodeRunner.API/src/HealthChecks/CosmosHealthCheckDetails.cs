@@ -79,7 +79,7 @@ namespace LodeRunner.API
 
             try
             {
-                _ = await dal.GetClientStatusByClientStatusIdAsync(clientStatusId).ConfigureAwait(false);
+                await clientStatusService.Get(clientStatusId);
 
                 return BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
             }
@@ -106,7 +106,7 @@ namespace LodeRunner.API
 
             try
             {
-                _ = (await dal.GetClientStatusesAsync().ConfigureAwait(false)).ToList();
+                await clientStatusService.GetMostRecent(1);
 
                 return BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
