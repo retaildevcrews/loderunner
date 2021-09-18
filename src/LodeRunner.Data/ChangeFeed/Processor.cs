@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
+using static LodeRunner.Data.ChangeFeed.CustomObserver;
 using ChangeFeedProcessorBuilder = Microsoft.Azure.Documents.ChangeFeedProcessor.ChangeFeedProcessorBuilder;
 
 namespace LodeRunner.Data.ChangeFeed
@@ -16,26 +17,28 @@ namespace LodeRunner.Data.ChangeFeed
     public class Processor
     {
         /// <summary>
-        /// Runs the asynchronous.
+        /// Starts the asynchronous.
         /// </summary>
         /// <param name="hostName">Name of the host.</param>
         /// <param name="feedCollectionInfo">The feed collection information.</param>
         /// <param name="leaseCollectionInfo">The lease collection information.</param>
+        /// <param name="onCustomObserverReadyCallback">The callback when CustomObserver is Ready.</param>
         /// <returns>The IChangeFeedProcessor.</returns>
-        public static async Task<IChangeFeedProcessor> RunAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo)
+        public static async Task<IChangeFeedProcessor> StartAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action onCustomObserverReadyCallback)
         {
             var builder = new ChangeFeedProcessorBuilder();
             var processor = await builder
                 .WithHostName(hostName)
                 .WithFeedCollection(feedCollectionInfo)
                 .WithLeaseCollection(leaseCollectionInfo)
-                .WithObserver<CustomObserver>()
+                .WithObserverFactory(new CustomObserverFactory(onCustomObserverReadyCallback))
                 .BuildAsync();
 
             Console.WriteLine("Starting Change Feed Processor....");
-            await processor.StartAsync();
-            Console.WriteLine("Change Feed Processor started....");
 
+            await processor.StartAsync();
+
+            Console.WriteLine("Change Feed Processor started....");
             return processor;
         }
     }

@@ -7,6 +7,7 @@ using LodeRunner.Data.ChangeFeed;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
+using static LodeRunner.Data.ChangeFeed.CustomObserver;
 
 namespace LodeRunner.Services
 {
@@ -27,10 +28,11 @@ namespace LodeRunner.Services
         /// <summary>
         /// Runs the change feed processor.
         /// </summary>
+        /// <param name="onCustomObserverReadyCallback">The callback when CustomObserver is Ready.</param>
         /// <returns>
         /// The IChangeFeedProcessor task.
         /// </returns>
-        public async Task<IChangeFeedProcessor> RunChangeFeedProcessor()
+        public async Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action onCustomObserverReadyCallback)
         {
             const string ChangeFeedLeaseName = "RRAPI";
 
@@ -38,7 +40,7 @@ namespace LodeRunner.Services
 
             DocumentCollectionInfo leaseCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(ChangeFeedLeaseName);
 
-            return await Processor.RunAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo);
+            return await Processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, onCustomObserverReadyCallback);
         }
     }
 }

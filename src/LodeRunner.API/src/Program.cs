@@ -108,7 +108,7 @@ namespace LodeRunner.API
                 logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
 
                 // start CosmosDB Change Feed Processor
-                ChangeFeedProcessor = await GetChangeFeedService().RunChangeFeedProcessor();
+                ChangeFeedProcessor = await GetChangeFeedService().StartChangeFeedProcessor(() => RegisterEvents());
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -123,6 +123,56 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Registers the events.
+        /// </summary>
+        private static void RegisterEvents()
+        {
+            CustomObserverFactory.GetInstance().OnProcessClientStatusChange += ProcessClientStatusChange;
+
+            CustomObserverFactory.GetInstance().OnProcessLoadClientChange += ProcessLoadClientChange;
+
+            CustomObserverFactory.GetInstance().OnProcessLoadTestConfigChange += ProcessLoadTestConfigChange;
+
+            CustomObserverFactory.GetInstance().OnProcessTestRunChange += ProcessTestRunChange;
+        }
+
+        /// <summary>
+        /// Processes the client status change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
+        {
+            Config.Cache.ProcessClientStatusChange(e.Document);
+        }
+
+        /// <summary>
+        /// Processes the load client change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessLoadClientChange(ProcessChangesEventArgs e)
+        {
+            // TODO
+        }
+
+        /// <summary>
+        /// Processes the load test configuration change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessLoadTestConfigChange(ProcessChangesEventArgs e)
+        {
+            // TODO
+        }
+
+        /// <summary>
+        /// Processes the test run change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessTestRunChange(ProcessChangesEventArgs e)
+        {
+            // TODO
         }
 
         /// <summary>

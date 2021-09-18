@@ -10,14 +10,14 @@ namespace LodeRunner.API.Models
     {
         public Client(ClientStatus clientStatus)
         {
-            LoadClientId = clientStatus.LoadClient.Id;
-            Name = clientStatus.LoadClient.Name;
-            Version = clientStatus.LoadClient.Version;
-            Region = clientStatus.LoadClient.Region;
-            Zone = clientStatus.LoadClient.Zone;
-            Prometheus = clientStatus.LoadClient.Prometheus;
-            StartupArgs = clientStatus.LoadClient.StartupArgs;
-            StartTime = clientStatus.LoadClient.StartTime;
+            LoadClientId = clientStatus.LoadClient?.Id;
+            Name = clientStatus.LoadClient?.Name;
+            Version = clientStatus.LoadClient?.Version;
+            Region = clientStatus.LoadClient?.Region;
+            Zone = clientStatus.LoadClient?.Zone;
+            Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
+            StartupArgs = clientStatus.LoadClient?.StartupArgs;
+            StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
             ClientStatusId = clientStatus.Id;
             LastUpdated = clientStatus.LastUpdated;
             StatusDuration = clientStatus.StatusDuration;

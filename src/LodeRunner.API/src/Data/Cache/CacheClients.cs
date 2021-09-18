@@ -59,6 +59,7 @@ namespace LodeRunner.API.Data
                 cache.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
             }
 
+            // TODO: Need to validate clientStatus before to create Client ?
             cache.Set(clientKey, new Client(clientStatus), GetClientCachePolicy());
         }
 
@@ -129,6 +130,8 @@ namespace LodeRunner.API.Data
                     clientStatusIds.Add(clientStatus.Id);
                     string clientKey = $"{ClientPrefix}-{clientStatus.Id}";
                     cache.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
+
+                    // TODO: Need to validate clientStatus before to create Client ?
                     cache.Set(clientKey, new Client(clientStatus), GetClientCachePolicy());
                 }
             }
