@@ -10,7 +10,7 @@ namespace LodeRunner.Data.ChangeFeed
     /// Represents the Custom Observer Factory.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory" />
-    public class CustomObserverFactory : IChangeFeedObserverFactory
+    internal class CustomObserverFactory : IChangeFeedObserverFactory
     {
         private static CustomObserver instance;
 

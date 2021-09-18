@@ -108,7 +108,7 @@ namespace LodeRunner.API
                 logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
 
                 // start CosmosDB Change Feed Processor
-                ChangeFeedProcessor = await GetChangeFeedService().StartChangeFeedProcessor(() => RegisterEvents());
+                ChangeFeedProcessor = await GetChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -128,15 +128,15 @@ namespace LodeRunner.API
         /// <summary>
         /// Registers the events.
         /// </summary>
-        private static void RegisterEvents()
+        private static void EventsSubscription()
         {
-            CustomObserverFactory.GetInstance().OnProcessClientStatusChange += ProcessClientStatusChange;
+            GetChangeFeedService().SubscribeToProcessClientStatusChange(ProcessClientStatusChange);
 
-            CustomObserverFactory.GetInstance().OnProcessLoadClientChange += ProcessLoadClientChange;
+            GetChangeFeedService().SubscribeToProcessLoadClientChange(ProcessLoadClientChange);
 
-            CustomObserverFactory.GetInstance().OnProcessLoadTestConfigChange += ProcessLoadTestConfigChange;
+            GetChangeFeedService().SubscribeToProcessLoadTestConfigChange(ProcessLoadTestConfigChange);
 
-            CustomObserverFactory.GetInstance().OnProcessTestRunChange += ProcessTestRunChange;
+            GetChangeFeedService().SubscribeToProcessTestRunChange(ProcessTestRunChange);
         }
 
         /// <summary>

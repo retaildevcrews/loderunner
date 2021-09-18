@@ -9,6 +9,7 @@ using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing;
+using static LodeRunner.Services.ChangeFeedService;
 
 namespace LodeRunner.Data.ChangeFeed
 {
@@ -16,33 +17,27 @@ namespace LodeRunner.Data.ChangeFeed
     /// Custom Observer.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver" />
-    public class CustomObserver : IChangeFeedObserver
+    internal class CustomObserver : IChangeFeedObserver
     {
-        /// <summary>
-        /// Process Change EventHandler.
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
-        public delegate void ProcessChangeEventHandler(ProcessChangesEventArgs eventArgs);
-
         /// <summary>
         /// Occurs when [on process load client change].
         /// </summary>
-        public event ProcessChangeEventHandler OnProcessLoadClientChange;
+        public event ProcessChangeEventHandler ProcessLoadClientChange;
 
         /// <summary>
         /// Occurs when [on process client status change].
         /// </summary>
-        public event ProcessChangeEventHandler OnProcessClientStatusChange;
+        public event ProcessChangeEventHandler ProcessClientStatusChange;
 
         /// <summary>
         /// Occurs when [on process load test configuration change].
         /// </summary>
-        public event ProcessChangeEventHandler OnProcessLoadTestConfigChange;
+        public event ProcessChangeEventHandler ProcessLoadTestConfigChange;
 
         /// <summary>
         /// Occurs when [on process test run change].
         /// </summary>
-        public event ProcessChangeEventHandler OnProcessTestRunChange;
+        public event ProcessChangeEventHandler ProcessTestRunChange;
 
         /// <summary>
         /// This is called when change feed observer is closed.
@@ -89,28 +84,28 @@ namespace LodeRunner.Data.ChangeFeed
                     case EntityType.ClientStatus:
                         Console.WriteLine("Processing entityType, ClientStatus");
 
-                        this.ProcessClientStatusChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
+                        this.OnProcessClientStatusChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.LoadClient:
                         Console.WriteLine("Processing entityType, LoadClient");
 
-                        this.ProcessLoadClientChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
+                        this.OnProcessLoadClientChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.LoadTestConfig:
                         Console.WriteLine("Processing entityType, LoadTestConfig");
 
-                        this.ProcessLoadTestConfigChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
+                        this.OnProcessLoadTestConfigChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.TestRun:
                         Console.WriteLine("Processing entityType, TestRun");
 
-                        this.ProcessTestRunChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
+                        this.OnProcessTestRunChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
                     default:
@@ -126,36 +121,36 @@ namespace LodeRunner.Data.ChangeFeed
         /// Raises the <see cref="E:OnProcessTestRunChange" /> event.
         /// </summary>
         /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
-        private void ProcessTestRunChange(ProcessChangesEventArgs eventArgs)
+        private void OnProcessTestRunChange(ProcessChangesEventArgs eventArgs)
         {
-            this.OnProcessTestRunChange?.Invoke(eventArgs);
+            this.ProcessTestRunChange?.Invoke(eventArgs);
         }
 
         /// <summary>
         /// Raises the <see cref="E:OnProcessLoadTestConfigChange" /> event.
         /// </summary>
         /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
-        private void ProcessLoadTestConfigChange(ProcessChangesEventArgs eventArgs)
+        private void OnProcessLoadTestConfigChange(ProcessChangesEventArgs eventArgs)
         {
-            this.OnProcessLoadTestConfigChange?.Invoke(eventArgs);
+            this.ProcessLoadTestConfigChange?.Invoke(eventArgs);
         }
 
         /// <summary>
         /// Raises the <see cref="E:ProcessLoadClientChange" /> event.
         /// </summary>
         /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
-        private void ProcessLoadClientChange(ProcessChangesEventArgs eventArgs)
+        private void OnProcessLoadClientChange(ProcessChangesEventArgs eventArgs)
         {
-            this.OnProcessLoadClientChange?.Invoke(eventArgs);
+            this.ProcessLoadClientChange?.Invoke(eventArgs);
         }
 
         /// <summary>
         /// Raises the <see cref="E:OnProcessClientStatusChange" /> event.
         /// </summary>
         /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
-        private void ProcessClientStatusChange(ProcessChangesEventArgs eventArgs)
+        private void OnProcessClientStatusChange(ProcessChangesEventArgs eventArgs)
         {
-            this.OnProcessClientStatusChange?.Invoke(eventArgs);
+            this.ProcessClientStatusChange?.Invoke(eventArgs);
         }
     }
 }

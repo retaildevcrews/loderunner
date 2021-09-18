@@ -26,13 +26,19 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
+        /// Process Change EventHandler.
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        public delegate void ProcessChangeEventHandler(ProcessChangesEventArgs eventArgs);
+
+        /// <summary>
         /// Runs the change feed processor.
         /// </summary>
-        /// <param name="onCustomObserverReadyCallback">The callback when CustomObserver is Ready.</param>
+        /// <param name="customObserverReadyCallback">The callback when CustomObserver is Ready.</param>
         /// <returns>
         /// The IChangeFeedProcessor task.
         /// </returns>
-        public async Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action onCustomObserverReadyCallback)
+        public async Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action customObserverReadyCallback)
         {
             const string ChangeFeedLeaseName = "RRAPI";
 
@@ -40,7 +46,43 @@ namespace LodeRunner.Services
 
             DocumentCollectionInfo leaseCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(ChangeFeedLeaseName);
 
-            return await Processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, onCustomObserverReadyCallback);
+            return await Processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, customObserverReadyCallback);
+        }
+
+        /// <summary>
+        /// Subscribes to process test run change.
+        /// </summary>
+        /// <param name="eventHandler">The event handler.</param>
+        public void SubscribeToProcessTestRunChange(ProcessChangeEventHandler eventHandler)
+        {
+            CustomObserverFactory.GetInstance().ProcessTestRunChange += eventHandler;
+        }
+
+        /// <summary>
+        /// Subscribes to process load test configuration change.
+        /// </summary>
+        /// <param name="eventHandler">The event handler.</param>
+        public void SubscribeToProcessLoadTestConfigChange(ProcessChangeEventHandler eventHandler)
+        {
+            CustomObserverFactory.GetInstance().ProcessLoadTestConfigChange += eventHandler;
+        }
+
+        /// <summary>
+        /// Subscribes to process load client change.
+        /// </summary>
+        /// <param name="eventHandler">The event handler.</param>
+        public void SubscribeToProcessLoadClientChange(ProcessChangeEventHandler eventHandler)
+        {
+            CustomObserverFactory.GetInstance().ProcessLoadClientChange += eventHandler;
+        }
+
+        /// <summary>
+        /// Subscribes to process client status change.
+        /// </summary>
+        /// <param name="eventHandler">The event handler.</param>
+        public void SubscribeToProcessClientStatusChange(ProcessChangeEventHandler eventHandler)
+        {
+            CustomObserverFactory.GetInstance().ProcessClientStatusChange += eventHandler;
         }
     }
 }
