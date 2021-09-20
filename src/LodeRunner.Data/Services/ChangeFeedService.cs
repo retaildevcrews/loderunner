@@ -7,17 +7,15 @@ using LodeRunner.Data.ChangeFeed;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
-using static LodeRunner.Data.ChangeFeed.CustomObserver;
+using IChangeFeedObserver = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver;
 
 namespace LodeRunner.Services
 {
     /// <summary>
     ///   Change Feed Service.
     /// </summary>
-    public class ChangeFeedService : BaseService, IChangeFeedService
+    public abstract class ChangeFeedService : BaseService, IChangeFeedService
     {
-        private readonly Processor processor;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeFeedService"/> class.
         /// </summary>
@@ -25,7 +23,6 @@ namespace LodeRunner.Services
         public ChangeFeedService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
-            this.processor = new Processor();
         }
 
         /// <summary>
@@ -35,57 +32,59 @@ namespace LodeRunner.Services
         public delegate void ProcessChangeEventHandler(ProcessChangesEventArgs eventArgs);
 
         /// <summary>
+        /// Gets the name of the change feed lease.
+        /// </summary>
+        /// <value>
+        /// The name of the change feed lease.
+        /// </value>
+        public abstract string ChangeFeedLeaseName { get; }
+
+        /// <summary>
+        /// Gets or sets the processor.
+        /// </summary>
+        public IProcessor Processor { get; protected set; }
+
+        /// <summary>
+        /// Gets the name of the host.
+        /// </summary>
+        /// <value>
+        /// The name of the host.
+        /// </value>
+        public abstract string HostName { get; }
+
+        /// <summary>
+        /// Gets the change feed observer.
+        /// </summary>
+        /// <returns>
+        /// The IChangeFeedObserver.
+        /// </returns>
+        /// <value>
+        /// The change feed observer.
+        /// </value>
+        public abstract IChangeFeedObserver GetChangeFeedObserver();
+
+        /// <summary>
         /// Runs the change feed processor.
         /// </summary>
-        /// <param name="customObserverReadyCallback">The callback when CustomObserver is Ready.</param>
+        /// <param name="observerReadyCallback">The callback when Observer is Ready.</param>
         /// <returns>
         /// The IChangeFeedProcessor task.
         /// </returns>
-        public async Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action customObserverReadyCallback)
+        public async Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action observerReadyCallback)
         {
-            const string ChangeFeedLeaseName = "RRAPI";
-
             DocumentCollectionInfo feedCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(this.CosmosDBRepository.CollectionName);
 
-            DocumentCollectionInfo leaseCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(ChangeFeedLeaseName);
+            DocumentCollectionInfo leaseCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(this.ChangeFeedLeaseName);
 
-            return await this.processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, customObserverReadyCallback);
+            return await this.Processor.StartAsync(this.HostName, feedCollectionInfo, leaseCollectionInfo, observerReadyCallback);
         }
 
         /// <summary>
-        /// Subscribes to process test run change.
+        /// Stops the change feed processor.
         /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        public void SubscribeToProcessTestRunChange(ProcessChangeEventHandler eventHandler)
+        public async void StopChangeFeedProcessor()
         {
-            this.processor.CustomObserver.ProcessTestRunChange += eventHandler;
-        }
-
-        /// <summary>
-        /// Subscribes to process load test configuration change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        public void SubscribeToProcessLoadTestConfigChange(ProcessChangeEventHandler eventHandler)
-        {
-            this.processor.CustomObserver.ProcessLoadTestConfigChange += eventHandler;
-        }
-
-        /// <summary>
-        /// Subscribes to process load client change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        public void SubscribeToProcessLoadClientChange(ProcessChangeEventHandler eventHandler)
-        {
-            this.processor.CustomObserver.ProcessLoadClientChange += eventHandler;
-        }
-
-        /// <summary>
-        /// Subscribes to process client status change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        public void SubscribeToProcessClientStatusChange(ProcessChangeEventHandler eventHandler)
-        {
-            this.processor.CustomObserver.ProcessClientStatusChange += eventHandler;
+            await this.Processor.StopAsync();
         }
     }
 }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>RelayRunner.Application</RootNamespace>
+    <RootNamespace>LodeRunner.API</RootNamespace>
     <AssemblyName>aspnetapp</AssemblyName>
     <VersionPrefix>0.4.0</VersionPrefix>
     <VersionSuffix>$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</VersionSuffix>

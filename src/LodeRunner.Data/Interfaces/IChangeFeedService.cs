@@ -2,13 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.Core.Models;
-using LodeRunner.Data.ChangeFeed;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
-using static LodeRunner.Services.ChangeFeedService;
+using IChangeFeedObserver = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -18,34 +14,40 @@ namespace LodeRunner.Data.Interfaces
     public interface IChangeFeedService
     {
         /// <summary>
+        /// Gets the name of the change feed lease.
+        /// </summary>
+        /// <value>
+        /// The name of the change feed lease.
+        /// </value>
+        string ChangeFeedLeaseName { get; }
+
+        /// <summary>
+        /// Gets the name of the host.
+        /// </summary>
+        /// <value>
+        /// The name of the host.
+        /// </value>
+        string HostName { get; }
+
+        /// <summary>
+        /// Gets the change feed observer.
+        /// </summary>
+        /// <value>
+        /// The change feed observer.
+        /// </value>
+        /// <returns> The IChangeFeedObserver.</returns>
+        IChangeFeedObserver GetChangeFeedObserver();
+
+        /// <summary>
         /// Runs the change feed processor.
         /// </summary>
-        /// <param name="customObserverReadyCallback">The callback when CustomObserver is Ready.</param>
+        /// <param name="observerReadyCallback">The callback when Observer is Ready.</param>
         /// <returns>The IChangeFeedProcessor task.</returns>
-        Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action customObserverReadyCallback);
+        Task<IChangeFeedProcessor> StartChangeFeedProcessor(Action observerReadyCallback);
 
         /// <summary>
-        /// Subscribes to process test run change.
+        /// Stops the change feed processor.
         /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        void SubscribeToProcessTestRunChange(ProcessChangeEventHandler eventHandler);
-
-        /// <summary>
-        /// Subscribes to process load test configuration change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        void SubscribeToProcessLoadTestConfigChange(ProcessChangeEventHandler eventHandler);
-
-        /// <summary>
-        /// Subscribes to process load client change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        void SubscribeToProcessLoadClientChange(ProcessChangeEventHandler eventHandler);
-
-        /// <summary>
-        /// Subscribes to process client status change.
-        /// </summary>
-        /// <param name="eventHandler">The event handler.</param>
-        void SubscribeToProcessClientStatusChange(ProcessChangeEventHandler eventHandler);
+        void StopChangeFeedProcessor();
     }
 }

@@ -4,7 +4,9 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
+using LodeRunner.API.Services;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
@@ -23,7 +25,7 @@ namespace LodeRunner.API
     /// </summary>
     public class Startup
     {
-        private const string SwaggerTitle = "RelayRunner";
+        private const string SwaggerTitle = "LodeRunner.API";
         private static string swaggerPath = "/swagger.json";
 
         /// <summary>
@@ -168,8 +170,8 @@ namespace LodeRunner.API
                 .AddSingleton<LoadTestConfigService>()
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>())
 
-                .AddSingleton<ChangeFeedService>()
-                .AddSingleton<IChangeFeedService>(provider => provider.GetRequiredService<ChangeFeedService>());
+                .AddSingleton<LRAPIChangeFeedService>()
+                .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>());
         }
     }
 }

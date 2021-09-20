@@ -14,10 +14,10 @@ using static LodeRunner.Services.ChangeFeedService;
 namespace LodeRunner.Data.ChangeFeed
 {
     /// <summary>
-    /// Custom Observer.
+    /// Relay Runner Observer.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver" />
-    internal class CustomObserver : IChangeFeedObserver
+    public sealed class LRAPIObserver : IChangeFeedObserver
     {
         /// <summary>
         /// Occurs when [on process load client change].
@@ -77,7 +77,12 @@ namespace LodeRunner.Data.ChangeFeed
         {
             foreach (var document in docs)
             {
-                EntityType entityType = document.GetPropertyValue<string>("entityType").As<EntityType>(EntityType.Unassigned);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                EntityType entityType = document.GetPropertyValue<string>("entityType").As<EntityType>(EntityType.Unassigned, true);
 
                 switch (entityType)
                 {

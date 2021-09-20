@@ -3,41 +3,43 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
+using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
-using static LodeRunner.Data.ChangeFeed.CustomObserver;
 using ChangeFeedProcessorBuilder = Microsoft.Azure.Documents.ChangeFeedProcessor.ChangeFeedProcessorBuilder;
+using IChangeFeedObserverFactory = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory;
 
 namespace LodeRunner.Data.ChangeFeed
 {
     /// <summary>
-    /// Represents the Processor class.
+    /// Represents the LRAPI Processor class.
     /// </summary>
-    public class Processor : IDisposable
+    public sealed class LRAPIProcessor : IProcessor, IDisposable
     {
-        /// <summary>
-        /// Gets the custom observer factory.
-        /// </summary>
-        /// <value>
-        /// The custom observer factory.
-        /// </value>
-        private CustomObserverFactory customObserverFactory;
+        private IChangeFeedProcessor changeFeedProcessor;
 
         /// <summary>
-        /// Gets the custom observer.
+        /// Gets the base observer factory.
         /// </summary>
         /// <value>
-        /// The custom observer.
+        /// The observer factory.
         /// </value>
-        internal CustomObserver CustomObserver => this.customObserverFactory.CustomObserverInstance;
+        public IBaseObserverFactory ObserverFactory { get; private set; }
+
+        /// <summary>
+        /// Gets the LRAPI observer.
+        /// </summary>
+        /// <value>
+        /// The Relay Runner observer.
+        /// </value>
+        public LRAPIObserver LRAPIObserver => (LRAPIObserver)this.ObserverFactory.GetObserverInstance();
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            this.customObserverFactory = null;
+            this.ObserverFactory = null;
         }
 
         /// <summary>
@@ -46,26 +48,35 @@ namespace LodeRunner.Data.ChangeFeed
         /// <param name="hostName">Name of the host.</param>
         /// <param name="feedCollectionInfo">The feed collection information.</param>
         /// <param name="leaseCollectionInfo">The lease collection information.</param>
-        /// <param name="onCustomObserverReadyCallback">The callback when CustomObserver is Ready.</param>
+        /// <param name="observerIsReadyCallback">The callback when Observer is Ready.</param>
         /// <returns>The IChangeFeedProcessor.</returns>
-        public async Task<IChangeFeedProcessor> StartAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action onCustomObserverReadyCallback)
+        public async Task<IChangeFeedProcessor> StartAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action observerIsReadyCallback)
         {
-            this.customObserverFactory = new CustomObserverFactory(onCustomObserverReadyCallback);
+            this.ObserverFactory = new LRAPIObserverFactory(observerIsReadyCallback);
 
             var builder = new ChangeFeedProcessorBuilder();
-            var processor = await builder
+            this.changeFeedProcessor = await builder
                 .WithHostName(hostName)
                 .WithFeedCollection(feedCollectionInfo)
                 .WithLeaseCollection(leaseCollectionInfo)
-                .WithObserverFactory(this.customObserverFactory)
+                .WithObserverFactory(this.ObserverFactory)
                 .BuildAsync();
 
             Console.WriteLine("Starting Change Feed Processor....");
 
-            await processor.StartAsync();
+            await this.changeFeedProcessor.StartAsync();
 
             Console.WriteLine("Change Feed Processor started....");
-            return processor;
+            return this.changeFeedProcessor;
+        }
+
+        /// <summary>
+        /// Stops the asynchronous.
+        /// </summary>
+        /// <returns>The Task.</returns>
+        public async Task StopAsync()
+        {
+            await this.changeFeedProcessor.StopAsync();
         }
     }
 }

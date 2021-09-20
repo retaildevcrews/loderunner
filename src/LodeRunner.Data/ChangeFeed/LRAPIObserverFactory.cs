@@ -2,34 +2,28 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing;
 
 namespace LodeRunner.Data.ChangeFeed
 {
     /// <summary>
-    /// Represents the Custom Observer Factory.
+    /// Represents the Relay Runner Observer Factory.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory" />
-    internal class CustomObserverFactory : IChangeFeedObserverFactory
+    internal class LRAPIObserverFactory : IBaseObserverFactory
     {
         private readonly Action callback;
+        private LRAPIObserver lRAPIObserverInstance;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CustomObserverFactory"/> class.
+        /// Initializes a new instance of the <see cref="LRAPIObserverFactory"/> class.
         /// </summary>
         /// <param name="callback">The callback.</param>
-        public CustomObserverFactory(Action callback)
+        public LRAPIObserverFactory(Action callback)
         {
             this.callback = callback;
         }
-
-        /// <summary>
-        /// Gets the custom observer instance.
-        /// </summary>
-        /// <value>
-        /// The custom observer instance.
-        /// </value>
-        public CustomObserver CustomObserverInstance { get; private set; }
 
         /// <summary>
         /// Creates an instance of a <see cref="T:Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver" />.
@@ -39,17 +33,26 @@ namespace LodeRunner.Data.ChangeFeed
         /// </returns>
         public IChangeFeedObserver CreateObserver()
         {
-            if (this.CustomObserverInstance == null)
+            if (this.lRAPIObserverInstance == null)
             {
-                this.CustomObserverInstance = new CustomObserver();
+                this.lRAPIObserverInstance = new LRAPIObserver();  // this should be a Generic type
 
-                // We do not want to subscribe Invoke callback if CustomObserverInstance was already created.
+                // We do not want to subscribe Invoke callback if LodeRunner.API.ObserverInstance was already created.
 
                 // This allows Event Registration before ChangeFeedProcessor starts listening.
                 this.callback?.Invoke();
             }
 
-            return this.CustomObserverInstance;
+            return this.lRAPIObserverInstance;
+        }
+
+        /// <summary>
+        /// Gets the observer.
+        /// </summary>
+        /// <returns>The Change Feed Observer Instance.</returns>
+        public IChangeFeedObserver GetObserverInstance()
+        {
+            return this.lRAPIObserverInstance;
         }
     }
 }

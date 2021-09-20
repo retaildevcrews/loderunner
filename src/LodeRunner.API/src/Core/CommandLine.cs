@@ -24,8 +24,8 @@ namespace LodeRunner.API
         {
             RootCommand root = new ()
             {
-                Name = "RelayRunner.Application",
-                Description = "RelayRunner Validation App",
+                Name = "LodeRunner.API",
+                Description = "LodeRunner.API Validation App",
                 TreatUnmatchedTokensAsErrors = true,
             };
 

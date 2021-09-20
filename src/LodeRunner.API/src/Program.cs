@@ -10,13 +10,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
+using LodeRunner.API.Services;
 using LodeRunner.Data.ChangeFeed;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using Microsoft.Extensions.Logging;
 
@@ -105,10 +106,10 @@ namespace LodeRunner.API
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
+                logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
                 // start CosmosDB Change Feed Processor
-                ChangeFeedProcessor = await GetChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+                await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -130,13 +131,13 @@ namespace LodeRunner.API
         /// </summary>
         private static void EventsSubscription()
         {
-            GetChangeFeedService().SubscribeToProcessClientStatusChange(ProcessClientStatusChange);
+            GetLRAPIChangeFeedService().SubscribeToProcessClientStatusChange(ProcessClientStatusChange);
 
-            GetChangeFeedService().SubscribeToProcessLoadClientChange(ProcessLoadClientChange);
+            GetLRAPIChangeFeedService().SubscribeToProcessLoadClientChange(ProcessLoadClientChange);
 
-            GetChangeFeedService().SubscribeToProcessLoadTestConfigChange(ProcessLoadTestConfigChange);
+            GetLRAPIChangeFeedService().SubscribeToProcessLoadTestConfigChange(ProcessLoadTestConfigChange);
 
-            GetChangeFeedService().SubscribeToProcessTestRunChange(ProcessTestRunChange);
+            GetLRAPIChangeFeedService().SubscribeToProcessTestRunChange(ProcessTestRunChange);
         }
 
         /// <summary>
@@ -197,9 +198,9 @@ namespace LodeRunner.API
         /// Gets the change feed service.
         /// </summary>
         /// <returns>The ChangeFeed Service.</returns>
-        private static IChangeFeedService GetChangeFeedService()
+        private static ILRAPIChangeFeedService GetLRAPIChangeFeedService()
         {
-            return (IChangeFeedService)host.Services.GetService(typeof(ChangeFeedService));
+            return (ILRAPIChangeFeedService)host.Services.GetService(typeof(LRAPIChangeFeedService));
         }
 
         /// <summary>
@@ -258,7 +259,7 @@ namespace LodeRunner.API
                         logger.AddFilter("Microsoft", Config.LogLevel)
                         .AddFilter("System", Config.LogLevel)
                         .AddFilter("Default", Config.LogLevel)
-                        .AddFilter("RelayRunner.Application", Config.LogLevel);
+                        .AddFilter("LodeRunner.API", Config.LogLevel);
                     }
                 });
 
