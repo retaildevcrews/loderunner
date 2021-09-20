@@ -16,6 +16,8 @@ namespace LodeRunner.Services
     /// </summary>
     public class ChangeFeedService : BaseService, IChangeFeedService
     {
+        private readonly Processor processor;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeFeedService"/> class.
         /// </summary>
@@ -23,6 +25,7 @@ namespace LodeRunner.Services
         public ChangeFeedService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
+            this.processor = new Processor();
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace LodeRunner.Services
 
             DocumentCollectionInfo leaseCollectionInfo = this.CosmosDBRepository.GetNewDocumentCollectionInfo(ChangeFeedLeaseName);
 
-            return await Processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, customObserverReadyCallback);
+            return await this.processor.StartAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo, customObserverReadyCallback);
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace LodeRunner.Services
         /// <param name="eventHandler">The event handler.</param>
         public void SubscribeToProcessTestRunChange(ProcessChangeEventHandler eventHandler)
         {
-            CustomObserverFactory.GetInstance().ProcessTestRunChange += eventHandler;
+            this.processor.CustomObserver.ProcessTestRunChange += eventHandler;
         }
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace LodeRunner.Services
         /// <param name="eventHandler">The event handler.</param>
         public void SubscribeToProcessLoadTestConfigChange(ProcessChangeEventHandler eventHandler)
         {
-            CustomObserverFactory.GetInstance().ProcessLoadTestConfigChange += eventHandler;
+            this.processor.CustomObserver.ProcessLoadTestConfigChange += eventHandler;
         }
 
         /// <summary>
@@ -73,7 +76,7 @@ namespace LodeRunner.Services
         /// <param name="eventHandler">The event handler.</param>
         public void SubscribeToProcessLoadClientChange(ProcessChangeEventHandler eventHandler)
         {
-            CustomObserverFactory.GetInstance().ProcessLoadClientChange += eventHandler;
+            this.processor.CustomObserver.ProcessLoadClientChange += eventHandler;
         }
 
         /// <summary>
@@ -82,7 +85,7 @@ namespace LodeRunner.Services
         /// <param name="eventHandler">The event handler.</param>
         public void SubscribeToProcessClientStatusChange(ProcessChangeEventHandler eventHandler)
         {
-            CustomObserverFactory.GetInstance().ProcessClientStatusChange += eventHandler;
+            this.processor.CustomObserver.ProcessClientStatusChange += eventHandler;
         }
     }
 }

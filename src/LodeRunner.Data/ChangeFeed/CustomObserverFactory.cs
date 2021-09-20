@@ -12,8 +12,6 @@ namespace LodeRunner.Data.ChangeFeed
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory" />
     internal class CustomObserverFactory : IChangeFeedObserverFactory
     {
-        private static CustomObserver instance;
-
         private readonly Action callback;
 
         /// <summary>
@@ -26,13 +24,12 @@ namespace LodeRunner.Data.ChangeFeed
         }
 
         /// <summary>
-        /// Gets the instance.
+        /// Gets the custom observer instance.
         /// </summary>
-        /// <returns>The CustomObserver instance.</returns>
-        public static CustomObserver GetInstance()
-        {
-            return instance;
-        }
+        /// <value>
+        /// The custom observer instance.
+        /// </value>
+        public CustomObserver CustomObserverInstance { get; private set; }
 
         /// <summary>
         /// Creates an instance of a <see cref="T:Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver" />.
@@ -42,11 +39,17 @@ namespace LodeRunner.Data.ChangeFeed
         /// </returns>
         public IChangeFeedObserver CreateObserver()
         {
-            instance = new CustomObserver();
+            if (this.CustomObserverInstance == null)
+            {
+                this.CustomObserverInstance = new CustomObserver();
 
-            // This allows Event Registration before ChangeFeedProcessor starts listening.
-            this.callback?.Invoke();
-            return instance;
+                // We do not want to subscribe Invoke callback if CustomObserverInstance was already created.
+
+                // This allows Event Registration before ChangeFeedProcessor starts listening.
+                this.callback?.Invoke();
+            }
+
+            return this.CustomObserverInstance;
         }
     }
 }
