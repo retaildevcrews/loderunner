@@ -14,6 +14,14 @@ namespace LodeRunner.Data.Interfaces
     public interface IProcessor
     {
         /// <summary>
+        /// Gets the change feed processor.
+        /// </summary>
+        /// <value>
+        /// The change feed processor.
+        /// </value>
+        IChangeFeedProcessor ChangeFeedProcessor { get; }
+
+        /// <summary>
         /// Gets the observer factory.
         /// </summary>
         /// <value>
@@ -30,6 +38,16 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="observerIsReadyCallback">The observer is ready callback.</param>
         /// <returns>The IChangeFeedProcessor.</returns>
         Task<IChangeFeedProcessor> StartAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action observerIsReadyCallback);
+
+        /// <summary>
+        /// Initializes the system objects asynchronous.
+        /// </summary>
+        /// <param name="hostName">Name of the host.</param>
+        /// <param name="feedCollectionInfo">The feed collection information.</param>
+        /// <param name="leaseCollectionInfo">The lease collection information.</param>
+        /// <param name="observerIsReadyCallback">The observer is ready callback.</param>
+        /// <returns>The Task.</returns>
+        Task InitSystemObjectsAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action observerIsReadyCallback);
 
         /// <summary>
         /// Stops the asynchronous.

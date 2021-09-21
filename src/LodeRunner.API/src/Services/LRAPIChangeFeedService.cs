@@ -19,7 +19,6 @@ namespace LodeRunner.API.Services
         public LRAPIChangeFeedService(ICosmosDBRepository cosmosDBRepository)
            : base(cosmosDBRepository)
         {
-            this.Processor = new LRAPIProcessor();
         }
 
         public override string ChangeFeedLeaseName => "LRAPI";
@@ -34,9 +33,26 @@ namespace LodeRunner.API.Services
             }
         }
 
+        /// <summary>
+        /// Gets the change feed observer.
+        /// </summary>
+        /// <returns>
+        /// The IChangeFeedObserver.
+        /// </returns>
+        /// <value>
+        /// The change feed observer.
+        /// </value>
         public override IChangeFeedObserver GetChangeFeedObserver()
         {
             return this.Processor.ObserverFactory.GetObserverInstance();
+        }
+
+        /// <summary>
+        /// Creates the processor.
+        /// </summary>
+        public override void CreateProcessor()
+        {
+            this.Processor = new LRAPIProcessor();
         }
 
         /// <summary>

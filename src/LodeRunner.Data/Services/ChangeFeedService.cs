@@ -23,6 +23,7 @@ namespace LodeRunner.Services
         public ChangeFeedService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
+            this.CreateProcessor();
         }
 
         /// <summary>
@@ -40,17 +41,17 @@ namespace LodeRunner.Services
         public abstract string ChangeFeedLeaseName { get; }
 
         /// <summary>
-        /// Gets or sets the processor.
-        /// </summary>
-        public IProcessor Processor { get; protected set; }
-
-        /// <summary>
         /// Gets the name of the host.
         /// </summary>
         /// <value>
         /// The name of the host.
         /// </value>
         public abstract string HostName { get; }
+
+        /// <summary>
+        /// Gets or sets the processor.
+        /// </summary>
+        protected IProcessor Processor { get; set; }
 
         /// <summary>
         /// Gets the change feed observer.
@@ -62,6 +63,11 @@ namespace LodeRunner.Services
         /// The change feed observer.
         /// </value>
         public abstract IChangeFeedObserver GetChangeFeedObserver();
+
+        /// <summary>
+        /// Creates the processor.
+        /// </summary>
+        public abstract void CreateProcessor();
 
         /// <summary>
         /// Runs the change feed processor.

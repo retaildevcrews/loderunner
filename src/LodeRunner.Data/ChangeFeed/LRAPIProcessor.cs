@@ -16,7 +16,15 @@ namespace LodeRunner.Data.ChangeFeed
     /// </summary>
     public sealed class LRAPIProcessor : IProcessor, IDisposable
     {
-        private IChangeFeedProcessor changeFeedProcessor;
+        private bool processorStarted = false;
+
+        /// <summary>
+        /// Gets the change feed processor.
+        /// </summary>
+        /// <value>
+        /// The change feed processor.
+        /// </value>
+        public IChangeFeedProcessor ChangeFeedProcessor { get; private set; }
 
         /// <summary>
         /// Gets the base observer factory.
@@ -52,22 +60,22 @@ namespace LodeRunner.Data.ChangeFeed
         /// <returns>The IChangeFeedProcessor.</returns>
         public async Task<IChangeFeedProcessor> StartAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action observerIsReadyCallback)
         {
-            this.ObserverFactory = new LRAPIObserverFactory(observerIsReadyCallback);
+            if (this.processorStarted)
+            {
+                return this.ChangeFeedProcessor;
+            }
 
-            var builder = new ChangeFeedProcessorBuilder();
-            this.changeFeedProcessor = await builder
-                .WithHostName(hostName)
-                .WithFeedCollection(feedCollectionInfo)
-                .WithLeaseCollection(leaseCollectionInfo)
-                .WithObserverFactory(this.ObserverFactory)
-                .BuildAsync();
+            await this.InitSystemObjectsAsync(hostName, feedCollectionInfo, leaseCollectionInfo, observerIsReadyCallback);
 
             Console.WriteLine("Starting Change Feed Processor....");
 
-            await this.changeFeedProcessor.StartAsync();
+            await this.ChangeFeedProcessor.StartAsync();
+
+            this.processorStarted = true;
 
             Console.WriteLine("Change Feed Processor started....");
-            return this.changeFeedProcessor;
+
+            return this.ChangeFeedProcessor;
         }
 
         /// <summary>
@@ -76,7 +84,36 @@ namespace LodeRunner.Data.ChangeFeed
         /// <returns>The Task.</returns>
         public async Task StopAsync()
         {
-            await this.changeFeedProcessor.StopAsync();
+            await this.ChangeFeedProcessor?.StopAsync();
+            this.processorStarted = false;
+        }
+
+        /// <summary>
+        /// Initializes the system objects asynchronous.
+        /// </summary>
+        /// <param name="hostName">Name of the host.</param>
+        /// <param name="feedCollectionInfo">The feed collection information.</param>
+        /// <param name="leaseCollectionInfo">The lease collection information.</param>
+        /// <param name="observerIsReadyCallback">The observer is ready callback.</param>
+        /// <returns>The Task.</returns>
+        public async Task InitSystemObjectsAsync(string hostName, DocumentCollectionInfo feedCollectionInfo, DocumentCollectionInfo leaseCollectionInfo, Action observerIsReadyCallback)
+        {
+            if (this.ObserverFactory == null)
+            {
+                this.ObserverFactory = new LRAPIObserverFactory(observerIsReadyCallback);
+            }
+
+            if (this.ChangeFeedProcessor == null)
+            {
+                var builder = new ChangeFeedProcessorBuilder();
+
+                this.ChangeFeedProcessor = await builder
+                        .WithHostName(hostName)
+                        .WithFeedCollection(feedCollectionInfo)
+                        .WithLeaseCollection(leaseCollectionInfo)
+                        .WithObserverFactory(this.ObserverFactory)
+                        .BuildAsync();
+            }
         }
     }
 }

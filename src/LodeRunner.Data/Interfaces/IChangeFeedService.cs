@@ -39,6 +39,11 @@ namespace LodeRunner.Data.Interfaces
         IChangeFeedObserver GetChangeFeedObserver();
 
         /// <summary>
+        /// Creates the processor.
+        /// </summary>
+        void CreateProcessor();
+
+        /// <summary>
         /// Runs the change feed processor.
         /// </summary>
         /// <param name="observerReadyCallback">The callback when Observer is Ready.</param>
