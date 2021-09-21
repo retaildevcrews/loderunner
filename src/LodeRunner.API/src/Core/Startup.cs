@@ -4,7 +4,9 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
+using LodeRunner.API.Services;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
@@ -23,7 +25,7 @@ namespace LodeRunner.API
     /// </summary>
     public class Startup
     {
-        private const string SwaggerTitle = "RelayRunner";
+        private const string SwaggerTitle = "LodeRunner.API";
         private static string swaggerPath = "/swagger.json";
 
         /// <summary>
@@ -145,6 +147,18 @@ namespace LodeRunner.API
                 });
 
             services
+                  .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
+                  {
+                      CollectionName = App.Config.Secrets.CosmosCollection,
+                      Retries = App.Config.Retries,
+                      Timeout = App.Config.CosmosTimeout,
+                      Uri = App.Config.Secrets.CosmosServer,
+                      Key = App.Config.Secrets.CosmosKey,
+                      DatabaseName = App.Config.Secrets.CosmosDatabase,
+                  })
+                .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
+                .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
+
                 // Add CosmosDB Repository
                 .AddSingleton<CosmosDBRepository>()
                 .AddSingleton<ICosmosDBRepository, CosmosDBRepository>(provider => provider.GetRequiredService<CosmosDBRepository>())
@@ -154,7 +168,10 @@ namespace LodeRunner.API
                 .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>())
 
                 .AddSingleton<LoadTestConfigService>()
-                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
+                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>())
+
+                .AddSingleton<LRAPIChangeFeedService>()
+                .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>());
         }
     }
 }

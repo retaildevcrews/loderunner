@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using LodeRunner.API.Models.Enum;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Models
 {
@@ -10,14 +10,14 @@ namespace LodeRunner.API.Models
     {
         public Client(ClientStatus clientStatus)
         {
-            LoadClientId = clientStatus.LoadClient.Id;
-            Name = clientStatus.LoadClient.Name;
-            Version = clientStatus.LoadClient.Version;
-            Region = clientStatus.LoadClient.Region;
-            Zone = clientStatus.LoadClient.Zone;
-            Prometheus = clientStatus.LoadClient.Prometheus;
-            StartupArgs = clientStatus.LoadClient.StartupArgs;
-            StartTime = clientStatus.LoadClient.StartTime;
+            LoadClientId = clientStatus.LoadClient?.Id;
+            Name = clientStatus.LoadClient?.Name;
+            Version = clientStatus.LoadClient?.Version;
+            Region = clientStatus.LoadClient?.Region;
+            Zone = clientStatus.LoadClient?.Zone;
+            Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
+            StartupArgs = clientStatus.LoadClient?.StartupArgs;
+            StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
             ClientStatusId = clientStatus.Id;
             LastUpdated = clientStatus.LastUpdated;
             StatusDuration = clientStatus.StatusDuration;
@@ -37,7 +37,7 @@ namespace LodeRunner.API.Models
         public string ClientStatusId { get; set; }
         public DateTime LastUpdated { get; set; }
         public int StatusDuration { get; set; }
-        public Status Status { get; set; }
+        public ClientStatusType Status { get; set; }
         public string Message { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace LodeRunner.API.Middleware.Validation
         /// <returns>link to doc</returns>
         public static string GetErrorLink(string path)
         {
-            string s = "https://github.com/retaildevcrews/relayrunner/blob/main/docs/ParameterValidation.md";
+            string s = "https://github.com/retaildevcrews/loderunner/blob/main/docs/ParameterValidation.md";
 
             path = path.ToLowerInvariant();
 

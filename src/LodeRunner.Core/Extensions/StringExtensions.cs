@@ -18,6 +18,7 @@ namespace LodeRunner.Core.Extensions
         /// <typeparam name="TEnum">The type of the enum.</typeparam>
         /// <param name="value">The value.</param>
         /// <param name="defaultValue">The default value.</param>
+        /// <param name="useDefaultIfCannotConvert"> determines id Default Value will be use id in-string cannot be converted to Enum value.</param>
         /// <returns>The Enum type.</returns>
         /// <exception cref="System.ComponentModel.InvalidEnumArgumentException">
         /// Cannot coerce {value} to {typeof(TEnum).Name}
@@ -25,7 +26,7 @@ namespace LodeRunner.Core.Extensions
         /// Cannot coerce {value} to {typeof(TEnum).Name}.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TEnum As<TEnum>(this string value, TEnum? defaultValue = null)
+        public static TEnum As<TEnum>(this string value, TEnum? defaultValue = null, bool useDefaultIfCannotConvert = false)
             where TEnum : struct, Enum
         {
             if (string.IsNullOrEmpty(value))
@@ -41,6 +42,10 @@ namespace LodeRunner.Core.Extensions
             if (Enum.TryParse<TEnum>(value, true, out var enumValue))
             {
                 return enumValue;
+            }
+            else if (useDefaultIfCannotConvert)
+            {
+                return defaultValue.Value;
             }
 
             throw new InvalidEnumArgumentException($"Cannot coerce {value} to {typeof(TEnum).Name}");

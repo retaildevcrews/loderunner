@@ -144,7 +144,7 @@ namespace LodeRunner.API.Middleware
                 Dictionary<string, object> log = new ()
                 {
                     { "Date", dt },
-                    { "LogName", "RelayRunner.RequestLog" },
+                    { "LogName", "LodeRunner.API.RequestLog" },
                     { "StatusCode", context.Response.StatusCode },
                     { "TTFB", ttfb },
                     { "Duration", duration },

@@ -71,7 +71,7 @@ namespace LodeRunner
         /// <summary>
         /// gets or sets the request time out in seconds
         /// </summary>
-        public int Timeout { get; set; }
+        public int Timeout { get; set; } = 30;
 
         /// <summary>
         /// gets or sets the max concurrent requests
@@ -119,7 +119,7 @@ namespace LodeRunner
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds</value>
-        public int CosmosTimeout { get; set; }
+        public int CosmosTimeout { get; set; } = 60;
 
         /// <summary>Gets or sets the secrets.</summary>
         /// <value>The secrets.</value>
