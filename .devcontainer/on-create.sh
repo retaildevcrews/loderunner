@@ -4,13 +4,18 @@ echo "on-create start" >> ~/status
 
 # clone repos
 pushd ..
-git clone https://github.com/retaildevcrews/ngsa
-git clone https://github.com/retaildevcrews/ngsa-app
-git clone https://github.com/retaildevcrews/loderunner
+sudo git clone https://github.com/retaildevcrews/ngsa
+sudo git clone https://github.com/retaildevcrews/ngsa-app
 popd
 
+# get install script and install node
+# [Choice] Node.js version: 16, 14, 12
+VARIANT=14
+curl -sL https://deb.nodesource.com/setup_${VARIANT}.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
 # install client dependencies
-pushd client
+pushd src/LodeRunner.UI
 npm install
 popd
 
@@ -46,8 +51,8 @@ sed -i s@ghcr.io/retaildevcrews/ngsa-lr:beta@k3d-registry.localhost:5000/ngsa-lr
 
 # copy grafana.db to /grafana
 sudo mkdir -p /grafana
-sudo  cp deploy/grafanadata/grafana.db /grafana
-sudo  chown -R 472:472 /grafana
+sudo cp grafanadata/grafana.db /grafana
+sudo chown -R 472:472 /grafana
 
 # create local registry
 docker network create k3d
