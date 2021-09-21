@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
@@ -17,7 +18,7 @@ namespace LodeRunner.Data.ChangeFeed
     /// Relay Runner Observer.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserver" />
-    public sealed class LRAPIObserver : IChangeFeedObserver
+    public sealed class LRObserver : IChangeFeedObserver
     {
         /// <summary>
         /// Occurs when [on process load client change].
@@ -87,34 +88,34 @@ namespace LodeRunner.Data.ChangeFeed
                 switch (entityType)
                 {
                     case EntityType.ClientStatus:
-                        Console.WriteLine("Processing entityType, ClientStatus");
+                        Debug.WriteLine("Processing entityType, ClientStatus");
 
                         this.OnProcessClientStatusChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.LoadClient:
-                        Console.WriteLine("Processing entityType, LoadClient");
+                        Debug.WriteLine("Processing entityType, LoadClient");
 
                         this.OnProcessLoadClientChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.LoadTestConfig:
-                        Console.WriteLine("Processing entityType, LoadTestConfig");
+                        Debug.WriteLine("Processing entityType, LoadTestConfig");
 
                         this.OnProcessLoadTestConfigChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
 
                     case EntityType.TestRun:
-                        Console.WriteLine("Processing entityType, TestRun");
+                        Debug.WriteLine("Processing entityType, TestRun");
 
                         this.OnProcessTestRunChange(new ProcessChangesEventArgs { LastUpdate = DateTime.UtcNow, Document = document });
 
                         break;
                     default:
-                        Console.WriteLine("Unable to process unaccounted entityType, {0}", entityType);
+                        Debug.WriteLine("Unable to process unaccounted entityType, {0}", entityType);
                         break;
                 }
             }

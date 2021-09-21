@@ -11,16 +11,16 @@ namespace LodeRunner.Data.ChangeFeed
     /// Represents the Relay Runner Observer Factory.
     /// </summary>
     /// <seealso cref="Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory" />
-    internal class LRAPIObserverFactory : IBaseObserverFactory
+    internal class LRObserverFactory : IBaseObserverFactory
     {
         private readonly Action callback;
-        private LRAPIObserver lRAPIObserverInstance;
+        private LRObserver lRAPIObserverInstance;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LRAPIObserverFactory"/> class.
+        /// Initializes a new instance of the <see cref="LRObserverFactory"/> class.
         /// </summary>
         /// <param name="callback">The callback.</param>
-        public LRAPIObserverFactory(Action callback)
+        public LRObserverFactory(Action callback)
         {
             this.callback = callback;
         }
@@ -35,7 +35,7 @@ namespace LodeRunner.Data.ChangeFeed
         {
             if (this.lRAPIObserverInstance == null)
             {
-                this.lRAPIObserverInstance = new LRAPIObserver();  // this should be a Generic type
+                this.lRAPIObserverInstance = new LRObserver();  // this should be a Generic type
 
                 // We do not want to subscribe Invoke callback if LodeRunner.API.ObserverInstance was already created.
 

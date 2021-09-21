@@ -7,14 +7,13 @@ using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using ChangeFeedProcessorBuilder = Microsoft.Azure.Documents.ChangeFeedProcessor.ChangeFeedProcessorBuilder;
-using IChangeFeedObserverFactory = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedProcessing.IChangeFeedObserverFactory;
 
 namespace LodeRunner.Data.ChangeFeed
 {
     /// <summary>
     /// Represents the LRAPI Processor class.
     /// </summary>
-    public sealed class LRAPIProcessor : IProcessor, IDisposable
+    public sealed class LRProcessor : IProcessor, IDisposable
     {
         private bool processorStarted = false;
 
@@ -40,7 +39,7 @@ namespace LodeRunner.Data.ChangeFeed
         /// <value>
         /// The Relay Runner observer.
         /// </value>
-        public LRAPIObserver LRAPIObserver => (LRAPIObserver)this.ObserverFactory.GetObserverInstance();
+        public LRObserver LRAPIObserver => (LRObserver)this.ObserverFactory.GetObserverInstance();
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -100,7 +99,7 @@ namespace LodeRunner.Data.ChangeFeed
         {
             if (this.ObserverFactory == null)
             {
-                this.ObserverFactory = new LRAPIObserverFactory(observerIsReadyCallback);
+                this.ObserverFactory = new LRObserverFactory(observerIsReadyCallback);
             }
 
             if (this.ChangeFeedProcessor == null)

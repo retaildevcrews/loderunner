@@ -25,11 +25,11 @@ namespace LodeRunner.API.Services
 
         public override string HostName => $"Host - {Guid.NewGuid()}";
 
-        public LRAPIObserver ChangeFeedObserver
+        public LRObserver ChangeFeedObserver
         {
             get
             {
-                return (LRAPIObserver)GetChangeFeedObserver();
+                return (LRObserver)GetChangeFeedObserver();
             }
         }
 
@@ -52,7 +52,7 @@ namespace LodeRunner.API.Services
         /// </summary>
         public override void CreateProcessor()
         {
-            this.Processor = new LRAPIProcessor();
+            this.Processor = new LRProcessor();
         }
 
         /// <summary>
