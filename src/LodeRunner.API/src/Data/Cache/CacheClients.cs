@@ -31,7 +31,10 @@ namespace LodeRunner.API.Data
             {
                 string clientKey = $"{ClientPrefix}-{id}";
                 Client client = (Client)cache.Get(clientKey);
-                clients.Add(client);
+                if (client != null)
+                {
+                    clients.Add(client);
+                }
             }
 
             return clients;
@@ -80,7 +83,7 @@ namespace LodeRunner.API.Data
                         ClientStatus clientStatus = await clientStatusService.Get(clientStatusId).ConfigureAwait(false);
 
                         // if still exists, update
-                        args.UpdatedCacheItem = new CacheItem(args.Key, new Client(clientStatus));
+                        args.Source.Set(args.Key, new Client(clientStatus), GetClientCachePolicy());
                     }
                     catch (CosmosException ce)
                     {
