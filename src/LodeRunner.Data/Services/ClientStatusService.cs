@@ -77,12 +77,12 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        ///    Posts the update.
+        /// Posts the update.
         /// </summary>
         /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationToken">the cancellation token.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        ///    The Task<ClientStatus> with updated ClientStatus if CosmosDB post is ready. 
+        ///    The Task[ClientStatus] with updated ClientStatus if CosmosDB post is ready.
         ///    Otherwise, it returns null.
         /// </returns>
         public Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
@@ -134,7 +134,6 @@ namespace LodeRunner.Services
                 var errorMsg = string.Join('\n', errorsList);
 
                 // TODO: Log error information
-
                 return false;
             }
             else

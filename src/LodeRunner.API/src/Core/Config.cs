@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using LodeRunner.API.Data;
-using LodeRunner.API.DataAccessLayer;
 using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API
@@ -19,9 +18,13 @@ namespace LodeRunner.API
         public Secrets Secrets { get; set; }
         public int Port { get; set; } = 8080;
         public int Retries { get; set; } = 10;
+
+        /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
+        /// <value>Time in seconds</value>
+        public int CosmosTimeout { get; set; } = 60;
+
         public int Timeout { get; set; } = 10;
         public LogLevel RequestLogLevel { get; set; } = LogLevel.Information;
-        public IDAL CosmosDal { get; set; }
         public ICache Cache { get; set; }
         public string UrlPrefix { get; set; }
 
@@ -36,7 +39,6 @@ namespace LodeRunner.API
             Port = config.Port;
             Retries = config.Retries;
             Timeout = config.Timeout;
-            CosmosDal = config.CosmosDal;
             Cache = config.Cache;
             UrlPrefix = string.IsNullOrWhiteSpace(config.UrlPrefix) ? string.Empty : config.UrlPrefix;
 

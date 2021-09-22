@@ -10,10 +10,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
+using LodeRunner.API.Services;
+using LodeRunner.Data.ChangeFeed;
+using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Documents.ChangeFeedProcessor;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +40,11 @@ namespace LodeRunner.API
         /// Gets cancellation token
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
+
+        /// <summary>
+        /// The Web Host
+        /// </summary>
+        private static IWebHost host = null;
 
         /// <summary>
         /// Gets or sets json serialization options
@@ -80,45 +89,30 @@ namespace LodeRunner.API
 
             try
             {
-                // copy command line values
-                Config.SetConfig(config);
-
-                // load secrets from volume
-                LoadSecrets();
-
-                //TODO: Convert this to data service model
-                // create the cosmos data access layer
-                Config.CosmosDal = new DataAccessLayer.CosmosDal(Config.Secrets, Config);
-
-                // create cache with initial values
-                Config.Cache = new Data.Cache(Config);
-
-                // set the logger config
-                RequestLogger.CosmosName = Config.CosmosName;
-                NgsaLog.LogLevel = Config.LogLevel;
-
-                // build the host
-                IWebHost host = BuildHost();
+                Init(config);
 
                 if (host == null)
                 {
                     return -1;
                 }
 
+                // create cache with initial values
+                Config.Cache = new Data.Cache(GetClientStatusService(), GetLoadTestConfigService());
+
                 // setup sigterm handler
                 App.cancelTokenSource = SetupSigTermHandler(host, logger);
 
                 // start the webserver
-                Task w = host.RunAsync();
+                Task hostRun = host.RunAsync();
 
                 // log startup messages
-                logger.LogInformation($"RelayRunner Backend Started", VersionExtension.Version);
+                logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
                 // start CosmosDB Change Feed Processor
-                ChangeFeedProcessor = await RunChangeFeedProcessor();
+                await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
                 // this doesn't return except on ctl-c or sigterm
-                await w.ConfigureAwait(false);
+                await hostRun.ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return cancelTokenSource.IsCancellationRequested ? 0 : -1;
@@ -130,6 +124,103 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Registers the events.
+        /// </summary>
+        private static void EventsSubscription()
+        {
+            GetLRAPIChangeFeedService().SubscribeToProcessClientStatusChange(ProcessClientStatusChange);
+
+            GetLRAPIChangeFeedService().SubscribeToProcessLoadClientChange(ProcessLoadClientChange);
+
+            GetLRAPIChangeFeedService().SubscribeToProcessLoadTestConfigChange(ProcessLoadTestConfigChange);
+
+            GetLRAPIChangeFeedService().SubscribeToProcessTestRunChange(ProcessTestRunChange);
+        }
+
+        /// <summary>
+        /// Processes the client status change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
+        {
+            Config.Cache.ProcessClientStatusChange(e.Document);
+        }
+
+        /// <summary>
+        /// Processes the load client change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessLoadClientChange(ProcessChangesEventArgs e)
+        {
+            // TODO
+        }
+
+        /// <summary>
+        /// Processes the load test configuration change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessLoadTestConfigChange(ProcessChangesEventArgs e)
+        {
+            // TODO
+        }
+
+        /// <summary>
+        /// Processes the test run change.
+        /// </summary>
+        /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
+        private static void ProcessTestRunChange(ProcessChangesEventArgs e)
+        {
+            // TODO
+        }
+
+        /// <summary>
+        /// Gets the client status service.
+        /// </summary>
+        /// <returns>The IClientStatusService</returns>
+        private static IClientStatusService GetClientStatusService()
+        {
+            return (IClientStatusService)host.Services.GetService(typeof(ClientStatusService));
+        }
+
+        /// <summary>
+        /// Gets the load test configuration service.
+        /// </summary>
+        /// <returns>The ILoadTestConfigService </returns>
+        private static ILoadTestConfigService GetLoadTestConfigService()
+        {
+            return (ILoadTestConfigService)host.Services.GetService(typeof(LoadTestConfigService));
+        }
+
+        /// <summary>
+        /// Gets the change feed service.
+        /// </summary>
+        /// <returns>The ChangeFeed Service.</returns>
+        private static ILRAPIChangeFeedService GetLRAPIChangeFeedService()
+        {
+            return (ILRAPIChangeFeedService)host.Services.GetService(typeof(LRAPIChangeFeedService));
+        }
+
+        /// <summary>
+        /// Initializes the specified configuration.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        private static void Init(Config config)
+        {
+            // copy command line values
+            Config.SetConfig(config);
+
+            // load secrets from volume
+            LoadSecrets();
+
+            // set the logger config
+            RequestLogger.CosmosName = Config.CosmosName;
+            NgsaLog.LogLevel = Config.LogLevel;
+
+            // build the host will register Data Access Services in Startup.
+            host = BuildHost();
         }
 
         // load secrets from volume
@@ -168,7 +259,7 @@ namespace LodeRunner.API
                         logger.AddFilter("Microsoft", Config.LogLevel)
                         .AddFilter("System", Config.LogLevel)
                         .AddFilter("Default", Config.LogLevel)
-                        .AddFilter("RelayRunner.Application", Config.LogLevel);
+                        .AddFilter("LodeRunner.API", Config.LogLevel);
                     }
                 });
 
@@ -233,29 +324,6 @@ namespace LodeRunner.API
                     }
                 }
             }
-        }
-
-        private static async Task<IChangeFeedProcessor> RunChangeFeedProcessor()
-        {
-            const string ChangeFeedLeaseName = "RRAPI";
-
-            DocumentCollectionInfo feedCollectionInfo = new ()
-            {
-                DatabaseName = Config.Secrets.CosmosDatabase,
-                CollectionName = Config.Secrets.CosmosCollection,
-                Uri = new Uri(Config.Secrets.CosmosServer),
-                MasterKey = Config.Secrets.CosmosKey,
-            };
-
-            DocumentCollectionInfo leaseCollectionInfo = new ()
-            {
-                DatabaseName = Config.Secrets.CosmosDatabase,
-                CollectionName = ChangeFeedLeaseName,
-                Uri = new Uri(Config.Secrets.CosmosServer),
-                MasterKey = Config.Secrets.CosmosKey,
-            };
-
-            return await ChangeFeed.Processor.RunAsync($"Host - {Guid.NewGuid()}", feedCollectionInfo, leaseCollectionInfo);
         }
     }
 }

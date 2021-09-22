@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using LodeRunner.API.DataAccessLayer;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -22,7 +22,6 @@ namespace LodeRunner.API.Controllers
     {
         private readonly ILogger logger;
         private readonly ILogger<CosmosHealthCheck> hcLogger;
-        private readonly IDAL dal;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthzController"/> class.
@@ -34,22 +33,22 @@ namespace LodeRunner.API.Controllers
         {
             this.logger = logger;
             this.hcLogger = hcLogger;
-            dal = App.Config.CosmosDal;
         }
 
         /// <summary>
         /// Returns a plain text health status (Healthy, Degraded or Unhealthy)
         /// </summary>
-        /// <returns>IActionResult</returns>
+        /// <param name="clientStatusService">The client status service.</param>
+        /// <returns>The IActionResult.</returns>
         [HttpGet]
         [Produces("text/plain")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<IActionResult> RunHealthzAsync()
+        public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService)
         {
             // get list of genres as list of string
             logger.LogInformation(nameof(RunHealthzAsync));
 
-            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
@@ -65,17 +64,18 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Returns an IETF (draft) health+json representation of the full Health Check
         /// </summary>
+        /// <param name="clientStatusService">The client status service.</param>
         /// <returns>IActionResult</returns>
         [HttpGet("ietf")]
         [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
-        public async Task RunIetfAsync()
+        public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService)
         {
             logger.LogInformation(nameof(RunHealthzAsync));
 
             DateTime dt = DateTime.UtcNow;
 
-            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
@@ -85,10 +85,11 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Run the health check
         /// </summary>
+        /// <param name="clientStatusService">The client status service.</param>
         /// <returns>HealthCheckResult</returns>
-        private async Task<HealthCheckResult> RunCosmosHealthCheck()
+        private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService)
         {
-            CosmosHealthCheck chk = new (hcLogger, dal);
+            CosmosHealthCheck chk = new (hcLogger, clientStatusService);
 
             return await chk.CheckHealthAsync(new HealthCheckContext()).ConfigureAwait(false);
         }
