@@ -142,7 +142,7 @@ beta:
 
 lrapi:
 	# build the local image and load into k3d
-	docker build ./backend -t k3d-registry.localhost:5000/loderunner-api:local
+	docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
 	docker push k3d-registry.localhost:5000/loderunner-api:local
 
 	# delete/deploy the local backend
@@ -160,7 +160,7 @@ lrapi:
 
 lrui:
 	# build the local image and load into k3d
-	docker build ./client --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
+	docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
 	docker push k3d-registry.localhost:5000/loderunner-ui:local
 
 	# delete/deploy local client

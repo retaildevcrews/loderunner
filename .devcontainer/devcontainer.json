@@ -33,10 +33,10 @@
 		"30080": { "label": "Ngsa-Memory" },
 		"30088": { "label": "LodeRunner" },
 		"32000": { "label": "Grafana" },
-		"32080": { "label": "RelayRunner-Client" },
-		"32088": { "label": "RelayRunner-Backend" },
-		"3000": { "label": "Local Dev RelayRunner-Backend"},
-		"8080": { "label": "Local Dev RelayRunner-Backend"}
+		"32080": { "label": "LodeRunner UI" },
+		"32088": { "label": "LodeRunner API" },
+		"3000": { "label": "Local Dev LodeRunner UI"},
+		"8080": { "label": "Local Dev LodeRunner API"}
 	},
 
 	// Install extensions
