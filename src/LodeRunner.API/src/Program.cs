@@ -97,9 +97,6 @@ namespace LodeRunner.API
                     return -1;
                 }
 
-                // create cache with initial values
-                Config.Cache = new Data.Cache(GetClientStatusService(), GetLoadTestConfigService());
-
                 // setup sigterm handler
                 App.cancelTokenSource = SetupSigTermHandler(host, logger);
 
