@@ -102,7 +102,6 @@ namespace LodeRunner
                             webBuilder.ConfigureServices(services =>
                             {
                                 services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
-                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                             });
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:{config.WebHostPort}/");

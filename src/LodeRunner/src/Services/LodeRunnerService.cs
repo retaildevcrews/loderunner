@@ -280,6 +280,8 @@ namespace LodeRunner.Services
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
+                .AddSingleton<Config>(config)
+                .AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>())
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());
