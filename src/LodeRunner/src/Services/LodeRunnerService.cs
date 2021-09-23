@@ -190,7 +190,7 @@ namespace LodeRunner.Services
             if (config.RunLoop)
             {
                 // build and run the web host
-                IHost host = App.BuildWebHost();
+                IHost host = App.BuildWebHost(config);
                 _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
@@ -280,15 +280,7 @@ namespace LodeRunner.Services
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
-                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
-                {
-                    CollectionName = config.Secrets.CosmosCollection,
-                    Retries = config.Retries,
-                    Timeout = config.CosmosTimeout,
-                    Uri = config.Secrets.CosmosServer,
-                    Key = config.Secrets.CosmosKey,
-                    DatabaseName = config.Secrets.CosmosDatabase,
-                })
+                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());
 

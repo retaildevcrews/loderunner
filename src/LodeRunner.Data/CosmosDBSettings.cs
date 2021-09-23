@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Configuration;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Data.Interfaces;
 
 namespace LodeRunner.Data
@@ -15,8 +16,15 @@ namespace LodeRunner.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDBSettings"/> class.
         /// </summary>
-        public CosmosDBSettings()
+        /// <param name="config">The configuration.</param>
+        public CosmosDBSettings(ICosmosConfig config)
         {
+            this.CollectionName = config.Secrets.CosmosCollection;
+            this.Retries = config.Retries;
+            this.Timeout = config.CosmosTimeout;
+            this.Uri = config.Secrets.CosmosServer;
+            this.Key = config.Secrets.CosmosKey;
+            this.DatabaseName = config.Secrets.CosmosDatabase;
         }
 
         /// <summary>

@@ -3,25 +3,61 @@
 
 using System;
 using System.IO;
+using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner.API
+namespace LodeRunner.Data
 {
     /// <summary>
-    /// Application secrets
+    /// Implements Database Secrets.
     /// </summary>
-    public class Secrets
+    /// <seealso cref="LodeRunner.Core.Interfaces.ISecrets" />
+    public class Secrets : ISecrets
     {
-        public string Volume { get; set; }
-        public string CosmosServer { get; set; }
-        public string CosmosKey { get; set; }
-        public string CosmosDatabase { get; set; }
-        public string CosmosCollection { get; set; }
+        /// <summary>
+        /// Gets the volume.
+        /// </summary>
+        /// <value>
+        /// The volume.
+        /// </value>
+        public string Volume { get; private set; }
 
         /// <summary>
-        /// Get the secrets from the k8s volume
+        /// Gets the cosmos server.
         /// </summary>
-        /// <param name="volume">k8s volume name</param>
-        /// <returns>Secrets or null</returns>
+        /// <value>
+        /// The cosmos server.
+        /// </value>
+        public string CosmosServer { get; private set; }
+
+        /// <summary>
+        /// Gets the cosmos key.
+        /// </summary>
+        /// <value>
+        /// The cosmos key.
+        /// </value>
+        public string CosmosKey { get; private set; }
+
+        /// <summary>
+        /// Gets the cosmos database.
+        /// </summary>
+        /// <value>
+        /// The cosmos database.
+        /// </value>
+        public string CosmosDatabase { get; private set; }
+
+        /// <summary>
+        /// Gets the cosmos collection.
+        /// </summary>
+        /// <value>
+        /// The cosmos collection.
+        /// </value>
+        public string CosmosCollection { get; private set; }
+
+        /// <summary>
+        /// Get the secrets from the k8s volume.
+        /// </summary>
+        /// <param name="volume">k8s volume name.</param>
+        /// <returns>Secrets or null.</returns>
         public static Secrets GetSecretsFromVolume(string volume)
         {
             if (string.IsNullOrWhiteSpace(volume))
@@ -35,7 +71,7 @@ namespace LodeRunner.API
                 throw new Exception($"Volume '{volume}' does not exist");
             }
 
-            // get k8s secrets from volume
+            // get secrets from volume
             Secrets sec = new ()
             {
                 Volume = volume,

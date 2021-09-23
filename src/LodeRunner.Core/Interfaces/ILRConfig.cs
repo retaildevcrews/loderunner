@@ -8,7 +8,7 @@ namespace LodeRunner.Core.Interfaces
     /// <summary>
     /// The Config Interface.
     /// </summary>
-    public interface IConfig
+    public interface ILRConfig : ICosmosConfig
     {
         /// <summary>
         /// gets or sets the server / url.
@@ -110,20 +110,12 @@ namespace LodeRunner.Core.Interfaces
         /// </summary>
         bool StrictJson { get; set; }
 
-        /// <summary>Gets or sets the max retry attempts for cosmos requests.</summary>
-        /// <value>The retries.</value>
-        int Retries { get; set; }
-
-        /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
-        /// <value>Time in seconds.</value>
-        int CosmosTimeout { get; set; }
-
-        /// <summary>Gets or sets the secrets volume.</summary>
-        /// <value>The secrets volume.</value>
-        string SecretsVolume { get; set; }
-
-        /// <summary>Gets or sets the name of the cosmos.</summary>
-        /// <value>The name of the cosmos.</value>
-        string CosmosName { get; set; }
+        /// <summary>
+        /// Gets or sets the WebHost Port.
+        /// </summary>
+        /// <value>
+        /// The port.
+        /// </value>
+        int WebHostPort { get; set; }
     }
 }

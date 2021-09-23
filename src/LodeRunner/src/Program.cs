@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,7 +93,7 @@ namespace LodeRunner
         }
 
         // build the web host
-        internal static IHost BuildWebHost()
+        internal static IHost BuildWebHost(Config config)
         {
             // configure the web host builder
             return Host.CreateDefaultBuilder()
@@ -101,9 +102,10 @@ namespace LodeRunner
                             webBuilder.ConfigureServices(services =>
                             {
                                 services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                             });
                             webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:8080/");
+                            webBuilder.UseUrls($"http://*:{config.WebHostPort}/");
                         })
                         .UseConsoleLifetime()
                         .Build();
