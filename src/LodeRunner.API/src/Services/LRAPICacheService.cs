@@ -7,21 +7,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
+using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 
 namespace LodeRunner.API.Services
 {
     public class LRAPICacheService : ILRAPICacheService
     {
-        private readonly Cache cache;
+        private readonly LRAPICache cache;
 
         public LRAPICacheService(ClientStatusService clientStatusService, LoadTestConfigService loadTestConfigService)
         {
-            // TODO: refactor 'Cache' to be Generic.
-
-            this.cache = new Cache(clientStatusService, loadTestConfigService);
+            this.cache = new LRAPICache(clientStatusService, loadTestConfigService);
         }
 
         public Client GetClientByClientStatusId(string clientStatusId)
@@ -31,7 +31,7 @@ namespace LodeRunner.API.Services
 
         public IEnumerable<Client> GetClients()
         {
-            return this.GetClients();
+            return this.cache.GetClients();
         }
 
         public void ProcessClientStatusChange(Document doc)
@@ -39,6 +39,9 @@ namespace LodeRunner.API.Services
             this.cache.ProcessClientStatusChange(doc);
         }
 
-        // TODO: Add other method to get or process other object types, at this time the Service is just a Wrapper and Cache needs to be refactored to be type Independent. "Generic"
+        public IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger)
+        {
+            return this.cache.HandleCacheResult(results, logger);
+        }
     }
 }

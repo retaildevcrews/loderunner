@@ -2,8 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Data.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 
 namespace LodeRunner.API.Interfaces
@@ -17,5 +19,7 @@ namespace LodeRunner.API.Interfaces
         IEnumerable<Client> GetClients();
         Client GetClientByClientStatusId(string clientStatusId);
         void ProcessClientStatusChange(Document doc);
+
+        IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger);
     }
 }

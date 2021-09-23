@@ -2,18 +2,25 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 
-namespace LodeRunner.API.Data
+namespace LodeRunner.API.Interfaces
 {
     /// <summary>
     /// Data Access Layer for Cache Interface
     /// </summary>
-    public interface ICache
+    public interface ILRAPCache : ICache
     {
-        IEnumerable<Client> GetClients();
-        Client GetClientByClientStatusId(string clientStatusId);
         void ProcessClientStatusChange(Document doc);
+
+        Client GetClientByClientStatusId(string clientStatusId);
+
+        IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger);
+
+        IEnumerable<Client> GetClients();
     }
 }

@@ -42,7 +42,7 @@ namespace LodeRunner.API.Controllers
         public IActionResult GetClients([FromServices] ILRAPICacheService cacheService)
         {
             List<Client> clients = (List<Client>)cacheService.GetClients();
-            return Cache.HandleCacheResult<IEnumerable<Client>>(clients, Logger);
+            return cacheService.HandleCacheResult<IEnumerable<Client>>(clients, Logger);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace LodeRunner.API.Controllers
 
             Client client = cacheService.GetClientByClientStatusId(clientStatusId);
 
-            return Cache.HandleCacheResult(client, Logger);
+            return cacheService.HandleCacheResult(client, Logger);
         }
      }
  }
