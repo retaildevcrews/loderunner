@@ -40,7 +40,7 @@ namespace LodeRunner.API
             set
             {
                 requestLogLevel = value <= LogLevel.Information ? LogLevel.Information : value;
-}
+            }
         }
 
         public bool IsLogLevelSet { get; set; }

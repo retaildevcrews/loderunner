@@ -31,7 +31,10 @@ namespace LodeRunner.API.Data
             {
                 string clientKey = $"{ClientPrefix}-{id}";
                 Client client = (Client)cache.Get(clientKey);
-                clients.Add(client);
+                if (client != null)
+                {
+                    clients.Add(client);
+                }
             }
 
             return clients;
@@ -62,6 +65,7 @@ namespace LodeRunner.API.Data
                 cache.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
             }
 
+            // TODO: Need to validate clientStatus before to create Client ?
             cache.Set(clientKey, new Client(clientStatus), GetClientCachePolicy());
         }
 
@@ -79,10 +83,10 @@ namespace LodeRunner.API.Data
                     try
                     {
                         // Get Client Status from Cosmos
-                       ClientStatus clientStatus = await clientStatusService.Get(clientStatusId).ConfigureAwait(false);
+                        ClientStatus clientStatus = await clientStatusService.Get(clientStatusId).ConfigureAwait(false);
 
                         // if still exists, update
-                       args.UpdatedCacheItem = new CacheItem(args.Key, new Client(clientStatus));
+                        args.Source.Set(args.Key, new Client(clientStatus), GetClientCachePolicy());
                     }
                     catch (CosmosException ce)
                     {
@@ -134,7 +138,6 @@ namespace LodeRunner.API.Data
                     cache.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
 
                     // TODO: Need to validate clientStatus before to create Client ?
-
                     cache.Set(clientKey, new Client(clientStatus), GetClientCachePolicy());
                 }
             }
