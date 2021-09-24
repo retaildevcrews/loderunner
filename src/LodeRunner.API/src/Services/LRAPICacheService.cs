@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
@@ -19,9 +20,9 @@ namespace LodeRunner.API.Services
     {
         private readonly LRAPICache cache;
 
-        public LRAPICacheService(ClientStatusService clientStatusService, LoadTestConfigService loadTestConfigService)
+        public LRAPICacheService(ClientStatusService clientStatusService, LoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
         {
-            this.cache = new LRAPICache(clientStatusService, loadTestConfigService);
+            this.cache = new LRAPICache(clientStatusService, loadTestConfigService, cancellationTokenSource);
         }
 
         public Client GetClientByClientStatusId(string clientStatusId)

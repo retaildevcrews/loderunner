@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Caching;
+using System.Threading;
 using LodeRunner.Data.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
+using MemoryCache = Microsoft.Extensions.Caching.Memory.MemoryCache;
 
 namespace LodeRunner.Data.Cache
 {
@@ -20,10 +23,12 @@ namespace LodeRunner.Data.Cache
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseCache"/> class.
         /// </summary>
-        public BaseCache()
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        public BaseCache(CancellationTokenSource cancellationTokenSource)
         {
+            this.CancellationTokenSource = cancellationTokenSource;
             this.CacheName = $"{BaseMemCacheInstanceName}-{Guid.NewGuid()}";
-            this.MemCache = new MemoryCache(this.CacheName);
+            this.Cache = new MemoryCache(new MemoryCacheOptions());
         }
 
         /// <summary>
@@ -35,12 +40,20 @@ namespace LodeRunner.Data.Cache
         public string CacheName { get; private set; }
 
         /// <summary>
+        /// Gets the cancellation token source.
+        /// </summary>
+        /// <value>
+        /// The cancellation token source.
+        /// </value>
+        protected CancellationTokenSource CancellationTokenSource { get; private set; }
+
+        /// <summary>
         /// Gets the memory cache.
         /// </summary>
         /// <value>
         /// The memory cache.
         /// </value>
-        protected MemoryCache MemCache { get; private set; }
+        protected MemoryCache Cache { get; private set; }
 
         /// <summary>
         /// Gets the entries.
@@ -53,13 +66,14 @@ namespace LodeRunner.Data.Cache
         public IEnumerable<TEntity> GetEntries<TEntity>(string keyPrefix)
         {
             // TODO:  use getenumerator to get all .
+
             // NOTE: Retrieving an enumerator for a MemoryCache instance is a resource - intensive and blocking operation.Therefore, the enumerator should not be used in production applications.
-            List<string> keyList = (List<string>)this.MemCache.Get(keyPrefix);
+            List<string> keyList = (List<string>)this.Cache.Get(keyPrefix);
             List<TEntity> entryList = new ();
             foreach (string itemId in keyList)
             {
                 string itemKey = $"{keyPrefix}-{itemId}";
-                TEntity cacheEntry = (TEntity)this.MemCache.Get(itemKey);
+                TEntity cacheEntry = (TEntity)this.Cache.Get(itemKey);
                 if (cacheEntry != null)
                 {
                     entryList.Add(cacheEntry);
@@ -76,14 +90,14 @@ namespace LodeRunner.Data.Cache
         /// <typeparam name="TFlattenEntity">The type of the flatten entity.</typeparam>
         /// <param name="items">The items.</param>
         /// <param name="keyPrefix">The key prefix.</param>
-        /// <param name="idPropertyName">Name of the identifier property.</param>
-        public void SetEntries<TEntity, TFlattenEntity>(List<TEntity> items, string keyPrefix, string idPropertyName = "id")
+        /// <param name="entityIdFieldName">Name of the entity Id Field.</param>
+        public void SetEntries<TEntity, TFlattenEntity>(List<TEntity> items, string keyPrefix, string entityIdFieldName = "Id")
         {
             List<string> tEntityIds = new ();
 
             foreach (TEntity item in items)
             {
-                string itemId = this.GetFieldValueAsString(this.GetFieldValue(item, idPropertyName));
+                string itemId = this.GetFieldValueAsString(this.GetFieldValue(item, entityIdFieldName));
 
                 this.ValidateItemId(itemId);
 
@@ -91,12 +105,14 @@ namespace LodeRunner.Data.Cache
 
                 string itemKey = $"{keyPrefix}-{itemId}";
 
-                this.MemCache.Set(keyPrefix, tEntityIds, new CacheItemPolicy());
+                // this.Cache.Set(keyPrefix, tEntityIds, new CacheItemPolicy());
+                this.Cache.Set(keyPrefix, tEntityIds, new MemoryCacheEntryOptions());
 
                 var flattentObject = Activator.CreateInstance(typeof(TFlattenEntity), item);
 
                 // TODO: Need to validate clientStatus before to create Client ?
-                this.MemCache.Set(itemKey, flattentObject, this.GetClientCachePolicy());
+                // this.Cache.Set(itemKey, flattentObject, this.GetClientCachePolicy());
+                this.Cache.Set(itemKey, flattentObject, this.GetMemoryCacheEntryOptions(this.CancellationTokenSource));
             }
         }
 
@@ -117,7 +133,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return (TEntity)this.MemCache.Get($"{keyPrefix}-{key}");
+            return (TEntity)this.Cache.Get($"{keyPrefix}-{key}");
         }
 
         /// <summary>
@@ -135,7 +151,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return this.MemCache.Get(key);
+            return this.Cache.Get(key);
         }
 
         /// <summary>
@@ -143,11 +159,10 @@ namespace LodeRunner.Data.Cache
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="policy">The policy.</param>
-        /// <param name="regionName">Name of the region.</param>
-        public void SetEntry(string key, object value, CacheItemPolicy policy, string regionName = null)
+        /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+        public void SetEntry(string key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {
-            this.MemCache.Set(key, value, policy, regionName);
+            this.Cache.Set(key, value, memoryCacheEntryOptions);
         }
 
         /// <summary>
@@ -159,11 +174,23 @@ namespace LodeRunner.Data.Cache
         public abstract CacheItemPolicy GetClientCachePolicy();
 
         /// <summary>
+        /// Gets the memory cache entry options.
+        /// </summary>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>MemoryCacheEntryOptions.</returns>
+        public abstract MemoryCacheEntryOptions GetMemoryCacheEntryOptions(CancellationTokenSource cancellationTokenSource);
+
+        /// <summary>
         /// Validates the item identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         public abstract void ValidateItemId(string id);
 
+        /// <summary>
+        /// Gets the field value as string.
+        /// </summary>
+        /// <param name="fieldValue">The field value.</param>
+        /// <returns>Filed as string.</returns>
         private string GetFieldValueAsString(object fieldValue)
         {
             if (fieldValue != null)
@@ -191,7 +218,7 @@ namespace LodeRunner.Data.Cache
 
             if (fieldInfo != null)
             {
-                return fieldInfo.GetValue(this);
+                return fieldInfo.GetValue(item);
             }
             else
             {

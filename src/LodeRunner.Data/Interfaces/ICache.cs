@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Runtime.Caching;
+using System.Threading;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -26,8 +28,8 @@ namespace LodeRunner.Data.Interfaces
         /// <typeparam name="TFlattenEntity">The type of the flatten entity.</typeparam>
         /// <param name="items">The items.</param>
         /// <param name="keyPrefix">The key prefix.</param>
-        /// <param name="idPropertyName">Name of the identifier property.</param>
-        void SetEntries<TEntity, TFlattenEntity>(List<TEntity> items, string keyPrefix, string idPropertyName = "id");
+        /// <param name="entityIdFieldName">Name of the entity Id Field.</param>
+        void SetEntries<TEntity, TFlattenEntity>(List<TEntity> items, string keyPrefix, string entityIdFieldName = "Id");
 
         /// <summary>
         /// Gets the entry by key.
@@ -50,15 +52,21 @@ namespace LodeRunner.Data.Interfaces
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="policy">The policy.</param>
-        /// <param name="regionName">Name of the region.</param>
-        void SetEntry(string key, object value, CacheItemPolicy policy, string regionName = null);
+        /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+        void SetEntry(string key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions);
 
         /// <summary>
         /// Gets the client cache policy.
         /// </summary>
         /// <returns> the CacheItemPolicy.</returns>
         CacheItemPolicy GetClientCachePolicy();
+
+        /// <summary>
+        /// Gets the memory cache entry options.
+        /// </summary>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>MemoryCacheEntryOptions.</returns>
+        MemoryCacheEntryOptions GetMemoryCacheEntryOptions(CancellationTokenSource cancellationTokenSource);
 
         /// <summary>
         /// Validates the item identifier.

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Caching;
+using System.Threading;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
@@ -16,6 +17,8 @@ using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 namespace LodeRunner.API.Data
@@ -39,7 +42,8 @@ namespace LodeRunner.API.Data
 
         private bool disposedValue;
 
-        public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService)
+        public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
+            : base(cancellationTokenSource)
         {
             this.clientStatusService = clientStatusService;
             this.loadTestConfigService = loadTestConfigService;
@@ -106,11 +110,13 @@ namespace LodeRunner.API.Data
             {
                 List<string> clientStatusIds = (List<string>)this.GetEntry(ClientPrefix);
                 clientStatusIds.Add(clientStatus.Id);
-                this.SetEntry(ClientPrefix, clientStatusIds, new CacheItemPolicy());
+                this.SetEntry(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
             }
 
             // TODO: Need to validate clientStatus before to create Client ?
-            this.SetEntry(clientKey, new Client(clientStatus), GetClientCachePolicy());
+            //this.SetEntry(clientKey, new Client(clientStatus), GetClientCachePolicy());
+
+            this.SetEntry(clientKey, new Client(clientStatus), GetMemoryCacheEntryOptions(this.CancellationTokenSource));
         }
 
         public override CacheItemPolicy GetClientCachePolicy()
@@ -189,15 +195,87 @@ namespace LodeRunner.API.Data
             }
         }
 
+        /// <summary>
+        /// Gets the memory cache entry options.
+        /// </summary>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>
+        /// MemoryCacheEntryOptions.
+        /// </returns>
+        public override MemoryCacheEntryOptions GetMemoryCacheEntryOptions(CancellationTokenSource cancellationTokenSource)
+        {
+            string keyClientPrefix = $"{ClientPrefix}-"; // has a dash at the end.
+            return new MemoryCacheEntryOptions()
+             .RegisterPostEvictionCallback((key, value, reason, state) =>
+             {
+                 // log the request
+                 logger.LogInformation(nameof(LRAPICache), "DS request");
+
+                 string clientStatusId = key.ToString().Replace(keyClientPrefix, string.Empty); //args.Key[(ClientPrefix.Length + 1) ..];
+
+                 try
+                 {
+                     // Get Client Status from Cosmos
+                     ClientStatus clientStatus = clientStatusService.Get(clientStatusId).Result;
+
+                     // if still exists, update
+                     //args.Source.Set(args.Key, new Client(clientStatus), GetClientCachePolicy());
+
+                     // TODO:  GetMemoryCacheEntryOptions() here  this will cause a indefinitely loop
+
+                     this.Cache.Set(key, new Client(clientStatus)); // GetMemoryCacheEntryOptions(cancellationTokenSource));
+                 }
+                 catch (CosmosException ce)
+                 {
+                     // log Cosmos status code
+                     if (ce.StatusCode == HttpStatusCode.NotFound)
+                     {
+                         logger.LogInformation(nameof(CacheItemPolicy.UpdateCallback), $"{logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
+                     }
+                     else
+                     {
+                         logger.LogError(nameof(CacheItemPolicy.UpdateCallback), ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
+                     }
+
+                     // Remove client status ID from cache
+                     //List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
+                     List<string> clientStatusIds = (List<string>)this.Cache.Get(ClientPrefix);
+
+                     //clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1)..]);
+                     clientStatusIds.Remove(clientStatusId);
+
+                     //args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
+                     this.Cache.Set(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
+                 }
+                 catch (Exception ex)
+                 {
+                     // log exception
+                     logger.LogError(nameof(CacheItemPolicy.UpdateCallback), "Exception", NgsaLog.LogEvent500, ex: ex);
+
+                     // Remove client status ID from cache
+                     //List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
+                     List<string> clientStatusIds = (List<string>)this.Cache.Get(ClientPrefix);
+
+                     //clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1)..]);
+                     clientStatusIds.Remove(clientStatusId);
+
+                     //args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
+                     this.Cache.Set(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
+                 }
+             })
+             .SetSlidingExpiration(TimeSpan.FromSeconds(65))
+             .AddExpirationToken(new CancellationChangeToken(cancellationTokenSource.Token));
+        }
+
         protected void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
                 {
-                    if (this.MemCache != null)
+                    if (this.Cache != null)
                     {
-                        this.MemCache.Dispose();
+                        this.Cache.Dispose();
                     }
                 }
 
@@ -236,7 +314,7 @@ namespace LodeRunner.API.Data
             {
                 if (this.GetEntry(ClientPrefix) == null)
                 {
-                    this.SetEntry(ClientPrefix, new List<string>(), new CacheItemPolicy());
+                    this.SetEntry(ClientPrefix, new List<string>(), new MemoryCacheEntryOptions());
                 }
             }
         }

@@ -66,6 +66,8 @@ namespace LodeRunner.API
         /// <returns>0 == success</returns>
         public static async Task<int> Main(string[] args)
         {
+            cancelTokenSource = new CancellationTokenSource();
+
             if (args != null)
             {
                 DisplayAsciiArt(args);
@@ -98,7 +100,7 @@ namespace LodeRunner.API
                 }
 
                 // setup sigterm handler
-                App.cancelTokenSource = SetupSigTermHandler(host, logger);
+                SetupSigTermHandler(host, logger);
 
                 // start the webserver
                 Task hostRun = host.RunAsync();
@@ -230,8 +232,9 @@ namespace LodeRunner.API
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
-                     services.AddSingleton<Config>(config);
-                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                    services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                    services.AddSingleton<Config>(config);
+                    services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
                 .UseUrls($"http://*:{config.WebHostPort}/")
                 .UseStartup<Startup>()
@@ -259,14 +262,12 @@ namespace LodeRunner.API
         }
 
         // Create a CancellationTokenSource that cancels on ctl-c or sigterm
-        private static CancellationTokenSource SetupSigTermHandler(IWebHost host, NgsaLog logger)
+        private static void SetupSigTermHandler(IWebHost host, NgsaLog logger)
         {
-            CancellationTokenSource ctCancel = new ();
-
             Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;
-                ctCancel.Cancel();
+                cancelTokenSource.Cancel();
 
                 logger.LogInformation("Shutdown", "Shutting Down ...");
 
@@ -277,8 +278,6 @@ namespace LodeRunner.API
                 // end the app
                 Environment.Exit(0);
             };
-
-            return ctCancel;
         }
 
         /// <summary>
