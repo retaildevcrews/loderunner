@@ -21,6 +21,14 @@ namespace LodeRunner.Data.Cache
         private const string BaseMemCacheInstanceName = "MemCache";
 
         /// <summary>
+        /// Gets the memory cache.
+        /// </summary>
+        /// <value>
+        /// The memory cache.
+        /// </value>
+        private readonly MemoryCache cache;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BaseCache"/> class.
         /// </summary>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
@@ -28,7 +36,7 @@ namespace LodeRunner.Data.Cache
         {
             this.CancellationTokenSource = cancellationTokenSource;
             this.CacheName = $"{BaseMemCacheInstanceName}-{Guid.NewGuid()}";
-            this.Cache = new MemoryCache(new MemoryCacheOptions());
+            this.cache = new MemoryCache(new MemoryCacheOptions());
         }
 
         /// <summary>
@@ -48,14 +56,6 @@ namespace LodeRunner.Data.Cache
         protected CancellationTokenSource CancellationTokenSource { get; private set; }
 
         /// <summary>
-        /// Gets the memory cache.
-        /// </summary>
-        /// <value>
-        /// The memory cache.
-        /// </value>
-        protected MemoryCache Cache { get; private set; }
-
-        /// <summary>
         /// Gets the entries.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -68,12 +68,12 @@ namespace LodeRunner.Data.Cache
             // TODO:  use getenumerator to get all .
 
             // NOTE: Retrieving an enumerator for a MemoryCache instance is a resource - intensive and blocking operation.Therefore, the enumerator should not be used in production applications.
-            List<string> keyList = (List<string>)this.Cache.Get(keyPrefix);
+            List<string> keyList = (List<string>)this.cache.Get(keyPrefix);
             List<TEntity> entryList = new ();
             foreach (string itemId in keyList)
             {
                 string itemKey = $"{keyPrefix}-{itemId}";
-                TEntity cacheEntry = (TEntity)this.Cache.Get(itemKey);
+                TEntity cacheEntry = (TEntity)this.cache.Get(itemKey);
                 if (cacheEntry != null)
                 {
                     entryList.Add(cacheEntry);
@@ -106,13 +106,14 @@ namespace LodeRunner.Data.Cache
                 string itemKey = $"{keyPrefix}-{itemId}";
 
                 // this.Cache.Set(keyPrefix, tEntityIds, new CacheItemPolicy());
-                this.Cache.Set(keyPrefix, tEntityIds, new MemoryCacheEntryOptions());
+                this.cache.Set(keyPrefix, tEntityIds, new MemoryCacheEntryOptions());
 
                 var flattentObject = Activator.CreateInstance(typeof(TFlattenEntity), item);
 
                 // TODO: Need to validate clientStatus before to create Client ?
+
                 // this.Cache.Set(itemKey, flattentObject, this.GetClientCachePolicy());
-                this.Cache.Set(itemKey, flattentObject, this.GetMemoryCacheEntryOptions(this.CancellationTokenSource));
+                this.cache.Set(itemKey, flattentObject, this.GetMemoryCacheEntryOptions(this.CancellationTokenSource));
             }
         }
 
@@ -133,7 +134,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return (TEntity)this.Cache.Get($"{keyPrefix}-{key}");
+            return (TEntity)this.cache.Get($"{keyPrefix}-{key}");
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return this.Cache.Get(key);
+            return this.cache.Get(key);
         }
 
         /// <summary>
@@ -160,18 +161,10 @@ namespace LodeRunner.Data.Cache
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        public void SetEntry(string key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions)
+        public void SetEntry(object key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {
-            this.Cache.Set(key, value, memoryCacheEntryOptions);
+            this.cache.Set(key, value, memoryCacheEntryOptions);
         }
-
-        /// <summary>
-        /// Gets the client cache policy.
-        /// </summary>
-        /// <returns>
-        /// the CacheItemPolicy.
-        /// </returns>
-        public abstract CacheItemPolicy GetClientCachePolicy();
 
         /// <summary>
         /// Gets the memory cache entry options.

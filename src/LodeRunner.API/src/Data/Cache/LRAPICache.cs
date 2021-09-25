@@ -53,7 +53,7 @@ namespace LodeRunner.API.Data
         public IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(HandleCacheResult), "DS request");
+            logger.LogInformation(nameof(HandleCacheResult), "Cache data request");
 
             // return exception if task is null
             if (results == null)
@@ -119,60 +119,6 @@ namespace LodeRunner.API.Data
             this.SetEntry(clientKey, new Client(clientStatus), GetMemoryCacheEntryOptions(this.CancellationTokenSource));
         }
 
-        public override CacheItemPolicy GetClientCachePolicy()
-        {
-            return new CacheItemPolicy
-            {
-                SlidingExpiration = TimeSpan.FromSeconds(65),
-                UpdateCallback = async (CacheEntryUpdateArguments args) =>
-                {
-                    // log the request
-                    logger.LogInformation(nameof(LRAPICache), "DS request");
-                    string clientStatusId = args.Key[(ClientPrefix.Length + 1) ..];
-
-                    try
-                    {
-                        // Get Client Status from Cosmos
-                        ClientStatus clientStatus = await clientStatusService.Get(clientStatusId).ConfigureAwait(false);
-
-                        // if still exists, update
-                        args.Source.Set(args.Key, new Client(clientStatus), GetClientCachePolicy());
-                    }
-                    catch (CosmosException ce)
-                    {
-                        // log Cosmos status code
-                        if (ce.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            logger.LogInformation(nameof(CacheItemPolicy.UpdateCallback), $"{logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
-                        }
-                        else
-                        {
-                            logger.LogError(nameof(CacheItemPolicy.UpdateCallback), ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
-                        }
-
-                        // Remove client status ID from cache
-                        List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
-
-                        clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1) ..]);
-
-                        args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
-                    }
-                    catch (Exception ex)
-                    {
-                        // log exception
-                        logger.LogError(nameof(CacheItemPolicy.UpdateCallback), "Exception", NgsaLog.LogEvent500, ex: ex);
-
-                        // Remove client status ID from cache
-                        List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
-
-                        clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1) ..]);
-
-                        args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
-                    }
-                },
-            };
-        }
-
         /// <summary>
         /// Provide basic validation for ClientStatusId .
         /// </summary>
@@ -209,9 +155,18 @@ namespace LodeRunner.API.Data
              .RegisterPostEvictionCallback((key, value, reason, state) =>
              {
                  // log the request
-                 logger.LogInformation(nameof(LRAPICache), "DS request");
+                 logger.LogInformation(nameof(LRAPICache), "Cache data request.");
 
-                 string clientStatusId = key.ToString().Replace(keyClientPrefix, string.Empty); //args.Key[(ClientPrefix.Length + 1) ..];
+                 if (reason == EvictionReason.Replaced)
+                 {
+                     // NOTE: Scenario LRAPI collection has pending feed change that Calls ProcessClientStatusChange(), then it trigger a key replace event.
+                     // Also if we already initiated case.Set() to do a replace we do not need to query and replace the key
+                     // if so  this will cause a indefinitely loop, since we call this.Cache.Set to update the key.
+
+                     return;
+                 }
+
+                 string clientStatusId = key.ToString().Replace(keyClientPrefix, string.Empty);
 
                  try
                  {
@@ -219,48 +174,38 @@ namespace LodeRunner.API.Data
                      ClientStatus clientStatus = clientStatusService.Get(clientStatusId).Result;
 
                      // if still exists, update
-                     //args.Source.Set(args.Key, new Client(clientStatus), GetClientCachePolicy());
-
-                     // TODO:  GetMemoryCacheEntryOptions() here  this will cause a indefinitely loop
-
-                     this.Cache.Set(key, new Client(clientStatus)); // GetMemoryCacheEntryOptions(cancellationTokenSource));
+                     this.SetEntry(key, new Client(clientStatus), GetMemoryCacheEntryOptions(cancellationTokenSource));
                  }
                  catch (CosmosException ce)
                  {
                      // log Cosmos status code
                      if (ce.StatusCode == HttpStatusCode.NotFound)
                      {
-                         logger.LogInformation(nameof(CacheItemPolicy.UpdateCallback), $"{logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
+                         logger.LogInformation("MemoryCacheEntryOptions.RegisterPostEvictionCallback", $"{logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
                      }
                      else
                      {
-                         logger.LogError(nameof(CacheItemPolicy.UpdateCallback), ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
+                         logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
                      }
 
                      // Remove client status ID from cache
-                     //List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
-                     List<string> clientStatusIds = (List<string>)this.Cache.Get(ClientPrefix);
+                     List<string> clientStatusIds = (List<string>)this.GetEntry(ClientPrefix);
 
-                     //clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1)..]);
                      clientStatusIds.Remove(clientStatusId);
 
-                     //args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
-                     this.Cache.Set(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
+                     this.SetEntry(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
                  }
                  catch (Exception ex)
                  {
                      // log exception
-                     logger.LogError(nameof(CacheItemPolicy.UpdateCallback), "Exception", NgsaLog.LogEvent500, ex: ex);
+                     logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", "Exception", NgsaLog.LogEvent500, ex: ex);
 
                      // Remove client status ID from cache
-                     //List<string> clientStatusIds = (List<string>)args.Source.Get(ClientPrefix);
-                     List<string> clientStatusIds = (List<string>)this.Cache.Get(ClientPrefix);
+                     List<string> clientStatusIds = (List<string>)this.GetEntry(ClientPrefix);
 
-                     //clientStatusIds.Remove(args.Key[(ClientPrefix.Length + 1)..]);
                      clientStatusIds.Remove(clientStatusId);
 
-                     //args.Source.Set(ClientPrefix, clientStatusIds, new CacheItemPolicy());
-                     this.Cache.Set(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
+                     this.SetEntry(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
                  }
              })
              .SetSlidingExpiration(TimeSpan.FromSeconds(65))
@@ -273,10 +218,7 @@ namespace LodeRunner.API.Data
             {
                 if (disposing)
                 {
-                    if (this.Cache != null)
-                    {
-                        this.Cache.Dispose();
-                    }
+                   // objects to dispose
                 }
 
                 disposedValue = true;
@@ -286,7 +228,7 @@ namespace LodeRunner.API.Data
         private void SetClientCache()
         {
             // log the request
-            logger.LogInformation(nameof(LRAPICache), "DS request");
+            logger.LogInformation(nameof(LRAPICache), "Cache data request");
 
             try
             {

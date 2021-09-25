@@ -53,13 +53,7 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        void SetEntry(string key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions);
-
-        /// <summary>
-        /// Gets the client cache policy.
-        /// </summary>
-        /// <returns> the CacheItemPolicy.</returns>
-        CacheItemPolicy GetClientCachePolicy();
+        void SetEntry(object key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions);
 
         /// <summary>
         /// Gets the memory cache entry options.
