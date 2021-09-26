@@ -50,7 +50,7 @@ namespace LodeRunner.Data.Cache
         /// </returns>
         public IEnumerable<TEntity> GetEntries<TEntity>(string keyPrefix)
         {
-            MemoryBaseCache entityCache = this.CreateGetCache<TEntity>();
+            MemoryBaseCache entityCache = this.GetCache<TEntity>();
 
             // TODO:  use get enumerator to get all .
 
@@ -80,7 +80,7 @@ namespace LodeRunner.Data.Cache
         /// <param name="entityIdFieldName">Name of the entity Id Field.</param>
         public void SetEntries<TEntity, TFlattenEntity>(List<TEntity> items, string keyPrefix, string entityIdFieldName = "Id")
         {
-            MemoryBaseCache entityCache = this.CreateGetCache<TEntity>();
+            MemoryBaseCache entityCache = this.GetCache<TEntity>();
 
             List<string> tEntityIds = new ();
 
@@ -102,7 +102,7 @@ namespace LodeRunner.Data.Cache
                 // TODO: Need to validate clientStatus before to create Client ?
 
                 // this.Cache.Set(itemKey, flattentObject, this.GetClientCachePolicy());
-                entityCache.Set(itemKey, flattentObject, this.GetMemoryCacheEntryOptions(this.CancellationTokenSource));
+                entityCache.Set(itemKey, flattentObject, this.GetMemoryCacheEntryOptions<TEntity>(this.CancellationTokenSource));
             }
         }
 
@@ -123,7 +123,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            MemoryBaseCache entityCache = this.CreateGetCache<TEntity>();
+            MemoryBaseCache entityCache = this.GetCache<TEntity>();
 
             return (TEntity)entityCache.Get($"{keyPrefix}-{key}");
         }
@@ -141,7 +141,7 @@ namespace LodeRunner.Data.Cache
                 throw new ArgumentNullException(nameof(key));
             }
 
-            MemoryBaseCache entityCache = this.CreateGetCache<TEntity>();
+            MemoryBaseCache entityCache = this.GetCache<TEntity>();
 
             return entityCache.Get(key);
         }
@@ -155,7 +155,7 @@ namespace LodeRunner.Data.Cache
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
         public void SetEntry<TEntity>(object key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {
-            MemoryBaseCache entityCache = this.CreateGetCache<TEntity>();
+            MemoryBaseCache entityCache = this.GetCache<TEntity>();
 
             entityCache.Set(key, value, memoryCacheEntryOptions);
         }
@@ -163,9 +163,10 @@ namespace LodeRunner.Data.Cache
         /// <summary>
         /// Gets the memory cache entry options.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <returns>MemoryCacheEntryOptions.</returns>
-        public abstract MemoryCacheEntryOptions GetMemoryCacheEntryOptions(CancellationTokenSource cancellationTokenSource);
+        /// <returns>The MemoryCacheEntryOptions.</returns>
+        public abstract MemoryCacheEntryOptions GetMemoryCacheEntryOptions<TEntity>(CancellationTokenSource cancellationTokenSource);
 
         /// <summary>
         /// Validates the item identifier.
@@ -231,7 +232,12 @@ namespace LodeRunner.Data.Cache
             return fieldInfo;
         }
 
-        private MemoryBaseCache CreateGetCache<TEntity>()
+        /// <summary>
+        /// Get the typed cache.
+        /// </summary>
+        /// <typeparam name="TEntity">The cache entity type.</typeparam>
+        /// <returns>the typed cache.</returns>
+        private MemoryBaseCache GetCache<TEntity>()
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 

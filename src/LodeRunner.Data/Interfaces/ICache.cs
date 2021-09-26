@@ -59,9 +59,10 @@ namespace LodeRunner.Data.Interfaces
         /// <summary>
         /// Gets the memory cache entry options.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <returns>MemoryCacheEntryOptions.</returns>
-        MemoryCacheEntryOptions GetMemoryCacheEntryOptions(CancellationTokenSource cancellationTokenSource);
+        /// <returns>The MemoryCacheEntryOptions.</returns>
+        MemoryCacheEntryOptions GetMemoryCacheEntryOptions<TEntity>(CancellationTokenSource cancellationTokenSource);
 
         /// <summary>
         /// Validates the item identifier.
