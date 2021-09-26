@@ -26,7 +26,7 @@ namespace LodeRunner.API.Data
     /// <summary>
     /// Cached Data
     /// </summary>
-    public class LRAPICache : BaseCache, ILRAPCache, IDisposable
+    public class LRAPICache : BaseCache, ILRAPCache
     {
         private const string ClientPrefix = "client";
 
@@ -39,8 +39,6 @@ namespace LodeRunner.API.Data
 
         private readonly IClientStatusService clientStatusService;
         private readonly ILoadTestConfigService loadTestConfigService;
-
-        private bool disposedValue;
 
         public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
             : base(cancellationTokenSource)
@@ -78,14 +76,6 @@ namespace LodeRunner.API.Data
             }
         }
 
-        // implement IDisposable
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
         public Client GetClientByClientStatusId(string clientStatusId)
         {
             this.ValidateItemId(clientStatusId);
@@ -106,17 +96,17 @@ namespace LodeRunner.API.Data
 
             string clientKey = $"{ClientPrefix}-{clientStatus.Id}";
 
-            if (this.GetEntry(clientKey) == null)
+            if (this.GetEntry<ClientStatus>(clientKey) == null)
             {
-                List<string> clientStatusIds = (List<string>)this.GetEntry(ClientPrefix);
+                List<string> clientStatusIds = (List<string>)this.GetEntry<ClientStatus>(ClientPrefix);
                 clientStatusIds.Add(clientStatus.Id);
-                this.SetEntry(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
+                this.SetEntry<ClientStatus>(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
             }
 
             // TODO: Need to validate clientStatus before to create Client ?
             //this.SetEntry(clientKey, new Client(clientStatus), GetClientCachePolicy());
 
-            this.SetEntry(clientKey, new Client(clientStatus), GetMemoryCacheEntryOptions(this.CancellationTokenSource));
+            this.SetEntry<ClientStatus>(clientKey, new Client(clientStatus), GetMemoryCacheEntryOptions(this.CancellationTokenSource));
         }
 
         /// <summary>
@@ -212,19 +202,6 @@ namespace LodeRunner.API.Data
              .AddExpirationToken(new CancellationChangeToken(cancellationTokenSource.Token));
         }
 
-        protected void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                   // objects to dispose
-                }
-
-                disposedValue = true;
-            }
-        }
-
         private void SetClientCache()
         {
             // log the request
@@ -252,13 +229,18 @@ namespace LodeRunner.API.Data
                 // log and return exception
                 logger.LogError("Handle<T>", "Exception", NgsaLog.LogEvent500, ex: ex);
             }
-            finally
-            {
-                if (this.GetEntry(ClientPrefix) == null)
-                {
-                    this.SetEntry(ClientPrefix, new List<string>(), new MemoryCacheEntryOptions());
-                }
-            }
+
+            // finally
+            //{
+            //    if (this.GetEntry(ClientPrefix) == null)
+            //    {
+            //        this.SetEntry(ClientPrefix, new List<string>(), new MemoryCacheEntryOptions());
+            //    }
+            //}
         }
+
+        // myCacheWrapper.GetItem<ClientStatus>(key);
+
+        //myCacheWrapper.PutItem<ClientStatus>(key, object); // Create cache if does not exist  we will use a cache per type
     }
 }

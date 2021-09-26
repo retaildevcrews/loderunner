@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
-using System.Runtime.Caching;
 using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -41,19 +40,21 @@ namespace LodeRunner.Data.Interfaces
         TEntity GetEntryByKey<TEntity>(string keyPrefix, string key);
 
         /// <summary>
-        /// Gets the entry by key.
+        /// Gets the entry.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="key">The key.</param>
-        /// <returns>The entry from the cache.</returns>
-        object GetEntry(string key);
+        /// <returns>the cache entry.</returns>
+        object GetEntry<TEntity>(string key);
 
         /// <summary>
         /// Sets the entry.
         /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        void SetEntry(object key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions);
+        void SetEntry<TEntity>(object key, object value, MemoryCacheEntryOptions memoryCacheEntryOptions);
 
         /// <summary>
         /// Gets the memory cache entry options.
