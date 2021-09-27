@@ -45,7 +45,7 @@ namespace LodeRunner.API.Data
             SetClientCache();
         }
 
-        public IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger)
+        public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
             logger.LogInformation(nameof(HandleCacheResult), "Cache data request");
@@ -87,9 +87,7 @@ namespace LodeRunner.API.Data
 
         public void ProcessClientStatusChange(Document doc)
         {
-            ClientStatus clientStatus = JsonConvert.DeserializeObject<ClientStatus>(doc.ToString());
-
-            // TODO:  Avoid doc.ToString() and then DeserializeObject, can we convert doc to ClientStatus
+            ClientStatus clientStatus = (dynamic)doc;
 
             // TODO: Need to validate clientStatus all together  before to create Client ?
 
@@ -109,15 +107,16 @@ namespace LodeRunner.API.Data
                 throw new ArgumentNullException($"{this.GetType().Name}: clientStatusId cannot be null or empty invalid");
             }
 
-            Guid guidValue;
-            try
-            {
-                guidValue = Guid.Parse(id);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidDataException($"Invalid GUID value {id}'", ex);
-            }
+            // TODO : Need to validate Id as GUID
+            //Guid guidValue;
+            //try
+            //{
+            //    guidValue = Guid.Parse(id);
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new InvalidDataException($"Invalid GUID value {id}'", ex);
+            //}
         }
 
         /// <summary>
@@ -130,7 +129,7 @@ namespace LodeRunner.API.Data
         private MemoryCacheEntryOptions GetMemoryCacheEntryOptions()
         {
             return new MemoryCacheEntryOptions()
-             .RegisterPostEvictionCallback((key, value, reason, state) =>
+             .RegisterPostEvictionCallback(async (key, value, reason, state) =>
              {
                  // log the request
                  logger.LogInformation(nameof(LRAPICache), "Cache data request.");
@@ -150,7 +149,7 @@ namespace LodeRunner.API.Data
                  try
                  {
                      // Get Client Status from Cosmos
-                     ClientStatus clientStatus = clientStatusService.Get(clientStatusId).Result;
+                     ClientStatus clientStatus = await clientStatusService.Get(clientStatusId);
 
                      // if still exists, update
                      this.SetEntry(key, new Client(clientStatus), GetMemoryCacheEntryOptions());

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using System.Threading;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
@@ -20,6 +20,8 @@ namespace LodeRunner.Core.Cache
     public abstract class BaseAppCache : IAppCache
     {
         private readonly ConcurrentDictionary<string, BaseMemoryCache> cacheDictionary;
+
+        private readonly object getCachelock = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseAppCache"/> class.
@@ -103,15 +105,18 @@ namespace LodeRunner.Core.Cache
         /// <returns>the typed cache.</returns>
         private BaseMemoryCache GetMemCache<TEntity>()
         {
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-            if (!this.cacheDictionary.TryGetValue(entityType.ToString(), out BaseMemoryCache thisCache))
+            lock (this.getCachelock)
             {
-                thisCache = new (new MemoryCacheOptions(), entityType);
-                this.cacheDictionary.TryAdd(entityType.ToString(), thisCache);
-            }
+                EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
-            return thisCache;
+                if (!this.cacheDictionary.TryGetValue(entityType.ToString(), out BaseMemoryCache thisCache))
+                {
+                    thisCache = new (new MemoryCacheOptions(), entityType);
+                    this.cacheDictionary.TryAdd(entityType.ToString(), thisCache);
+                }
+
+                return thisCache;
+            }
         }
     }
 }

@@ -108,6 +108,9 @@ namespace LodeRunner.API
                 // log startup messages
                 logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
+                // Starts the Cache Service
+                await GetLRAPICacheService().Start();
+
                 // start CosmosDB Change Feed Processor
                 await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
@@ -146,7 +149,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
         {
-            GetLRAPICacheFeedService().ProcessClientStatusChange(e.Document);
+            GetLRAPICacheService().ProcessClientStatusChange(e.Document);
         }
 
         /// <summary>
@@ -189,7 +192,7 @@ namespace LodeRunner.API
         /// Gets the cache service.
         /// </summary>
         /// <returns>The Cache Service.</returns>
-        private static ILRAPICacheService GetLRAPICacheFeedService()
+        private static ILRAPICacheService GetLRAPICacheService()
         {
             return (ILRAPICacheService)host.Services.GetService(typeof(LRAPICacheService));
         }

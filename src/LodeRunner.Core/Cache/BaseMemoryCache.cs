@@ -17,15 +17,15 @@ namespace LodeRunner.Core.Cache
     /// <seealso cref="Microsoft.Extensions.Caching.Memory.MemoryCache" />
     internal class BaseMemoryCache : MemoryCache
     {
-        private readonly EntityType entityType;
-
         /// <summary>
         /// The get entries collection.
         /// </summary>
-        private readonly Func<BaseMemoryCache, object> getEntriesCollection = Delegate.CreateDelegate(
-              typeof(Func<BaseMemoryCache, object>),
-              typeof(BaseMemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(true),
-              throwOnBindFailure: true) as Func<BaseMemoryCache, object>;
+        private static readonly Func<MemoryCache, object> GetEntriesCollection = Delegate.CreateDelegate(
+             typeof(Func<MemoryCache, object>),
+             typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(true),
+             throwOnBindFailure: true) as Func<MemoryCache, object>;
+
+        private readonly EntityType entityType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseMemoryCache"/> class.
@@ -36,6 +36,8 @@ namespace LodeRunner.Core.Cache
             : base(memoryOption)
         {
             this.entityType = entityType;
+
+            this.CacheName = this.entityType.ToString();
         }
 
         /// <summary>
@@ -44,13 +46,13 @@ namespace LodeRunner.Core.Cache
         /// <value>
         /// The name of the cache.
         /// </value>
-        public string CacheName => this.entityType.ToString();
+        public string CacheName { get; private set; }
 
         /// <summary>
         /// Gets the keys.
         /// </summary>
         /// <returns>Cache Keys Enumerable.</returns>
-        public IEnumerable GetKeys() => ((IDictionary)this.getEntriesCollection(this)).Keys;
+        public IEnumerable GetKeys() => ((IDictionary)GetEntriesCollection(this)).Keys;
 
         /// <summary>
         /// Gets the keys.

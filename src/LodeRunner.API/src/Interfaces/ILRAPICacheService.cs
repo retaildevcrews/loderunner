@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Data.Interfaces;
@@ -20,6 +21,12 @@ namespace LodeRunner.API.Interfaces
         Client GetClientByClientStatusId(string clientStatusId);
         void ProcessClientStatusChange(Document doc);
 
-        IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger);
+        IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger);
+
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns>The await-able task.</returns>
+        Task Start();
     }
 }

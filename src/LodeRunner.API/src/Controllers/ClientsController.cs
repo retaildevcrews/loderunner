@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
@@ -42,6 +43,7 @@ namespace LodeRunner.API.Controllers
         public IActionResult GetClients([FromServices] ILRAPICacheService cacheService)
         {
             List<Client> clients = (List<Client>)cacheService.GetClients();
+
             return cacheService.HandleCacheResult<IEnumerable<Client>>(clients, Logger);
         }
 
@@ -56,7 +58,7 @@ namespace LodeRunner.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(clientStatusId))
             {
-                throw new ArgumentNullException(nameof(clientStatusId));
+                return ResultHandler.CreateResult("clientStatusId cannot be empty.", HttpStatusCode.BadRequest);
             }
 
             List<Middleware.Validation.ValidationError> list = ClientParameters.ValidateClientStatusId(clientStatusId);

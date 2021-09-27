@@ -19,7 +19,7 @@ namespace LodeRunner.API.Interfaces
 
         Client GetClientByClientStatusId(string clientStatusId);
 
-        IActionResult HandleCacheResult<TFlattenEntity>(TFlattenEntity results, NgsaLog logger);
+        IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger);
 
         IEnumerable<Client> GetClients();
     }
