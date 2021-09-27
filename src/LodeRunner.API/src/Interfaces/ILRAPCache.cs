@@ -2,20 +2,18 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
-using System.Threading;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
-using LodeRunner.Data.Interfaces;
+using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace LodeRunner.API.Interfaces
 {
     /// <summary>
     /// Data Access Layer for Cache Interface
     /// </summary>
-    public interface ILRAPCache : ICache
+    public interface ILRAPCache : IAppCache
     {
         void ProcessClientStatusChange(Document doc);
 

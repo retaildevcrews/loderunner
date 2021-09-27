@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Caching;
 using System.Threading;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Core.Cache;
 using LodeRunner.Core.Models;
-using LodeRunner.Data.Cache;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -26,10 +25,8 @@ namespace LodeRunner.API.Data
     /// <summary>
     /// Cached Data
     /// </summary>
-    public class LRAPICache : BaseCache, ILRAPCache
+    public class LRAPICache : BaseAppCache, ILRAPCache
     {
-        private const string ClientPrefix = "client";
-
         private readonly NgsaLog logger = new ()
         {
             Name = typeof(LRAPICache).FullName,
@@ -78,42 +75,34 @@ namespace LodeRunner.API.Data
 
         public Client GetClientByClientStatusId(string clientStatusId)
         {
-            this.ValidateItemId(clientStatusId);
+            this.ValidateEntityId(clientStatusId);
 
-            return this.GetEntryByKey<Client>(ClientPrefix, clientStatusId);
+            return this.GetEntry<Client>(clientStatusId);
         }
 
         public IEnumerable<Client> GetClients()
         {
-            return this.GetEntries<Client>(ClientPrefix);
+            return this.GetEntries<Client>();
         }
 
         public void ProcessClientStatusChange(Document doc)
         {
             ClientStatus clientStatus = JsonConvert.DeserializeObject<ClientStatus>(doc.ToString());
 
-            // TODO: Validate clientStatus
+            // TODO:  Avoid doc.ToString() and then DeserializeObject, can we convert doc to ClientStatus
 
-            string clientKey = $"{ClientPrefix}-{clientStatus.Id}";
+            // TODO: Need to validate clientStatus all together  before to create Client ?
 
-            if (this.GetEntry<ClientStatus>(clientKey) == null)
-            {
-                List<string> clientStatusIds = (List<string>)this.GetEntry<ClientStatus>(ClientPrefix);
-                clientStatusIds.Add(clientStatus.Id);
-                this.SetEntry<ClientStatus>(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
-            }
+            ValidateEntityId(clientStatus.Id);
 
-            // TODO: Need to validate clientStatus before to create Client ?
-            //this.SetEntry(clientKey, new Client(clientStatus), GetClientCachePolicy());
-
-            this.SetEntry<ClientStatus>(clientKey, new Client(clientStatus), GetMemoryCacheEntryOptions<ClientStatus>(this.CancellationTokenSource));
+            this.SetEntry(clientStatus.Id, new Client(clientStatus), GetMemoryCacheEntryOptions());
         }
 
         /// <summary>
-        /// Provide basic validation for ClientStatusId .
+        /// Provide basic validation for ClientStatus Id .
         /// </summary>
         /// <param name="id">The client status identifier.</param>
-        public override void ValidateItemId(string id)
+        private void ValidateEntityId(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -134,38 +123,37 @@ namespace LodeRunner.API.Data
         /// <summary>
         /// Gets the memory cache entry options.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>
         /// The MemoryCacheEntryOptions.
         /// </returns>
-        public override MemoryCacheEntryOptions GetMemoryCacheEntryOptions<TEntity>(CancellationTokenSource cancellationTokenSource)
+        private MemoryCacheEntryOptions GetMemoryCacheEntryOptions()
         {
-            string keyClientPrefix = $"{ClientPrefix}-"; // has a dash at the end.
             return new MemoryCacheEntryOptions()
              .RegisterPostEvictionCallback((key, value, reason, state) =>
              {
                  // log the request
                  logger.LogInformation(nameof(LRAPICache), "Cache data request.");
 
-                 if (reason == EvictionReason.Replaced)
+                 // NOTE: EvictionReason.Removed or EvictionReason.Replaced
+                 if (reason <= EvictionReason.Replaced)
                  {
-                     // NOTE: Scenario LRAPI collection has pending feed change that Calls ProcessClientStatusChange(), then it trigger a key replace event.
-                     // Also if we already initiated case.Set() to do a replace we do not need to query and replace the key
+                     // NOTE: Scenario LRAPI collection has pending feed change that Calls ProcessClientStatusChange(), then it triggers a key replace event.
+                     // Also if we already initiated Cache.Set() to do a replace we do not need to query and replace the key,
+                     // neither if key was removed for a EvictionReason other that  Expired,  TokenExpired  or  Capacity.
                      // if so  this will cause a indefinitely loop, since we call this.Cache.Set to update the key.
 
                      return;
                  }
 
-                 string clientStatusId = key.ToString().Replace(keyClientPrefix, string.Empty);
-
+                 string clientStatusId = key.ToString();
                  try
                  {
                      // Get Client Status from Cosmos
                      ClientStatus clientStatus = clientStatusService.Get(clientStatusId).Result;
 
                      // if still exists, update
-                     this.SetEntry<TEntity>(key, new Client(clientStatus), GetMemoryCacheEntryOptions<TEntity>(cancellationTokenSource));
+                     this.SetEntry(key, new Client(clientStatus), GetMemoryCacheEntryOptions());
                  }
                  catch (CosmosException ce)
                  {
@@ -178,29 +166,15 @@ namespace LodeRunner.API.Data
                      {
                          logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
                      }
-
-                     // Remove client status ID from cache
-                     List<string> clientStatusIds = (List<string>)this.GetEntry<TEntity>(ClientPrefix);
-
-                     clientStatusIds.Remove(clientStatusId);
-
-                     this.SetEntry<TEntity>(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
                  }
                  catch (Exception ex)
                  {
                      // log exception
                      logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", "Exception", NgsaLog.LogEvent500, ex: ex);
-
-                     // Remove client status ID from cache
-                     List<string> clientStatusIds = (List<string>)this.GetEntry<TEntity>(ClientPrefix);
-
-                     clientStatusIds.Remove(clientStatusId);
-
-                     this.SetEntry<TEntity>(ClientPrefix, clientStatusIds, new MemoryCacheEntryOptions());
                  }
              })
              .SetSlidingExpiration(TimeSpan.FromSeconds(65))
-             .AddExpirationToken(new CancellationChangeToken(cancellationTokenSource.Token));
+             .AddExpirationToken(new CancellationChangeToken(this.CancellationTokenSource.Token));
         }
 
         private void SetClientCache()
@@ -213,7 +187,12 @@ namespace LodeRunner.API.Data
                 // cache client statuses
                 var results = clientStatusService.GetAll().Result.ToList();
 
-                this.SetEntries<ClientStatus, Client>(results, ClientPrefix);
+                foreach (var item in results)
+                {
+                    var client = new Client(item);
+
+                    this.SetEntry(client.ClientStatusId, new Client(item), GetMemoryCacheEntryOptions());
+                }
             }
             catch (CosmosException ce)
             {
@@ -230,14 +209,6 @@ namespace LodeRunner.API.Data
                 // log and return exception
                 logger.LogError("Handle<T>", "Exception", NgsaLog.LogEvent500, ex: ex);
             }
-
-            // finally
-            //{
-            //    if (this.GetEntry(ClientPrefix) == null)
-            //    {
-            //        this.SetEntry(ClientPrefix, new List<string>(), new MemoryCacheEntryOptions());
-            //    }
-            //}
         }
     }
 }
