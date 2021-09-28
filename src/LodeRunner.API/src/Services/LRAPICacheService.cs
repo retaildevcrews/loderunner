@@ -44,7 +44,6 @@ namespace LodeRunner.API.Services
             return this.cache.GetClients();
         }
 
-
         /// <summary>
         /// Processes the client status change.
         /// </summary>
