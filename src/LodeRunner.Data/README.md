@@ -5,9 +5,9 @@
  Account          | Database         |  Notes                   |
 | :-------------- | :-------         | :----------------------- |
 | ngsa-dev-cosmos | LodeRunnerDB     |                          |
-|                 | LodeRunnerTestDB | Used for GitHub workflow |
-| ngsa-pre-cosmos |                  |                          |
-|                 |                  |                          |
+| ngsa-dev-cosmos | LodeRunnerTestDB | Used for GitHub workflow |
+| lr-pre-cosmos   | LodeRunnerDB     |                          |
+| lr-pre-cosmos   | LodeRunnerTestDB | Used for GitHub workflow |
 
 ## CosmosDB Collection: LodeRunner
 
