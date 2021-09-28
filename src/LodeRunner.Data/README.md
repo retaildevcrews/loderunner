@@ -1,17 +1,19 @@
 # LodeRunner.Data
 
-## CosmosDB Change Feed
+## CosmosDB Accounts and Databases
 
-### Lease Container
+ Account          | Database         |  Notes                   |
+| :-------------- | :-------         | :----------------------- |
+| ngsa-dev-cosmos | LodeRunnerDB     |                          |
+|                 | LodeRunnerTestDB | Used for GitHub workflow |
+| ngsa-pre-cosmos |                  |                          |
+|                 |                  |                          |
 
-Acts as state storage and coordinates processing the change feed across multiple workers. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-processor#components-of-the-change-feed-processor)
+## CosmosDB Collection: LodeRunner
 
-- Partion key definition must be `/id`. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions#requirements)
-- The connection string to Azure Cosmos DB account with lease collection must have write permissions. [Docs](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger?tabs=csharp#configuration)
+> partitionKey uses the entityType
 
-## CosmosDB Collections
-
-### clientStatus
+### Item: clientStatus
 
 Conveys the current status, time of that status, and the associated LoadClient's initial start-up configuration.
 
@@ -40,3 +42,14 @@ Conveys the current status, time of that status, and the associated LoadClient's
     }
 }
 ```
+
+## CosmosDB Collection: LRAPI
+
+Used as the lease container for ChangeFeed
+
+- A lease container acts as state storage and coordinates processing the change feed across multiple workers. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-processor#components-of-the-change-feed-processor)
+
+Lease container requirements
+
+- Partion key definition must be `/id`. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions#requirements)
+- The connection string to Azure Cosmos DB account with lease collection must have write permissions. [Docs](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger?tabs=csharp#configuration)
