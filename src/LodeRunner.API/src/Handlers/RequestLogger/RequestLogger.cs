@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
@@ -137,23 +138,21 @@ namespace LodeRunner.API.Middleware
         // convert StatusCode for metrics
         private static string GetPrometheusCode(int statusCode)
         {
-            // TODO: Should we move these to a static class for constants that we can use globally? Header strings seem like something that should be defined for broad usage.
-
-            if (statusCode >= 500)
+            if (statusCode >= (int)HttpStatusCode.InternalServerError)
             {
-                return "Error";
+                return SystemConstants.Error;
             }
-            else if (statusCode == 429)
+            else if (statusCode == (int)HttpStatusCode.TooManyRequests)
             {
-                return "Retry";
+                return SystemConstants.Retry;
             }
-            else if (statusCode >= 400)
+            else if (statusCode >= (int)HttpStatusCode.BadRequest)
             {
-                return "Warn";
+                return SystemConstants.Warn;
             }
             else
             {
-                return "OK";
+                return SystemConstants.OK;
             }
         }
 
