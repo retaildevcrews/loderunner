@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Data;
@@ -280,6 +281,8 @@ namespace LodeRunner.Services
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
+                .AddSingleton<Config>(config)
+                .AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>())
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());

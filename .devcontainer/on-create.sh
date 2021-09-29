@@ -8,17 +8,6 @@ sudo git clone https://github.com/retaildevcrews/ngsa
 sudo git clone https://github.com/retaildevcrews/ngsa-app
 popd
 
-# get install script and install node
-# [Choice] Node.js version: 16, 14, 12
-VARIANT=14
-curl -sL https://deb.nodesource.com/setup_${VARIANT}.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# install client dependencies
-pushd src/LodeRunner.UI
-npm install
-popd
-
 # setup deploy folder
 mkdir -p deploy
 cd deploy

@@ -5,7 +5,8 @@ using System;
 using System.IO;
 using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner.Data
+namespace LodeRunner.Core
+
 {
     /// <summary>
     /// Implements Database Secrets.
