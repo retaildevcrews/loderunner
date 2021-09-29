@@ -11,7 +11,7 @@ namespace LodeRunner
     /// <summary>
     /// Web Validation Test Configuration
     /// </summary>
-    public class Config : IConfig
+    public class Config : ILRConfig, ICosmosConfig
     {
         /// <summary>
         /// gets or sets the server / url
@@ -123,7 +123,7 @@ namespace LodeRunner
 
         /// <summary>Gets or sets the secrets.</summary>
         /// <value>The secrets.</value>
-        public Secrets Secrets { get; set; }
+        public ISecrets Secrets { get; set; }
 
         /// <summary>Gets or sets the secrets volume.</summary>
         /// <value>The secrets volume.</value>
@@ -137,6 +137,8 @@ namespace LodeRunner
         /// gets or sets the seconds to refresh the http client
         /// </summary>
         public int ClientRefresh { get; set; }
+
+        public int WebHostPort { get; set; } = 8080;
 
         /// <summary>
         /// Set the default config values

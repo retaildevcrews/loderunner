@@ -28,13 +28,18 @@ namespace LodeRunner.API.Middleware
         private readonly RequestDelegate next;
         private readonly RequestLoggerOptions options;
 
+        private readonly Config config;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestLogger"/> class.
         /// </summary>
         /// <param name="next">RequestDelegate</param>
         /// <param name="options">LoggerOptions</param>
-        public RequestLogger(RequestDelegate next, IOptions<RequestLoggerOptions> options)
+        /// <param name="config">App configuration object.</param>
+        public RequestLogger(RequestDelegate next, IOptions<RequestLoggerOptions> options, Config config)
         {
+            this.config = config;
+
             // save for later
             this.next = next;
             this.options = options?.Value;
@@ -129,16 +134,73 @@ namespace LodeRunner.API.Middleware
             LogRequest(context, cv, ttfb, duration);
         }
 
+        // convert StatusCode for metrics
+        private static string GetPrometheusCode(int statusCode)
+        {
+            if (statusCode >= 500)
+            {
+                return "Error";
+            }
+            else if (statusCode == 429)
+            {
+                return "Retry";
+            }
+            else if (statusCode >= 400)
+            {
+                return "Warn";
+            }
+            else
+            {
+                return "OK";
+            }
+        }
+
+        // get the client IP address from the request / headers
+        private static string GetClientIp(HttpContext context, out string xff)
+        {
+            const string XffHeader = "X-Forwarded-For";
+            const string IpHeader = "X-Client-IP";
+
+            xff = string.Empty;
+            string clientIp = context.Connection.RemoteIpAddress.ToString();
+
+            // check for the forwarded headers
+            if (context.Request.Headers.ContainsKey(XffHeader))
+            {
+                xff = context.Request.Headers[XffHeader].ToString().Trim();
+
+                // add the clientIp to the list of proxies
+                xff += $", {clientIp}";
+
+                // get the first IP in the xff header (comma space separated)
+                string[] ips = xff.Split(',');
+
+                if (ips.Length > 0)
+                {
+                    clientIp = ips[0].Trim();
+                }
+            }
+            else if (context.Request.Headers.ContainsKey(IpHeader))
+            {
+                // fall back to X-Client-IP if xff not set
+                xff = context.Request.Headers[IpHeader].ToString().Trim();
+                clientIp = xff;
+            }
+
+            // remove IP6 local address
+            return clientIp.Replace("::ffff:", string.Empty);
+        }
+
         // log the request
-        private static void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration)
+        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration)
         {
             DateTime dt = DateTime.UtcNow;
 
             string category = ValidationError.GetCategory(context, out string subCategory, out string mode);
 
-            if (App.Config.RequestLogLevel != LogLevel.None &&
-                (App.Config.RequestLogLevel <= LogLevel.Information ||
-                (App.Config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
+            if (config.RequestLogLevel != LogLevel.None &&
+                (config.RequestLogLevel <= LogLevel.Information ||
+                (config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
                 context.Response.StatusCode >= 500))
             {
                 Dictionary<string, object> log = new ()
@@ -195,63 +257,6 @@ namespace LodeRunner.API.Middleware
                 requestHistogram.WithLabels(GetPrometheusCode(context.Response.StatusCode), mode).Observe(duration);
                 requestSummary.WithLabels(GetPrometheusCode(context.Response.StatusCode), mode).Observe(duration);
             }
-        }
-
-        // convert StatusCode for metrics
-        private static string GetPrometheusCode(int statusCode)
-        {
-            if (statusCode >= 500)
-            {
-                return "Error";
-            }
-            else if (statusCode == 429)
-            {
-                return "Retry";
-            }
-            else if (statusCode >= 400)
-            {
-                return "Warn";
-            }
-            else
-            {
-                return "OK";
-            }
-        }
-
-        // get the client IP address from the request / headers
-        private static string GetClientIp(HttpContext context, out string xff)
-        {
-            const string XffHeader = "X-Forwarded-For";
-            const string IpHeader = "X-Client-IP";
-
-            xff = string.Empty;
-            string clientIp = context.Connection.RemoteIpAddress.ToString();
-
-            // check for the forwarded headers
-            if (context.Request.Headers.ContainsKey(XffHeader))
-            {
-                xff = context.Request.Headers[XffHeader].ToString().Trim();
-
-                // add the clientIp to the list of proxies
-                xff += $", {clientIp}";
-
-                // get the first IP in the xff header (comma space separated)
-                string[] ips = xff.Split(',');
-
-                if (ips.Length > 0)
-                {
-                    clientIp = ips[0].Trim();
-                }
-            }
-            else if (context.Request.Headers.ContainsKey(IpHeader))
-            {
-                // fall back to X-Client-IP if xff not set
-                xff = context.Request.Headers[IpHeader].ToString().Trim();
-                clientIp = xff;
-            }
-
-            // remove IP6 local address
-            return clientIp.Replace("::ffff:", string.Empty);
         }
     }
 }

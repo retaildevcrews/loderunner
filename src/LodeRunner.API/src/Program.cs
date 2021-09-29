@@ -13,12 +13,16 @@ using System.Threading.Tasks;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
+using LodeRunner.Core;
+using LodeRunner.Core.Interfaces;
+using LodeRunner.Data;
 using LodeRunner.Data.ChangeFeed;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API
@@ -54,8 +58,6 @@ namespace LodeRunner.API
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
 
-        // App configuration values
-        public static Config Config { get; } = new ();
         private static IChangeFeedProcessor ChangeFeedProcessor { get; set; }
 
         /// <summary>
@@ -95,9 +97,6 @@ namespace LodeRunner.API
                 {
                     return -1;
                 }
-
-                // create cache with initial values
-                Config.Cache = new Data.Cache(GetClientStatusService(), GetLoadTestConfigService());
 
                 // setup sigterm handler
                 App.cancelTokenSource = SetupSigTermHandler(host, logger);
@@ -146,7 +145,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
         {
-            Config.Cache.ProcessClientStatusChange(e.Document);
+            GetLRAPICacheFeedService().ProcessClientStatusChange(e.Document);
         }
 
         /// <summary>
@@ -155,7 +154,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessLoadClientChange(ProcessChangesEventArgs e)
         {
-            // TODO
+            // TODO: how we are going to process a LoadClient Change
         }
 
         /// <summary>
@@ -164,7 +163,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessLoadTestConfigChange(ProcessChangesEventArgs e)
         {
-            // TODO
+            // TODO: how we are going to process a TestConfig Change?
         }
 
         /// <summary>
@@ -173,25 +172,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessTestRunChange(ProcessChangesEventArgs e)
         {
-            // TODO
-        }
-
-        /// <summary>
-        /// Gets the client status service.
-        /// </summary>
-        /// <returns>The IClientStatusService</returns>
-        private static IClientStatusService GetClientStatusService()
-        {
-            return (IClientStatusService)host.Services.GetService(typeof(ClientStatusService));
-        }
-
-        /// <summary>
-        /// Gets the load test configuration service.
-        /// </summary>
-        /// <returns>The ILoadTestConfigService </returns>
-        private static ILoadTestConfigService GetLoadTestConfigService()
-        {
-            return (ILoadTestConfigService)host.Services.GetService(typeof(LoadTestConfigService));
+            // TODO: how we are going to process TestRun Change?
         }
 
         /// <summary>
@@ -204,45 +185,56 @@ namespace LodeRunner.API
         }
 
         /// <summary>
+        /// Gets the cache service.
+        /// </summary>
+        /// <returns>The Cache Service.</returns>
+        private static ILRAPICacheService GetLRAPICacheFeedService()
+        {
+            return (ILRAPICacheService)host.Services.GetService(typeof(LRAPICacheService));
+        }
+
+        /// <summary>
         /// Initializes the specified configuration.
         /// </summary>
         /// <param name="config">The configuration.</param>
         private static void Init(Config config)
         {
-            // copy command line values
-            Config.SetConfig(config);
-
             // load secrets from volume
-            LoadSecrets();
+            LoadSecrets(config);
 
             // set the logger config
-            RequestLogger.CosmosName = Config.CosmosName;
-            NgsaLog.LogLevel = Config.LogLevel;
+            RequestLogger.CosmosName = config.CosmosName;
+            NgsaLog.LogLevel = config.LogLevel;
 
             // build the host will register Data Access Services in Startup.
-            host = BuildHost();
+            host = BuildHost(config);
         }
 
         // load secrets from volume
-        private static void LoadSecrets()
+        private static void LoadSecrets(Config config)
         {
-            Config.Secrets = Secrets.GetSecretsFromVolume(Config.SecretsVolume);
+            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
 
             // set the Cosmos server name for logging
-            Config.CosmosName = Config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
-            int ndx = Config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
+            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
+            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
             if (ndx > 0)
             {
-                Config.CosmosName = Config.CosmosName.Remove(ndx);
+                config.CosmosName = config.CosmosName.Remove(ndx);
             }
         }
 
         // Build the web host
-        private static IWebHost BuildHost()
+        private static IWebHost BuildHost(Config config)
         {
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
-                .UseUrls($"http://*:{Config.Port}/")
+                .ConfigureServices(services =>
+                {
+                     services.AddSingleton<Config>(config);
+                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                })
+                .UseUrls($"http://*:{config.WebHostPort}/")
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>
@@ -250,16 +242,16 @@ namespace LodeRunner.API
                     // log to XML
                     // this can be replaced when the dotnet XML logger is available
                     logger.ClearProviders();
-                    logger.AddNgsaLogger(config => { config.LogLevel = Config.LogLevel; });
+                    logger.AddNgsaLogger(config => { config.LogLevel = config.LogLevel; });
 
                     // if you specify the --log-level option, it will override the appsettings.json options
                     // remove any or all of the code below that you don't want to override
-                    if (Config.IsLogLevelSet)
+                    if (config.IsLogLevelSet)
                     {
-                        logger.AddFilter("Microsoft", Config.LogLevel)
-                        .AddFilter("System", Config.LogLevel)
-                        .AddFilter("Default", Config.LogLevel)
-                        .AddFilter("LodeRunner.API", Config.LogLevel);
+                        logger.AddFilter("Microsoft", config.LogLevel)
+                        .AddFilter("System", config.LogLevel)
+                        .AddFilter("Default", config.LogLevel)
+                        .AddFilter("LodeRunner.API", config.LogLevel);
                     }
                 });
 

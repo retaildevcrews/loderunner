@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +14,7 @@ namespace LodeRunner.API.Middleware
     /// </summary>
     public static class RequestLoggerExtensions
     {
-        public static IApplicationBuilder UseRequestLogger(this IApplicationBuilder builder, RequestLoggerOptions options = null)
+        public static IApplicationBuilder UseRequestLogger(this IApplicationBuilder builder, Config config, RequestLoggerOptions options = null)
         {
             // extension - use app.UseRequestLogger();
             if (options == null)
@@ -21,7 +22,9 @@ namespace LodeRunner.API.Middleware
                 options = new RequestLoggerOptions();
             }
 
-            return builder.UseMiddleware<RequestLogger>(Options.Create<RequestLoggerOptions>(options));
+            object[] args = { Options.Create<RequestLoggerOptions>(options), config };
+
+            return builder.UseMiddleware<RequestLogger>(args);
         }
     }
 }

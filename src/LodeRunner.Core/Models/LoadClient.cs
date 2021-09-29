@@ -66,7 +66,7 @@ namespace LodeRunner.Core.Models
         /// <param name="config">The configuration.</param>
         /// <param name="lastUpdated">The last updated date time.</param>
         /// <returns>a new LoadClient entity.</returns>
-        public static LoadClient GetNew(IConfig config, DateTime lastUpdated)
+        public static LoadClient GetNew(ILRConfig config, DateTime lastUpdated)
         {
             return new LoadClient
             {

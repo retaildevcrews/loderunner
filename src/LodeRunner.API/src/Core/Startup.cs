@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
@@ -60,15 +61,17 @@ namespace LodeRunner.API
                 throw new ArgumentNullException(nameof(env));
             }
 
+            Config config = app.ApplicationServices.GetRequiredService<Config>();
+
             // log http responses to the console
             // this should be first as it "wraps" all requests
-            if (App.Config.LogLevel != LogLevel.None)
+            if (config.LogLevel != LogLevel.None)
             {
-                app.UseRequestLogger(new RequestLoggerOptions
+                app.UseRequestLogger(config, new RequestLoggerOptions
                 {
-                    Log2xx = App.Config.LogLevel <= LogLevel.Information,
-                    Log3xx = App.Config.LogLevel <= LogLevel.Information,
-                    Log4xx = App.Config.LogLevel <= LogLevel.Warning,
+                    Log2xx = config.LogLevel <= LogLevel.Information,
+                    Log3xx = config.LogLevel <= LogLevel.Information,
+                    Log4xx = config.LogLevel <= LogLevel.Warning,
                     Log5xx = true,
                 });
             }
@@ -86,7 +89,7 @@ namespace LodeRunner.API
                 if (context.Request.Path.Equals("/"))
                 {
                     // return the version info
-                    context.Response.Redirect($"{App.Config.UrlPrefix}/index.html", true);
+                    context.Response.Redirect($"{config.UrlPrefix}/index.html", true);
                     return;
                 }
                 else
@@ -116,15 +119,15 @@ namespace LodeRunner.API
             })
             .UseSwaggerUI(c =>
             {
-                if (!string.IsNullOrEmpty(App.Config.UrlPrefix))
+                if (!string.IsNullOrEmpty(config.UrlPrefix))
                 {
-                    swaggerPath = App.Config.UrlPrefix + swaggerPath;
+                    swaggerPath = config.UrlPrefix + swaggerPath;
                 }
 
                 c.SwaggerEndpoint(swaggerPath, SwaggerTitle);
                 c.RoutePrefix = string.Empty;
             })
-            .UseSwaggerReplaceJson("swagger.json", App.Config.UrlPrefix)
+            .UseSwaggerReplaceJson("swagger.json", config.UrlPrefix)
             .UseVersion();
         }
 
@@ -147,15 +150,7 @@ namespace LodeRunner.API
                 });
 
             services
-                  .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings()
-                  {
-                      CollectionName = App.Config.Secrets.CosmosCollection,
-                      Retries = App.Config.Retries,
-                      Timeout = App.Config.CosmosTimeout,
-                      Uri = App.Config.Secrets.CosmosServer,
-                      Key = App.Config.Secrets.CosmosKey,
-                      DatabaseName = App.Config.Secrets.CosmosDatabase,
-                  })
+                .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
 
@@ -171,7 +166,10 @@ namespace LodeRunner.API
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>())
 
                 .AddSingleton<LRAPIChangeFeedService>()
-                .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>());
+                .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
+
+                .AddSingleton<LRAPICacheService>()
+                .AddSingleton<ILRAPICacheService>(provider => provider.GetRequiredService<LRAPICacheService>());
         }
     }
 }

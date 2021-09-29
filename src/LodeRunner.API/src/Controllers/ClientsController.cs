@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using LodeRunner.API.Data;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LodeRunner.API.Controllers
@@ -24,34 +26,33 @@ namespace LodeRunner.API.Controllers
             NotFoundError = "Clients Not Found",
         };
 
-        private readonly ICache cache;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientsController"/> class.
         /// </summary>
         public ClientsController()
         {
-            cache = App.Config.Cache;
         }
 
         /// <summary>
         /// Returns a JSON array of Client objects
         /// </summary>
+        /// <param name="cacheService">The cache service.</param>
         /// <returns>IActionResult</returns>
         [HttpGet]
-        public IActionResult GetClients()
+        public IActionResult GetClients([FromServices] ILRAPICacheService cacheService)
         {
-            List<Client> clients = (List<Client>)cache.GetClients();
+            List<Client> clients = (List<Client>)cacheService.GetClients();
             return Cache.HandleCacheResult<IEnumerable<Client>>(clients, Logger);
         }
 
-         /// <summary>
-         /// Returns a single JSON Client by Parameter, clientStatusId
-         /// </summary>
-         /// <param name="clientStatusId">clientStatusId</param>
-         /// <returns>IActionResult</returns>
+        /// <summary>
+        /// Returns a single JSON Client by Parameter, clientStatusId
+        /// </summary>
+        /// <param name="clientStatusId">clientStatusId</param>
+        /// <param name="cacheService">The cache service.</param>
+        /// <returns>IActionResult</returns>
         [HttpGet("{clientStatusId}")]
-        public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId)
+        public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICacheService cacheService)
         {
             if (string.IsNullOrWhiteSpace(clientStatusId))
             {
@@ -67,7 +68,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(Request));
             }
 
-            Client client = cache.GetClientByClientStatusId(clientStatusId);
+            Client client = cacheService.GetClientByClientStatusId(clientStatusId);
 
             return Cache.HandleCacheResult(client, Logger);
         }

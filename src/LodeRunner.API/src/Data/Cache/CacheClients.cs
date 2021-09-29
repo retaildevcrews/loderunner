@@ -53,6 +53,9 @@ namespace LodeRunner.API.Data
         public void ProcessClientStatusChange(Document doc)
         {
             ClientStatus clientStatus = JsonConvert.DeserializeObject<ClientStatus>(doc.ToString());
+
+            // TODO: Validate clientStatus
+
             string clientKey = $"{ClientPrefix}-{clientStatus.Id}";
 
             if (cache.Get(clientKey) == null)
