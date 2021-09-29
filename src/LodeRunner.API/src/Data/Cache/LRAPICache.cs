@@ -108,15 +108,15 @@ namespace LodeRunner.API.Data
             }
 
             // TODO : Need to validate Id as GUID
-            //Guid guidValue;
-            //try
-            //{
+            // Guid guidValue;
+            // try
+            // {
             //    guidValue = Guid.Parse(id);
-            //}
-            //catch (Exception ex)
-            //{
+            // }
+            // catch (Exception ex)
+            // {
             //    throw new InvalidDataException($"Invalid GUID value {id}'", ex);
-            //}
+            // }
         }
 
         /// <summary>
