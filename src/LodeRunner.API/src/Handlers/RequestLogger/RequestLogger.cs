@@ -137,6 +137,10 @@ namespace LodeRunner.API.Middleware
         // convert StatusCode for metrics
         private static string GetPrometheusCode(int statusCode)
         {
+
+            Should we move these to a static class for constants that we can use globally? Header strings seem like something that should be defined for broad usage.
+
+
             if (statusCode >= 500)
             {
                 return "Error";
