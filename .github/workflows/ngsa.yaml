@@ -10,9 +10,9 @@ on:
       - main
 
     paths:
-    - 'Dockerfile'
-    - '*.csproj'
-    - '**.cs'
+    - 'src/LodeRunner/Dockerfile'
+    - 'src/LodeRunner/*.csproj'
+    - 'src/LodeRunner/src/**.cs'
     - '.github/workflows/ngsa.yaml'
 
 jobs:
