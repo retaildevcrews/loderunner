@@ -1,7 +1,7 @@
 {
     "name": "loderunner",
     "namespace": "ngsa-l8r",
-    "imageName": "ghcr.io/retaildevcrews/loderunner",
+    "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
     "imageTag": "beta",
     "targets": ["ngsadev"]
 }
