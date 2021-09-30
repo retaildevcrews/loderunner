@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: {{gitops.name}}
+  namespace: {{gitops.namespace}}
+
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: app
+    image: {{gitops.imageName}}:{{gitops.imageTag}}
+    imagePullPolicy: Always
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "1000m"
+      requests: 
+        memory: "512Mi"
+        cpu: "500m"
+    args:
+    - -l
+    - "100"
+    - -r
+    - -s
+    - http://ngsa-memory.ngsa:8080
+    - http://ngsa-cosmos.ngsa:8080
+    - http://ngsa-java.ngsa:8080
+    - -f
+    - benchmark.json
