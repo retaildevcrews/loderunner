@@ -159,16 +159,13 @@ namespace LodeRunner.API.Middleware
         // get the client IP address from the request / headers
         private static string GetClientIp(HttpContext context, out string xff)
         {
-            const string XffHeader = "X-Forwarded-For";
-            const string IpHeader = "X-Client-IP";
-
             xff = string.Empty;
             string clientIp = context.Connection.RemoteIpAddress.ToString();
 
             // check for the forwarded headers
-            if (context.Request.Headers.ContainsKey(XffHeader))
+            if (context.Request.Headers.ContainsKey(SystemConstants.XffHeader))
             {
-                xff = context.Request.Headers[XffHeader].ToString().Trim();
+                xff = context.Request.Headers[SystemConstants.XffHeader].ToString().Trim();
 
                 // add the clientIp to the list of proxies
                 xff += $", {clientIp}";
@@ -181,10 +178,10 @@ namespace LodeRunner.API.Middleware
                     clientIp = ips[0].Trim();
                 }
             }
-            else if (context.Request.Headers.ContainsKey(IpHeader))
+            else if (context.Request.Headers.ContainsKey(SystemConstants.IpHeader))
             {
                 // fall back to X-Client-IP if xff not set
-                xff = context.Request.Headers[IpHeader].ToString().Trim();
+                xff = context.Request.Headers[SystemConstants.IpHeader].ToString().Trim();
                 clientIp = xff;
             }
 

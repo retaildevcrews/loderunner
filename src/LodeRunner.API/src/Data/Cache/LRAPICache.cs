@@ -18,14 +18,14 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
+using CoreSystemConstants = LodeRunner.Core.SystemConstants;
 
 namespace LodeRunner.API.Data
 {
     /// <summary>
     /// Cached Data
     /// </summary>
-    public class LRAPICache : BaseAppCache, ILRAPCache
+    public class LRAPICache : BaseAppCache, ILRAPICache
     {
         private readonly NgsaLog logger = new ()
         {
@@ -129,6 +129,8 @@ namespace LodeRunner.API.Data
         private MemoryCacheEntryOptions GetMemoryCacheEntryOptions()
         {
             return new MemoryCacheEntryOptions()
+             .SetAbsoluteExpiration(TimeSpan.FromSeconds(CoreSystemConstants.ClientStatusExpirationTime))
+             .AddExpirationToken(new CancellationChangeToken(this.CancellationTokenSource.Token))
              .RegisterPostEvictionCallback(async (key, value, reason, state) =>
              {
                  // log the request
@@ -171,9 +173,7 @@ namespace LodeRunner.API.Data
                      // log exception
                      logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", "Exception", NgsaLog.LogEvent500, ex: ex);
                  }
-             })
-             .SetSlidingExpiration(TimeSpan.FromSeconds(65))
-             .AddExpirationToken(new CancellationChangeToken(this.CancellationTokenSource.Token));
+             });
         }
 
         private void SetClientCache()
@@ -190,7 +190,7 @@ namespace LodeRunner.API.Data
                 {
                     var client = new Client(item);
 
-                    this.SetEntry(client.ClientStatusId, new Client(item), GetMemoryCacheEntryOptions());
+                    this.SetEntry(client.ClientStatusId, client, GetMemoryCacheEntryOptions());
                 }
             }
             catch (CosmosException ce)

@@ -13,7 +13,7 @@ namespace LodeRunner.API.Interfaces
     /// <summary>
     /// Data Access Layer for Cache Interface
     /// </summary>
-    public interface ILRAPCache : IAppCache
+    public interface ILRAPICache : IAppCache
     {
         void ProcessClientStatusChange(Document doc);
 

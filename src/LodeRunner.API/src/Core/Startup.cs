@@ -4,6 +4,7 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
@@ -168,8 +169,8 @@ namespace LodeRunner.API
                 .AddSingleton<LRAPIChangeFeedService>()
                 .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
 
-                .AddSingleton<LRAPICacheService>()
-                .AddSingleton<ILRAPICacheService>(provider => provider.GetRequiredService<LRAPICacheService>());
+                .AddSingleton<LRAPICache>()
+                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>());
         }
     }
 }

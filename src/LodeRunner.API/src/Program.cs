@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
@@ -106,10 +107,9 @@ namespace LodeRunner.API
                 // log startup messages
                 logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
-                // Starts the Cache Service
-                await GetLRAPICacheService().Start();
+                ForceToCreateRequiredSystemObjects();
 
-                // start CosmosDB Change Feed Processor
+                 // start CosmosDB Change Feed Processor
                 await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
                 // this doesn't return except on ctl-c or sigterm
@@ -125,6 +125,15 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Forces to create required system objects.
+        /// </summary>
+        private static void ForceToCreateRequiredSystemObjects()
+        {
+            // Cache
+            GetLRAPICache();
         }
 
         /// <summary>
@@ -147,7 +156,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
         {
-            GetLRAPICacheService().ProcessClientStatusChange(e.Document);
+            GetLRAPICache().ProcessClientStatusChange(e.Document);
         }
 
         /// <summary>
@@ -190,9 +199,9 @@ namespace LodeRunner.API
         /// Gets the cache service.
         /// </summary>
         /// <returns>The Cache Service.</returns>
-        private static ILRAPICacheService GetLRAPICacheService()
+        private static ILRAPICache GetLRAPICache()
         {
-            return (ILRAPICacheService)host.Services.GetService(typeof(LRAPICacheService));
+            return (ILRAPICache)host.Services.GetService(typeof(LRAPICache));
         }
 
         /// <summary>

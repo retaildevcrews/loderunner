@@ -9,5 +9,7 @@ namespace LodeRunner.API
         public const string Retry = "Retry";
         public const string Warn = "Warn";
         public const string OK = "OK";
+        public const string XffHeader = "X-Forwarded-For";
+        public const string IpHeader = "X-Client-IP";
     }
 }

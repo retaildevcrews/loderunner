@@ -21,8 +21,6 @@ namespace LodeRunner.Core.Cache
     {
         private readonly ConcurrentDictionary<string, BaseMemoryCache> cacheDictionary;
 
-        private readonly object getCachelock = new ();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseAppCache"/> class.
         /// </summary>
@@ -105,18 +103,15 @@ namespace LodeRunner.Core.Cache
         /// <returns>the typed cache.</returns>
         private BaseMemoryCache GetMemCache<TEntity>()
         {
-            lock (this.getCachelock)
+            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
+
+            if (!this.cacheDictionary.TryGetValue(entityType.ToString(), out BaseMemoryCache thisCache))
             {
-                EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-                if (!this.cacheDictionary.TryGetValue(entityType.ToString(), out BaseMemoryCache thisCache))
-                {
-                    thisCache = new (new MemoryCacheOptions(), entityType);
-                    this.cacheDictionary.TryAdd(entityType.ToString(), thisCache);
-                }
-
-                return thisCache;
+                thisCache = new (new MemoryCacheOptions(), entityType);
+                this.cacheDictionary.TryAdd(entityType.ToString(), thisCache);
             }
+
+            return thisCache;
         }
     }
 }
