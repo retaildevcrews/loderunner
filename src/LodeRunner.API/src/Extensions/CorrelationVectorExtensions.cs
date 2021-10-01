@@ -9,15 +9,15 @@ using Microsoft.CorrelationVector;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Correlation Vector extensions
+    /// Correlation Vector extensions.
     /// </summary>
     public static class CorrelationVectorExtensions
     {
         /// <summary>
-        /// Get the Correlation Vector base
+        /// Get the Correlation Vector base.
         /// </summary>
-        /// <param name="correlationVector">Correlation Vector</param>
-        /// <returns>string</returns>
+        /// <param name="correlationVector">Correlation Vector.</param>
+        /// <returns>string.</returns>
         public static string GetBase(this CorrelationVector correlationVector)
         {
             if (correlationVector == null)
@@ -33,10 +33,10 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Extend correlation vector
+        /// Extend correlation vector.
         /// </summary>
-        /// <param name="context">http context</param>
-        /// <returns>extended CV</returns>
+        /// <param name="context">http context.</param>
+        /// <returns>extended CV.</returns>
         public static CorrelationVector Extend(HttpContext context)
         {
             if (context == null)

@@ -11,7 +11,7 @@ using IChangeFeedObserver = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedPr
 namespace LodeRunner.API.Services
 {
     /// <summary>
-    /// Implements the Relay Runner API Change Feed Service
+    /// Implements the Relay Runner API Change Feed Service.
     /// </summary>
     /// <seealso cref="LodeRunner.Services.ChangeFeedService" />
     public class LRAPIChangeFeedService : ChangeFeedService, ILRAPIChangeFeedService

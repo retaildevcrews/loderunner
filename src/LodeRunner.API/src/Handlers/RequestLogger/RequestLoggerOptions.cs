@@ -4,7 +4,7 @@
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Logger options used to configure DI
+    /// Logger options used to configure DI.
     /// </summary>
     public class RequestLoggerOptions
     {

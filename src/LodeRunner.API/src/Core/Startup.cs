@@ -23,7 +23,7 @@ using Prometheus;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// WebHostBuilder Startup
+    /// WebHostBuilder Startup.
     /// </summary>
     public class Startup
     {
@@ -33,7 +33,7 @@ namespace LodeRunner.API
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
-        /// <param name="configuration">the configuration for WebHost</param>
+        /// <param name="configuration">the configuration for WebHost.</param>
         public Startup(IConfiguration configuration)
         {
             // keep a local reference
@@ -41,15 +41,15 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Gets IConfiguration
+        /// Gets IConfiguration.
         /// </summary>
         public IConfiguration Configuration { get; }
 
         /// <summary>
-        /// Configure the application builder
+        /// Configure the application builder.
         /// </summary>
-        /// <param name="app">IApplicationBuilder</param>
-        /// <param name="env">IWebHostEnvironment</param>
+        /// <param name="app">IApplicationBuilder.</param>
+        /// <param name="env">IWebHostEnvironment.</param>
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (app == null)
@@ -133,9 +133,9 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Service configuration
+        /// Service configuration.
         /// </summary>
-        /// <param name="services">The services in the web host</param>
+        /// <param name="services">The services in the web host.</param>
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();

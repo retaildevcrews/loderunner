@@ -10,7 +10,7 @@ namespace LodeRunner.API.Middleware
     /// <summary>
     /// Middleware extension to make registering Logger easy
     ///
-    /// Note: Logger should be one of the first things registered in DI
+    /// Note: Logger should be one of the first things registered in DI.
     /// </summary>
     public static class RequestLoggerExtensions
     {

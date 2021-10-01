@@ -14,7 +14,7 @@ namespace LodeRunner.API.Controllers
     /// <summary>
     /// Handle the /healthz* requests
     ///
-    /// Cache results to prevent monitoring from overloading service
+    /// Cache results to prevent monitoring from overloading service.
     /// </summary>
     [Route("[controller]")]
     [ResponseCache(Duration = 60)]
@@ -26,9 +26,9 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthzController"/> class.
         /// </summary>
-        /// <param name="logger">logger</param>
-        /// <param name="dal">data access layer</param>
-        /// <param name="hcLogger">HealthCheck logger</param>
+        /// <param name="logger">logger.</param>
+        /// <param name="dal">data access layer.</param>
+        /// <param name="hcLogger">HealthCheck logger.</param>
         public HealthzController(ILogger<HealthzController> logger, ILogger<CosmosHealthCheck> hcLogger)
         {
             this.logger = logger;
@@ -36,7 +36,7 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a plain text health status (Healthy, Degraded or Unhealthy)
+        /// Returns a plain text health status (Healthy, Degraded or Unhealthy).
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <returns>The IActionResult.</returns>
@@ -62,10 +62,10 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns an IETF (draft) health+json representation of the full Health Check
+        /// Returns an IETF (draft) health+json representation of the full Health Check.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet("ietf")]
         [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
@@ -83,10 +83,10 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Run the health check
+        /// Run the health check.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
-        /// <returns>HealthCheckResult</returns>
+        /// <returns>HealthCheckResult.</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService)
         {
             CosmosHealthCheck chk = new (hcLogger, clientStatusService);

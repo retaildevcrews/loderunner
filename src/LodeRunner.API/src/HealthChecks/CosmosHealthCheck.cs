@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Cosmos Health Check
+    /// Cosmos Health Check.
     /// </summary>
     public partial class CosmosHealthCheck : IHealthCheck
     {
@@ -32,8 +32,8 @@ namespace LodeRunner.API
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosHealthCheck"/> class.
         /// </summary>
-        /// <param name="logger">ILogger</param>
-        /// <param name="clientStatusService">the clientStatusService </param>
+        /// <param name="logger">ILogger.</param>
+        /// <param name="clientStatusService">the clientStatusService.</param>
         public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService)
         {
             // save to member vars
@@ -60,11 +60,11 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Run the health check (IHealthCheck)
+        /// Run the health check (IHealthCheck).
         /// </summary>
-        /// <param name="context">HealthCheckContext</param>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>HealthCheckResult</returns>
+        /// <param name="context">HealthCheckContext.</param>
+        /// <param name="cancellationToken">CancellationToken.</param>
+        /// <returns>HealthCheckResult.</returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary

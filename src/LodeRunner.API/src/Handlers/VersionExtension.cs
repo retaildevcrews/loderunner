@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Builder;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Registers aspnet middleware handler that handles /version
+    /// Registers aspnet middleware handler that handles /version.
     /// </summary>
     public static class VersionExtension
     {
@@ -19,17 +19,17 @@ namespace LodeRunner.API.Middleware
         private static string name = string.Empty;
 
         /// <summary>
-        /// Gets the app version
+        /// Gets the app version.
         /// </summary>
         public static string Version => version;
 
         /// <summary>
-        /// Gets the app name
+        /// Gets the app name.
         /// </summary>
         public static string Name => name;
 
         /// <summary>
-        /// Cache version and application name values with reflection
+        /// Cache version and application name values with reflection.
         /// </summary>
         public static void Init()
         {
@@ -47,10 +47,10 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Middleware extension method to handle /version request
+        /// Middleware extension method to handle /version request.
         /// </summary>
-        /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns>IApplicationBuilder</returns>
+        /// <param name="builder">this IApplicationBuilder.</param>
+        /// <returns>IApplicationBuilder.</returns>
         public static IApplicationBuilder UseVersion(this IApplicationBuilder builder)
         {
             Init();

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Configurations for App
+    /// Configurations for App.
     /// </summary>
     public class Config : ICosmosConfig, ICommonConfig
     {
@@ -87,7 +87,7 @@ namespace LodeRunner.API
         public int Retries { get; set; } = 10;
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
-        /// <value>Time in seconds</value>
+        /// <value>Time in seconds.</value>
         public int CosmosTimeout { get; set; } = 60;
     }
 }

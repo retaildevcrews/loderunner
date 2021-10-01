@@ -9,16 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Handles query requests from the controllers
+    /// Handles query requests from the controllers.
     /// </summary>
     public static class ResultHandler
     {
         /// <summary>
-        /// ContentResult factory
+        /// ContentResult factory.
         /// </summary>
-        /// <param name="message">string</param>
-        /// <param name="statusCode">int</param>
-        /// <returns>JsonResult</returns>
+        /// <param name="message">string.</param>
+        /// <param name="statusCode">int.</param>
+        /// <returns>JsonResult.</returns>
         public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
             JsonResult res = new (new ErrorResult { Error = statusCode, Message = message })
@@ -30,11 +30,11 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// ContentResult factory
+        /// ContentResult factory.
         /// </summary>
-        /// <param name="errorList">list of validation errors</param>
-        /// <param name="path">string</param>
-        /// <returns>JsonResult</returns>
+        /// <param name="errorList">list of validation errors.</param>
+        /// <param name="path">string.</param>
+        /// <returns>JsonResult.</returns>
         public static JsonResult CreateResult(List<ValidationError> errorList, string path)
         {
             Dictionary<string, object> data = new ()

@@ -4,7 +4,7 @@
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Nullable EventId class for logging
+    /// Nullable EventId class for logging.
     /// </summary>
     public class LogEventId
     {

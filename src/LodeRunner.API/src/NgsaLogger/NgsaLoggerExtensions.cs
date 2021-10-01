@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// NGSA Logger Extensions
+    /// NGSA Logger Extensions.
     /// </summary>
     public static class NgsaLoggerExtensions
     {

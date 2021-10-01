@@ -11,7 +11,7 @@ namespace LodeRunner.API.Middleware
     /// <summary>
     /// Custom TimeSpan Converter
     ///
-    /// 00:00:00.123
+    /// 00:00:00.123.
     /// </summary>
     public class TimeSpanConverter : JsonConverter<TimeSpan>
     {

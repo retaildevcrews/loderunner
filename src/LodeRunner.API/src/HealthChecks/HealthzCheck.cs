@@ -8,7 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace LodeRunner.API.Models
 {
     /// <summary>
-    /// Health Check that supports dotnet IHeathCheck
+    /// Health Check that supports dotnet IHeathCheck.
     /// </summary>
     public class HealthzCheck
     {

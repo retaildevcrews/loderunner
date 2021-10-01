@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Simple aspnet core middleware that logs requests to the console
+    /// Simple aspnet core middleware that logs requests to the console.
     /// </summary>
     public class NgsaLogger : ILogger
     {
@@ -22,8 +22,8 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Initializes a new instance of the <see cref="NgsaLogger"/> class.
         /// </summary>
-        /// <param name="name">Logger Name</param>
-        /// <param name="config">Logger Config</param>
+        /// <param name="name">Logger Name.</param>
+        /// <param name="config">Logger Config.</param>
         public NgsaLogger(string name, NgsaLoggerConfiguration config)
         {
             this.name = name;

@@ -7,15 +7,15 @@ using LodeRunner.API.Middleware.Validation;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Query string parameters for Clients controller
+    /// Query string parameters for Clients controller.
     /// </summary>
     public sealed class ClientParameters
     {
         /// <summary>
-        /// Validate Id
+        /// Validate Id.
         /// </summary>
-        /// <param name="clientStatusId">id to validate</param>
-        /// <returns>empty list on valid</returns>
+        /// <param name="clientStatusId">id to validate.</param>
+        /// <returns>empty list on valid.</returns>
         public static List<ValidationError> ValidateClientStatusId(string clientStatusId)
         {
             List<ValidationError> errors = new ();

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Cosmos Health Check
+    /// Cosmos Health Check.
     /// </summary>
     public partial class CosmosHealthCheck : IHealthCheck
     {
@@ -20,14 +20,14 @@ namespace LodeRunner.API
         private readonly Stopwatch stopwatch = new ();
 
         /// <summary>
-        /// Build the response
+        /// Build the response.
         /// </summary>
-        /// <param name="uri">string</param>
-        /// <param name="targetDurationMs">double (ms)</param>
-        /// <param name="ex">Exception (default = null)</param>
-        /// <param name="data">Dictionary(string, object)</param>
-        /// <param name="testName">Test Name</param>
-        /// <returns>HealthzCheck</returns>
+        /// <param name="uri">string.</param>
+        /// <param name="targetDurationMs">double (ms).</param>
+        /// <param name="ex">Exception (default = null).</param>
+        /// <param name="data">Dictionary(string, object).</param>
+        /// <param name="testName">Test Name.</param>
+        /// <returns>HealthzCheck.</returns>
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
             stopwatch.Stop();
@@ -67,9 +67,9 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Get Client by ClientStatus Id Healthcheck
+        /// Get Client by ClientStatus Id Healthcheck.
         /// </summary>
-        /// <returns>HealthzCheck</returns>
+        /// <returns>HealthzCheck.</returns>
         private async Task<HealthzCheck> GetClientStatusByClientStatusIdAsync(string clientStatusId, Dictionary<string, object> data = null)
         {
             const string name = "getClientByClientStatusId";
@@ -93,9 +93,9 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Get Clients Healthcheck
+        /// Get Clients Healthcheck.
         /// </summary>
-        /// <returns>HealthzCheck</returns>
+        /// <returns>HealthzCheck.</returns>
         private async Task<HealthzCheck> GetClientStatusesAsync(Dictionary<string, object> data = null)
         {
             const string name = "getClients";

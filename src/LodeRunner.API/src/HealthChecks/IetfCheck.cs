@@ -8,7 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace LodeRunner.API.Models
 {
     /// <summary>
-    /// Health Check that supports IETF json
+    /// Health Check that supports IETF json.
     /// </summary>
     public class IetfCheck
     {
@@ -21,9 +21,9 @@ namespace LodeRunner.API.Models
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IetfCheck"/> class.
-        /// Create an IetfCheck from a HealthzCheck
+        /// Create an IetfCheck from a HealthzCheck.
         /// </summary>
-        /// <param name="hzCheck">HealthzCheck</param>
+        /// <param name="hzCheck">HealthzCheck.</param>
         public IetfCheck(HealthzCheck hzCheck)
         {
             if (hzCheck == null)
@@ -57,10 +57,10 @@ namespace LodeRunner.API.Models
         public string Message { get; set; }
 
         /// <summary>
-        /// Convert the dotnet HealthStatus to the IETF Status
+        /// Convert the dotnet HealthStatus to the IETF Status.
         /// </summary>
-        /// <param name="status">HealthStatus (dotnet)</param>
-        /// <returns>string</returns>
+        /// <param name="status">HealthStatus (dotnet).</param>
+        /// <returns>string.</returns>
         public static string ToIetfStatus(HealthStatus status)
         {
             return status switch

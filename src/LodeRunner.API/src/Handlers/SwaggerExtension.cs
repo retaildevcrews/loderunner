@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Builder;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Register swagger middleware
+    /// Register swagger middleware.
     /// </summary>
     public static class SwaggerExtension
     {
@@ -21,12 +21,12 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// aspnet middleware extension method to update swagger.json
         ///
-        /// Can throw exceptions at startup
+        /// Can throw exceptions at startup.
         /// </summary>
-        /// <param name="builder">this IApplicationBuilder</param>
-        /// <param name="jsonPath">swagger.json path</param>
-        /// <param name="urlPrefix">URL prefix</param>
-        /// <returns>ApplicationBuilder</returns>
+        /// <param name="builder">this IApplicationBuilder.</param>
+        /// <param name="jsonPath">swagger.json path.</param>
+        /// <param name="urlPrefix">URL prefix.</param>
+        /// <returns>ApplicationBuilder.</returns>
         public static IApplicationBuilder UseSwaggerReplaceJson(this IApplicationBuilder builder, string jsonPath, string urlPrefix)
         {
             FileInfo fi = new (jsonPath);

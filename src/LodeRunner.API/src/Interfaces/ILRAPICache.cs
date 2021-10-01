@@ -11,7 +11,7 @@ using Microsoft.Azure.Documents;
 namespace LodeRunner.API.Interfaces
 {
     /// <summary>
-    /// Data Access Layer for Cache Interface
+    /// Data Access Layer for Cache Interface.
     /// </summary>
     public interface ILRAPICache : IAppCache
     {

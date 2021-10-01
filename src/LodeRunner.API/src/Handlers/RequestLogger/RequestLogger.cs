@@ -18,7 +18,7 @@ using Prometheus;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Simple aspnet core middleware that logs requests to the console
+    /// Simple aspnet core middleware that logs requests to the console.
     /// </summary>
     public class RequestLogger
     {
@@ -34,8 +34,8 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestLogger"/> class.
         /// </summary>
-        /// <param name="next">RequestDelegate</param>
-        /// <param name="options">LoggerOptions</param>
+        /// <param name="next">RequestDelegate.</param>
+        /// <param name="options">LoggerOptions.</param>
         /// <param name="config">App configuration object.</param>
         public RequestLogger(RequestDelegate next, IOptions<RequestLoggerOptions> options, Config config)
         {
@@ -79,10 +79,10 @@ namespace LodeRunner.API.Middleware
         public static string Region { get; set; } = string.Empty;
 
         /// <summary>
-        /// Return the path and query string if it exists
+        /// Return the path and query string if it exists.
         /// </summary>
-        /// <param name="request">HttpRequest</param>
-        /// <returns>string</returns>
+        /// <param name="request">HttpRequest.</param>
+        /// <returns>string.</returns>
         public static string GetPathAndQuerystring(HttpRequest request)
         {
             if (request == null || !request.Path.HasValue)
@@ -94,10 +94,10 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Called by aspnet pipeline
+        /// Called by aspnet pipeline.
         /// </summary>
-        /// <param name="context">HttpContext</param>
-        /// <returns>Task (void)</returns>
+        /// <param name="context">HttpContext.</param>
+        /// <returns>Task (void).</returns>
         public async Task Invoke(HttpContext context)
         {
             if (context == null)

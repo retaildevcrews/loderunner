@@ -26,7 +26,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Main application class
+    /// Main application class.
     /// </summary>
     public sealed partial class App
     {
@@ -39,17 +39,17 @@ namespace LodeRunner.API
         private static readonly List<string> EnvVarErrors = new ();
 
         /// <summary>
-        /// Gets cancellation token
+        /// Gets cancellation token.
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
 
         /// <summary>
-        /// The Web Host
+        /// The Web Host.
         /// </summary>
         private static IWebHost host = null;
 
         /// <summary>
-        /// Gets or sets json serialization options
+        /// Gets or sets json serialization options.
         /// </summary>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
@@ -59,10 +59,10 @@ namespace LodeRunner.API
         private static IChangeFeedProcessor ChangeFeedProcessor { get; set; }
 
         /// <summary>
-        /// Main entry point
+        /// Main entry point.
         /// </summary>
-        /// <param name="args">command line args</param>
-        /// <returns>0 == success</returns>
+        /// <param name="args">command line args.</param>
+        /// <returns>0 == success.</returns>
         public static async Task<int> Main(string[] args)
         {
             cancelTokenSource = new CancellationTokenSource();
@@ -81,10 +81,10 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Run the app
+        /// Run the app.
         /// </summary>
-        /// <param name="config">command line config</param>
-        /// <returns>status</returns>
+        /// <param name="config">command line config.</param>
+        /// <returns>status.</returns>
         public static async Task<int> RunApp(Config config)
         {
             NgsaLog logger = new () { Name = typeof(App).FullName };
@@ -295,7 +295,7 @@ namespace LodeRunner.API
         /// <summary>
         /// Displays ASCII art for help and dry run executions.
         /// </summary>
-        /// <param name="args">CLI arguments</param>
+        /// <param name="args">CLI arguments.</param>
         private static void DisplayAsciiArt(string[] args)
         {
             if (args != null)

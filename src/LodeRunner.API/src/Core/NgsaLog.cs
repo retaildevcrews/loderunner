@@ -31,12 +31,12 @@ namespace LodeRunner.API.Middleware
         public string NotFoundError { get; set; } = string.Empty;
 
         /// <summary>
-        /// Log information message
+        /// Log information message.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="context">http context</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogInformation(string method, string message, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Information)
@@ -46,13 +46,13 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Log warning
+        /// Log warning.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="eventId">Event ID</param>
-        /// <param name="context">http context</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="eventId">Event ID.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogWarning(string method, string message, LogEventId eventId = null, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Warning)
@@ -62,14 +62,14 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Log error
+        /// Log error.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="eventId">Event ID</param>
-        /// <param name="context">http context</param>
-        /// <param name="ex">exception</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="eventId">Event ID.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="ex">exception.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogError(string method, string message, LogEventId eventId = null, HttpContext context = null, Exception ex = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Error)

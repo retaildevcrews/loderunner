@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// NGSA Logger Configuration
+    /// NGSA Logger Configuration.
     /// </summary>
     public class NgsaLoggerConfiguration
     {

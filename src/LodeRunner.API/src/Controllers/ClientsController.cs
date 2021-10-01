@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LodeRunner.API.Controllers
 {
     /// <summary>
-    /// Handle all of the /api/clients requests
+    /// Handle all of the /api/clients requests.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -35,7 +35,7 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a JSON array of Client objects
+        /// Returns a JSON array of Client objects.
         /// </summary>
         /// <param name="appCache">The cache service.</param>
         /// <returns>IActionResult</returns>
@@ -47,7 +47,7 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a single JSON Client by Parameter, clientStatusId
+        /// Returns a single JSON Client by Parameter, clientStatusId.
         /// </summary>
         /// <param name="clientStatusId">clientStatusId</param>
         /// <param name="appCache">The cache service.</param>
