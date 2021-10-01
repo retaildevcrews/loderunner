@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LodeRunner.Data.Interfaces
+namespace LodeRunner.Core.Interfaces
 {
     /// <summary>
     /// Cache Service Interface.
