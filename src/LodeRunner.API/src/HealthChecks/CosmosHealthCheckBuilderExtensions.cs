@@ -37,7 +37,7 @@ namespace LodeRunner.API
 
                 if (innerMessage != null)
                 {
-                    innerMessage = $"- {SystemConstants.Terminating}:{innerMessage}";
+                    innerMessage = $"- {SystemConstants.Terminating} - {innerMessage}";
                 }
             }
 

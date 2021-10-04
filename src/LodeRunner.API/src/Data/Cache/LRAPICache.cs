@@ -27,6 +27,9 @@ namespace LodeRunner.API.Data
     /// </summary>
     public class LRAPICache : BaseAppCache, ILRAPICache
     {
+        private const string CacheDataRequest = "Cache data request.";
+        private const string DataNotFound = "Requested data not found in Cache.";
+
         private readonly NgsaLog logger = new ()
         {
             Name = typeof(LRAPICache).FullName,
@@ -48,14 +51,14 @@ namespace LodeRunner.API.Data
         public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(HandleCacheResult), "Cache data request");
+            logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
 
-            // return exception if task is null
-            if (results == null)
+            //NOTE: if results is NULL or results is IEnumerable<> and has not items, it means no data was found in Cache.
+            if (results == null || (typeof(TEntity).GetGenericTypeDefinition() == typeof(IEnumerable<>) && !(results as IEnumerable<dynamic>).Any()))
             {
-                logger.LogError(nameof(HandleCacheResult), "Exception: task is null", NgsaLog.LogEvent500, ex: new ArgumentNullException(nameof(results)));
+                logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
 
-                return ResultHandler.CreateResult(logger.ErrorMessage, HttpStatusCode.InternalServerError);
+                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.OK);
             }
 
             try
@@ -134,7 +137,7 @@ namespace LodeRunner.API.Data
              .RegisterPostEvictionCallback(async (key, value, reason, state) =>
              {
                  // log the request
-                 logger.LogInformation(nameof(LRAPICache), "Cache data request.");
+                 logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
                  // NOTE: EvictionReason.Removed or EvictionReason.Replaced
                  if (reason <= EvictionReason.Replaced)
@@ -178,7 +181,7 @@ namespace LodeRunner.API.Data
         private void SetClientCache()
         {
             // log the request
-            logger.LogInformation(nameof(LRAPICache), "Cache data request");
+            logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
             try
             {
