@@ -107,10 +107,8 @@ namespace LodeRunner.API
                 // log startup messages
                 logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
-                ForceToCreateRequiredSystemObjects();
-
-                 // start CosmosDB Change Feed Processor
-                await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+                // Preps the system.
+                InitializeSystemComponents();
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -127,6 +125,33 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Initializes the system components.
+        /// </summary>
+        private static void InitializeSystemComponents()
+        {
+            // Forces the creation of Required System Objects
+            ForceToCreateRequiredSystemObjects();
+
+            // Registers the cancellation tokens for services.
+            RegisterCancellationTokensForServices();
+
+            // start CosmosDB Change Feed Processor
+            GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+        }
+
+        /// <summary>
+        /// Registers the cancellation tokens for services.
+        /// This method will allows to register multiple Cancellation tokens with different purposes for different Services.
+        /// </summary>
+        private static void RegisterCancellationTokensForServices()
+        {
+            cancelTokenSource.Token.Register(() =>
+            {
+                GetLRAPIChangeFeedService().StopChangeFeedProcessor();
+            });
         }
 
         /// <summary>
@@ -276,6 +301,14 @@ namespace LodeRunner.API
         // Create a CancellationTokenSource that cancels on ctl-c or sigterm
         private static void SetupSigTermHandler(IWebHost host, NgsaLog logger)
         {
+            AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
+            {
+                if (!cancelTokenSource.IsCancellationRequested)
+                {
+                    cancelTokenSource.Cancel(false);
+                }
+            };
+
             Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;

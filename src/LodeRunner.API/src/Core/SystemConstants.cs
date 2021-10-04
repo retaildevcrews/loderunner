@@ -11,5 +11,8 @@ namespace LodeRunner.API
         public const string OK = "OK";
         public const string XffHeader = "X-Forwarded-For";
         public const string IpHeader = "X-Client-IP";
+        public const string Terminating = "Terminating";
+        public const string TerminationDescription = "Termination requested via Cancellation Token.";
+        public const string Unknown = "unknown";
     }
 }
