@@ -10,7 +10,7 @@ namespace LodeRunner.Core.Models.Validators
     /// <summary>
     /// LoadClientValidator.
     /// </summary>
-    public class LoadClientValidator : AbstractValidator<LoadClient>, IModelValidator<LoadClient>
+    public class LoadClientValidator : BaseEntityValidator<LoadClient>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadClientValidator"/> class.

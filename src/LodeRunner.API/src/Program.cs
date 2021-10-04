@@ -10,15 +10,13 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Data;
 using LodeRunner.Data.ChangeFeed;
-using LodeRunner.Data.Interfaces;
-using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
@@ -67,6 +65,8 @@ namespace LodeRunner.API
         /// <returns>0 == success</returns>
         public static async Task<int> Main(string[] args)
         {
+            cancelTokenSource = new CancellationTokenSource();
+
             if (args != null)
             {
                 DisplayAsciiArt(args);
@@ -99,7 +99,7 @@ namespace LodeRunner.API
                 }
 
                 // setup sigterm handler
-                App.cancelTokenSource = SetupSigTermHandler(host, logger);
+                SetupSigTermHandler(host, logger);
 
                 // start the webserver
                 Task hostRun = host.RunAsync();
@@ -107,7 +107,9 @@ namespace LodeRunner.API
                 // log startup messages
                 logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
-                // start CosmosDB Change Feed Processor
+                ForceToCreateRequiredSystemObjects();
+
+                 // start CosmosDB Change Feed Processor
                 await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
 
                 // this doesn't return except on ctl-c or sigterm
@@ -118,11 +120,22 @@ namespace LodeRunner.API
             }
             catch (Exception ex)
             {
+                // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
+
                 // end app on error
                 logger.LogError(nameof(RunApp), "Exception", ex: ex);
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Forces to create required system objects.
+        /// </summary>
+        private static void ForceToCreateRequiredSystemObjects()
+        {
+            // Cache
+            GetLRAPICache();
         }
 
         /// <summary>
@@ -145,7 +158,7 @@ namespace LodeRunner.API
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private static void ProcessClientStatusChange(ProcessChangesEventArgs e)
         {
-            GetLRAPICacheFeedService().ProcessClientStatusChange(e.Document);
+            GetLRAPICache().ProcessClientStatusChange(e.Document);
         }
 
         /// <summary>
@@ -188,9 +201,9 @@ namespace LodeRunner.API
         /// Gets the cache service.
         /// </summary>
         /// <returns>The Cache Service.</returns>
-        private static ILRAPICacheService GetLRAPICacheFeedService()
+        private static ILRAPICache GetLRAPICache()
         {
-            return (ILRAPICacheService)host.Services.GetService(typeof(LRAPICacheService));
+            return (ILRAPICache)host.Services.GetService(typeof(LRAPICache));
         }
 
         /// <summary>
@@ -231,8 +244,9 @@ namespace LodeRunner.API
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
-                     services.AddSingleton<Config>(config);
-                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                    services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                    services.AddSingleton<Config>(config);
+                    services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
                 .UseUrls($"http://*:{config.WebHostPort}/")
                 .UseStartup<Startup>()
@@ -260,14 +274,12 @@ namespace LodeRunner.API
         }
 
         // Create a CancellationTokenSource that cancels on ctl-c or sigterm
-        private static CancellationTokenSource SetupSigTermHandler(IWebHost host, NgsaLog logger)
+        private static void SetupSigTermHandler(IWebHost host, NgsaLog logger)
         {
-            CancellationTokenSource ctCancel = new ();
-
             Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;
-                ctCancel.Cancel();
+                cancelTokenSource.Cancel();
 
                 logger.LogInformation("Shutdown", "Shutting Down ...");
 
@@ -278,8 +290,6 @@ namespace LodeRunner.API
                 // end the app
                 Environment.Exit(0);
             };
-
-            return ctCancel;
         }
 
         /// <summary>

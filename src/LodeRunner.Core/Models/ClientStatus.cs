@@ -56,6 +56,6 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The TTL.
         /// </value>
-        public int Ttl { get; set; } = 60;
+        public int Ttl { get; set; } = SystemConstants.ClientStatusExpirationTime;
     }
 }

@@ -92,13 +92,15 @@ namespace LodeRunner.Services
             if (clientStatus != null && !cancellationToken.IsCancellationRequested)
             {
                 // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.ValidateEntity(clientStatus))
+                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(clientStatus))
                 {
                     returnValue = this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
+
+                    // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
                 }
             }
 
@@ -117,29 +119,6 @@ namespace LodeRunner.Services
             clientStatus.Status = ClientStatusType.Terminating;
 
             this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Validates the entity.
-        /// </summary>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <returns>True if entity passed IModelValidator validation, otherwise false.</returns>
-        // TODO: Review for converting to generic extension method so it can be used to visit and validate an object type.
-        private bool ValidateEntity(ClientStatus clientStatus)
-        {
-            var errors = this.validator.Validate(clientStatus).Errors.ToList();
-            if (errors.Count > 0)
-            {
-                var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
-                var errorMsg = string.Join('\n', errorsList);
-
-                // TODO: Log error information
-                return false;
-            }
-            else
-            {
-                return true;
-            }
         }
     }
 }

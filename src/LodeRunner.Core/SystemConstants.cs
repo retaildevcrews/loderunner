@@ -7,12 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LodeRunner.Data.Interfaces
+namespace LodeRunner.Core
 {
     /// <summary>
-    /// Cache Service Interface.
+    /// System Constants class for Data.
     /// </summary>
-    public interface ICacheService
+    public class SystemConstants
     {
+        /// <summary>
+        /// The client status expiration time.
+        /// </summary>
+        public const int ClientStatusExpirationTime = 60;
     }
 }

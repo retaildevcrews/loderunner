@@ -10,7 +10,7 @@ namespace LodeRunner.Core.Models.Validators
     /// <summary>
     /// ClientStatusValidator.
     /// </summary>
-    public class ClientStatusValidator : AbstractValidator<ClientStatus>, IModelValidator<ClientStatus>
+    public class ClientStatusValidator : BaseEntityValidator<ClientStatus>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusValidator"/> class.
