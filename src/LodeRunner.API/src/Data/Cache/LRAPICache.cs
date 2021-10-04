@@ -165,13 +165,12 @@ namespace LodeRunner.API.Data
                      }
                      else
                      {
-                         logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
+                         throw new Exception($"MemoryCacheEntryOptions.RegisterPostEvictionCallback: {ce.Message}", ce);
                      }
                  }
                  catch (Exception ex)
                  {
-                     // log exception
-                     logger.LogError("MemoryCacheEntryOptions.RegisterPostEvictionCallback", "Exception", NgsaLog.LogEvent500, ex: ex);
+                     throw new Exception($"MemoryCacheEntryOptions.RegisterPostEvictionCallback: {ex.Message}", ex);
                  }
              });
         }
@@ -200,13 +199,14 @@ namespace LodeRunner.API.Data
                 {
                     logger.LogWarning(nameof(SetClientCache), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
                 }
-
-                logger.LogError(nameof(SetClientCache), ce.ActivityId, new LogEventId((int)ce.StatusCode, "CosmosException"), ex: ce);
+                else
+                {
+                    throw new Exception($"{nameof(SetClientCache)}: {ce.Message}", ce);
+                }
             }
             catch (Exception ex)
             {
-                // log and return exception
-                logger.LogError("Handle<T>", "Exception", NgsaLog.LogEvent500, ex: ex);
+                throw new Exception($"{nameof(SetClientCache)}: {ex.Message}", ex);
             }
         }
     }
