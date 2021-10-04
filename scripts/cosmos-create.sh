@@ -1,45 +1,58 @@
 #!/bin/bash
 
-if [ -z "$RR_NAME" ]
+if [ -z "$LR_NAME" ]
 then
-    echo "Please set RR_NAME before running this script"
-elif [ -z "$RR_SUBSCRIPTION" ]
+    echo "Please set LR_NAME before running this script"
+elif [ -z "$LR_SUBSCRIPTION" ]
 then
-    echo "Please set RR_SUBSCRIPTION before running this script"
-elif [ -z "$RR_RG" ]
+    echo "Please set LR_SUBSCRIPTION before running this script"
+elif [ -z "$LR_RG" ]
 then
-    echo "Please set RR_RG before running this script"
+    echo "Please set LR_RG before running this script"
 else
     # Set CosmosDB values
-    RR_COSMOS_ACCOUNT="${RR_NAME}-cosmos"
-    RR_COSMOS_DB="relayRunner"
-    RR_COSMOS_LEASE="clientStatusLease"
-    RR_COSMOS_COL="clientStatus"
+    LR_COSMOS_ACCOUNT="${LR_NAME}-cosmos"
+    LR_COSMOS_DB="LodeRunnerDB"
+    LR_COSMOS_TEST_DB="LodeRunnerTestDB"
+    LR_COSMOS_COL="LodeRunner"
+    LR_COSMOS_LEASE="LRAPI"
 
     # Check if CosmosDB account name already exists
     echo "Checking if CosmosDB account name already exists..."
-    ACCOUNT_EXISTS=$(az cosmosdb check-name-exists -n $RR_COSMOS_ACCOUNT --subscription $RR_SUBSCRIPTION)
+    ACCOUNT_EXISTS=$(az cosmosdb check-name-exists -n $LR_COSMOS_ACCOUNT --subscription $LR_SUBSCRIPTION)
     if "${ACCOUNT_EXISTS}"
     then
-        echo "Using existing CosmosDB account, ${RR_COSMOS_ACCOUNT}..."
+        echo "Using existing CosmosDB account, ${LR_COSMOS_ACCOUNT}..."
     else
         # Create CosmosDB account
-        echo "Creating CosmosDB account, ${RR_COSMOS_ACCOUNT}..."
-        az cosmosdb create -g $RR_RG -n $RR_COSMOS_ACCOUNT
+        echo "Creating CosmosDB account, ${LR_COSMOS_ACCOUNT}..."
+        az cosmosdb create -g $LR_RG -n $LR_COSMOS_ACCOUNT
     fi
 
     # Create CosmosDB database
-    echo "Creating CosmosDB database, ${RR_COSMOS_DB}..."
-    az cosmosdb sql database create -a $RR_COSMOS_ACCOUNT -n $RR_COSMOS_DB -g $RR_RG --subscription $RR_SUBSCRIPTION
+    echo "Creating CosmosDB database, ${LR_COSMOS_DB}..."
+    az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
     # Create lease container for change feed processor
-    echo "Creating lease container for change feed processor, ${RR_COSMOS_LEASE}..."
-    az cosmosdb sql container create -a $RR_COSMOS_ACCOUNT -d $RR_COSMOS_DB -n $RR_COSMOS_LEASE -p "/id" -g $RR_RG --subscription $RR_SUBSCRIPTION
+    echo "Creating lease container for database change feed processor, ${LR_COSMOS_LEASE}..."
+    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
     # Create CosmosDB container
-    echo "Creating CosmosDB container, ${RR_COSMOS_COL}..."
-    az cosmosdb sql container create -a $RR_COSMOS_ACCOUNT -d $RR_COSMOS_DB -n $RR_COSMOS_COL -p "/partitionKey" -g $RR_RG --max-throughput 4000 --subscription $RR_SUBSCRIPTION --ttl -1
+    echo "Creating CosmosDB container, ${LR_COSMOS_COL}..."
+    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
+
+
+    # Create CosmosDB test database
+    echo "Creating CosmosDB test database, ${LR_COSMOS_TEST_DB}..."
+    az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_TEST_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
+    # Create lease container for change feed processor
+    echo "Creating lease container for test database change feed processor, ${LR_COSMOS_LEASE}..."
+    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
+    # Create CosmosDB container
+    echo "Creating CosmosDB test container, ${LR_COSMOS_COL}..."
+    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
+
     # Get document endpoint
-    RR_COSMOS_ENDPOINT=$(az cosmosdb show -n $RR_COSMOS_ACCOUNT -g $RR_RG --subscription $RR_SUBSCRIPTION --query "documentEndpoint")
+    LR_COSMOS_ENDPOINT=$(az cosmosdb show -n $LR_COSMOS_ACCOUNT -g $LR_RG --subscription $LR_SUBSCRIPTION --query "documentEndpoint")
 
     echo "Successfully created..."
-    echo "Document Endpoint: ${RR_COSMOS_ENDPOINT}"
+    echo "Document Endpoint: ${LR_COSMOS_ENDPOINT}"
 fi
