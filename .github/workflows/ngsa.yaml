@@ -14,7 +14,7 @@ on:
     - 'src/LodeRunner/*.csproj'
     - 'src/LodeRunner/src/**.cs'
     - '.github/workflows/ngsa.yaml'
-    - 'autogitops'
+    - 'autogitops/**'
 
 jobs:
 

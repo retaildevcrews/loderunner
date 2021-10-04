@@ -3,5 +3,5 @@
     "namespace": "ngsa-l8r",
     "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
     "imageTag": "beta",
-    "targets": ["ngsadev"]
+    "targets": ["ngsadev","ngsaprec"]
 }
