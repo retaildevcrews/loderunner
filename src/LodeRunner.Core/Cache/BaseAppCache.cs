@@ -103,6 +103,11 @@ namespace LodeRunner.Core.Cache
         /// <returns>the typed cache.</returns>
         private BaseMemoryCache GetMemCache<TEntity>()
         {
+            if (this.CancellationTokenSource != null && this.CancellationTokenSource.IsCancellationRequested)
+            {
+                throw new OperationCanceledException($"Method: {nameof(this.GetMemCache)}");
+            }
+
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
             if (!this.cacheDictionary.TryGetValue(entityType.ToString(), out BaseMemoryCache thisCache))

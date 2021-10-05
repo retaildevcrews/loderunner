@@ -46,7 +46,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return ResultHandler.CreateResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
+                return ResultHandler.CreateCancellationInProgressResult();
             }
 
             IEnumerable<Client> clients = appCache.GetClients();
@@ -65,7 +65,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return ResultHandler.CreateResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
+                return ResultHandler.CreateCancellationInProgressResult();
             }
 
             if (string.IsNullOrWhiteSpace(clientStatusId))

@@ -5,6 +5,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LodeRunner.API.Data;
+using LodeRunner.API.Handlers.ExceptionMiddleware;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
@@ -76,6 +77,14 @@ namespace LodeRunner.API
                     Log5xx = true,
                 });
             }
+
+            var logger = app.ApplicationServices.GetRequiredService<NgsaLog>();
+
+            // TODO: Use Middleware or Extension method ?
+
+            app.ConfigureCustomExceptionMiddleware();
+
+            // app.ConfigureExceptionHandler(logger);
 
             // UseHsts in prod
             if (env.IsProduction())

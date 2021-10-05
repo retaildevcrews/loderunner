@@ -91,7 +91,7 @@ namespace LodeRunner.API
 
             try
             {
-                Init(config);
+                Init(config, logger);
 
                 if (host == null)
                 {
@@ -235,7 +235,8 @@ namespace LodeRunner.API
         /// Initializes the specified configuration.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        private static void Init(Config config)
+        /// <param name="logger">The logger.</param>
+        private static void Init(Config config, NgsaLog logger)
         {
             // load secrets from volume
             LoadSecrets(config);
@@ -245,7 +246,7 @@ namespace LodeRunner.API
             NgsaLog.LogLevel = config.LogLevel;
 
             // build the host will register Data Access Services in Startup.
-            host = BuildHost(config);
+            host = BuildHost(config, logger);
         }
 
         // load secrets from volume
@@ -263,13 +264,14 @@ namespace LodeRunner.API
         }
 
         // Build the web host
-        private static IWebHost BuildHost(Config config)
+        private static IWebHost BuildHost(Config config, NgsaLog ngsalog)
         {
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                    services.AddSingleton<NgsaLog>(ngsalog);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
