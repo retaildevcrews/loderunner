@@ -47,13 +47,21 @@ namespace LodeRunner.API.Models
         }
 
         public string Status { get; set; }
+
         public string ComponentId { get; set; }
+
         public string ComponentType { get; set; }
+
         public string ObservedUnit { get; set; }
+
         public double ObservedValue { get; set; }
+
         public double TargetValue { get; set; }
+
         public string Time { get; set; }
+
         public List<string> AffectedEndpoints { get; }
+
         public string Message { get; set; }
 
         /// <summary>

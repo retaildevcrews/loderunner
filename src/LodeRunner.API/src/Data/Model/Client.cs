@@ -26,18 +26,31 @@ namespace LodeRunner.API.Models
         }
 
         public EntityType EntityType { get; } = EntityType.Client;
+
         public string LoadClientId { get; set; }
+
         public string Name { get; set; }
+
         public string Version { get; set; }
+
         public string Region { get; set; }
+
         public string Zone { get; set; }
+
         public bool Prometheus { get; set; }
+
         public string StartupArgs { get; set; }
+
         public DateTime StartTime { get; set; }
+
         public string ClientStatusId { get; set; }
+
         public DateTime LastUpdated { get; set; }
+
         public int StatusDuration { get; set; }
+
         public ClientStatusType Status { get; set; }
+
         public string Message { get; set; }
     }
 }

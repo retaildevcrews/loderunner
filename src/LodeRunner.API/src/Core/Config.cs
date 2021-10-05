@@ -25,6 +25,7 @@ namespace LodeRunner.API
             {
                 return logLevel;
             }
+
             set
             {
                 logLevel = value <= LogLevel.Information ? LogLevel.Information : value;
@@ -37,6 +38,7 @@ namespace LodeRunner.API
             {
                 return requestLogLevel;
             }
+
             set
             {
                 requestLogLevel = value <= LogLevel.Information ? LogLevel.Information : value;
@@ -51,6 +53,7 @@ namespace LodeRunner.API
             {
                 return urlPrefix;
             }
+
             set
             {
                 urlPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value.TrimEnd('/');
@@ -64,6 +67,7 @@ namespace LodeRunner.API
             {
                 return secretsVolume;
             }
+
             set
             {
                 secretsVolume = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -76,6 +80,7 @@ namespace LodeRunner.API
             {
                 return cosmosName;
             }
+
             set
             {
                 cosmosName = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -83,7 +88,9 @@ namespace LodeRunner.API
         }
 
         public ISecrets Secrets { get; set; }
+
         public int WebHostPort { get; set; } = 8080;
+
         public int Retries { get; set; } = 10;
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>

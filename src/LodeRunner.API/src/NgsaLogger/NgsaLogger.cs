@@ -31,6 +31,7 @@ namespace LodeRunner.API.Middleware
         }
 
         public static string Zone { get; set; } = string.Empty;
+
         public static string Region { get; set; } = string.Empty;
 
         public IDisposable BeginScope<TState>(TState state)

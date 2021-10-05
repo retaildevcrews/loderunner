@@ -19,15 +19,21 @@ namespace LodeRunner.API.Middleware
         };
 
         public static LogLevel LogLevel { get; set; } = LogLevel.Information;
+
         public static string Zone { get; set; } = string.Empty;
+
         public static string Region { get; set; } = string.Empty;
 
         public static LogEventId LogEvent400 { get; } = new ((int)HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString());
+
         public static LogEventId LogEvent404 { get; } = new ((int)HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+
         public static LogEventId LogEvent500 { get; } = new ((int)HttpStatusCode.InternalServerError, "Exception");
 
         public string Name { get; set; } = string.Empty;
+
         public string ErrorMessage { get; set; } = string.Empty;
+
         public string NotFoundError { get; set; } = string.Empty;
 
         /// <summary>

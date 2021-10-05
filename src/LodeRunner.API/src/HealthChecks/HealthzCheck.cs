@@ -15,12 +15,19 @@ namespace LodeRunner.API.Models
         public const string TimeoutMessage = "Request exceeded expected duration";
 
         public HealthStatus Status { get; set; }
+
         public string ComponentId { get; set; }
+
         public string ComponentType { get; set; }
+
         public TimeSpan Duration { get; set; }
+
         public TimeSpan TargetDuration { get; set; }
+
         public string Time { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+
         public string Endpoint { get; set; }
+
         public string Message { get; set; }
     }
 }
