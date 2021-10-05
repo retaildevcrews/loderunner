@@ -37,14 +37,14 @@ namespace LodeRunner.API
 
                 if (innerMessage != null)
                 {
-                    innerMessage = $"- {SystemConstants.Terminating} - {innerMessage}";
+                    innerMessage = $": {SystemConstants.Terminating} - {innerMessage}";
                 }
             }
 
             ContentResult result = new ()
             {
                 Content = $"{IetfCheck.ToIetfStatus(healthCheckResult.Status)}{innerMessage}",
-                StatusCode = healthCheckResult.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK,
+                StatusCode = healthCheckResult.Status == HealthStatus.Healthy ? (int)System.Net.HttpStatusCode.OK : (int)System.Net.HttpStatusCode.ServiceUnavailable,
             };
 
             return result;

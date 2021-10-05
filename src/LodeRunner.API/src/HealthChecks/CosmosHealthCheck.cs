@@ -80,7 +80,7 @@ namespace LodeRunner.API
 
             if (cancellationToken.IsCancellationRequested)
             {
-                data.Add("SystemConstants.Terminating", SystemConstants.TerminationDescription);
+                data.Add(SystemConstants.Terminating, SystemConstants.TerminationDescription);
                 return new HealthCheckResult(HealthStatus.Degraded, Description, data: data);
             }
 
