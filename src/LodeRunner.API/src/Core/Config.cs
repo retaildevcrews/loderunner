@@ -60,7 +60,7 @@ namespace LodeRunner.API
             }
         }
 
-        //  Cosmos IConfig
+        // Cosmos IConfig
         public string SecretsVolume
         {
             get
