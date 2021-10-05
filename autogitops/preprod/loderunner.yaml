@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{gitops.name}}
+  namespace: {{gitops.namespace}}
+  labels:
+    app.kubernetes.io/name: {{gitops.name}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{gitops.name}}
+  template:
+    metadata:
+      labels:
+        app: {{gitops.name}}
+        deploy: {{gitops.deploy}}
+        version: beta-{{gitops.version}}
+    spec:
+      containers:
+        - name: app
+          image: {{gitops.imageName}}:{{gitops.imageTag}}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+          args:
+          - -l
+          - "100"
+          - -r
+          - -s
+          - http://ngsa-memory.ngsa:8080
+          - http://ngsa-cosmos.ngsa:8080
+          - http://ngsa-java.ngsa:8080
+          - -f
+          - benchmark.json
