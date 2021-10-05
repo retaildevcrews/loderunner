@@ -51,4 +51,5 @@ jobs:
 
     - name: GitOps Deploy
       run: |
-        docker run ghcr.io/retaildevcrews/autogitops:beta -u ${{ secrets.GHCR_ID }} -p ${{ secrets.GHCR_PAT }} -r /retaildevcrews/ngsa-asb
+        dotnet tool install -g autogitops
+        ago -u ${{ secrets.GHCR_ID }} -p ${{ secrets.GHCR_PAT }} -r /retaildevcrews/ngsa-asb
