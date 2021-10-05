@@ -80,11 +80,7 @@ namespace LodeRunner.API
 
             var logger = app.ApplicationServices.GetRequiredService<NgsaLog>();
 
-            // TODO: Use Middleware or Extension method ?
-
             app.ConfigureCustomExceptionMiddleware();
-
-            // app.ConfigureExceptionHandler(logger);
 
             // UseHsts in prod
             if (env.IsProduction())

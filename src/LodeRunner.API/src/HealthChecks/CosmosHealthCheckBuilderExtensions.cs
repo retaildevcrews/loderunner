@@ -31,7 +31,7 @@ namespace LodeRunner.API
         public static ContentResult GetContentResult(this HealthCheckResult healthCheckResult)
         {
             object innerMessage = string.Empty;
-            if (healthCheckResult.Status == HealthStatus.Degraded)
+            if (healthCheckResult.Status == HealthStatus.Unhealthy)
             {
                 _ = healthCheckResult.Data.TryGetValue(SystemConstants.Terminating, out innerMessage);
 

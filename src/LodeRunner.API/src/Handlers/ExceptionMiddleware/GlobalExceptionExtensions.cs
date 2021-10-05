@@ -28,41 +28,5 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
         {
             return builder.UseMiddleware<GlobalException>();
         }
-
-        //public static void ConfigureExceptionHandler(this IApplicationBuilder app, NgsaLog logger)
-        //{
-        //    app.UseExceptionHandler(appError =>
-        //    {
-        //        appError.Run(async context =>
-        //        {
-        //            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        //            context.Response.ContentType = "application/json";
-        //            var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-        //            if (contextFeature != null)
-        //            {
-        //                string errorMessage = "Internal Server Error.";
-        //                int statusCode = context.Response.StatusCode;
-
-        //                if (contextFeature.Error.GetType() == typeof(OperationCanceledException))
-        //                {
-        //                    errorMessage = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}";
-        //                    statusCode = (int)HttpStatusCode.ServiceUnavailable;
-        //                    context.Response.StatusCode = statusCode;
-        //                    logger.LogError("ConfigureExceptionHandler", errorMessage);
-        //                }
-        //                else
-        //                {
-        //                    logger.LogError("ConfigureExceptionHandler", $"Internal Server Error: {contextFeature.Error}");
-        //                }
-
-        //                await context.Response.WriteAsync(new ErrorDetails()
-        //                {
-        //                    StatusCode = statusCode,
-        //                    Message = errorMessage,
-        //                }.ToString());
-        //            }
-        //        });
-        //    });
-        //}
     }
 }

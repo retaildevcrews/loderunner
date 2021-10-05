@@ -64,11 +64,11 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
                 errorMessage = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}";
                 statusCode = (int)HttpStatusCode.ServiceUnavailable;
                 context.Response.StatusCode = statusCode;
-                this.logger.LogError("Middleware HandleExceptionAsync", errorMessage);
+                this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
             }
             else
             {
-                this.logger.LogError("Middleware HandleExceptionAsync", $"Internal Server Error: {exception}");
+                this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
             }
 
             await context.Response.WriteAsync(new ErrorDetails()
