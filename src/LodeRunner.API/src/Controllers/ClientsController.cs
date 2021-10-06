@@ -50,6 +50,7 @@ namespace LodeRunner.API.Controllers
             }
 
             IEnumerable<Client> clients = appCache.GetClients();
+
             return appCache.HandleCacheResult(clients, Logger);
         }
 

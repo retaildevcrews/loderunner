@@ -78,8 +78,6 @@ namespace LodeRunner.API
                 });
             }
 
-            var logger = app.ApplicationServices.GetRequiredService<NgsaLog>();
-
             app.ConfigureCustomExceptionMiddleware();
 
             // UseHsts in prod

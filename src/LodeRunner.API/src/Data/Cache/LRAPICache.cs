@@ -48,32 +48,34 @@ namespace LodeRunner.API.Data
             SetClientCache();
         }
 
+        public IActionResult HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
+        {
+            // log the request
+            logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+
+            if (!results.Any())
+            {
+                logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+
+                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NoContent);
+            }
+
+            return InternalReturnOKResult(results);
+        }
+
         public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
             logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
 
-            //NOTE: if results is NULL or results is IEnumerable<> and has not items, it means no data was found in Cache.
-            if (results == null || (typeof(TEntity).GetGenericTypeDefinition() == typeof(IEnumerable<>) && !(results as IEnumerable<dynamic>).Any()))
+            if (results == null)
             {
                 logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
 
-                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.OK);
+                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
-            try
-            {
-                // return an OK object result
-                return new OkObjectResult(results);
-            }
-            catch (Exception ex)
-            {
-                // log and return exception
-                logger.LogError(nameof(HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
-
-                // return 500 error
-                return ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
-            }
+            return InternalReturnOKResult(results);
         }
 
         public Client GetClientByClientStatusId(string clientStatusId)
@@ -97,6 +99,28 @@ namespace LodeRunner.API.Data
             ValidateEntityId(clientStatus.Id);
 
             this.SetEntry(clientStatus.Id, new Client(clientStatus), GetMemoryCacheEntryOptions());
+        }
+
+        /// <summary>
+        /// Internals the return OK result.
+        /// </summary>
+        /// <param name="results">The results.</param>
+        /// <returns>The OK Action Result.</returns>
+        private IActionResult InternalReturnOKResult(object results)
+        {
+            try
+            {
+                // return an OK object result
+                return new OkObjectResult(results);
+            }
+            catch (Exception ex)
+            {
+                // log and return exception
+                logger.LogError(nameof(HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+
+                // return 500 error
+                return ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
+            }
         }
 
         /// <summary>
