@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Middleware
 {
+    /// <summary>
+    /// Application logger.
+    /// </summary>
     public class NgsaLog
     {
         private static readonly JsonSerializerOptions Options = new ()
@@ -18,22 +21,49 @@ namespace LodeRunner.API.Middleware
             IgnoreNullValues = true,
         };
 
+        /// <summary>
+        /// Gets or sets LogLevel.
+        /// </summary>
         public static LogLevel LogLevel { get; set; } = LogLevel.Information;
 
+        /// <summary>
+        /// Gets or sets Zone.
+        /// </summary>
         public static string Zone { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets Region.
+        /// </summary>
         public static string Region { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets 400 log event.
+        /// </summary>
         public static LogEventId LogEvent400 { get; } = new ((int)HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString());
 
+        /// <summary>
+        /// Gets 404 log event.
+        /// </summary>
         public static LogEventId LogEvent404 { get; } = new ((int)HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
 
+        /// <summary>
+        /// Gets 500 log event.
+        /// </summary>
         public static LogEventId LogEvent500 { get; } = new ((int)HttpStatusCode.InternalServerError, "Exception");
 
+        /// <summary>
+        /// Gets or sets Name.
+        /// </summary>
         public string Name { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets ErrorMessage.
+        /// </summary>
         public string ErrorMessage { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets NotFoundError.
+        /// </summary>
         public string NotFoundError { get; set; } = string.Empty;
 
         /// <summary>

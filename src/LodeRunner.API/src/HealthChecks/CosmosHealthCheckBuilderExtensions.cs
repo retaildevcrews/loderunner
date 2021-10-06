@@ -7,8 +7,19 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace LodeRunner.API
 {
+    /// <summary>
+    /// Cosmos health check builder.
+    /// </summary>
     public static class CosmosHealthCheckBuilderExtensions
     {
+        /// <summary>
+        /// Adds cosmos health check.
+        /// </summary>
+        /// <param name="builder">Health checks builder.</param>
+        /// <param name="name">Name of cosmos health check.</param>
+        /// <param name="failureStatus">Health check, failure status.</param>
+        /// <param name="tags">Tags.</param>
+        /// <returns>Builder.</returns>
         public static IHealthChecksBuilder AddCosmosHealthCheck(
             this IHealthChecksBuilder builder,
             string name,

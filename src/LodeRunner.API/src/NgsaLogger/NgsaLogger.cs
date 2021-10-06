@@ -30,20 +30,46 @@ namespace LodeRunner.API.Middleware
             this.config = config;
         }
 
+        /// <summary>
+        /// Gets or sets zone.
+        /// </summary>
         public static string Zone { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets region.
+        /// </summary>
         public static string Region { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Creates the scope.
+        /// </summary>
+        /// <typeparam name="TState">State type.</typeparam>
+        /// <param name="state">State.</param>
+        /// <returns>Default.</returns>
         public IDisposable BeginScope<TState>(TState state)
         {
             return default;
         }
 
+        /// <summary>
+        /// Checks if logLevel is enabled.
+        /// </summary>
+        /// <param name="logLevel">LogLevel.</param>
+        /// <returns>Boolean representing whether logLevel is enabled.</returns>
         public bool IsEnabled(LogLevel logLevel)
         {
             return logLevel >= config.LogLevel;
         }
 
+        /// <summary>
+        /// Log event and include correlation vector if exists.
+        /// </summary>
+        /// <typeparam name="TState">State type.</typeparam>
+        /// <param name="logLevel">Log level.</param>
+        /// <param name="eventId">Event ID.</param>
+        /// <param name="state">State.</param>
+        /// <param name="exception">Exception.</param>
+        /// <param name="formatter">Formatter.</param>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))

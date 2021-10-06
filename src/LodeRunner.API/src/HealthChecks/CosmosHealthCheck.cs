@@ -21,8 +21,15 @@ namespace LodeRunner.API
     /// </summary>
     public partial class CosmosHealthCheck : IHealthCheck
     {
-        public static readonly string ServiceId = "relayRunner";
-        public static readonly string Description = "RelayRunner Health Check";
+        /// <summary>
+        /// Service ID.
+        /// </summary>
+        public static readonly string ServiceId = "LodeRunner.API";
+
+        /// <summary>
+        /// Description.
+        /// </summary>
+        public static readonly string Description = "LodeRunner.API Health Check";
 
         private static JsonSerializerOptions jsonOptions;
 

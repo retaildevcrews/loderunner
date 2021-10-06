@@ -18,7 +18,9 @@ namespace LodeRunner.API
         private string secretsVolume = "secrets";
         private string cosmosName = string.Empty;
 
-        // ICommonConfig
+        /// <summary>
+        /// Gets or sets the logLevel.
+        /// </summary>
         public LogLevel LogLevel
         {
             get
@@ -32,6 +34,9 @@ namespace LodeRunner.API
             }
         }
 
+        /// <summary>
+        /// Gets or sets the requestLogLevel.
+        /// </summary>
         public LogLevel RequestLogLevel
          {
             get
@@ -45,8 +50,14 @@ namespace LodeRunner.API
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the logLevel is set.
+        /// </summary>
         public bool IsLogLevelSet { get; set; }
 
+        /// <summary>
+        /// Gets or sets urlPrefix.
+        /// </summary>
         public string UrlPrefix
         {
             get
@@ -60,7 +71,9 @@ namespace LodeRunner.API
             }
         }
 
-        // Cosmos IConfig
+        /// <summary>
+        /// Gets or sets the secretsVolume that contains the secrets.
+        /// </summary>
         public string SecretsVolume
         {
             get
@@ -74,6 +87,9 @@ namespace LodeRunner.API
             }
         }
 
+        /// <summary>
+        /// Gets or sets cosmosName.
+        /// </summary>
         public string CosmosName
         {
             get
@@ -87,10 +103,19 @@ namespace LodeRunner.API
             }
         }
 
+        /// <summary>
+        /// Gets or sets Secrets.
+        /// </summary>
         public ISecrets Secrets { get; set; }
 
+        /// <summary>
+        /// Gets or sets WebHostPort.
+        /// </summary>
         public int WebHostPort { get; set; } = 8080;
 
+        /// <summary>
+        /// Gets or sets Cosmos max retries.
+        /// </summary>
         public int Retries { get; set; } = 10;
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>

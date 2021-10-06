@@ -23,7 +23,7 @@ using CoreSystemConstants = LodeRunner.Core.SystemConstants;
 namespace LodeRunner.API.Data
 {
     /// <summary>
-    /// Cached Data
+    /// Cached Data.
     /// </summary>
     public class LRAPICache : BaseAppCache, ILRAPICache
     {
@@ -37,6 +37,12 @@ namespace LodeRunner.API.Data
         private readonly IClientStatusService clientStatusService;
         private readonly ILoadTestConfigService loadTestConfigService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LRAPICache"/> class.
+        /// </summary>
+        /// <param name="clientStatusService">Injection of client status service.</param>
+        /// <param name="loadTestConfigService">injection of load test config service.</param>
+        /// <param name="cancellationTokenSource">Cancellation token source.</param>
         public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
             : base(cancellationTokenSource)
         {
@@ -45,6 +51,13 @@ namespace LodeRunner.API.Data
             SetClientCache();
         }
 
+        /// <summary>
+        /// Handles cache results.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type of results.</typeparam>
+        /// <param name="results">Results from cache get.</param>
+        /// <param name="logger">Logger.</param>
+        /// <returns>IActionResult.</returns>
         public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
@@ -73,6 +86,11 @@ namespace LodeRunner.API.Data
             }
         }
 
+        /// <summary>
+        /// Gets client from cache by clientStatusId.
+        /// </summary>
+        /// <param name="clientStatusId">Client status ID.</param>
+        /// <returns>Client.</returns>
         public Client GetClientByClientStatusId(string clientStatusId)
         {
             this.ValidateEntityId(clientStatusId);
@@ -80,17 +98,24 @@ namespace LodeRunner.API.Data
             return this.GetEntry<Client>(clientStatusId);
         }
 
+        /// <summary>
+        /// Get clients from cache.
+        /// </summary>
+        /// <returns>clients.</returns>
         public IEnumerable<Client> GetClients()
         {
             return this.GetEntries<Client>();
         }
 
+        /// <summary>
+        /// Processes clientStatus changefeed items.
+        /// </summary>
+        /// <param name="doc">Changefeed item.</param>
         public void ProcessClientStatusChange(Document doc)
         {
             ClientStatus clientStatus = (dynamic)doc;
 
             // TODO: Need to validate clientStatus all together  before to create Client ?
-
             ValidateEntityId(clientStatus.Id);
 
             this.SetEntry(clientStatus.Id, new Client(clientStatus), GetMemoryCacheEntryOptions());
@@ -143,7 +168,6 @@ namespace LodeRunner.API.Data
                      // Also if we already initiated Cache.Set() to do a replace we do not need to query and replace the key,
                      // neither if key was removed for a EvictionReason other that  Expired,  TokenExpired  or  Capacity.
                      // if so  this will cause a indefinitely loop, since we call this.Cache.Set to update the key.
-
                      return;
                  }
 

@@ -38,7 +38,7 @@ namespace LodeRunner.API.Controllers
         /// Returns a JSON array of Client objects.
         /// </summary>
         /// <param name="appCache">The cache service.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet]
         public IActionResult GetClients([FromServices] ILRAPICache appCache)
         {
@@ -49,9 +49,9 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Returns a single JSON Client by Parameter, clientStatusId.
         /// </summary>
-        /// <param name="clientStatusId">clientStatusId</param>
+        /// <param name="clientStatusId">clientStatusId.</param>
         /// <param name="appCache">The cache service.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
         public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache)
         {

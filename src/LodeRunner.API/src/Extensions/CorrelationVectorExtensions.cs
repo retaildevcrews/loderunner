@@ -72,6 +72,11 @@ namespace LodeRunner.API.Middleware
             return cv;
         }
 
+        /// <summary>
+        /// Gets correlation vector from context.
+        /// </summary>
+        /// <param name="context">Http context.</param>
+        /// <returns>CorrelationVector or null.</returns>
         public static CorrelationVector GetCorrelationVectorFromContext(HttpContext context)
         {
             if (context != null && context.Items.ContainsKey(CorrelationVector.HeaderName))
@@ -82,6 +87,11 @@ namespace LodeRunner.API.Middleware
             return null;
         }
 
+        /// <summary>
+        /// Puts correaction vector.
+        /// </summary>
+        /// <param name="cvector">Correlation vector.</param>
+        /// <param name="context">Http context.</param>
         public static void PutCorrelationVectorIntoContext(this CorrelationVector cvector, HttpContext context)
         {
             if (cvector == null)

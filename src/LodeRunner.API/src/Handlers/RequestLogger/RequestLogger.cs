@@ -72,14 +72,29 @@ namespace LodeRunner.API.Middleware
                 });
         }
 
+        /// <summary>
+        /// Gets or sets CosmosDB name.
+        /// </summary>
         public static string CosmosName { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets Cosmos query ID.
+        /// </summary>
         public static string CosmosQueryId { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets Cosmos RUs.
+        /// </summary>
         public static double CosmosRUs { get; set; } = 0;
 
+        /// <summary>
+        /// Gets or sets the zone.
+        /// </summary>
         public static string Zone { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the region.
+        /// </summary>
         public static string Region { get; set; } = string.Empty;
 
         /// <summary>

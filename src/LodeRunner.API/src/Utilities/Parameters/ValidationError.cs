@@ -54,6 +54,13 @@ namespace LodeRunner.API.Middleware.Validation
             return s;
         }
 
+        /// <summary>
+        /// Gets category.
+        /// </summary>
+        /// <param name="context">HttpContext.</param>
+        /// <param name="subCategory">subCategory.</param>
+        /// <param name="mode">Mode.</param>
+        /// <returns>Category.</returns>
         public static string GetCategory(HttpContext context, out string subCategory, out string mode)
         {
             string category;

@@ -46,22 +46,49 @@ namespace LodeRunner.API.Models
             }
         }
 
+        /// <summary>
+        /// Gets or sets the status.
+        /// </summary>
         public string Status { get; set; }
 
+        /// <summary>
+        /// Gets or sets the component ID.
+        /// </summary>
         public string ComponentId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the component type.
+        /// </summary>
         public string ComponentType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the observed unit.
+        /// </summary>
         public string ObservedUnit { get; set; }
 
+        /// <summary>
+        /// Gets or sets the observed value.
+        /// </summary>
         public double ObservedValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target value.
+        /// </summary>
         public double TargetValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the time.
+        /// </summary>
         public string Time { get; set; }
 
+        /// <summary>
+        /// Gets the affected endpoints.
+        /// </summary>
         public List<string> AffectedEndpoints { get; }
 
+        /// <summary>
+        /// Gets or sets the message.
+        /// </summary>
         public string Message { get; set; }
 
         /// <summary>

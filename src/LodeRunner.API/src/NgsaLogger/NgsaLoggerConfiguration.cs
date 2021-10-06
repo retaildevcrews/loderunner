@@ -10,6 +10,9 @@ namespace LodeRunner.API.Middleware
     /// </summary>
     public class NgsaLoggerConfiguration
     {
+        /// <summary>
+        /// Gets or sets the log level.
+        /// </summary>
         public LogLevel LogLevel { get; set; } = LogLevel.Warning;
     }
 }
