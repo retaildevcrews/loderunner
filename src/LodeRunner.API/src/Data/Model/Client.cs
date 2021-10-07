@@ -17,19 +17,19 @@ namespace LodeRunner.API.Models
         /// <param name="clientStatus">ClientStatus.</param>
         public Client(ClientStatus clientStatus)
         {
-            LoadClientId = clientStatus.LoadClient?.Id;
-            Name = clientStatus.LoadClient?.Name;
-            Version = clientStatus.LoadClient?.Version;
-            Region = clientStatus.LoadClient?.Region;
-            Zone = clientStatus.LoadClient?.Zone;
-            Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
-            StartupArgs = clientStatus.LoadClient?.StartupArgs;
-            StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
-            ClientStatusId = clientStatus.Id;
-            LastUpdated = clientStatus.LastUpdated;
-            StatusDuration = clientStatus.StatusDuration;
-            Status = clientStatus.Status;
-            Message = clientStatus.Message;
+            this.LoadClientId = clientStatus.LoadClient?.Id;
+            this.Name = clientStatus.LoadClient?.Name;
+            this.Version = clientStatus.LoadClient?.Version;
+            this.Region = clientStatus.LoadClient?.Region;
+            this.Zone = clientStatus.LoadClient?.Zone;
+            this.Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
+            this.StartupArgs = clientStatus.LoadClient?.StartupArgs;
+            this.StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
+            this.ClientStatusId = clientStatus.Id;
+            this.LastUpdated = clientStatus.LastUpdated;
+            this.StatusDuration = clientStatus.StatusDuration;
+            this.Status = clientStatus.Status;
+            this.Message = clientStatus.Message;
         }
 
         /// <summary>

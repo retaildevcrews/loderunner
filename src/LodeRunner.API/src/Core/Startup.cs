@@ -37,7 +37,7 @@ namespace LodeRunner.API
         public Startup(IConfiguration configuration)
         {
             // keep a local reference
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         /// <summary>

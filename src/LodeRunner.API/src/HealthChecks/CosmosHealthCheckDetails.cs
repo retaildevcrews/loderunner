@@ -30,14 +30,14 @@ namespace LodeRunner.API
         /// <returns>HealthzCheck.</returns>
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
-            stopwatch.Stop();
+            this.stopwatch.Stop();
 
             // create the result
             HealthzCheck result = new ()
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
-                Duration = stopwatch.Elapsed,
+                Duration = this.stopwatch.Elapsed,
                 TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentId = testName,
                 ComponentType = "datastore",
@@ -75,17 +75,17 @@ namespace LodeRunner.API
             const string name = "getClientByClientStatusId";
             string path = "/api/clients/" + clientStatusId;
 
-            stopwatch.Restart();
+            this.stopwatch.Restart();
 
             try
             {
-                await clientStatusService.Get(clientStatusId);
+                await this.clientStatusService.Get(clientStatusId);
 
-                return BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
+                return this.BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, MaxResponseTime / 2, ex, data, name);
+                this.BuildHealthzCheck(path, MaxResponseTime / 2, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -102,17 +102,17 @@ namespace LodeRunner.API
 
             string path = "/api/clients";
 
-            stopwatch.Restart();
+            this.stopwatch.Restart();
 
             try
             {
-                await clientStatusService.GetMostRecent(1);
+                await this.clientStatusService.GetMostRecent(1);
 
-                return BuildHealthzCheck(path, MaxResponseTime, null, data, name);
+                return this.BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
+                this.BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;

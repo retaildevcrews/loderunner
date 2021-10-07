@@ -15,8 +15,8 @@ namespace LodeRunner.API.Middleware
         /// <param name="name">name of event.</param>
         public LogEventId(int eventId, string name)
         {
-            Id = eventId;
-            Name = name;
+            this.Id = eventId;
+            this.Name = name;
         }
 
         /// <summary>

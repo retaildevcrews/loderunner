@@ -64,9 +64,9 @@ namespace LodeRunner.API.Controllers
 
             if (list.Count > 0)
             {
-                Logger.LogWarning(nameof(GetClientByClientStatusId), "Invalid Client Status Id", NgsaLog.LogEvent400, HttpContext);
+                Logger.LogWarning(nameof(this.GetClientByClientStatusId), "Invalid Client Status Id", NgsaLog.LogEvent400, this.HttpContext);
 
-                return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(Request));
+                return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             Client client = appCache.GetClientByClientStatusId(clientStatusId);

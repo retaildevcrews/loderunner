@@ -25,12 +25,12 @@ namespace LodeRunner.API
         {
             get
             {
-                return logLevel;
+                return this.logLevel;
             }
 
             set
             {
-                logLevel = value <= LogLevel.Information ? LogLevel.Information : value;
+                this.logLevel = value <= LogLevel.Information ? LogLevel.Information : value;
             }
         }
 
@@ -41,12 +41,12 @@ namespace LodeRunner.API
          {
             get
             {
-                return requestLogLevel;
+                return this.requestLogLevel;
             }
 
             set
             {
-                requestLogLevel = value <= LogLevel.Information ? LogLevel.Information : value;
+                this.requestLogLevel = value <= LogLevel.Information ? LogLevel.Information : value;
             }
         }
 
@@ -62,12 +62,12 @@ namespace LodeRunner.API
         {
             get
             {
-                return urlPrefix;
+                return this.urlPrefix;
             }
 
             set
             {
-                urlPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value.TrimEnd('/');
+                this.urlPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value.TrimEnd('/');
             }
         }
 
@@ -78,13 +78,12 @@ namespace LodeRunner.API
         {
             get
             {
-                return secretsVolume;
+                return this.secretsVolume;
             }
 
             set
             {
-                secretsVolume = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
-            }
+                this.secretsVolume = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();            }
         }
 
         /// <summary>
@@ -94,13 +93,12 @@ namespace LodeRunner.API
         {
             get
             {
-                return cosmosName;
+                return this.cosmosName;
             }
 
             set
             {
-                cosmosName = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
-            }
+                this.cosmosName = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();            }
         }
 
         /// <summary>

@@ -86,8 +86,8 @@ namespace LodeRunner.API
                 data.Add("Version", Middleware.VersionExtension.Version);
 
                 // Run each health check
-                await GetClientStatusesAsync().ConfigureAwait(false);
-                await GetClientStatusByClientStatusIdAsync("0").ConfigureAwait(false);
+                await this.GetClientStatusesAsync().ConfigureAwait(false);
+                await this.GetClientStatusByClientStatusIdAsync("0").ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (object d in data.Values)
@@ -109,7 +109,7 @@ namespace LodeRunner.API
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
-                logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
+                this.logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
 
                 data.Add("CosmosException", ce.Message);
 
@@ -118,7 +118,7 @@ namespace LodeRunner.API
             catch (Exception ex)
             {
                 // log and return unhealthy
-                logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
+                this.logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
 
                 data.Add("Exception", ex.Message);
 

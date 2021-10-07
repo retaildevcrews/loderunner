@@ -58,7 +58,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>Boolean representing whether logLevel is enabled.</returns>
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel >= config.LogLevel;
+            return logLevel >= this.config.LogLevel;
         }
 
         /// <summary>
@@ -72,14 +72,14 @@ namespace LodeRunner.API.Middleware
         /// <param name="formatter">Formatter.</param>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (!IsEnabled(logLevel))
+            if (!this.IsEnabled(logLevel))
             {
                 return;
             }
 
             Dictionary<string, object> d = new ()
             {
-                { "logName", name },
+                { "logName", this.name },
                 { "logLevel", logLevel.ToString() },
                 { "eventId", eventId.Id },
                 { "eventName", eventId.Name },

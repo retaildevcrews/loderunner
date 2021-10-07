@@ -42,7 +42,7 @@ namespace LodeRunner.API.Services
         {
             get
             {
-                return (LRObserver)GetChangeFeedObserver();
+                return (LRObserver)this.GetChangeFeedObserver();
             }
         }
 

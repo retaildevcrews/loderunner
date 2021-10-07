@@ -31,18 +31,18 @@ namespace LodeRunner.API.Models
                 throw new ArgumentNullException(nameof(hzCheck));
             }
 
-            Status = ToIetfStatus(hzCheck.Status);
-            ComponentId = hzCheck.ComponentId;
-            ComponentType = hzCheck.ComponentType;
-            ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
-            TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
-            ObservedUnit = "ms";
-            Time = hzCheck.Time;
-            Message = hzCheck.Message;
+            this.Status = ToIetfStatus(hzCheck.Status);
+            this.ComponentId = hzCheck.ComponentId;
+            this.ComponentType = hzCheck.ComponentType;
+            this.ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
+            this.TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
+            this.ObservedUnit = "ms";
+            this.Time = hzCheck.Time;
+            this.Message = hzCheck.Message;
 
             if (hzCheck.Status != HealthStatus.Healthy && !string.IsNullOrEmpty(hzCheck.Endpoint))
             {
-                AffectedEndpoints = new List<string> { hzCheck.Endpoint };
+                this.AffectedEndpoints = new List<string> { hzCheck.Endpoint };
             }
         }
 

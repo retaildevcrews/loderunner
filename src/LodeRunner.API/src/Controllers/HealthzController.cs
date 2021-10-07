@@ -46,11 +46,11 @@ namespace LodeRunner.API.Controllers
         public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService)
         {
             // get list of genres as list of string
-            logger.LogInformation(nameof(RunHealthzAsync));
+            this.logger.LogInformation(nameof(this.RunHealthzAsync));
 
-            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
+            HealthCheckResult res = await this.RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
 
-            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+            this.HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
             ContentResult result = new ()
             {
@@ -71,15 +71,15 @@ namespace LodeRunner.API.Controllers
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService)
         {
-            logger.LogInformation(nameof(RunHealthzAsync));
+            this.logger.LogInformation(nameof(this.RunHealthzAsync));
 
             DateTime dt = DateTime.UtcNow;
 
-            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
+            HealthCheckResult res = await this.RunCosmosHealthCheck(clientStatusService).ConfigureAwait(false);
 
-            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+            this.HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            await CosmosHealthCheck.IetfResponseWriter(HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
+            await CosmosHealthCheck.IetfResponseWriter(this.HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace LodeRunner.API.Controllers
         /// <returns>HealthCheckResult.</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService)
         {
-            CosmosHealthCheck chk = new (hcLogger, clientStatusService);
+            CosmosHealthCheck chk = new (this.hcLogger, clientStatusService);
 
             return await chk.CheckHealthAsync(new HealthCheckContext()).ConfigureAwait(false);
         }

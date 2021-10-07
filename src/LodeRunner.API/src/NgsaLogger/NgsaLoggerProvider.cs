@@ -20,7 +20,7 @@ namespace LodeRunner.API.Middleware
         /// <param name="loggerConfig">NgsaLoggerConfig.</param>
         public NgsaLoggerProvider(NgsaLoggerConfiguration loggerConfig)
         {
-            config = loggerConfig;
+            this.config = loggerConfig;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>ILogger.</returns>
         public ILogger CreateLogger(string categoryName)
         {
-            NgsaLogger logger = loggers.GetOrAdd(categoryName, new NgsaLogger(categoryName, config));
+            NgsaLogger logger = this.loggers.GetOrAdd(categoryName, new NgsaLogger(categoryName, this.config));
             return logger;
         }
 
@@ -39,7 +39,7 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         public void Dispose()
         {
-            loggers.Clear();
+            this.loggers.Clear();
         }
     }
 }

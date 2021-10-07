@@ -138,9 +138,9 @@ namespace LodeRunner.API.Middleware
             CorrelationVector cv = CorrelationVectorExtensions.Extend(context);
 
             // Invoke next handler
-            if (next != null)
+            if (this.next != null)
             {
-                await next.Invoke(context).ConfigureAwait(false);
+                await this.next.Invoke(context).ConfigureAwait(false);
             }
 
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
@@ -151,7 +151,7 @@ namespace LodeRunner.API.Middleware
             // compute request duration
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
 
-            LogRequest(context, cv, ttfb, duration);
+            this.LogRequest(context, cv, ttfb, duration);
         }
 
         // convert StatusCode for metrics
@@ -215,9 +215,9 @@ namespace LodeRunner.API.Middleware
 
             string category = ValidationError.GetCategory(context, out string subCategory, out string mode);
 
-            if (config.RequestLogLevel != LogLevel.None &&
-                (config.RequestLogLevel <= LogLevel.Information ||
-                (config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
+            if (this.config.RequestLogLevel != LogLevel.None &&
+                (this.config.RequestLogLevel <= LogLevel.Information ||
+                (this.config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
                 context.Response.StatusCode >= 500))
             {
                 Dictionary<string, object> log = new ()

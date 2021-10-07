@@ -77,7 +77,7 @@ namespace LodeRunner.API.Middleware
         {
             if (LogLevel <= LogLevel.Information)
             {
-                WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
+                WriteLog(LogLevel.Information, this.GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
             }
         }
 
@@ -93,7 +93,7 @@ namespace LodeRunner.API.Middleware
         {
             if (LogLevel <= LogLevel.Warning)
             {
-                WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
+                WriteLog(LogLevel.Warning, this.GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
             }
         }
 
@@ -110,7 +110,7 @@ namespace LodeRunner.API.Middleware
         {
             if (LogLevel <= LogLevel.Error)
             {
-                Dictionary<string, object> d = GetDictionary(method, message, LogLevel.Error, eventId, context);
+                Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
 
                 // add exception
                 if (ex != null)
@@ -161,7 +161,7 @@ namespace LodeRunner.API.Middleware
             Dictionary<string, object> data = new ()
             {
                 { "Date", DateTime.UtcNow },
-                { "LogName", Name },
+                { "LogName", this.Name },
                 { "Method", method },
                 { "Message", message },
                 { "LogLevel", logLevel.ToString() },
