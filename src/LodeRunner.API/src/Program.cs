@@ -92,10 +92,17 @@ namespace LodeRunner.API
 
             try
             {
-                var testCodeQL = new TestCodeQL();
-                testCodeQL.SetPassword("Hello");
+                try
+                {
+                    var testCodeQL = new TestCodeQL();
+                    testCodeQL.SetPassword("Hello");
 
-                string password = testCodeQL.GetPassword();
+                    string password = testCodeQL.GetPassword();
+                }
+                catch (NullReferenceException ex)
+                {
+                    Console.WriteLine("Connection string is null", ex);
+                }
 
                 Init(config, logger);
 
