@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Data;
+using LodeRunner.API.Handlers.ExceptionMiddleware;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
@@ -91,6 +92,11 @@ namespace LodeRunner.API
 
             try
             {
+                var testCodeQL = new TestCodeQL();
+                testCodeQL.SetPassword("Hello");
+
+                string password = testCodeQL.GetPassword();
+
                 Init(config, logger);
 
                 if (host == null)
