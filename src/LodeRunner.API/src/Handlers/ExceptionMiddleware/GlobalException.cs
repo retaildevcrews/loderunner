@@ -28,6 +28,8 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
             this.next = next;
         }
 
+        public string Password { get; set; } = "This is a security-event test";
+
         /// <summary>
         /// Invokes the asynchronous.
         /// </summary>
