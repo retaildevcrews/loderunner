@@ -53,27 +53,29 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
         /// <param name="exception">The exception.</param>
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            string errorMessage = HttpStatusCode.InternalServerError.ToString();
-            int statusCode = context.Response.StatusCode;
+            context.Response.ContentType = "application/json"; 
+            string errorMessage;
 
             if (exception.GetType() == typeof(OperationCanceledException))
             {
+                context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+
                 errorMessage = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}";
-                statusCode = (int)HttpStatusCode.ServiceUnavailable;
-                context.Response.StatusCode = statusCode;
+
                 this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
             }
             else
             {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                errorMessage = $"{HttpStatusCode.InternalServerError} - {exception.Message}";
+
                 this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
             }
 
             await context.Response.WriteAsync(new ErrorDetails()
             {
-                StatusCode = statusCode,
+                StatusCode = context.Response.StatusCode,
                 Message = errorMessage,
             }.ToString());
         }
