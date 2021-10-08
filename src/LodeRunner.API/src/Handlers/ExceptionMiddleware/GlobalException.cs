@@ -53,7 +53,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
         /// <param name="exception">The exception.</param>
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json"; 
+            context.Response.ContentType = "application/json";
             string errorMessage;
 
             if (exception.GetType() == typeof(OperationCanceledException))
