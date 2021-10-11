@@ -37,5 +37,20 @@ namespace LodeRunner.API
         /// Client IP header.
         /// </summary>
         public const string IpHeader = "X-Client-IP";
+
+        /// <summary>
+        /// The terminating string.
+        /// </summary>
+        public const string Terminating = "Terminating";
+
+        /// <summary>
+        /// The termination description string.
+        /// </summary>
+        public const string TerminationDescription = "Termination requested via Cancellation Token.";
+
+        /// <summary>
+        /// The unknown string.
+        /// </summary>
+        public const string Unknown = "unknown";
     }
 }

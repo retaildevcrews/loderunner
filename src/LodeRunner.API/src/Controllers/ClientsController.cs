@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
@@ -38,12 +39,19 @@ namespace LodeRunner.API.Controllers
         /// Returns a JSON array of Client objects.
         /// </summary>
         /// <param name="appCache">The cache service.</param>
+        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        public IActionResult GetClients([FromServices] ILRAPICache appCache)
+        public IActionResult GetClients([FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
-            List<Client> clients = (List<Client>)appCache.GetClients();
-            return appCache.HandleCacheResult<IEnumerable<Client>>(clients, Logger);
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            IEnumerable<Client> clients = appCache.GetClients();
+
+            return appCache.HandleCacheResult(clients, Logger);
         }
 
         /// <summary>
@@ -51,10 +59,16 @@ namespace LodeRunner.API.Controllers
         /// </summary>
         /// <param name="clientStatusId">clientStatusId.</param>
         /// <param name="appCache">The cache service.</param>
+        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
-        public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache)
+        public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return ResultHandler.CreateCancellationInProgressResult();
+            }
+
             if (string.IsNullOrWhiteSpace(clientStatusId))
             {
                 return ResultHandler.CreateResult("clientStatusId cannot be empty.", HttpStatusCode.BadRequest);

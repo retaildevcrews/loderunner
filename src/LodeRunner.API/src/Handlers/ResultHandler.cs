@@ -31,6 +31,16 @@ namespace LodeRunner.API.Middleware
 
         /// <summary>
         /// ContentResult factory.
+        /// Creates Cancellation InProgress Result.
+        /// </summary>
+        /// <returns>JsonResult.</returns>
+        public static JsonResult CreateCancellationInProgressResult()
+        {
+            return CreateResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
+        }
+
+        /// <summary>
+        /// ContentResult factory.
         /// </summary>
         /// <param name="errorList">list of validation errors.</param>
         /// <param name="path">string.</param>

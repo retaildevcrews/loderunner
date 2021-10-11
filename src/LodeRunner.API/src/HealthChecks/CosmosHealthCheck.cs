@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Data.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -22,14 +23,29 @@ namespace LodeRunner.API
     public partial class CosmosHealthCheck : IHealthCheck
     {
         /// <summary>
-        /// Service ID.
+        /// The service identifier.
         /// </summary>
-        public static readonly string ServiceId = "LodeRunner.API";
+        public const string ServiceId = "LodeRunner.API";
 
         /// <summary>
-        /// Description.
+        /// The description.
         /// </summary>
-        public static readonly string Description = "LodeRunner.API Health Check";
+        public const string Description = "LodeRunner.API Health Check";
+
+        /// <summary>
+        /// The instance.
+        /// </summary>
+        public const string Instance = "Instance";
+
+        /// <summary>
+        /// The version.
+        /// </summary>
+        public const string Version = "Version";
+
+        /// <summary>
+        /// The web site role env variable.
+        /// </summary>
+        public const string WebSiteRoleEnvVar = "WEBSITE_ROLE_INSTANCE_ID";
 
         private static JsonSerializerOptions jsonOptions;
 
@@ -72,18 +88,24 @@ namespace LodeRunner.API
         /// <param name="context">HealthCheckContext.</param>
         /// <param name="cancellationToken">CancellationToken.</param>
         /// <returns>HealthCheckResult.</returns>
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
             // dictionary
             Dictionary<string, object> data = new ();
 
+            // add instance and version
+            data.Add(Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown);
+            data.Add(Version, Middleware.VersionExtension.Version);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                data.Add(SystemConstants.Terminating, SystemConstants.TerminationDescription);
+                return new HealthCheckResult(HealthStatus.Unhealthy, Description, data: data);
+            }
+
             try
             {
                 HealthStatus status = HealthStatus.Healthy;
-
-                // add instance and version
-                data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
-                data.Add("Version", Middleware.VersionExtension.Version);
 
                 // Run each health check
                 await this.GetClientStatusesAsync().ConfigureAwait(false);
