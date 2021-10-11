@@ -1,2 +1,2 @@
-export { default as ConfigsContext } from "./configs";
-export { default as LoadClientContext } from "./loadClients";
+// eslint-disable-next-line
+export { default as ClientContext } from "./clients";

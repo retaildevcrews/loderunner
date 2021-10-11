@@ -1,45 +1,54 @@
-import { useState } from "react";
-import LoadClients from "../LoadClients";
-import LoadClientDetails from "../LoadClientDetails";
-import Configs from "../Configs";
-import { ConfigsContext, LoadClientContext } from "../../contexts";
-import { loadClients, configs, loadTests } from "../../data";
-
+import { useEffect, useState } from "react";
+import Clients from "../Clients";
+import ClientDetails from "../ClientDetails";
+import { ClientContext } from "../../contexts";
 import "./styles.css";
 
 function App() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currClientDetails, setCurrClientDetails] = useState(-1);
+  const [clients, setClients] = useState([]);
+  const [clientDetailsIndex, setClientDetailsIndex] = useState(-1);
+  const [isClientDetailsOpen, setIsClientDetailsOpen] = useState(false);
 
-  const handleOpen = (index) => {
-    setIsOpen(true);
-    setCurrClientDetails(index);
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_SERVER}/api/clients`)
+      .then((res) => res.json())
+      .then((body) => {
+        if (Array.isArray(body)) {
+          setClients(body.filter((c) => c));
+        }
+      })
+      .catch((err) => {
+        // eslint-disable-next-line
+        console.error("Issue fetching Clients", err);
+      });
+  }, []);
+
+  const resetClientDetailsIndex = () => {
+    setClientDetailsIndex(-1);
   };
 
-  const resetCurrClientDetails = () => {
-    setCurrClientDetails(-1);
+  const handleClientDetailsClose = () => {
+    setIsClientDetailsOpen(false);
+    resetClientDetailsIndex();
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-    resetCurrClientDetails();
+  const handleClientDetailsOpen = (index) => {
+    setIsClientDetailsOpen(true);
+    setClientDetailsIndex(index);
   };
 
   return (
-    <div className="App">
-      <LoadClientContext.Provider value={{ loadClients }}>
-        <LoadClients handleOpen={handleOpen} />
-        {isOpen && (
-          <LoadClientDetails
-            handleClose={handleClose}
-            currClientDetails={currClientDetails}
+    <>
+      <ClientContext.Provider value={{ clients }}>
+        <Clients openClientDetails={handleClientDetailsOpen} />
+        {isClientDetailsOpen && (
+          <ClientDetails
+            closeModal={handleClientDetailsClose}
+            clientDetailsIndex={clientDetailsIndex}
           />
         )}
-      </LoadClientContext.Provider>
-      <ConfigsContext.Provider value={{ configs, loadTests }}>
-        <Configs />
-      </ConfigsContext.Provider>
-    </div>
+      </ClientContext.Provider>
+    </>
   );
 }
 
