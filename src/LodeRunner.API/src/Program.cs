@@ -91,7 +91,7 @@ namespace LodeRunner.API
 
             try
             {
-                Init(config);
+                Init(config, logger);
 
                 if (host == null)
                 {
@@ -107,10 +107,8 @@ namespace LodeRunner.API
                 // log startup messages
                 logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
-                ForceToCreateRequiredSystemObjects();
-
-                 // start CosmosDB Change Feed Processor
-                await GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+                // Preps the system.
+                InitializeSystemComponents();
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -127,6 +125,33 @@ namespace LodeRunner.API
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Initializes the system components.
+        /// </summary>
+        private static void InitializeSystemComponents()
+        {
+            // Forces the creation of Required System Objects
+            ForceToCreateRequiredSystemObjects();
+
+            // Registers the cancellation tokens for services.
+            RegisterCancellationTokensForServices();
+
+            // start CosmosDB Change Feed Processor
+            GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+        }
+
+        /// <summary>
+        /// Registers the cancellation tokens for services.
+        /// This method will allows to register multiple Cancellation tokens with different purposes for different Services.
+        /// </summary>
+        private static void RegisterCancellationTokensForServices()
+        {
+            cancelTokenSource.Token.Register(() =>
+            {
+                GetLRAPIChangeFeedService().StopChangeFeedProcessor();
+            });
         }
 
         /// <summary>
@@ -210,7 +235,8 @@ namespace LodeRunner.API
         /// Initializes the specified configuration.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        private static void Init(Config config)
+        /// <param name="logger">The logger.</param>
+        private static void Init(Config config, NgsaLog logger)
         {
             // load secrets from volume
             LoadSecrets(config);
@@ -220,7 +246,7 @@ namespace LodeRunner.API
             NgsaLog.LogLevel = config.LogLevel;
 
             // build the host will register Data Access Services in Startup.
-            host = BuildHost(config);
+            host = BuildHost(config, logger);
         }
 
         // load secrets from volume
@@ -238,13 +264,14 @@ namespace LodeRunner.API
         }
 
         // Build the web host
-        private static IWebHost BuildHost(Config config)
+        private static IWebHost BuildHost(Config config, NgsaLog ngsalog)
         {
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                    services.AddSingleton<NgsaLog>(ngsalog);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
@@ -276,6 +303,14 @@ namespace LodeRunner.API
         // Create a CancellationTokenSource that cancels on ctl-c or sigterm
         private static void SetupSigTermHandler(IWebHost host, NgsaLog logger)
         {
+            AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
+            {
+                if (!cancelTokenSource.IsCancellationRequested)
+                {
+                    cancelTokenSource.Cancel(false);
+                }
+            };
+
             Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;
