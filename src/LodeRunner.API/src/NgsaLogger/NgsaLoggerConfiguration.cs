@@ -6,10 +6,13 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// NGSA Logger Configuration
+    /// NGSA Logger Configuration.
     /// </summary>
     public class NgsaLoggerConfiguration
     {
+        /// <summary>
+        /// Gets or sets the log level.
+        /// </summary>
         public LogLevel LogLevel { get; set; } = LogLevel.Warning;
     }
 }

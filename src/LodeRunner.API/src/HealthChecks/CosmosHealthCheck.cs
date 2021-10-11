@@ -18,14 +18,33 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Cosmos Health Check
+    /// Cosmos Health Check.
     /// </summary>
     public partial class CosmosHealthCheck : IHealthCheck
     {
-        public const string ServiceId = "relayRunner";
-        public const string Description = "RelayRunner Health Check";
+        /// <summary>
+        /// The service identifier.
+        /// </summary>
+        public const string ServiceId = "LodeRunner.API";
+
+        /// <summary>
+        /// The description.
+        /// </summary>
+        public const string Description = "LodeRunner.API Health Check";
+
+        /// <summary>
+        /// The instance.
+        /// </summary>
         public const string Instance = "Instance";
+
+        /// <summary>
+        /// The version.
+        /// </summary>
         public const string Version = "Version";
+
+        /// <summary>
+        /// The web site role env variable.
+        /// </summary>
         public const string WebSiteRoleEnvVar = "WEBSITE_ROLE_INSTANCE_ID";
 
         private static JsonSerializerOptions jsonOptions;
@@ -36,8 +55,8 @@ namespace LodeRunner.API
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosHealthCheck"/> class.
         /// </summary>
-        /// <param name="logger">ILogger</param>
-        /// <param name="clientStatusService">the clientStatusService </param>
+        /// <param name="logger">ILogger.</param>
+        /// <param name="clientStatusService">the clientStatusService.</param>
         public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService)
         {
             // save to member vars
@@ -64,11 +83,11 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Run the health check (IHealthCheck)
+        /// Run the health check (IHealthCheck).
         /// </summary>
-        /// <param name="context">HealthCheckContext</param>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>HealthCheckResult</returns>
+        /// <param name="context">HealthCheckContext.</param>
+        /// <param name="cancellationToken">CancellationToken.</param>
+        /// <returns>HealthCheckResult.</returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
             // dictionary
@@ -89,8 +108,8 @@ namespace LodeRunner.API
                 HealthStatus status = HealthStatus.Healthy;
 
                 // Run each health check
-                await GetClientStatusesAsync().ConfigureAwait(false);
-                await GetClientStatusByClientStatusIdAsync("0").ConfigureAwait(false);
+                await this.GetClientStatusesAsync().ConfigureAwait(false);
+                await this.GetClientStatusByClientStatusIdAsync("0").ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (object d in data.Values)
@@ -112,7 +131,7 @@ namespace LodeRunner.API
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
-                logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
+                this.logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
 
                 data.Add("CosmosException", ce.Message);
 
@@ -121,7 +140,7 @@ namespace LodeRunner.API
             catch (Exception ex)
             {
                 // log and return unhealthy
-                logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
+                this.logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
 
                 data.Add("Exception", ex.Message);
 

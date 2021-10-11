@@ -6,26 +6,26 @@ using Microsoft.AspNetCore.Http;
 namespace LodeRunner.API.Middleware.Validation
 {
     /// <summary>
-    /// Validation Error Class
+    /// Validation Error Class.
     /// </summary>
     public class ValidationError
     {
         /// <summary>
-        /// Gets or sets error Target
+        /// Gets or sets error Target.
         /// </summary>
         public string Target { get; set; }
 
         /// <summary>
-        /// Gets or sets error Message
+        /// Gets or sets error Message.
         /// </summary>
         public string Message { get; set; }
 
         /// <summary>
         /// Get standard error message
-        ///     changing these will require changes to the json validation tests
+        ///     changing these will require changes to the json validation tests.
         /// </summary>
-        /// <param name="fieldName">field name</param>
-        /// <returns>string</returns>
+        /// <param name="fieldName">field name.</param>
+        /// <returns>string.</returns>
         public static string GetErrorMessage(string fieldName)
         {
             return fieldName.ToUpperInvariant() switch
@@ -36,10 +36,10 @@ namespace LodeRunner.API.Middleware.Validation
         }
 
         /// <summary>
-        /// Get the doc link based on request URL
+        /// Get the doc link based on request URL.
         /// </summary>
-        /// <param name="path">full request path</param>
-        /// <returns>link to doc</returns>
+        /// <param name="path">full request path.</param>
+        /// <returns>link to doc.</returns>
         public static string GetErrorLink(string path)
         {
             string s = "https://github.com/retaildevcrews/loderunner/blob/main/docs/ParameterValidation.md";
@@ -54,6 +54,13 @@ namespace LodeRunner.API.Middleware.Validation
             return s;
         }
 
+        /// <summary>
+        /// Gets category.
+        /// </summary>
+        /// <param name="context">HttpContext.</param>
+        /// <param name="subCategory">subCategory.</param>
+        /// <param name="mode">Mode.</param>
+        /// <returns>Category.</returns>
         public static string GetCategory(HttpContext context, out string subCategory, out string mode)
         {
             string category;

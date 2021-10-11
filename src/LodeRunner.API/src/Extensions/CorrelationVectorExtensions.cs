@@ -9,15 +9,15 @@ using Microsoft.CorrelationVector;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Correlation Vector extensions
+    /// Correlation Vector extensions.
     /// </summary>
     public static class CorrelationVectorExtensions
     {
         /// <summary>
-        /// Get the Correlation Vector base
+        /// Get the Correlation Vector base.
         /// </summary>
-        /// <param name="correlationVector">Correlation Vector</param>
-        /// <returns>string</returns>
+        /// <param name="correlationVector">Correlation Vector.</param>
+        /// <returns>string.</returns>
         public static string GetBase(this CorrelationVector correlationVector)
         {
             if (correlationVector == null)
@@ -33,10 +33,10 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Extend correlation vector
+        /// Extend correlation vector.
         /// </summary>
-        /// <param name="context">http context</param>
-        /// <returns>extended CV</returns>
+        /// <param name="context">http context.</param>
+        /// <returns>extended CV.</returns>
         public static CorrelationVector Extend(HttpContext context)
         {
             if (context == null)
@@ -72,6 +72,11 @@ namespace LodeRunner.API.Middleware
             return cv;
         }
 
+        /// <summary>
+        /// Gets correlation vector from context.
+        /// </summary>
+        /// <param name="context">Http context.</param>
+        /// <returns>CorrelationVector or null.</returns>
         public static CorrelationVector GetCorrelationVectorFromContext(HttpContext context)
         {
             if (context != null && context.Items.ContainsKey(CorrelationVector.HeaderName))
@@ -82,6 +87,11 @@ namespace LodeRunner.API.Middleware
             return null;
         }
 
+        /// <summary>
+        /// Puts correaction vector.
+        /// </summary>
+        /// <param name="cvector">Correlation vector.</param>
+        /// <param name="context">Http context.</param>
         public static void PutCorrelationVectorIntoContext(this CorrelationVector cvector, HttpContext context)
         {
             if (cvector == null)

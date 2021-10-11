@@ -11,25 +11,38 @@ using IChangeFeedObserver = Microsoft.Azure.Documents.ChangeFeedProcessor.FeedPr
 namespace LodeRunner.API.Services
 {
     /// <summary>
-    /// Implements the Relay Runner API Change Feed Service
+    /// Implements the Relay Runner API Change Feed Service.
     /// </summary>
     /// <seealso cref="LodeRunner.Services.ChangeFeedService" />
     public class LRAPIChangeFeedService : ChangeFeedService, ILRAPIChangeFeedService
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LRAPIChangeFeedService"/> class.
+        /// </summary>
+        /// <param name="cosmosDBRepository">CosmosDB repository.</param>
         public LRAPIChangeFeedService(ICosmosDBRepository cosmosDBRepository)
            : base(cosmosDBRepository)
         {
         }
 
+        /// <summary>
+        /// Gets lease container name for changefeed.
+        /// </summary>
         public override string ChangeFeedLeaseName => "LRAPI";
 
+        /// <summary>
+        /// Gets host name for changefeed processor.
+        /// </summary>
         public override string HostName => $"Host - {Guid.NewGuid()}";
 
+        /// <summary>
+        /// Gets changefeed observer instance.
+        /// </summary>
         public LRObserver ChangeFeedObserver
         {
             get
             {
-                return (LRObserver)GetChangeFeedObserver();
+                return (LRObserver)this.GetChangeFeedObserver();
             }
         }
 

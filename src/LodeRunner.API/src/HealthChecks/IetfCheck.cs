@@ -8,7 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace LodeRunner.API.Models
 {
     /// <summary>
-    /// Health Check that supports IETF json
+    /// Health Check that supports IETF json.
     /// </summary>
     public class IetfCheck
     {
@@ -21,9 +21,9 @@ namespace LodeRunner.API.Models
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IetfCheck"/> class.
-        /// Create an IetfCheck from a HealthzCheck
+        /// Create an IetfCheck from a HealthzCheck.
         /// </summary>
-        /// <param name="hzCheck">HealthzCheck</param>
+        /// <param name="hzCheck">HealthzCheck.</param>
         public IetfCheck(HealthzCheck hzCheck)
         {
             if (hzCheck == null)
@@ -31,36 +31,71 @@ namespace LodeRunner.API.Models
                 throw new ArgumentNullException(nameof(hzCheck));
             }
 
-            Status = ToIetfStatus(hzCheck.Status);
-            ComponentId = hzCheck.ComponentId;
-            ComponentType = hzCheck.ComponentType;
-            ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
-            TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
-            ObservedUnit = "ms";
-            Time = hzCheck.Time;
-            Message = hzCheck.Message;
+            this.Status = ToIetfStatus(hzCheck.Status);
+            this.ComponentId = hzCheck.ComponentId;
+            this.ComponentType = hzCheck.ComponentType;
+            this.ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
+            this.TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
+            this.ObservedUnit = "ms";
+            this.Time = hzCheck.Time;
+            this.Message = hzCheck.Message;
 
             if (hzCheck.Status != HealthStatus.Healthy && !string.IsNullOrEmpty(hzCheck.Endpoint))
             {
-                AffectedEndpoints = new List<string> { hzCheck.Endpoint };
+                this.AffectedEndpoints = new List<string> { hzCheck.Endpoint };
             }
         }
 
+        /// <summary>
+        /// Gets or sets the status.
+        /// </summary>
         public string Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the component ID.
+        /// </summary>
         public string ComponentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the component type.
+        /// </summary>
         public string ComponentType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the observed unit.
+        /// </summary>
         public string ObservedUnit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the observed value.
+        /// </summary>
         public double ObservedValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target value.
+        /// </summary>
         public double TargetValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time.
+        /// </summary>
         public string Time { get; set; }
+
+        /// <summary>
+        /// Gets the affected endpoints.
+        /// </summary>
         public List<string> AffectedEndpoints { get; }
+
+        /// <summary>
+        /// Gets or sets the message.
+        /// </summary>
         public string Message { get; set; }
 
         /// <summary>
-        /// Convert the dotnet HealthStatus to the IETF Status
+        /// Convert the dotnet HealthStatus to the IETF Status.
         /// </summary>
-        /// <param name="status">HealthStatus (dotnet)</param>
-        /// <returns>string</returns>
+        /// <param name="status">HealthStatus (dotnet).</param>
+        /// <returns>string.</returns>
         public static string ToIetfStatus(HealthStatus status)
         {
             return status switch

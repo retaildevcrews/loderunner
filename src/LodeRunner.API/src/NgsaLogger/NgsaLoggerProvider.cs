@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// NGSA Logger Provider
+    /// NGSA Logger Provider.
     /// </summary>
     public sealed class NgsaLoggerProvider : ILoggerProvider
     {
@@ -17,29 +17,29 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Initializes a new instance of the <see cref="NgsaLoggerProvider"/> class.
         /// </summary>
-        /// <param name="loggerConfig">NgsaLoggerConfig</param>
+        /// <param name="loggerConfig">NgsaLoggerConfig.</param>
         public NgsaLoggerProvider(NgsaLoggerConfiguration loggerConfig)
         {
-            config = loggerConfig;
+            this.config = loggerConfig;
         }
 
         /// <summary>
-        /// Create a logger by category name (usually assembly)
+        /// Create a logger by category name (usually assembly).
         /// </summary>
-        /// <param name="categoryName">Category Name</param>
-        /// <returns>ILogger</returns>
+        /// <param name="categoryName">Category Name.</param>
+        /// <returns>ILogger.</returns>
         public ILogger CreateLogger(string categoryName)
         {
-            NgsaLogger logger = loggers.GetOrAdd(categoryName, new NgsaLogger(categoryName, config));
+            NgsaLogger logger = this.loggers.GetOrAdd(categoryName, new NgsaLogger(categoryName, this.config));
             return logger;
         }
 
         /// <summary>
-        /// IDispose.Dispose()
+        /// IDispose.Dispose().
         /// </summary>
         public void Dispose()
         {
-            loggers.Clear();
+            this.loggers.Clear();
         }
     }
 }

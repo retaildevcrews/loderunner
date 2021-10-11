@@ -5,10 +5,19 @@ using System.Net;
 
 namespace LodeRunner.API.Middleware
 {
+    /// <summary>
+    /// Erred result.
+    /// </summary>
     public class ErrorResult
     {
+        /// <summary>
+        /// Gets or sets erred result message.
+        /// </summary>
         public string Message { get; set; }
 
+        /// <summary>
+        /// Gets or sets the erred result status code.
+        /// </summary>
         public HttpStatusCode Error { get; set; }
     }
 }

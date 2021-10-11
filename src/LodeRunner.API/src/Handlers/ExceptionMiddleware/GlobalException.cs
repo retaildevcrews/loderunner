@@ -37,12 +37,12 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
         {
             try
             {
-                await next(httpContext);
+                await this.next(httpContext);
             }
             catch (Exception ex)
             {
-                logger.LogError("Global Exception", $"{ex.Message}", ex: ex);
-                await HandleExceptionAsync(httpContext, ex);
+                this.logger.LogError("Global Exception", $"{ex.Message}", ex: ex);
+                await this.HandleExceptionAsync(httpContext, ex);
             }
         }
 

@@ -10,6 +10,9 @@ using static LodeRunner.Services.ChangeFeedService;
 
 namespace LodeRunner.API.Interfaces
 {
+    /// <summary>
+    /// Interface for the LodeRunner.API changefeed service.
+    /// </summary>
     internal interface ILRAPIChangeFeedService : IChangeFeedService
     {
         /// <summary>

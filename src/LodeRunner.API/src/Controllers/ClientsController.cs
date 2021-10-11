@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LodeRunner.API.Controllers
 {
     /// <summary>
-    /// Handle all of the /api/clients requests
+    /// Handle all of the /api/clients requests.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -36,11 +36,11 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a JSON array of Client objects
+        /// Returns a JSON array of Client objects.
         /// </summary>
         /// <param name="appCache">The cache service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet]
         public IActionResult GetClients([FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
@@ -55,12 +55,12 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a single JSON Client by Parameter, clientStatusId
+        /// Returns a single JSON Client by Parameter, clientStatusId.
         /// </summary>
-        /// <param name="clientStatusId">clientStatusId</param>
+        /// <param name="clientStatusId">clientStatusId.</param>
         /// <param name="appCache">The cache service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
         public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
@@ -78,9 +78,9 @@ namespace LodeRunner.API.Controllers
 
             if (list.Count > 0)
             {
-                Logger.LogWarning(nameof(GetClientByClientStatusId), "Invalid Client Status Id", NgsaLog.LogEvent400, HttpContext);
+                Logger.LogWarning(nameof(this.GetClientByClientStatusId), "Invalid Client Status Id", NgsaLog.LogEvent400, this.HttpContext);
 
-                return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(Request));
+                return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             Client client = appCache.GetClientByClientStatusId(clientStatusId);

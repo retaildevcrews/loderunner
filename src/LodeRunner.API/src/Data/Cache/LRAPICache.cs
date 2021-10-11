@@ -23,7 +23,7 @@ using CoreSystemConstants = LodeRunner.Core.SystemConstants;
 namespace LodeRunner.API.Data
 {
     /// <summary>
-    /// Cached Data
+    /// Cached Data.
     /// </summary>
     public class LRAPICache : BaseAppCache, ILRAPICache
     {
@@ -40,44 +40,63 @@ namespace LodeRunner.API.Data
         private readonly IClientStatusService clientStatusService;
         private readonly ILoadTestConfigService loadTestConfigService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LRAPICache"/> class.
+        /// </summary>
+        /// <param name="clientStatusService">Injection of client status service.</param>
+        /// <param name="loadTestConfigService">injection of load test config service.</param>
+        /// <param name="cancellationTokenSource">Cancellation token source.</param>
         public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
             : base(cancellationTokenSource)
         {
             this.clientStatusService = clientStatusService;
             this.loadTestConfigService = loadTestConfigService;
-            SetClientCache();
+            this.SetClientCache();
         }
 
+        /// <summary>
+        /// Handles cache results.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type of results.</typeparam>
+        /// <param name="results">Results from cache get.</param>
+        /// <param name="logger">Logger.</param>
+        /// <returns>IActionResult.</returns>
         public IActionResult HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+            logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (!results.Any())
             {
-                logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+                logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
                 return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NoContent);
             }
 
-            return InternalReturnOKResult(results);
+            return this.InternalReturnOKResult(results);
         }
 
+        /// <inheritdoc/>
         public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+            logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (results == null)
             {
-                logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+                logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
                 return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
-            return InternalReturnOKResult(results);
+            return this.InternalReturnOKResult(results);
         }
 
+        /// <summary>
+        /// Gets client from cache by clientStatusId.
+        /// </summary>
+        /// <param name="clientStatusId">Client status ID.</param>
+        /// <returns>Client.</returns>
         public Client GetClientByClientStatusId(string clientStatusId)
         {
             this.ValidateEntityId(clientStatusId);
@@ -85,20 +104,27 @@ namespace LodeRunner.API.Data
             return this.GetEntry<Client>(clientStatusId);
         }
 
+        /// <summary>
+        /// Get clients from cache.
+        /// </summary>
+        /// <returns>clients.</returns>
         public IEnumerable<Client> GetClients()
         {
             return this.GetEntries<Client>();
         }
 
+        /// <summary>
+        /// Processes clientStatus changefeed items.
+        /// </summary>
+        /// <param name="doc">Changefeed item.</param>
         public void ProcessClientStatusChange(Document doc)
         {
             ClientStatus clientStatus = (dynamic)doc;
 
             // TODO: Need to validate clientStatus all together  before to create Client ?
+            this.ValidateEntityId(clientStatus.Id);
 
-            ValidateEntityId(clientStatus.Id);
-
-            this.SetEntry(clientStatus.Id, new Client(clientStatus), GetMemoryCacheEntryOptions());
+            this.SetEntry(clientStatus.Id, new Client(clientStatus), this.GetMemoryCacheEntryOptions());
         }
 
         /// <summary>
@@ -116,7 +142,7 @@ namespace LodeRunner.API.Data
             catch (Exception ex)
             {
                 // log and return exception
-                logger.LogError(nameof(HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+                this.logger.LogError(nameof(this.HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
 
                 // return 500 error
                 return ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
@@ -161,7 +187,7 @@ namespace LodeRunner.API.Data
              .RegisterPostEvictionCallback(async (key, value, reason, state) =>
              {
                  // log the request
-                 logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
+                 this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
                  // NOTE: EvictionReason.Removed or EvictionReason.Replaced
                  if (reason <= EvictionReason.Replaced)
@@ -170,7 +196,6 @@ namespace LodeRunner.API.Data
                      // Also if we already initiated Cache.Set() to do a replace we do not need to query and replace the key,
                      // neither if key was removed for a EvictionReason other that  Expired,  TokenExpired  or  Capacity.
                      // if so  this will cause a indefinitely loop, since we call this.Cache.Set to update the key.
-
                      return;
                  }
 
@@ -178,17 +203,17 @@ namespace LodeRunner.API.Data
                  try
                  {
                      // Get Client Status from Cosmos
-                     ClientStatus clientStatus = await clientStatusService.Get(clientStatusId);
+                     ClientStatus clientStatus = await this.clientStatusService.Get(clientStatusId);
 
                      // if still exists, update
-                     this.SetEntry(key, new Client(clientStatus), GetMemoryCacheEntryOptions());
+                     this.SetEntry(key, new Client(clientStatus), this.GetMemoryCacheEntryOptions());
                  }
                  catch (CosmosException ce)
                  {
                      // log Cosmos status code
                      if (ce.StatusCode == HttpStatusCode.NotFound)
                      {
-                         logger.LogInformation("MemoryCacheEntryOptions.RegisterPostEvictionCallback", $"{logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
+                         this.logger.LogInformation("MemoryCacheEntryOptions.RegisterPostEvictionCallback", $"{this.logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
                      }
                      else
                      {
@@ -205,18 +230,18 @@ namespace LodeRunner.API.Data
         private void SetClientCache()
         {
             // log the request
-            logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
+            this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
             try
             {
                 // cache client statuses
-                var results = clientStatusService.GetAll().Result.ToList();
+                var results = this.clientStatusService.GetAll().Result.ToList();
 
                 foreach (var item in results)
                 {
                     var client = new Client(item);
 
-                    this.SetEntry(client.ClientStatusId, client, GetMemoryCacheEntryOptions());
+                    this.SetEntry(client.ClientStatusId, client, this.GetMemoryCacheEntryOptions());
                 }
             }
             catch (CosmosException ce)
@@ -224,16 +249,16 @@ namespace LodeRunner.API.Data
                 // log and return Cosmos status code
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
-                    logger.LogWarning(nameof(SetClientCache), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    this.logger.LogWarning(nameof(this.SetClientCache), this.logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
                 }
                 else
                 {
-                    throw new Exception($"{nameof(SetClientCache)}: {ce.Message}", ce);
+                    throw new Exception($"{nameof(this.SetClientCache)}: {ce.Message}", ce);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception($"{nameof(SetClientCache)}: {ex.Message}", ex);
+                throw new Exception($"{nameof(this.SetClientCache)}: {ex.Message}", ex);
             }
         }
     }

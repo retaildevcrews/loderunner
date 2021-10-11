@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Middleware
 {
+    /// <summary>
+    /// Application logger.
+    /// </summary>
     public class NgsaLog
     {
         private static readonly JsonSerializerOptions Options = new ()
@@ -18,63 +21,96 @@ namespace LodeRunner.API.Middleware
             IgnoreNullValues = true,
         };
 
+        /// <summary>
+        /// Gets or sets LogLevel.
+        /// </summary>
         public static LogLevel LogLevel { get; set; } = LogLevel.Information;
+
+        /// <summary>
+        /// Gets or sets Zone.
+        /// </summary>
         public static string Zone { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets Region.
+        /// </summary>
         public static string Region { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets 400 log event.
+        /// </summary>
         public static LogEventId LogEvent400 { get; } = new ((int)HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString());
+
+        /// <summary>
+        /// Gets 404 log event.
+        /// </summary>
         public static LogEventId LogEvent404 { get; } = new ((int)HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+
+        /// <summary>
+        /// Gets 500 log event.
+        /// </summary>
         public static LogEventId LogEvent500 { get; } = new ((int)HttpStatusCode.InternalServerError, "Exception");
 
+        /// <summary>
+        /// Gets or sets Name.
+        /// </summary>
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets ErrorMessage.
+        /// </summary>
         public string ErrorMessage { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets NotFoundError.
+        /// </summary>
         public string NotFoundError { get; set; } = string.Empty;
 
         /// <summary>
-        /// Log information message
+        /// Log information message.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="context">http context</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogInformation(string method, string message, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Information)
             {
-                WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
+                WriteLog(LogLevel.Information, this.GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
             }
         }
 
         /// <summary>
-        /// Log warning
+        /// Log warning.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="eventId">Event ID</param>
-        /// <param name="context">http context</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="eventId">Event ID.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogWarning(string method, string message, LogEventId eventId = null, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Warning)
             {
-                WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
+                WriteLog(LogLevel.Warning, this.GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
             }
         }
 
         /// <summary>
-        /// Log error
+        /// Log error.
         /// </summary>
-        /// <param name="method">method to log</param>
-        /// <param name="message">message to log</param>
-        /// <param name="eventId">Event ID</param>
-        /// <param name="context">http context</param>
-        /// <param name="ex">exception</param>
-        /// <param name="dictionary">optional dictionary</param>
+        /// <param name="method">method to log.</param>
+        /// <param name="message">message to log.</param>
+        /// <param name="eventId">Event ID.</param>
+        /// <param name="context">http context.</param>
+        /// <param name="ex">exception.</param>
+        /// <param name="dictionary">optional dictionary.</param>
         public void LogError(string method, string message, LogEventId eventId = null, HttpContext context = null, Exception ex = null, Dictionary<string, object> dictionary = null)
         {
             if (LogLevel <= LogLevel.Error)
             {
-                Dictionary<string, object> d = GetDictionary(method, message, LogLevel.Error, eventId, context);
+                Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
 
                 // add exception
                 if (ex != null)
@@ -125,7 +161,7 @@ namespace LodeRunner.API.Middleware
             Dictionary<string, object> data = new ()
             {
                 { "Date", DateTime.UtcNow },
-                { "LogName", Name },
+                { "LogName", this.Name },
                 { "Method", method },
                 { "Message", message },
                 { "LogLevel", logLevel.ToString() },

@@ -12,16 +12,16 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Cosmos Health Check
+    /// Cosmos Health Check.
     /// </summary>
     public partial class CosmosHealthCheck : IHealthCheck
     {
         /// <summary>
-        /// Write the health check results as json
+        /// Write the health check results as json.
         /// </summary>
-        /// <param name="httpContext">HttpContext</param>
-        /// <param name="healthReport">HealthReport</param>
-        /// <returns>Task</returns>
+        /// <param name="httpContext">HttpContext.</param>
+        /// <param name="healthReport">HealthReport.</param>
+        /// <returns>Task.</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
             if (httpContext == null)
@@ -73,12 +73,12 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Write the Health Check results as json
+        /// Write the Health Check results as json.
         /// </summary>
-        /// <param name="httpContext">HttpContext</param>
-        /// <param name="res">HealthCheckResult</param>
-        /// <param name="totalTime">TimeSpan</param>
-        /// <returns>Task</returns>
+        /// <param name="httpContext">HttpContext.</param>
+        /// <param name="res">HealthCheckResult.</param>
+        /// <param name="totalTime">TimeSpan.</param>
+        /// <returns>Task.</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthCheckResult res, TimeSpan totalTime)
         {
             if (httpContext == null)

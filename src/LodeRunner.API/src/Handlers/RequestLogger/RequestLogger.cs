@@ -18,7 +18,7 @@ using Prometheus;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Simple aspnet core middleware that logs requests to the console
+    /// Simple aspnet core middleware that logs requests to the console.
     /// </summary>
     public class RequestLogger
     {
@@ -34,8 +34,8 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestLogger"/> class.
         /// </summary>
-        /// <param name="next">RequestDelegate</param>
-        /// <param name="options">LoggerOptions</param>
+        /// <param name="next">RequestDelegate.</param>
+        /// <param name="options">LoggerOptions.</param>
         /// <param name="config">App configuration object.</param>
         public RequestLogger(RequestDelegate next, IOptions<RequestLoggerOptions> options, Config config)
         {
@@ -72,17 +72,36 @@ namespace LodeRunner.API.Middleware
                 });
         }
 
+        /// <summary>
+        /// Gets or sets CosmosDB name.
+        /// </summary>
         public static string CosmosName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets Cosmos query ID.
+        /// </summary>
         public static string CosmosQueryId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets Cosmos RUs.
+        /// </summary>
         public static double CosmosRUs { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the zone.
+        /// </summary>
         public static string Zone { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the region.
+        /// </summary>
         public static string Region { get; set; } = string.Empty;
 
         /// <summary>
-        /// Return the path and query string if it exists
+        /// Return the path and query string if it exists.
         /// </summary>
-        /// <param name="request">HttpRequest</param>
-        /// <returns>string</returns>
+        /// <param name="request">HttpRequest.</param>
+        /// <returns>string.</returns>
         public static string GetPathAndQuerystring(HttpRequest request)
         {
             if (request == null || !request.Path.HasValue)
@@ -94,10 +113,10 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Called by aspnet pipeline
+        /// Called by aspnet pipeline.
         /// </summary>
-        /// <param name="context">HttpContext</param>
-        /// <returns>Task (void)</returns>
+        /// <param name="context">HttpContext.</param>
+        /// <returns>Task (void).</returns>
         public async Task Invoke(HttpContext context)
         {
             if (context == null)
@@ -119,9 +138,9 @@ namespace LodeRunner.API.Middleware
             CorrelationVector cv = CorrelationVectorExtensions.Extend(context);
 
             // Invoke next handler
-            if (next != null)
+            if (this.next != null)
             {
-                await next.Invoke(context).ConfigureAwait(false);
+                await this.next.Invoke(context).ConfigureAwait(false);
             }
 
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
@@ -132,7 +151,7 @@ namespace LodeRunner.API.Middleware
             // compute request duration
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
 
-            LogRequest(context, cv, ttfb, duration);
+            this.LogRequest(context, cv, ttfb, duration);
         }
 
         // convert StatusCode for metrics
@@ -196,9 +215,9 @@ namespace LodeRunner.API.Middleware
 
             string category = ValidationError.GetCategory(context, out string subCategory, out string mode);
 
-            if (config.RequestLogLevel != LogLevel.None &&
-                (config.RequestLogLevel <= LogLevel.Information ||
-                (config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
+            if (this.config.RequestLogLevel != LogLevel.None &&
+                (this.config.RequestLogLevel <= LogLevel.Information ||
+                (this.config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
                 context.Response.StatusCode >= 500))
             {
                 Dictionary<string, object> log = new ()

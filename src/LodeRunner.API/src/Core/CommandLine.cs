@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 namespace LodeRunner.API
 {
     /// <summary>
-    /// Main application class
+    /// Main application class.
     /// </summary>
     public sealed partial class App
     {
         /// <summary>
-        /// Build the RootCommand for parsing
+        /// Build the RootCommand for parsing.
         /// </summary>
-        /// <returns>RootCommand</returns>
+        /// <returns>RootCommand.</returns>
         public static RootCommand BuildRootCommand()
         {
             RootCommand root = new ()

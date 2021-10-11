@@ -14,7 +14,7 @@ namespace LodeRunner.API.Controllers
     /// <summary>
     /// Handle the /healthz* requests
     ///
-    /// Cache results to prevent monitoring from overloading service
+    /// Cache results to prevent monitoring from overloading service.
     /// </summary>
     [Route("[controller]")]
     [ResponseCache(Duration = 60)]
@@ -26,9 +26,9 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthzController"/> class.
         /// </summary>
-        /// <param name="logger">logger</param>
-        /// <param name="dal">data access layer</param>
-        /// <param name="hcLogger">HealthCheck logger</param>
+        /// <param name="logger">logger.</param>
+        /// <param name="dal">data access layer.</param>
+        /// <param name="hcLogger">HealthCheck logger.</param>
         public HealthzController(ILogger<HealthzController> logger, ILogger<CosmosHealthCheck> hcLogger)
         {
             this.logger = logger;
@@ -36,7 +36,7 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a plain text health status (Healthy, Degraded or Unhealthy)
+        /// Returns a plain text health status (Healthy, Degraded or Unhealthy).
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
@@ -47,46 +47,46 @@ namespace LodeRunner.API.Controllers
         public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             // get list of genres as list of string
-            logger.LogInformation(nameof(RunHealthzAsync));
+            this.logger.LogInformation(nameof(this.RunHealthzAsync));
 
-            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService, cancellationTokenSource).ConfigureAwait(false);
+            HealthCheckResult res = await this.RunCosmosHealthCheck(clientStatusService, cancellationTokenSource).ConfigureAwait(false);
 
-            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+            this.HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
             return res.GetContentResult();
         }
 
         /// <summary>
-        /// Returns an IETF (draft) health+json representation of the full Health Check
+        /// Returns an IETF (draft) health+json representation of the full Health Check.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        /// <returns>IActionResult</returns>
+        /// <returns>IActionResult.</returns>
         [HttpGet("ietf")]
         [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService,  [FromServices] CancellationTokenSource cancellationTokenSource)
         {
-            logger.LogInformation(nameof(RunHealthzAsync));
+            this.logger.LogInformation(nameof(this.RunHealthzAsync));
 
             DateTime dt = DateTime.UtcNow;
 
-            HealthCheckResult res = await RunCosmosHealthCheck(clientStatusService, cancellationTokenSource).ConfigureAwait(false);
+            HealthCheckResult res = await this.RunCosmosHealthCheck(clientStatusService, cancellationTokenSource).ConfigureAwait(false);
 
-            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+            this.HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            await CosmosHealthCheck.IetfResponseWriter(HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
+            await CosmosHealthCheck.IetfResponseWriter(this.HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Run the health check
+        /// Run the health check.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
-        /// <returns>HealthCheckResult</returns>
+        /// <returns>HealthCheckResult.</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService, CancellationTokenSource cancellationTokenSource)
         {
-            CosmosHealthCheck chk = new (hcLogger, clientStatusService);
+            CosmosHealthCheck chk = new (this.hcLogger, clientStatusService);
 
             return await chk.CheckHealthAsync(new HealthCheckContext(), cancellationTokenSource.Token).ConfigureAwait(false);
         }
