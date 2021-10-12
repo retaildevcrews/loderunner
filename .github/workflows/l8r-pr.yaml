@@ -33,7 +33,7 @@ jobs:
         echo -n ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
         echo -n ${{ secrets.NGSA_DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
         echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
-        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+        echo -n 'LodeRunnerDB' >| /tmp/secrets/CosmosDatabase
 
     - name: Docker Run LodeRunner Await mode.
       run: |
