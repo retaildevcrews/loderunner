@@ -31,7 +31,7 @@ namespace LodeRunner
         /// <summary>
         /// gets or sets the zone to log
         /// </summary>
-        public string Zone { get; set; } 
+        public string Zone { get; set; }
 
         /// <summary>
         /// gets or sets the region to log
