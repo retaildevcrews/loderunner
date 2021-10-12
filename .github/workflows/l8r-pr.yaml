@@ -39,7 +39,7 @@ jobs:
       run: |
         echo "Running LoadRunner benchmark"
 
-        timeout --signal=SIGSTOP 30 $(docker run --rm -i--name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json)
+        timeout --signal=SIGSTOP 30 docker run --rm -i--name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
 
         docker rm l8rAwait
 
