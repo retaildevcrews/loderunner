@@ -128,6 +128,9 @@ namespace LodeRunner
             {
                 e.Cancel = true;
                 cancelTokenSource.Cancel(false);
+
+                // end the app
+                Environment.Exit(0);
             };
         }
 
