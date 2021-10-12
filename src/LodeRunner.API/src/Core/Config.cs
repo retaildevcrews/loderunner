@@ -120,6 +120,6 @@ namespace LodeRunner.API
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds.</value>
-        public int CosmosTimeout { get; set; } = 260;
+        public int CosmosTimeout { get; set; } = 60;
     }
 }
