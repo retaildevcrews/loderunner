@@ -39,28 +39,9 @@ jobs:
       run: |
         echo "Running LoadRunner benchmark"
 
-        docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
+        docker run --rm --name l8rAwait --stop-timeout=30 --stop-signal=SIGINT --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
       
-        echo "Waiting 30 sec before to terminate LodeRunner - Await mode ..."
-
-        wait_time=10
-        sleep $wait_time
-
-        # wait up to 30 seconds before to terminate LodeRunner - Await mode 
-        while true
-        do
-          if [ $wait_time -gt 30 ] ; then
-            echo -e "\n timeout waiting for ngsa-app to start"
-            exit 1
-          fi
-
-          sleep 1
-          ((wait_time=wait_time+1))
-        done
-        
-        echo "LodeRunner - Await mode container will be terminated now.."
-
-        docker kill --signal=SIGTERM l8rAwait
+        echo "LodeRunner - Await mode container was terminated."
 
     - name: Delete Secrets
       run: |
@@ -91,7 +72,7 @@ jobs:
           ((wait_time=wait_time+1))
         done
 
-         echo "Running In-Memory benchmark and baseline"
+        echo "Running In-Memory benchmark and baseline"
 
         docker run --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f benchmark.json baseline.json
 
