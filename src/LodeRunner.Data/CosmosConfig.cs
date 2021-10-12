@@ -37,7 +37,7 @@ namespace LodeRunner.Data
         /// <value>
         /// The timeout.
         /// </value>
-        public int Timeout { get; set; } = 60;
+        public int Timeout { get; set; } = 260;
 
         /// <summary>
         /// Gets or sets the retries.
