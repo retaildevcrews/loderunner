@@ -48,6 +48,7 @@ jobs:
           echo "LodeRunner - Await mode container was successfully terminated after it ran for 30 seconds."
         else 
           echo "LodeRunner - Await mode container terminated for unknown reason."
+          exit $?
         fi
 
         echo $?
