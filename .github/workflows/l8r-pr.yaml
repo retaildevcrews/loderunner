@@ -1,0 +1,78 @@
+name: Test LodeRunner-PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+#  LodeRunner changes should cause build and test of LodeRunner and shared lib
+
+    paths:  
+      - 'src/LodeRunner/Dockerfile'
+      - 'src/LodeRunner/*.csproj'
+      - 'src/LodeRunner/src/**.cs'
+      - '.github/workflows/l8r-pr.yaml'
+    paths-ignore:
+      - 'src/LodeRunner.API/**'
+      - 'src/LodeRunner.Core/**'
+      - 'src/LodeRunner.Data/**'
+      - 'src/LodeRunner.UI/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker Build LodeRunner
+      run: |
+        docker build ./src -t image -f ./src/LodeRunner/Dockerfile
+
+    - name: Set Secrets
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+
+    - name: Docker Run LodeRunner Await mode.
+      run: |
+        echo "Running LoadRunner benchmark"
+
+        docker run -d --rm --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
+    
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets
+
+    - name: Docker Run and Test LodeRunner Traditional - In-Memory
+      run: |
+        docker run -d --rm -p 80:8080 --name ngsa ghcr.io/retaildevcrews/ngsa-app:beta --in-memory
+
+        echo "Waiting for ngsa-app to start ..."
+
+        wait_time=10
+        sleep $wait_time
+
+        # wait up to 30 seconds for ngsa-app to start
+        while true
+        do
+          if curl localhost:80/version ; then
+            echo -e "\n ngsa-app is running"
+            break
+          fi
+          if [ $wait_time -gt 30 ] ; then
+            echo -e "\n timeout waiting for ngsa-app to start"
+            exit 1
+          fi
+
+          sleep 1
+          ((wait_time=wait_time+1))
+        done
+
+         echo "Running In-Memory benchmark and baseline"
+
+        docker run -d --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f benchmark.json baseline.json
+
+
