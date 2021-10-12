@@ -39,7 +39,7 @@ jobs:
       run: |
         echo "Running LoadRunner benchmark"
 
-        docker run --rm --name l8rAwait --stop-timeout=30 --stop-signal=SIGINT --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
+        timeout 30 docker run --rm --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
       
         echo "LodeRunner - Await mode container was terminated."
 
