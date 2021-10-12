@@ -17,6 +17,6 @@ namespace LodeRunner.Core
         /// <summary>
         /// The client status expiration time.
         /// </summary>
-        public const int ClientStatusExpirationTime = 560;
+        public const int ClientStatusExpirationTime = 60;
     }
 }
