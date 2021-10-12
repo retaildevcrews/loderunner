@@ -72,6 +72,6 @@ jobs:
 
          echo "Running In-Memory benchmark and baseline"
 
-        docker run -d --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f benchmark.json baseline.json
+        docker run --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f benchmark.json baseline.json
 
 
