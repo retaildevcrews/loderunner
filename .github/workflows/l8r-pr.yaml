@@ -40,7 +40,7 @@ jobs:
         echo "Running LoadRunner benchmark"
 
         docker run --rm --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
-      timeout-minute: 0
+      timeout-minute: 1
     - name: Delete Secrets
       run: |
         rm -rf /tmp/secrets
