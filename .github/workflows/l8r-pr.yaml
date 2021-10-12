@@ -39,10 +39,8 @@ jobs:
       run: |
         echo "Running LoadRunner benchmark"
 
-        timeout 30 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
+        timeout 30 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json ; test $? -eq 0 && docker kill l8rAwait
       
-        docker kill l8rAwait
-        
         echo "LodeRunner - Await mode container was terminated."
 
     - name: Delete Secrets
