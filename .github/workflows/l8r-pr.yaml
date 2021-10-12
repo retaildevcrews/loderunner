@@ -11,11 +11,11 @@ on:
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/l8r-pr.yaml'
-    paths-ignore:
-      - 'src/LodeRunner.API/**'
-      - 'src/LodeRunner.Core/**'
-      - 'src/LodeRunner.Data/**'
-      - 'src/LodeRunner.UI/**'
+    # paths-ignore:
+    #   - 'src/LodeRunner.API/**'
+    #   - 'src/LodeRunner.Core/**'
+    #   - 'src/LodeRunner.Data/**'
+    #   - 'src/LodeRunner.UI/**'
 
 jobs:
   build:
