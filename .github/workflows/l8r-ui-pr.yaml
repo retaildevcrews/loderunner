@@ -11,10 +11,6 @@ on:
      - 'src/LodeRunner.UI/*.csproj'
      - 'src/LodeRunner.UI/**.cs'
      - '.github/workflows/l8r-ui.pr.yml'
-     - '!src/LodeRunner/**'
-     - '!src/LodeRunner.API/**'
-     - '!src/LodeRunner.Core/**'
-     - '!src/LodeRunner.Data/**'
 
 jobs:
 

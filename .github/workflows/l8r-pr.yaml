@@ -11,9 +11,6 @@ on:
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/l8r-pr.yaml'
-      - '!src/LodeRunner.Core/**'
-      - '!src/LodeRunner.Data/**'
-      - '!src/LodeRunner.UI/**'  
 
 jobs:
   build:
