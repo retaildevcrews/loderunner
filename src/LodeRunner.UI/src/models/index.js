@@ -2,8 +2,7 @@ export const CLIENT_STATUSES = {
   starting: "Starting",
   ready: "Ready",
   testing: "Testing",
-  terminating: "Terminating",
-  githubaction: "githubaction",
+  terminating: "Terminating"
 };
 
 export const CLIENT = {
