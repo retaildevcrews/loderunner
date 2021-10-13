@@ -23,28 +23,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: list files
-      run: |
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
-          echo $URL
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-          echo $FILES
-
-          if echo $FILES | grep -q "src/LodeRunner/" ; then
-            echo "LodeRunner changed!!"
-          if echo $FILES | grep -q "src/LodeRunner.API/"; then
-            echo "LodeRunner.API changed!!"
-          if echo $FILES | grep -q "src/LodeRunner.Core/" || echo $FILES | grep -q "src/LodeRunner.Data/"; then
-            echo "LodeRunner Libraries changed!!"
-          if echo $FILES | grep -q "src/LodeRunner.UI/"; then
-            echo "LodeRunner.UI changed!!"
-          if echo $FILES | grep -q "src/LodeRunner/Dockerfile"; then
-            echo "LodeRunner DockerFile changed changed!!"
-          else
-            echo "Something else changed!!"
-          fi
-          exit 1;
-
     - name: Docker Build LodeRunner
       run: |
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
