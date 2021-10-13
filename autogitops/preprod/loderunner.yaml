@@ -30,7 +30,7 @@ spec:
               cpu: "500m"
           args:
           - -l
-          - "100"
+          - "1000"
           - -r
           - -s
           - http://ngsa-memory.ngsa:8080
