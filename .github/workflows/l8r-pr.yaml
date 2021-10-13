@@ -9,6 +9,7 @@ on:
     paths:  
       - '.github/workflows/l8r-pr.yaml'
       - '!src/LodeRunner-Core/**'
+      - '!src/LodeRunner.API/**'
 
       # - 'src/**'
       # - 'src/LodeRunner/Dockerfile'
