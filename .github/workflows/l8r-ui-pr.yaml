@@ -1,4 +1,4 @@
-name: Build LodeRunner.UI-PR
+name: Test LodeRunner.UI-PR
 
 on:
  pull_request:

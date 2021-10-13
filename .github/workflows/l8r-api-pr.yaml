@@ -65,7 +65,7 @@ jobs:
 
     - name: Docker Run and Test LodeRunner.UI
       run: |
-          
+
         docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
 
         echo "Waiting for web server to start ..."
