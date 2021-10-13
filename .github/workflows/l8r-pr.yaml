@@ -7,15 +7,13 @@ on:
 #  LodeRunner changes should cause build and test of LodeRunner and shared lib
 
     paths:  
-      - 'src/LodeRunner/Dockerfile'
-      - 'src/LodeRunner/*.csproj'
-      - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/l8r-pr.yaml'
-    paths-ignore:
-      - 'src/LodeRunner.API/**'
-      - 'src/LodeRunner.Core/**'
-      - 'src/LodeRunner.Data/**'
-      - 'src/LodeRunner.UI/**'
+      - '!src/LodeRunner-Core/**'
+
+      # - 'src/**'
+      # - 'src/LodeRunner/Dockerfile'
+      # - 'src/LodeRunner/*.csproj'
+      # - 'src/LodeRunner/src/**.cs'
 
 jobs:
   build:
@@ -38,13 +36,15 @@ jobs:
 
     - name: Docker Run LodeRunner Await mode.
       run: |
-        echo "Running LoadRunner benchmark"
+        echo "Running LoadRunner..."
 
-        docker run -d --rm --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json
-    
+        timeout --preserve-status --kill-after=5 --signal=SIGTERM 30 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json;
+
+        echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
+
     - name: Delete Secrets
       run: |
-        rm -rf /tmp/secrets
+        rm -rf /tmp/secrets        
 
     - name: Docker Run and Test LodeRunner Traditional - In-Memory
       run: |
@@ -71,8 +71,8 @@ jobs:
           ((wait_time=wait_time+1))
         done
 
-         echo "Running In-Memory benchmark and baseline"
+        echo "Running In-Memory benchmark and baseline"
 
-        docker run -d --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f benchmark.json baseline.json
+        docker run --rm --net=host image -s http://localhost:80 --max-errors 1 -f baseline.json benchmark.json        
 
 
