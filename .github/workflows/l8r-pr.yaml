@@ -6,10 +6,11 @@ on:
 
 #  LodeRunner changes should cause build and test of LodeRunner and shared lib
 
-    paths:  
+    paths-ignore:  
       - '.github/workflows/l8r-pr.yaml'
-      - 'src/**'
       - '!src/LodeRunner-Core/**'
+
+      # - 'src/**'
       # - 'src/LodeRunner/Dockerfile'
       # - 'src/LodeRunner/*.csproj'
       # - 'src/LodeRunner/src/**.cs'
