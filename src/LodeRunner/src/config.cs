@@ -119,7 +119,7 @@ namespace LodeRunner
 
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds</value>
-        public int CosmosTimeout { get; set; } = 160;
+        public int CosmosTimeout { get; set; } = 60;
 
         /// <summary>Gets or sets the secrets.</summary>
         /// <value>The secrets.</value>
