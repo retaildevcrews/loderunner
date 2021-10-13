@@ -32,12 +32,14 @@ jobs:
 
           if echo $FILES | grep -q "src/LodeRunner/" ; then
             echo "LodeRunner changed!!"
-          elif echo $FILES | grep -q "LodeRunner.API"; then
+          if echo $FILES | grep -q "src/LodeRunner.API/"; then
             echo "LodeRunner.API changed!!"
-          elif echo $FILES | grep -q "src/LodeRunner.Core" || echo $FILES | grep -q "src/LodeRunner.Data"; then
+          if echo $FILES | grep -q "src/LodeRunner.Core/" || echo $FILES | grep -q "src/LodeRunner.Data/"; then
             echo "LodeRunner Libraries changed!!"
-          elif echo $FILES | grep -q "LodeRunner.UI"]; then
+          if echo $FILES | grep -q "src/LodeRunner.UI/"; then
             echo "LodeRunner.UI changed!!"
+          if echo $FILES | grep -q "src/LodeRunner/Dockerfile"; then
+            echo "LodeRunner DockerFile changed changed!!"
           else
             echo "Something else changed!!"
           fi
