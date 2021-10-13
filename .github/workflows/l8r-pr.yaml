@@ -30,6 +30,19 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
 
+          if [echo $FILES | grep -q "src/LodeRunner/"]; then
+            echo "LodeRunner changed!!"
+          elif if [echo $FILES | grep -q "LodeRunner.API"]; then
+            echo "LodeRunner.API changed!!"
+          elif if [echo $FILES | grep -q "src/LodeRunner.Core"] || [echo $FILES | grep -q "src/LodeRunner.Data"]; then
+            echo "LodeRunner Libraries changed!!"
+          elif if [echo $FILES | grep -q "LodeRunner.UI"]; then
+            echo "LodeRunner.UI changed!!"
+          else
+            echo "Something else changed!!"
+          fi
+
+
           exit 1;
 
 
