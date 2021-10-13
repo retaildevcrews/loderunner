@@ -43,8 +43,8 @@ jobs:
           ! timeout --kill-after=5 --signal=SIGTERM 30 docker run --rm -i --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json;
         then
           exitCode=$?
-          test $exitCode -eq 0 && echo "something GOOD happened" || echo "something BAD happened"; 
-          exit $exitCode
+          test $exitCode -eq 0 && echo "LodeRunner - Await mode container was successfully terminated after it ran for 30 seconds." || echo "LodeRunner - Await mode container terminated for unknown reason."; 
+          exit $exitCode;
         fi
         
 
