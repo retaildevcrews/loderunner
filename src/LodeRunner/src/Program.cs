@@ -121,7 +121,7 @@ namespace LodeRunner
                 if (!cancelTokenSource.IsCancellationRequested)
                 {
                     cancelTokenSource.Cancel(false);
-                    Environment.Exit(0);
+                    Environment.Exit(-1);
                 }
             };
 
@@ -130,7 +130,7 @@ namespace LodeRunner
                 e.Cancel = true;
                 cancelTokenSource.Cancel(false);
 
-                Environment.Exit(0);
+                Environment.Exit(-1);
             };
         }
 
