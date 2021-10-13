@@ -72,7 +72,7 @@ jobs:
 
         echo "Running In-Memory benchmark and baseline"
 
-        docker run --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f memory-baseline.json memory-benchmark.json
+        docker run --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f baseline.json benchmark.json
 
     - name: Docker Build LodeRunner API
       run: |
