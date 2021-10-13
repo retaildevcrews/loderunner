@@ -50,20 +50,20 @@ jobs:
           ((wait_time=wait_time+1))
         done
        
-  - name: Run Linter on LodeRunner.UI
-     uses: actions/setup-node@v2
-     with:
-       node-version: '14'
-   - name: Install npm packages
-     run: npm install --prefix ./src/LodeRunner.UI
-   - name: Run Linter on ./src/LodeRunner.UI 
-     run: npm run lint --prefix ./src/LodeRunner.UI      
+    - name: Run Linter on LodeRunner.UI
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install npm packages
+      run: npm install --prefix ./src/LodeRunner.UI
+    - name: Run Linter on ./src/LodeRunner.UI 
+      run: npm run lint --prefix ./src/LodeRunner.UI      
 
-   - name: Docker Build LodeRunner.UI
-     run: |
-       docker build -t loderunnerUI ./src/LodeRunner.UI
+    - name: Docker Build LodeRunner.UI
+      run: |
+        docker build -t loderunnerUI ./src/LodeRunner.UI
 
-   - name: Docker Run and Test LodeRunner.UI
+    - name: Docker Run and Test LodeRunner.UI
      run: |
           
            docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
