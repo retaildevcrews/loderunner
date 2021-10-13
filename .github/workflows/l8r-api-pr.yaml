@@ -50,8 +50,6 @@ jobs:
           ((wait_time=wait_time+1))
         done
        
-       # TODO: Test other API endpoints?
-
   - name: Run Linter on LodeRunner.UI
      uses: actions/setup-node@v2
      with:
