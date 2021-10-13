@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-
 using LodeRunner.API.Data;
 using LodeRunner.Core.Interfaces;
 using Microsoft.Extensions.Logging;
-
 namespace LodeRunner.API
 {
     /// <summary>
@@ -38,7 +36,7 @@ namespace LodeRunner.API
         /// Gets or sets the requestLogLevel.
         /// </summary>
         public LogLevel RequestLogLevel
-         {
+        {
             get
             {
                 return this.requestLogLevel;
