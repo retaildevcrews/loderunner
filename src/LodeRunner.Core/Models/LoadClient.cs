@@ -26,7 +26,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The region.
         /// </value>
-        public string Region { get; set; }
+        public string Region { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the zone.
