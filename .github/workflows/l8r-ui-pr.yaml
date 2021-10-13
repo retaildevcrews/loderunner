@@ -1,0 +1,102 @@
+name: Build LodeRunner.UI-PR
+
+on:
+ pull_request:
+   types: [opened, synchronize]
+
+   paths:
+     - 'src/LodeRunner.UI/Dockerfile'
+     - 'src/LodeRunner.UI/**.js'
+     - 'src/LodeRunner.UI/**.css'
+     - 'src/LodeRunner.UI/*.csproj'
+     - 'src/LodeRunner.UI/**.cs'
+     - '.github/workflows/l8r-ui.pr.yml'
+
+    paths-ignore:
+      - 'src/LodeRunner/**'
+      - 'src/LodeRunner.API/**'
+      - 'src/LodeRunner.Core/**'
+      - 'src/LodeRunner.Data/**'
+
+jobs:
+
+ build:
+
+   runs-on: ubuntu-latest
+   env:
+     DOCKER_REPO: ghcr.io/retaildevcrews/relayrunner
+
+   steps:
+   - uses: actions/checkout@v2
+
+   - name: Login to Container Registry
+     uses: docker/login-action@v1
+
+    - name: Docker Build LodeRunner API
+      run: |
+        docker build ./src -t image -f ./src/LodeRunner.API/Dockerfile
+
+    - name: Docker Run and Test LodeRunner API
+      run: |
+
+        docker run --name loderunnerAPI -d --rm -p 80:8080 image
+
+        echo "Waiting for LodeRunner API to start ..."
+
+        wait_time=10
+        sleep $wait_time
+
+        # wait up to 30 seconds for LodeRunner API to start
+        while true
+        do
+          if curl localhost:80/version ; then
+            echo -e "\n LodeRunner API is running"
+            break
+          fi
+          if [ $wait_time -gt 30 ] ; then
+            echo -e "\n timeout waiting for LodeRunner API to start"
+            exit 1
+          fi
+
+          sleep 1
+          ((wait_time=wait_time+1))
+        done
+
+  - name: Run Linter on LodeRunner.UI
+     uses: actions/setup-node@v2
+     with:
+       node-version: '14'
+   - name: Install npm packages
+     run: npm install --prefix ./src/LodeRunner.UI
+   - name: Run Linter on ./src/LodeRunner.UI 
+     run: npm run lint --prefix ./src/LodeRunner.UI      
+
+   - name: Docker Build LodeRunner.UI
+     run: |
+       docker build -t loderunnerUI ./src/LodeRunner.UI
+
+   - name: Docker Run and Test LodeRunner.UI
+     run: |
+          
+           docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
+
+           echo "Waiting for web server to start ..."
+       
+           wait_time=10        
+           sleep $wait_time
+           # wait up to 30 seconds for web server to start
+           while true
+           do
+               if curl localhost:8080 ; then
+                   echo -e "\n LodeRunner.UI is running"
+                   break
+               fi
+               if [ $wait_time -gt 30 ] ; then
+                 echo -e "\n timeout waiting for LodeRunner-UI to start"
+                 exit 1
+               fi
+               
+               sleep 1
+               ((wait_time=wait_time+1))
+           done    
+
