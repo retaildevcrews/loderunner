@@ -69,10 +69,6 @@ jobs:
 
         echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
     
-    - name: Delete Secrets
-      run: |
-        rm -rf /tmp/secrets
-
     - name: Docker Build LodeRunner API
       run: |
         docker build ./src -t imageapi -f ./src/LodeRunner.API/Dockerfile
@@ -80,7 +76,7 @@ jobs:
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p 81:8080 imageapi
+        docker run --name loderunnerAPI -d --rm -p 8081:8080 imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -90,7 +86,7 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:81/version ; then
+          if curl localhost:8081/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
@@ -102,7 +98,11 @@ jobs:
           sleep 1
           ((wait_time=wait_time+1))
         done
-       
+
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets
+
     - name: Run Linter on LodeRunner.UI
       uses: actions/setup-node@v2
       with:
