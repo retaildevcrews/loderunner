@@ -81,7 +81,7 @@ jobs:
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p 80:8080 image
+        docker run --name loderunnerAPI -d --rm -p 81:8080 image
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -91,7 +91,7 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:80/version ; then
+          if curl localhost:81/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
