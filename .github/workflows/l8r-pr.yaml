@@ -7,14 +7,14 @@ on:
 #  LodeRunner changes should cause build and test of LodeRunner and shared lib
 
     paths:  
-      - 'src/LodeRunner/Dockerfile'
-      - 'src/LodeRunner/*.csproj'
-      - 'src/LodeRunner/src/**.cs'
-      - '.github/workflows/l8r-pr.yaml'
       - '!src/LodeRunner.API/**'
       - '!src/LodeRunner.Core/**'
       - '!src/LodeRunner.Data/**'
       - '!src/LodeRunner.UI/**'
+      - 'src/LodeRunner/Dockerfile'
+      - 'src/LodeRunner/*.csproj'
+      - 'src/LodeRunner/src/**.cs'
+      - '.github/workflows/l8r-pr.yaml'
 
 jobs:
   build:
