@@ -73,12 +73,12 @@ jobs:
 
     - name: Docker Build LodeRunner.UI
       run: |
-        docker build -t loderunnerUI ./src/LodeRunner.UI
+        docker build -t loderunnerui ./src/LodeRunner.UI
 
     - name: Docker Run and Test LodeRunner.UI
       run: |
 
-        docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
+        docker run --name l8rui -d --rm -p 8080:80 loderunnerui
 
         echo "Waiting for web server to start ..."
     

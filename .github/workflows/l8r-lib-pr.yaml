@@ -53,6 +53,7 @@ jobs:
         echo "Running In-Memory benchmark and baseline"
 
         docker run --rm --net=host image -s http://localhost:80 -f --max-errors 1 -f baseline.json benchmark.json
+    
     - name: Set Secrets
       run: |
         mkdir -p /tmp/secrets
@@ -76,7 +77,7 @@ jobs:
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p 8081:8080 -v /tmp/secrets:/app/secrets imageapi
+        docker run --rm -d --name loderunnerAPI -p 8081:8080  -v /tmp/secrets:/app/secrets imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -114,12 +115,12 @@ jobs:
 
     - name: Docker Build LodeRunner.UI
       run: |
-        docker build -t loderunnerUI ./src/LodeRunner.UI
+        docker build -t loderunnerui ./src/LodeRunner.UI
 
     - name: Docker Run and Test LodeRunner.UI
       run: |
             
-            docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
+            docker run --name l8rui -d --rm -p 8080:80 loderunnerui
 
             echo "Waiting for web server to start ..."
         
