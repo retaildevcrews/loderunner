@@ -35,7 +35,7 @@ jobs:
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p  8081:8080 image
+        docker run --name loderunnerAPI -d --rm -p  8081:8080 -v /tmp/secrets:/app/secrets image
 
         echo "Waiting for LodeRunner API to start ..."
 
