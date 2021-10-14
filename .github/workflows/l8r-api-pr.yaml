@@ -24,10 +24,18 @@ jobs:
       run: |
         docker build ./src -t image -f ./src/LodeRunner.API/Dockerfile
 
+    - name: Set Secrets
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p 80:8080 image
+        docker run --name loderunnerAPI -d --rm -p  8081:8080 image
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -37,7 +45,7 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:80/version ; then
+          if curl localhost:8081/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
@@ -49,7 +57,11 @@ jobs:
           sleep 1
           ((wait_time=wait_time+1))
         done
-       
+    
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets
+
     - name: Run Linter on LodeRunner.UI
       uses: actions/setup-node@v2
       with:
