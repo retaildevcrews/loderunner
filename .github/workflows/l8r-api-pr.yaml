@@ -35,7 +35,7 @@ jobs:
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --rm --name loderunnerAPI -p 8081:8080  -v /tmp/secrets:/app/secrets imageapi
+        docker run -d --rm --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -45,7 +45,7 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:8081/version ; then
+          if curl localhost:8080/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
@@ -78,7 +78,7 @@ jobs:
     - name: Docker Run and Test LodeRunner.UI
       run: |
 
-        docker run --name l8rui -d --rm -p 8080:80 loderunnerui
+        docker run --name l8rui -d --rm -p 8081:80 loderunnerui
 
         echo "Waiting for web server to start ..."
     
@@ -87,7 +87,7 @@ jobs:
         # wait up to 30 seconds for web server to start
         while true
         do
-            if curl localhost:8080 ; then
+            if curl localhost:8081 ; then
                 echo -e "\n LodeRunner.UI is running"
                 break
             fi
