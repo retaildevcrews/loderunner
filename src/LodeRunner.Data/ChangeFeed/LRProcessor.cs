@@ -72,7 +72,7 @@ namespace LodeRunner.Data.ChangeFeed
 
             this.processorStarted = true;
 
-            Console.WriteLine("Change Feed Processor started- some new text to test....");
+            Console.WriteLine("Change Feed Processor started....");
 
             return this.ChangeFeedProcessor;
         }
