@@ -23,14 +23,25 @@ jobs:
    steps:
     - uses: actions/checkout@v2
 
+ steps:
+    - uses: actions/checkout@v2
+
     - name: Docker Build LodeRunner API
       run: |
-        docker build ./src -t image -f ./src/LodeRunner.API/Dockerfile
+        docker build ./src -t imageapi -f ./src/LodeRunner.API/Dockerfile
+
+    - name: Set Secrets
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.NGSA_DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
     - name: Docker Run and Test LodeRunner API
       run: |
 
-        docker run --name loderunnerAPI -d --rm -p 80:8080 image
+        docker run -d --rm --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -40,7 +51,7 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:80/version ; then
+          if curl localhost:8080/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
@@ -52,6 +63,10 @@ jobs:
           sleep 1
           ((wait_time=wait_time+1))
         done
+    
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets
 
     - name: Run Linter on LodeRunner.UI
       uses: actions/setup-node@v2
@@ -65,30 +80,32 @@ jobs:
 
     - name: Docker Build LodeRunner.UI
       run: |
-        docker build -t loderunnerUI ./src/LodeRunner.UI
+        docker build -t loderunnerui ./src/LodeRunner.UI
 
     - name: Docker Run and Test LodeRunner.UI
       run: |
-            
-            docker run --name l8rUI -d --rm -p 8080:80 loderunnerUI
 
-            echo "Waiting for web server to start ..."
-        
-            wait_time=10        
-            sleep $wait_time
-            # wait up to 30 seconds for web server to start
-            while true
-            do
-                if curl localhost:8080 ; then
-                    echo -e "\n LodeRunner.UI is running"
-                    break
-                fi
-                if [ $wait_time -gt 30 ] ; then
-                  echo -e "\n timeout waiting for LodeRunner-UI to start"
-                  exit 1
-                fi
-                
-                sleep 1
-                ((wait_time=wait_time+1))
-            done    
+        docker run --name l8rui -d --rm -p 8081:80 loderunnerui
+
+        echo "Waiting for web server to start ..."
+    
+        wait_time=10        
+        sleep $wait_time
+        # wait up to 30 seconds for web server to start
+        while true
+        do
+            if curl localhost:8081 ; then
+                echo -e "\n LodeRunner.UI is running"
+                break
+            fi
+            if [ $wait_time -gt 30 ] ; then
+              echo -e "\n timeout waiting for LodeRunner-UI to start"
+              exit 1
+            fi
+            
+            sleep 1
+            ((wait_time=wait_time+1))
+        done    
+
+
 

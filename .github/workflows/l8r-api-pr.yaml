@@ -68,6 +68,7 @@ jobs:
         node-version: '14'
     - name: Install npm packages
       run: npm install --prefix ./src/LodeRunner.UI
+      
     - name: Run Linter on ./src/LodeRunner.UI 
       run: npm run lint --prefix ./src/LodeRunner.UI      
 
