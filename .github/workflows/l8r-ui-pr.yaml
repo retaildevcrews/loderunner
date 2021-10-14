@@ -23,9 +23,6 @@ jobs:
    steps:
     - uses: actions/checkout@v2
 
- steps:
-    - uses: actions/checkout@v2
-
     - name: Docker Build LodeRunner API
       run: |
         docker build ./src -t imageapi -f ./src/LodeRunner.API/Dockerfile
