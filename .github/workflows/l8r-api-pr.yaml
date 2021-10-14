@@ -78,7 +78,7 @@ jobs:
     - name: Docker Run and Test LodeRunner.UI
       run: |
 
-        docker run --name l8rui -d --rm -p 8080:80 loderunnerui
+        docker run --name l8rui -d --rm -p 8081:80 loderunnerui
 
         echo "Waiting for web server to start ..."
     
@@ -87,7 +87,7 @@ jobs:
         # wait up to 30 seconds for web server to start
         while true
         do
-            if curl localhost:8080 ; then
+            if curl localhost:8081 ; then
                 echo -e "\n LodeRunner.UI is running"
                 break
             fi
