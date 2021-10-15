@@ -13,7 +13,7 @@ jobs:
 
     - name: "Set flag from PR"
       env:
-        TEST_RESULT: true
+        TEST_RESULT: false
       run: |
         if ${TEST_RESULT} == true; then
           echo "flag=true" >> $GITHUB_ENV
