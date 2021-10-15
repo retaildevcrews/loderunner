@@ -1,0 +1,98 @@
+name: Test LodeRunner-PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+#  LodeRunner changes should cause build and test of LodeRunner and shared lib
+
+    paths:  
+      # Loderunner source 
+      - 'src/LodeRunner/Dockerfile'
+      - 'src/LodeRunner/*.csproj'
+      - 'src/LodeRunner/src/**.cs'
+      - '.github/workflows/l8r-pr-main.yaml'
+
+      # API source
+      - 'src/LodeRunner.API/Dockerfile'
+      - 'src/LodeRunner.API/*.csproj'
+      - 'src/LodeRunner.API/src/**.cs'
+
+      # Libraries source 
+      - 'src/LodeRunner.Core/*.csproj'
+      - 'src/LodeRunner.Core/**.cs'
+      - 'src/LodeRunner.Data/*.csproj'
+      - 'src/LodeRunner.Data/**.cs'
+      
+      # UI source 
+      - 'src/LodeRunner.UI/Dockerfile'
+      - 'src/LodeRunner.UI/**.js'
+      - 'src/LodeRunner.UI/**.css'
+      - 'src/LodeRunner.UI/*.csproj'
+      - 'src/LodeRunner.UI/**.cs'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check and get what changed  
+      run: |
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+          echo $URL
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          echo $FILES
+
+          if echo $FILES | grep -q "src/LodeRunner/" ; then
+            echo "LodeRunnerChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner source code changed!!"
+          else
+            echo "LodeRunnerChanged=false" >> $GITHUB_ENV
+          fi
+          
+          if echo $FILES | grep -q "src/LodeRunner.API/"; then
+            echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.API source code changed!!"
+          else
+            echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
+          fi
+          
+          if echo $FILES | grep -q "src/LodeRunner.Core/" || echo $FILES | grep -q "src/LodeRunner.Data/"; then
+            echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner Libraries source code changed!!"
+          else
+            echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
+          fi
+
+          if echo $FILES | grep -q "src/LodeRunner.UI/"; then
+            echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.UI source code changed!!"
+          else
+            echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
+          fi
+    - name: Execute LodeRunner Workflow
+      if: env.LodeRunnerChanged == 'true' || LodeRunnerLIBChanged == 'true'
+      run:
+        echo "RUN - LodeRunner"
+      # call-workflow-LodeRunner:
+      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
+
+    - name: Execute LodeRunner API
+      if: env.LodeRunnerAPIChanged == 'true' || LodeRunnerLIBChanged == 'true'
+      run: echo "RUN - LodeRunner API and LodeRunner UI"
+      # call-workflow-LodeRunner:
+      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
+      # call-workflow-LodeRunnerUI:
+      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+
+    - name: LodeRunner UI
+      if: env.LodeRunnerUIChanged == 'true'
+      run: echo "RUN - LodeRunner UI and LodeRunner API"
+      # call-workflow-LodeRunner:
+      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
+      # call-workflow-LodeRunnerUI:
+      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+
