@@ -24,6 +24,6 @@ jobs:
         fi
 
     - name: "Use flag if true"
-      if: env.flag == 'true'
+      if: env.flag == true
       run: echo "Flag is available and true"
 
