@@ -80,14 +80,14 @@ jobs:
           fi
 
     - name: Execute LodeRunner Workflow
-      if: ${{ env.LodeRunnerChanged == 'true' || LodeRunnerLIBChanged == 'true' || LodeRunnerWorkflowChaged == 'true' }}
+      if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
       run:
         echo "RUN - LodeRunner"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
     - name: Execute LodeRunner API
-      if: ${{ env.LodeRunnerAPIChanged == 'true' || LodeRunnerLIBChanged == 'true' || LodeRunnerWorkflowChaged == 'true' }}
+      if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
       run: echo "RUN - LodeRunner API and LodeRunner UI"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
@@ -95,7 +95,7 @@ jobs:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
 
     - name: LodeRunner UI
-      if: ${{ env.LodeRunnerUIChanged == 'true' || LodeRunnerWorkflowChaged == 'true' }}
+      if: ${{ env.LodeRunnerUIChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
       run: echo "RUN - LodeRunner UI and LodeRunner API"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
