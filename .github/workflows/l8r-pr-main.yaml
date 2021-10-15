@@ -81,7 +81,7 @@ jobs:
 
   call-workflow-LodeRunner:
     if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-    uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
     # - name: Execute LodeRunner API
     #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
