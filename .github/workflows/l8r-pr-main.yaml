@@ -31,7 +31,7 @@ on:
 
 
 jobs:
-  build:
+  check-changes:
     runs-on: ubuntu-20.04
 
     steps:
@@ -79,24 +79,23 @@ jobs:
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
 
-    - name: Execute LodeRunner Workflow
-      if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-      run:
-        echo "RUN - LodeRunner"
-      call-workflow-LodeRunner:
-         uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
+  run-LodeRunner:
+    if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
+    runs-on: ubuntu-20.04
+    call-workflow-LodeRunner:
+      uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
-    - name: Execute LodeRunner API
-      if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-      run: echo "RUN - LodeRunner API and LodeRunner UI"
+    # - name: Execute LodeRunner API
+    #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
+    #   run: echo "RUN - LodeRunner API and LodeRunner UI"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
       # call-workflow-LodeRunnerUI:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
 
-    - name: LodeRunner UI
-      if: ${{ env.LodeRunnerUIChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-      run: echo "RUN - LodeRunner UI and LodeRunner API"
+    # - name: LodeRunner UI
+    #   if: ${{ env.LodeRunnerUIChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
+    #   run: echo "RUN - LodeRunner UI and LodeRunner API"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
       # call-workflow-LodeRunnerUI:
