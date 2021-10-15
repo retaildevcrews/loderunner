@@ -1,0 +1,44 @@
+env:
+  TEST_RESULT: 'success'
+
+jobs:
+  job1:
+    name: Change env variable
+
+    # set job-level output and pass the value of step-level output to it
+    outputs:
+      test-result: ${{ steps.set_outputs.outputs.test-result }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print value of env variable
+        run: echo "TEST_RESULT = $TEST_RESULT"
+
+      - name: Change env variable
+        run: echo "::set-env name=TEST_RESULT::failure"
+
+      - name: Print new value of env variable
+        run: echo "TEST_RESULT = $TEST_RESULT"
+
+      # set step-level output and pass the value of env variable to it
+      - name: set outputs
+        id: set_outputs
+        run: |
+          echo "::set-output name=test-result::$TEST_RESULT"
+  job2:
+    name: Access modified env variable
+    needs: [job1]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print the output of job1
+        run: echo "needs.job1.outputs.test-result = ${{ needs.job1.outputs.test-result }}"
+
+      - name: Print value of env variable
+        run: echo "TEST_RESULT = $TEST_RESULT"
+
+      # use job1's output to update the env variable
+      - name: Change env variable
+        run: echo "::set-env name=TEST_RESULT::${{ needs.job1.outputs.test-result }}"
+
+      - name: Print new value of env variable
+        run: echo "TEST_RESULT = $TEST_RESULT"
