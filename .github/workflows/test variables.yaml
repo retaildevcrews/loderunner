@@ -5,9 +5,13 @@ on:
     types: [opened, synchronize]
     
 jobs:
-  job1:
+  build:
+    runs-on: ubuntu-20.04
+    
+    steps:
+    - uses: actions/checkout@v2
+
     - name: "Checkout Repository"
-      uses: actions/checkout@v2
 
     - name: "Set flag from PR"
       env:
