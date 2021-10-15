@@ -4,21 +4,24 @@ on:
   pull_request:
     types: [opened, synchronize]
     
-env:
-  TEST_RESULT: 'success'
-
 jobs:
   job1:
-    name: Change env variable
+    - name: "Checkout Repository"
+      uses: actions/checkout@v2
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print value of env variable
-        run: echo "TEST_RESULT = $TEST_RESULT"
+    - name: "Set flag from PR"
+      env:
+        TEST_RESULT: true
+      run: |
+        if ${TEST_RESULT} == true; then
+          echo "flag=true" >> $GITHUB_ENV
+          echo "flag set to true"
+        else
+          echo "flag=false" >> $GITHUB_ENV
+          echo "flag set to false"
+        fi
 
-      - name: Change env variable
-        run: echo "true" >> $TEST_RESULT
-
-      - name: Print new value of env variable
-        run: echo "TEST_RESULT = $TEST_RESULT"
+    - name: "Use flag if true"
+      if: env.flag
+      run: echo "Flag is available and true"
 
