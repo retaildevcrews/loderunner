@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize]
 
-#  LodeRunner changes should cause build and test of LodeRunner and shared lib
+#  TODO add logig to determine what to run if workflow yaml file changes 
 
     paths:  
       # Loderunner source 
@@ -73,15 +73,23 @@ jobs:
           else
             echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
           fi
+
+          if echo $FILES | grep -q ".github/workflows/"; then
+            echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
+            echo "LodeRunner Workflow Chaged changed!!"
+          else
+            echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
+          fi
+
     - name: Execute LodeRunner Workflow
-      if: env.LodeRunnerChanged == 'true' || LodeRunnerLIBChanged == 'true'
+      if: env.LodeRunnerChanged == 'true' || LodeRunnerLIBChanged == 'true' || LodeRunnerWorkflowChaged == 'true'
       run:
         echo "RUN - LodeRunner"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
     - name: Execute LodeRunner API
-      if: env.LodeRunnerAPIChanged == 'true' || LodeRunnerLIBChanged == 'true'
+      if: env.LodeRunnerAPIChanged == 'true' || LodeRunnerLIBChanged == 'true' || LodeRunnerWorkflowChaged == 'true'
       run: echo "RUN - LodeRunner API and LodeRunner UI"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
@@ -89,7 +97,7 @@ jobs:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
 
     - name: LodeRunner UI
-      if: env.LodeRunnerUIChanged == 'true'
+      if: env.LodeRunnerUIChanged == 'true' || LodeRunnerWorkflowChaged == 'true'
       run: echo "RUN - LodeRunner UI and LodeRunner API"
       # call-workflow-LodeRunner:
       #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
