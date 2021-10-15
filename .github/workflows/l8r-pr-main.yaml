@@ -79,11 +79,9 @@ jobs:
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
 
-  run-LodeRunner:
+  call-workflow-LodeRunner:
     if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-    runs-on: ubuntu-20.04
-    call-workflow-LodeRunner:
-      uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
     # - name: Execute LodeRunner API
     #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
