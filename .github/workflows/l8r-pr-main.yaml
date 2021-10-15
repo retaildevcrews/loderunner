@@ -4,8 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize]
 
-#  TODO add logig to determine what to run if workflow yaml file changes 
-
     paths:  
       # Loderunner source 
       - 'src/LodeRunner/Dockerfile'
