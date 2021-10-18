@@ -2,6 +2,11 @@ name: Build, Run and Test LodeRunner.API
 
 on:
   workflow_call:
+    secrets:
+      COSMOS_RW_KEY:
+        required: true
+      COSMOS_URL:
+        required: true
 
 jobs:
   build:
