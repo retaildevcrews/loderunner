@@ -79,6 +79,7 @@ jobs:
           else
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
+
     outputs:
       LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
       LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
@@ -89,25 +90,26 @@ jobs:
   call-workflow-LodeRunner:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
-    # if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
     secrets:
         COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
         COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
-        
-    # - name: Execute LodeRunner API
-    #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-    #   run: echo "RUN - LodeRunner API and LodeRunner UI"
-      # call-workflow-LodeRunner:
-      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
-      # call-workflow-LodeRunnerUI:
-      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
 
-    # - name: LodeRunner UI
-    #   if: ${{ env.LodeRunnerUIChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-    #   run: echo "RUN - LodeRunner UI and LodeRunner API"
-      # call-workflow-LodeRunner:
-      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
-      # call-workflow-LodeRunnerUI:
-      #   uses: gortegaMS/loderunner/tree/main/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+  call-workflow-LodeRunner-API-UI:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    steps:
+      name: execute loderunner-api
+      uses: gortegaMS/loderunner/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
+      secrets:
+        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      
+      name: execute loderunner-ui
+      uses: gortegaMS/loderunner/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+      secrets:
+        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+
+
 
