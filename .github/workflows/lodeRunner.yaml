@@ -2,11 +2,11 @@ name: Build, Run and Test LodeRunner
 
 on:
   workflow_call:
-    # secrets:
-    #   NGSA_DEV_COSMOS_RW_KEY:
-    #     required: true
-    #   NGSA_DEV_COSMOS_URL:
-    #     required: true
+    secrets:
+      COSMOS_RW_KEY:
+        required: true
+      COSMOS_URL:
+        required: true
 
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
+    
     - name: Docker Build LodeRunner
       run: |
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
@@ -23,8 +23,8 @@ jobs:
     - name: Set Secrets
       run: |
         mkdir -p /tmp/secrets
-        echo -n ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
-        echo -n ${{ secrets.NGSA_DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+        echo -n ${{ secrets.COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.DEV_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
         echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
         echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
