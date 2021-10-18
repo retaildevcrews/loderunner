@@ -86,9 +86,9 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
-  test-LodeRunner-only:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  test-LodeRunner-Only:
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     secrets:
@@ -96,8 +96,8 @@ jobs:
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   test-LodeRunner-API:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     secrets:
@@ -105,8 +105,8 @@ jobs:
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   test-LodeRunner-UI:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     secrets:
