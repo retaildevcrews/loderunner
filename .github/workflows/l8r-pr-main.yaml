@@ -88,7 +88,7 @@ jobs:
 
   call-workflow-LodeRunner:
     needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true'}}
+    if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     # if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
