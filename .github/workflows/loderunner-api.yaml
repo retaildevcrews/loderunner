@@ -1,4 +1,4 @@
-name: Build, Run and Test LodeRunner.API 
+name: Build LodeRunner.API
 
 on:
   workflow_call:
