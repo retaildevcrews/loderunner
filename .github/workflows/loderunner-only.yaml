@@ -1,4 +1,4 @@
-name: Build, Run and Test LodeRunner 
+name: Build LodeRunner Only
 
 on:
   workflow_call:
