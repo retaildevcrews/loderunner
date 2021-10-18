@@ -79,7 +79,6 @@ jobs:
           else
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
-
     outputs:
       LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
       LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
