@@ -1,4 +1,4 @@
-name: Test LodeRunner Main Workflow - PR
+name: Test LodeRunner-PR
 
 on:
   pull_request:
@@ -10,6 +10,9 @@ on:
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/l8r-pr-main.yaml'
+      - '.github/workflows/loderunner-api.yaml'
+      - '.github/workflows/loderunner-ui.yaml'
+      - '.github/workflows/loderunner-only.yaml'
 
       # API source
       - 'src/LodeRunner.API/Dockerfile'
@@ -31,7 +34,7 @@ on:
 
 
 jobs:
-  check_changes:
+  evaluate_changes:
     runs-on: ubuntu-20.04
 
     steps:
@@ -45,37 +48,37 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
 
-          if echo $FILES | grep -q "src/LodeRunner/" ; then
+          if [[ "$FILES" == "src/LodeRunner/"* ]] ; then
             echo "LodeRunnerChanged=true" >> $GITHUB_ENV
             echo "LodeRunner source code changed!!"
           else
             echo "LodeRunnerChanged=false" >> $GITHUB_ENV
           fi
           
-          if echo $FILES | grep -q "src/LodeRunner.API/"; then
+          if [[ "$FILES" == "src/LodeRunner.API/"* ]] ; then
             echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
             echo "LodeRunner.API source code changed!!"
           else
             echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
           fi
           
-          if echo $FILES | grep -q "src/LodeRunner.Core/" || echo $FILES | grep -q "src/LodeRunner.Data/"; then
+          if [[ "$FILES" == "src/LodeRunner.Core/"* || "$FILES" == "src/LodeRunner.Data/"* ]] ; then
             echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
             echo "LodeRunner Libraries source code changed!!"
           else
             echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
           fi
 
-          if echo $FILES | grep -q "src/LodeRunner.UI/"; then
+          if [[ "$FILES" == "src/LodeRunner.UI/"* ]] ; then
             echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
             echo "LodeRunner.UI source code changed!!"
           else
             echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
           fi
 
-          if echo $FILES | grep -q ".github/workflows/"; then
+          if [[ "$FILES" == ".github/workflows/"*".yaml" ]]; then
             echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
-            echo "LodeRunner Workflow Chaged changed!!"
+            echo "LodeRunner Workflow changed!!"
           else
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
@@ -86,29 +89,29 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
-  call-workflow-LodeRunner:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  loderunner-only:
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  call-workflow-LodeRunner-API:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  loderunner-API:
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  call-workflow-LodeRunner-UI:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  loderunner-UI:
+    needs: evaluate_changes
+    if: ${{ needs.evaluate_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
