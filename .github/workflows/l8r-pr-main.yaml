@@ -1,4 +1,4 @@
-name: Test LodeRunner Main Workflow - PR
+name: Test LodeRunner-PR
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ on:
 
 
 jobs:
-  check_changes:
+  evaluate_changes:
     runs-on: ubuntu-20.04
 
     steps:
@@ -86,7 +86,7 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
-  call-LodeRunner:
+  test-LodeRunner-only:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
@@ -95,7 +95,7 @@ jobs:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  call-LodeRunner-API:
+  test-LodeRunner-API:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
@@ -104,7 +104,7 @@ jobs:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  call-LodeRunner-UI:
+  test-LodeRunner-UI:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
