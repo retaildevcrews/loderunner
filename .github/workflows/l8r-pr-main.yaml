@@ -90,7 +90,7 @@ jobs:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
@@ -99,7 +99,7 @@ jobs:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
@@ -108,7 +108,7 @@ jobs:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     secrets:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
