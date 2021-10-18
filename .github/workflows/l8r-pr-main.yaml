@@ -91,9 +91,9 @@ jobs:
     if: ${{ needs.check_changes.outputs.LodeRunnerChanged == 'true' || needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
-      secrets:
-        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+    secrets:
+      COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   call-workflow-LodeRunner-API-UI:
     needs: check_changes
