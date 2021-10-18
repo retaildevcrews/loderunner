@@ -86,7 +86,7 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
-  test-LodeRunner-Only:
+  LodeRunner-Only:
     needs: evaluate_changes
     if: ${{ needs.evaluate_changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
@@ -95,7 +95,7 @@ jobs:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  test-LodeRunner-API:
+  LodeRunner-API:
     needs: evaluate_changes
     if: ${{ needs.evaluate_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
@@ -104,7 +104,7 @@ jobs:
       COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
-  test-LodeRunner-UI:
+  LodeRunner-UI:
     needs: evaluate_changes
     if: ${{ needs.evaluate_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
