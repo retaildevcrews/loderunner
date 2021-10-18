@@ -48,35 +48,35 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
 
-          if [[ "$FILES" == "src/LodeRunner/"* ]] ; then
+          if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
             echo "LodeRunnerChanged=true" >> $GITHUB_ENV
             echo "LodeRunner source code changed!!"
           else
             echo "LodeRunnerChanged=false" >> $GITHUB_ENV
           fi
           
-          if [[ "$FILES" == "src/LodeRunner.API/"* ]] ; then
+          if [[ "$FILES" == *"src/LodeRunner.API/"* ]] ; then
             echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
             echo "LodeRunner.API source code changed!!"
           else
             echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
           fi
           
-          if [[ "$FILES" == "src/LodeRunner.Core/"* || "$FILES" == "src/LodeRunner.Data/"* ]] ; then
+          if [[ "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
             echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
             echo "LodeRunner Libraries source code changed!!"
           else
             echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
           fi
 
-          if [[ "$FILES" == "src/LodeRunner.UI/"* ]] ; then
+          if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
             echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
             echo "LodeRunner.UI source code changed!!"
           else
             echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
           fi
 
-          if [[ "$FILES" == ".github/workflows/"*".yaml" ]]; then
+          if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
             echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
             echo "LodeRunner Workflow changed!!"
           else
