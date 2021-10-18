@@ -100,14 +100,7 @@ jobs:
     if: ${{ needs.check_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.check_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.check_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.check_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner-api.yaml@reusing-Workflows
-      secrets:
-        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
-      
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner-ui.yaml@reusing-Workflows
-      secrets:
-        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
-
-
-
+    secrets:
+      COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
