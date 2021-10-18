@@ -75,7 +75,7 @@ jobs:
 
           if echo $FILES | grep -q ".github/workflows/"; then
             echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
-            echo "LodeRunner Workflow Chaged changed!!"
+            echo "LodeRunner Workflow changed!!"
           else
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
