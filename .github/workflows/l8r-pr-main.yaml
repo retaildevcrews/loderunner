@@ -93,8 +93,8 @@ jobs:
     uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
     with:
       secrets:
-        COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-        COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+        NGSA_DEV_COSMOS_RW_KEY: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+        NGSA_DEV_COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
         
     # - name: Execute LodeRunner API
     #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
