@@ -34,7 +34,7 @@ on:
 
 
 jobs:
-  evaluate_changes:
+  evaluate-changes:
     runs-on: ubuntu-20.04
 
     steps:
@@ -90,8 +90,8 @@ jobs:
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
   loderunner-only:
-    needs: evaluate_changes
-    if: ${{ needs.evaluate_changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     secrets:
@@ -99,8 +99,8 @@ jobs:
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-api:
-    needs: evaluate_changes
-    if: ${{ needs.evaluate_changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     secrets:
@@ -108,8 +108,8 @@ jobs:
       COSMOS_URL: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-ui:
-    needs: evaluate_changes
-    if: ${{ needs.evaluate_changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate_changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate_changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     secrets:
