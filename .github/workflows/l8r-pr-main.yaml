@@ -38,6 +38,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Check and get what changed  
+      id: code_changes
       run: |
           URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
           echo $URL
@@ -78,10 +79,18 @@ jobs:
           else
             echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
           fi
+    outputs:
+      LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
+      LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
+      LodeRunnerLIBChanged: ${{ env.LodeRunnerLIBChanged }}
+      LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
+      LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
   call-workflow-LodeRunner:
-    if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
-    uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml
+    needs: check-changes
+    if: ${{ needs.check-changes.outputs.LodeRunnerChanged }}
+    # if: ${{ env.LodeRunnerChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
+    uses: gortegaMS/loderunner/.github/workflows/lodeRunner.yaml@reusing-Workflows
 
     # - name: Execute LodeRunner API
     #   if: ${{ env.LodeRunnerAPIChanged == 'true' || env.LodeRunnerLIBChanged == 'true' || env.LodeRunnerWorkflowChaged == 'true' }}
