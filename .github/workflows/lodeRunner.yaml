@@ -2,11 +2,11 @@ name: Build, Run and Test LodeRunner
 
 on:
   workflow_call:
-    secrets:
-      NGSA_DEV_COSMOS_RW_KEY:
-        required: true
-      NGSA_DEV_COSMOS_URL:
-        required: true
+    # secrets:
+    #   NGSA_DEV_COSMOS_RW_KEY:
+    #     required: true
+    #   NGSA_DEV_COSMOS_URL:
+    #     required: true
 
 
 jobs:
