@@ -10,7 +10,5 @@ namespace LodeRunner
     {
         public const int ExitSuccess = 0;
         public const int ExitFail = 1;
-
-        public const int ExitTest = -1;
     }
 }
