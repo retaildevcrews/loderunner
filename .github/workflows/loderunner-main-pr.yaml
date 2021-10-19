@@ -95,7 +95,7 @@ jobs:
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     with:
-      tag_and_push: true    
+      tag_and_push: false    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
@@ -106,7 +106,7 @@ jobs:
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     with:
-      tag_and_push: true    
+      tag_and_push: false    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
@@ -117,7 +117,7 @@ jobs:
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     with:
-      tag_and_push: true    
+      tag_and_push: false    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
