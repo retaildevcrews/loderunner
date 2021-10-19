@@ -70,7 +70,7 @@ namespace LodeRunner.Core.Models
         {
             return new LoadClient
             {
-                Version = "1.1.1",
+                Version = "222222222222222",
                 Name = "Central - az - central - us - 2",
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? "Central" : config.Region,
                 Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? "az-central-us" : config.Zone,
