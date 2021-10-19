@@ -45,7 +45,7 @@ namespace LodeRunner.Data
         /// <value>
         /// The retries.
         /// </value>
-        public int Retries { get; set; } = 10;
+        public int Retries { get; set; } = 20;
 
         /// <summary>
         /// Gets the CosmosDB query request options.
