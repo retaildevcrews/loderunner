@@ -7,7 +7,7 @@ on:
         description: 'Determines if image will be deployed.'
         default: false
         required: true
-        type: bool  
+        type: boolean
     secrets:
       cosmos_rw_key:
         required: true
