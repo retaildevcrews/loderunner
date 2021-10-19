@@ -48,10 +48,6 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
 
-          echo "git-ref: ${GITHUB_REF}"
-          echo "git-head-ref: ${GITHUB_HEAD_REF}"
-          echo "git-base-ref: ${GITHUB_BASE_REF}"
-
           if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
             echo "LodeRunnerChanged=true" >> $GITHUB_ENV
             echo "LodeRunner source code changed!!"
