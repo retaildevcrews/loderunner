@@ -1,8 +1,13 @@
 name: Test LodeRunner-PR
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: "0 6 * * *"
+
+  push:
+    branches:
+      - main
 
     paths:  
       # Loderunner source 
@@ -91,14 +96,14 @@ jobs:
 
   loderunner-only:
     needs: evaluate-changes
-    if: ${{ needs.evaluate-chanes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     with:
-      tag_and_push: false    
+      tag_and_push: true
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-api:
     needs: evaluate-changes
@@ -106,10 +111,11 @@ jobs:
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
     with:
-      tag_and_push: false    
+      tag_and_push: true
+
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-ui:
     needs: evaluate-changes
@@ -117,7 +123,8 @@ jobs:
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     with:
-      tag_and_push: false    
+      tag_and_push: true
+
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}      

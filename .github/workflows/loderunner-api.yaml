@@ -2,10 +2,16 @@ name: Build LodeRunner.API
 
 on:
   workflow_call:
-    secrets:
-      COSMOS_RW_KEY:
+    inputs:
+      tag_and_push:
+        description: 'Determines if image will be deployed.'
+        default: false
         required: true
-      COSMOS_URL:
+        type: bool  
+    secrets:
+      cosmos_rw_key:
+        required: true
+      cosmos_url:
         required: true
 
 jobs:
@@ -22,8 +28,8 @@ jobs:
     - name: Set Secrets
       run: |
         mkdir -p /tmp/secrets
-        echo -n ${{ secrets.COSMOS_RW_KEY }} >| /tmp/secrets/CosmosKey
-        echo -n ${{ secrets.COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+        echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
         echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
         echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
@@ -57,42 +63,24 @@ jobs:
       run: |
         rm -rf /tmp/secrets
 
-    # - name: Run Linter on LodeRunner.UI
-    #   uses: actions/setup-node@v2
-    #   with:
-    #     node-version: '14'
-    # - name: Install npm packages
-    #   run: npm install --prefix ./src/LodeRunner.UI
-      
-    # - name: Run Linter on ./src/LodeRunner.UI 
-    #   run: npm run lint --prefix ./src/LodeRunner.UI      
+    - name: Login to Container Registry
+      if: ${{ input.tag_and_push}}
+      run: echo Login to Container Registry because tag_and_push is- ${{ input.tag_and_push }}
+      # uses: docker/login-action@v1
+      # with:
+      #   registry: ghcr.io
+      #   username: ${{ secrets.GHCR_ID }}  // will need to pass in these values
+      #   password: ${{ secrets.GHCR_PAT }}
 
-    # - name: Docker Build LodeRunner.UI
-    #   run: |
-    #     docker build -t loderunnerui ./src/LodeRunner.UI
+    - name: Docker Tag and Push
+      if: ${{ input.tag_and_push}}
+      run: 
+        echo Docker Tag and Push because tag_and_push is- ${{ input.tag_and_push }}
 
-    # - name: Docker Run and Test LodeRunner.UI
-    #   run: |
+        #VERSION=$(docker run --rm image --version)
 
-    #     docker run --name l8rui -d --rm -p 8081:80 loderunnerui
+        # tag the repo with :beta
+        #docker tag image $DOCKER_REPO:beta
 
-    #     echo "Waiting for web server to start ..."
-    
-    #     wait_time=10        
-    #     sleep $wait_time
-    #     # wait up to 30 seconds for web server to start
-    #     while true
-    #     do
-    #         if curl localhost:8081 ; then
-    #             echo -e "\n LodeRunner.UI is running"
-    #             break
-    #         fi
-    #         if [ $wait_time -gt 30 ] ; then
-    #           echo -e "\n timeout waiting for LodeRunner-UI to start"
-    #           exit 1
-    #         fi
-            
-    #         sleep 1
-    #         ((wait_time=wait_time+1))
-    #     done    
-
+        # Push to the repo
+        #docker push -a $DOCKER_REPO
