@@ -93,7 +93,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
+    uses: ${{ GITHUB_REPOSITORY }}/.github/workflows/loderunner-only.yaml@${{ GITHUB_HEAD_REF }}
     with:
       tag_and_push: false    
     secrets:
@@ -104,7 +104,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
+    uses: ${{ GITHUB_REPOSITORY }}/.github/workflows/loderunner-api.yaml@{{ GITHUB_HEAD_REF }}
     with:
       tag_and_push: false    
     secrets:
@@ -115,7 +115,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
+    uses: ${{ GITHUB_REPOSITORY }}/.github/workflows/loderunner-ui.yaml@{{ GITHUB_HEAD_REF }}
     with:
       tag_and_push: false    
     secrets:
