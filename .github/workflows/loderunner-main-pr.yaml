@@ -91,7 +91,7 @@ jobs:
 
   loderunner-only:
     needs: evaluate-changes
-    if: ${{ needs.evaluate-chanes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
     with:
