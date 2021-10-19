@@ -3,6 +3,7 @@ export const CLIENT_STATUSES = {
   ready: "Ready",
   testing: "Testing",
   terminating: "Terminating",
+  testingWF: "testingWF",
 };
 
 export const CLIENT = {
