@@ -4,10 +4,15 @@ on:
   workflow_call:
     inputs:
       tag_and_push:
-        description: 'Determines if image will be deployed.'
+        description: 'Determines if image will be pushed'
         default: false
         required: true
-        type: boolean  
+        type: boolean 
+      run_and_test: 
+        description: 'Determines if image will be tested.'
+        default: false
+        required: true
+        type: boolean 
     secrets:
       cosmos_rw_key:
         required: true
@@ -39,6 +44,7 @@ jobs:
         docker build -t loderunnerui ./src/LodeRunner.UI
 
     - name: Docker Run and Test LodeRunner.UI
+      if: ${{ inputs.run_and_test }}
       run: |
 
         docker run --name l8rui -d --rm -p 8081:80 loderunnerui
