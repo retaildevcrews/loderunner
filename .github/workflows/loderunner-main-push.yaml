@@ -14,7 +14,7 @@ on:
       - 'src/LodeRunner/Dockerfile'
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
-      - '.github/workflows/l8r-pr-main.yaml'
+      - '.github/workflows/loderunner-main-push.yaml'
       - '.github/workflows/loderunner-api.yaml'
       - '.github/workflows/loderunner-ui.yaml'
       - '.github/workflows/loderunner-only.yaml'
@@ -103,7 +103,7 @@ jobs:
       tag_and_push: true
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-api:
     needs: evaluate-changes
@@ -115,7 +115,7 @@ jobs:
 
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-ui:
     needs: evaluate-changes
@@ -127,4 +127,4 @@ jobs:
 
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
