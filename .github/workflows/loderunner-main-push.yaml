@@ -1,0 +1,90 @@
+name: Test LodeRunner-Merge
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: "0 6 * * *"
+
+  push:
+    branches:
+      - main
+
+    paths:  
+      # Loderunner source 
+      - 'src/LodeRunner/Dockerfile'
+      - 'src/LodeRunner/*.csproj'
+      - 'src/LodeRunner/src/**.cs'
+      - '.github/workflows/loderunner-main-push.yaml'
+      - '.github/workflows/loderunner-api.yaml'
+      - '.github/workflows/loderunner-ui.yaml'
+      - '.github/workflows/loderunner-only.yaml'
+
+      # API source
+      - 'src/LodeRunner.API/Dockerfile'
+      - 'src/LodeRunner.API/*.csproj'
+      - 'src/LodeRunner.API/src/**.cs'
+
+      # Libraries source 
+      - 'src/LodeRunner.Core/*.csproj'
+      - 'src/LodeRunner.Core/**.cs'
+      - 'src/LodeRunner.Data/*.csproj'
+      - 'src/LodeRunner.Data/**.cs'
+      
+      # UI source 
+      - 'src/LodeRunner.UI/Dockerfile'
+      - 'src/LodeRunner.UI/**.js'
+      - 'src/LodeRunner.UI/**.css'
+      - 'src/LodeRunner.UI/*.csproj'
+      - 'src/LodeRunner.UI/**.cs'
+
+
+jobs:
+  evaluate-changes:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check Validation mode 
+      id: code_changes
+      run: |
+          if [[ github.event_name == 'schedule' ]] ; then
+            echo "RunAndTestAll=true" >> $GITHUB_ENV
+            echo "Build, Run, Test and Push all projects!"
+          else
+            echo "RunAndTestAll=false" >> $GITHUB_ENV
+            echo "Build and push all projects!"
+          fi
+         
+    outputs:
+      RunAndTestAll: ${{ env.RunAndTestAll }}
+
+  loderunner-only:
+    needs: evaluate-changes
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@main
+    with:
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+
+  loderunner-api:
+    needs: evaluate-changes
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@main
+    with:
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+
+  loderunner-ui:
+    needs: evaluate-changes
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-ui.yaml@main
+    with:
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      

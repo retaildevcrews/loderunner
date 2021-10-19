@@ -1,0 +1,108 @@
+name: Build LodeRunner Only
+
+on:
+  workflow_call:
+    inputs:
+      tag_and_push:
+        description: 'Determines if image will be pushed.'
+        default: false
+        required: true
+        type: boolean
+      run_and_test: 
+        description: 'Determines if image will be tested.'
+        default: false
+        required: true
+        type: boolean         
+    secrets:
+      cosmos_rw_key:
+        required: true
+      cosmos_url:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Docker Build LodeRunner
+      run: |
+        docker build ./src -t image -f ./src/LodeRunner/Dockerfile
+
+    - name: Set Secrets
+      if: ${{ inputs.run_and_test }}
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+
+    - name: Docker Run LodeRunner Await mode.
+      if: ${{ inputs.run_and_test }}
+      run: |
+        echo "Running LoadRunner..."
+
+        timeout --preserve-status --kill-after=5 --signal=SIGTERM 10 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json;
+
+        echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
+
+    - name: Delete Secrets
+      if: ${{ inputs.run_and_test }}
+      run: |
+        rm -rf /tmp/secrets        
+
+    - name: Docker Run and Test LodeRunner Traditional - In-Memory
+      if: ${{ inputs.run_and_test }}
+      run: |
+        docker run -d --rm -p 80:8080 --name ngsa ghcr.io/retaildevcrews/ngsa-app:beta --in-memory
+
+        echo "Waiting for ngsa-app to start ..."
+
+        wait_time=10
+        sleep $wait_time
+
+        # wait up to 30 seconds for ngsa-app to start
+        while true
+        do
+          if curl localhost:80/version ; then
+            echo -e "\n ngsa-app is running"
+            break
+          fi
+          if [ $wait_time -gt 30 ] ; then
+            echo -e "\n timeout waiting for ngsa-app to start"
+            exit 1
+          fi
+
+          sleep 1
+          ((wait_time=wait_time+1))
+        done
+
+        echo "Running In-Memory benchmark and baseline"
+
+        docker run --rm --net=host image -s http://localhost:80 --max-errors 1 -f baseline.json
+
+    - name: Login to Container Registry
+      if: ${{ inputs.tag_and_push }}
+      run: echo Login to Container Registry because tag_and_push is- ${{ inputs.tag_and_push }}
+      # uses: docker/login-action@v1
+      # with:
+      #   registry: ghcr.io
+      #   username: ${{ secrets.GHCR_ID }}  // will need to pass in these values
+      #   password: ${{ secrets.GHCR_PAT }}
+
+    - name: Docker Tag and Push
+      if: ${{ inputs.tag_and_push }}
+      run: 
+        echo Docker Tag and Push because tag_and_push is- ${{ inputs.tag_and_push }}
+
+        #VERSION=$(docker run --rm image --version)
+
+        # tag the repo with :beta
+        #docker tag image $DOCKER_REPO:beta
+
+        # Push to the repo
+        #docker push -a $DOCKER_REPO
+
+

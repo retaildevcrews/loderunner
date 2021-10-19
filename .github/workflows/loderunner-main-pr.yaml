@@ -1,0 +1,126 @@
+name: Test LodeRunner-PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+    paths:  
+      # Loderunner source 
+      - 'src/LodeRunner/Dockerfile'
+      - 'src/LodeRunner/*.csproj'
+      - 'src/LodeRunner/src/**.cs'
+      - '.github/workflows/loderunner-main-pr.yaml'
+      - '.github/workflows/loderunner-api.yaml'
+      - '.github/workflows/loderunner-ui.yaml'
+      - '.github/workflows/loderunner-only.yaml'
+
+      # API source
+      - 'src/LodeRunner.API/Dockerfile'
+      - 'src/LodeRunner.API/*.csproj'
+      - 'src/LodeRunner.API/src/**.cs'
+
+      # Libraries source 
+      - 'src/LodeRunner.Core/*.csproj'
+      - 'src/LodeRunner.Core/**.cs'
+      - 'src/LodeRunner.Data/*.csproj'
+      - 'src/LodeRunner.Data/**.cs'
+      
+      # UI source 
+      - 'src/LodeRunner.UI/Dockerfile'
+      - 'src/LodeRunner.UI/**.js'
+      - 'src/LodeRunner.UI/**.css'
+      - 'src/LodeRunner.UI/*.csproj'
+      - 'src/LodeRunner.UI/**.cs'
+
+
+jobs:
+  evaluate-changes:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check and get what changed  
+      id: code_changes
+      run: |
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+          echo $URL
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          echo $FILES
+
+          if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
+            echo "LodeRunnerChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner source code changed!!"
+          else
+            echo "LodeRunnerChanged=false" >> $GITHUB_ENV
+          fi
+          
+          if [[ "$FILES" == *"src/LodeRunner.API/"* ]] ; then
+            echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.API source code changed!!"
+          else
+            echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
+          fi
+          
+          if [[ "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
+            echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner Libraries source code changed!!"
+          else
+            echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
+          fi
+
+          if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
+            echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.UI source code changed!!"
+          else
+            echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
+          fi
+
+          if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
+            echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
+            echo "LodeRunner Workflow changed!!"
+          else
+            echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
+          fi
+    outputs:
+      LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
+      LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
+      LodeRunnerLIBChanged: ${{ env.LodeRunnerLIBChanged }}
+      LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
+      LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
+
+  loderunner-only:
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@main
+    with:
+      tag_and_push: false
+      run_and_test: true    
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+
+  loderunner-api:
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@main
+    with:
+      tag_and_push: false
+      run_and_test: true    
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+
+  loderunner-ui:
+    needs: evaluate-changes
+    if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+    
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-ui.yaml@main
+    with:
+      tag_and_push: false 
+      run_and_test: true   
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      
