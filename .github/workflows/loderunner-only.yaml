@@ -75,7 +75,7 @@ jobs:
         docker run --rm --net=host image -s http://localhost:80 --max-errors 1 -f baseline.json benchmark.json
 
     - name: Login to Container Registry
-      if: ${{ input.tag_and_push}}
+      if: ${{ inputs.tag_and_push}}
       run: echo Login to Container Registry because tag_and_push is- ${{ input.tag_and_push }}
       # uses: docker/login-action@v1
       # with:
@@ -84,7 +84,7 @@ jobs:
       #   password: ${{ secrets.GHCR_PAT }}
 
     - name: Docker Tag and Push
-      if: ${{ input.tag_and_push}}
+      if: ${{ inputs.tag_and_push}}
       run: 
         echo Docker Tag and Push because tag_and_push is- ${{ input.tag_and_push }}
 
