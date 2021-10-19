@@ -48,6 +48,10 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
 
+          echo "git-ref: ${$GITHUB_REF}"
+          echo "git-head-ref: ${$GITHUB_HEAD_REF}"
+          echo "git-base-ref: ${$GITHUB_BASE_REF}"
+
           if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
             echo "LodeRunnerChanged=true" >> $GITHUB_ENV
             echo "LodeRunner source code changed!!"
@@ -93,7 +97,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-chanes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
+    uses: ${GITHUB_REPOSITORY}/.github/workflows/loderunner-only.yaml@reusing-Workflows
     with:
       tag_and_push: false    
     secrets:
@@ -104,7 +108,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
+    uses: ${GITHUB_REPOSITORY}/.github/workflows/loderunner-api.yaml@reusing-Workflows
     with:
       tag_and_push: false    
     secrets:
@@ -115,7 +119,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
+    uses: ${GITHUB_REPOSITORY}/.github/workflows/loderunner-ui.yaml@reusing-Workflows
     with:
       tag_and_push: false    
     secrets:
