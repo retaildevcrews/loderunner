@@ -45,86 +45,46 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Check and get what changed  
+    - name: Check Validation mode 
       id: code_changes
       run: |
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
-          echo $URL
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-          echo $FILES
-
-          if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
-            echo "LodeRunnerChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner source code changed!!"
+          if [[ github.event_name == 'schedule' ]] ; then
+            echo "RunAndTestAll=true" >> $GITHUB_ENV
+            echo "Build, Run, Test and Push all projects!"
           else
-            echo "LodeRunnerChanged=false" >> $GITHUB_ENV
+            echo "RunAndTestAll=false" >> $GITHUB_ENV
+            echo "Build and push all projects!"
           fi
-          
-          if [[ "$FILES" == *"src/LodeRunner.API/"* ]] ; then
-            echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner.API source code changed!!"
-          else
-            echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
-          fi
-          
-          if [[ "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
-            echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner Libraries source code changed!!"
-          else
-            echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
-          fi
-
-          if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
-            echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner.UI source code changed!!"
-          else
-            echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
-          fi
-
-          if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
-            echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
-            echo "LodeRunner Workflow changed!!"
-          else
-            echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
-          fi
+         
     outputs:
-      LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
-      LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
-      LodeRunnerLIBChanged: ${{ env.LodeRunnerLIBChanged }}
-      LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
-      LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
+      RunAndTestAll: ${{ env.RunAndTestAll }}
 
   loderunner-only:
     needs: evaluate-changes
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
-    
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@main
     with:
-      tag_and_push: true
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-api:
     needs: evaluate-changes
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
-    
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@main
     with:
-      tag_and_push: true
-
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
 
   loderunner-ui:
     needs: evaluate-changes
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
-    
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@reusing-Workflows
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@main
     with:
-      tag_and_push: true
-
+      tag_and_push : true
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}      

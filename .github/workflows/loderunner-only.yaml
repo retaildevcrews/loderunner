@@ -4,10 +4,15 @@ on:
   workflow_call:
     inputs:
       tag_and_push:
-        description: 'Determines if image will be deployed.'
+        description: 'Determines if image will be pushed.'
         default: false
         required: true
-        type: boolean  
+        type: boolean
+      run_and_test: 
+        description: 'Determines if image will be tested.'
+        default: false
+        required: true
+        type: boolean         
     secrets:
       cosmos_rw_key:
         required: true
@@ -26,6 +31,7 @@ jobs:
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
 
     - name: Set Secrets
+      if: ${{ inputs.run_and_test }}
       run: |
         mkdir -p /tmp/secrets
         echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
@@ -34,6 +40,7 @@ jobs:
         echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
     - name: Docker Run LodeRunner Await mode.
+      if: ${{ inputs.run_and_test }}
       run: |
         echo "Running LoadRunner..."
 
@@ -42,10 +49,12 @@ jobs:
         echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
 
     - name: Delete Secrets
+      if: ${{ inputs.run_and_test }}
       run: |
         rm -rf /tmp/secrets        
 
     - name: Docker Run and Test LodeRunner Traditional - In-Memory
+      if: ${{ inputs.run_and_test }}
       run: |
         docker run -d --rm -p 80:8080 --name ngsa ghcr.io/retaildevcrews/ngsa-app:beta --in-memory
 
