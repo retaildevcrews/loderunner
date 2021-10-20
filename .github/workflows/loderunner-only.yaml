@@ -12,12 +12,23 @@ on:
         description: 'Determines if image will be tested.'
         default: false
         required: true
-        type: boolean         
+        type: boolean  
+      autogitops: 
+        description: 'Determines if autogitops will run'
+        default: false
+        required: false
+        type: boolean                 
     secrets:
       cosmos_rw_key:
         required: true
       cosmos_url:
         required: true
+      ghcr_id:
+        description: 'GHCR_ID used for autogitops deploy'
+        required: false
+      ghcr_pat:
+        description: 'GHCR_PAT used for autogitops deploy'
+        required: false
 
 jobs:
   build:
@@ -105,4 +116,8 @@ jobs:
         # Push to the repo
         #docker push -a $DOCKER_REPO
 
-
+    - name: GitOps Deploy
+      if: ${{ inputs.autogitops }}
+      run: |        
+        dotnet tool install -g autogitops --version 0.0.3
+        ago -u ${{ secrets.ghcr_id }} -p ${{ secrets.ghcr_pat }} -r /retaildevcrews/ngsa-asb
