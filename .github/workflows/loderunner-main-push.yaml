@@ -85,7 +85,7 @@ jobs:
 
   loderunner-only:
     needs: evaluate-changes
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@main
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-only.yaml@gitopstest
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}
@@ -98,7 +98,7 @@ jobs:
 
   loderunner-api:
     needs: evaluate-changes
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@main
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-api.yaml@gitopstest
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
@@ -108,7 +108,7 @@ jobs:
 
   loderunner-ui:
     needs: evaluate-changes
-    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@main
+    uses: gortegaMS/loderunner/.github/workflows/loderunner-ui.yaml@gitopstest
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
