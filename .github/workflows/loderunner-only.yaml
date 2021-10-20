@@ -12,12 +12,23 @@ on:
         description: 'Determines if image will be tested.'
         default: false
         required: true
-        type: boolean         
+        type: boolean  
+      autogitops: 
+        description: 'Determines if autogitops will run'
+        default: false
+        required: false
+        type: boolean                 
     secrets:
       cosmos_rw_key:
         required: true
       cosmos_url:
         required: true
+      ghcr_id:
+        description: 'GHCR_ID used for autogitops deploy'
+        required: false
+      ghcr_pat:
+        description: 'GHCR_PAT used for autogitops deploy'
+        required: false
 
 jobs:
   build:
@@ -44,7 +55,7 @@ jobs:
       run: |
         echo "Running LoadRunner..."
 
-        timeout --preserve-status --kill-after=5 --signal=SIGTERM 30 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json;
+        timeout --preserve-status --kill-after=5 --signal=SIGTERM 10 docker run --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json;
 
         echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
 
@@ -81,7 +92,7 @@ jobs:
 
         echo "Running In-Memory benchmark and baseline"
 
-        docker run --rm --net=host image -s http://localhost:80 --max-errors 1 -f baseline.json benchmark.json
+        docker run --rm --net=host image -s http://localhost:80 --max-errors 1 -f baseline.json
 
     - name: Login to Container Registry
       if: ${{ inputs.tag_and_push }}
@@ -105,4 +116,8 @@ jobs:
         # Push to the repo
         #docker push -a $DOCKER_REPO
 
-
+    - name: GitOps Deploy
+      if: ${{ inputs.autogitops }}
+      run: |        
+        dotnet tool install -g autogitops --version 0.0.3
+        ago -u ${{ secrets.ghcr_id }} -p ${{ secrets.ghcr_pat }} -r /retaildevcrews/ngsa-asb
