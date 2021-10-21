@@ -40,7 +40,6 @@ spec:
           - benchmark.json
           - -p
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
