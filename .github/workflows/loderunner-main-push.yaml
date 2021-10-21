@@ -59,9 +59,10 @@ jobs:
             echo "Build and push all projects!"
           fi
 
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
           echo $URL
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          FILES=$(curl -s -X GET -G $URL | jq -r '. | .files')
+          FILES=$(echo $FILES | jq -r '.[] | .filename')
           echo $FILES
 
           if [[ "$FILES" == *"autogitops/"* ]] ; then
@@ -71,7 +72,7 @@ jobs:
             echo "autogitops=false" >> $GITHUB_ENV
           fi
           
-          if [[ "$FILES" == *"src/LodeRunner/"* || $FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
+          if [[ "$FILES" == *"src/LodeRunner/"* || "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
             echo "LodeRunnerChanged=true" >> $GITHUB_ENV
             echo "LodeRunner source code changed!!"
           else
