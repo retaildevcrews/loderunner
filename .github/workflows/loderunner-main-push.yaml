@@ -59,9 +59,9 @@ jobs:
             echo "Build and push all projects!"
           fi
 
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
           echo $URL
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          FILES=$(curl -s -X GET -G $URL | jq -r '. | .files')
           echo $FILES
 
           if [[ "$FILES" == *"autogitops/"* ]] ; then
