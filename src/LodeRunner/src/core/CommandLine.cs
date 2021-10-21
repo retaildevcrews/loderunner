@@ -122,25 +122,25 @@ namespace LodeRunner
 
             if (duration != null && duration > 0 && !runLoop)
             {
-                msg += "--run-loop must be true to use --duration\n";
+                msg += $"{SystemConstants.CmdLineValidationDurationAndLoopMessage}\n";
             }
             else if (random && !runLoop)
             {
-                msg += "--run-loop must be true to use --random\n";
+                msg += $"{SystemConstants.CmdLineValidationRandomAndLoopMessage}\n";
             }
 
             // validate secrets volume on delay start
             if (delayStart == -1 && string.IsNullOrWhiteSpace(secrets))
             {
-                msg += "--secrets-volume cannot be empty when --delay-start is equals to -1\n";
+                msg += $"{SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage}\n";
             }
             else if (!string.IsNullOrWhiteSpace(secrets) && delayStart != -1)
             {
-                msg += $"--secrets-volume requires --delay-start to be equals to negative one (-1)\n";
+                msg += $"{SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage}\n";
             }
             else if (delayStart == -1 && !Directory.Exists(secrets))
             {
-                msg += $"--secrets-volume ({secrets}) does not exist\n";
+                msg += $"{SystemConstants.CmdLineValidationSecretsVolumeBeginningMessage}{secrets}{SystemConstants.CmdLineValidationSecretsVolumeEndMessage}\n";
             }
 
             return msg;
