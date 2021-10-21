@@ -62,7 +62,9 @@ jobs:
           URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
           echo $URL
           FILES=$(curl -s -X GET -G $URL | jq -r '. | .files')
+          FILES=$(echo $FILES | jq -r '.[] | .filename')
           echo $FILES
+
 
           if [[ "$FILES" == *"autogitops/"* ]] ; then
             echo "autogitops=true" >> $GITHUB_ENV
