@@ -37,6 +37,9 @@ on:
       - 'src/LodeRunner.UI/*.csproj'
       - 'src/LodeRunner.UI/**.cs'
 
+      #Autogitops
+      - 'autogitops/**'
+
 
 jobs:
   evaluate-changes:
@@ -55,19 +58,44 @@ jobs:
             echo "RunAndTestAll=false" >> $GITHUB_ENV
             echo "Build and push all projects!"
           fi
+
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
+          echo $URL
+          FILES=$(curl -s -X GET -G $URL | jq -r '. | .files')
+          FILES=$(echo $FILES | jq -r '.[] | .filename')
+          echo $FILES
+
+          if [[ "$FILES" == *"autogitops/"* ]] ; then
+            echo "autogitops=true" >> $GITHUB_ENV
+            echo "autogitops changed!!"
+          else
+            echo "autogitops=false" >> $GITHUB_ENV
+          fi
+          
+          if [[ "$FILES" == *"src/LodeRunner/"* || "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
+            echo "LodeRunnerChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner source code changed!!"
+          else
+            echo "LodeRunnerChanged=false" >> $GITHUB_ENV
+          fi        
          
     outputs:
       RunAndTestAll: ${{ env.RunAndTestAll }}
+      autogitops: ${{ env.autogitops }}
+      LodeRunnerChanged: ${{ env.LodeRunnerChanged }} 
 
   loderunner-only:
     needs: evaluate-changes
     uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@main
     with:
       tag_and_push : true
-      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+      run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}
+      autogitops: ${{ needs.evaluate-changes.outputs.autogitops == 'true' || needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' }}
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      ghcr_id: ${{ secrets.GHCR_ID }}
+      ghcr_pat: ${{ secrets.PAT }}
 
   loderunner-api:
     needs: evaluate-changes
