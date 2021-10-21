@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace LodeRunner.Test.Common
 {
     /// <summary>
-    /// Represents secrets helper class. 
+    /// Represents secrets helper class.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     internal class SecretsHelper : IDisposable
@@ -36,14 +36,12 @@ namespace LodeRunner.Test.Common
 
             foreach (var filename in this.secretFiles)
             {
-                using (StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}/secrets/{filename}"))
+                using StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}/secrets/{filename}");
+                switch (filename)
                 {
-                    switch (filename)
-                    {
-                        case CosmosUrl: sw.WriteLine("https://some-random-domain.documents.azure.com"); break;
-                        case CosmosKey: sw.WriteLine(this.RandomString(64)); break;
-                        default: sw.WriteLine(filename); break;
-                    }
+                    case CosmosUrl: sw.WriteLine("https://some-random-domain.documents.azure.com"); break;
+                    case CosmosKey: sw.WriteLine(RandomString(64)); break;
+                    default: sw.WriteLine(filename); break;
                 }
             }
         }
@@ -75,7 +73,7 @@ namespace LodeRunner.Test.Common
         /// <summary>
         /// Deletes the secrets.
         /// </summary>
-        internal void DeleteSecrets()
+        internal static void DeleteSecrets()
         {
             Directory.Delete($"{Directory.GetCurrentDirectory()}/secrets", true);
         }
@@ -85,7 +83,7 @@ namespace LodeRunner.Test.Common
         /// </summary>
         /// <param name="length">The length.</param>
         /// <returns>Random string.</returns>
-        private string RandomString(int length)
+        private static string RandomString(int length)
         {
             Random random = new ();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

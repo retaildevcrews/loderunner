@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using LodeRunner.Test.Common;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
+using LodeRunner.Test.Common;
 using Xunit;
 
 namespace LodeRunner.Test.UnitTests
@@ -65,7 +65,7 @@ namespace LodeRunner.Test.UnitTests
             }
             finally
             {
-                secretsHelper.DeleteSecrets();
+                SecretsHelper.DeleteSecrets();
             }
         }
 
@@ -94,11 +94,10 @@ namespace LodeRunner.Test.UnitTests
                 errors = root.Parse(new string[] { "-s", "https://worka.aks-sb2.com", "-f", "memory-baseline1.json", "--secrets-volume", "secrets" }).Errors;
 
                 Assert.True(errors.Count == 1 || errors.Any(m => m.Message.Contains(SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage)), "AwaitMode - missing delay-start");
-
             }
             finally
             {
-                secretsHelper.DeleteSecrets();
+                SecretsHelper.DeleteSecrets();
             }
         }
     }
