@@ -20,9 +20,6 @@ namespace LodeRunner.Test.UnitTests
     /// </summary>
     public class CommandLineArgs
     {
-        // Facts: are tests which are always true. They test invariant conditions.
-        // Theories: are tests which are only true for a particular set of data.
-
         /// <summary>
         /// Test the success case of LodeRunner in Await mode.
         /// </summary>
@@ -30,49 +27,40 @@ namespace LodeRunner.Test.UnitTests
         [Trait("Category", "Unit")]
         public void AwaitMode_Success()
         {
-            var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
+            using var secretsHelper = new SecretsHelper();
 
-            // Assert.Equal(0, await App.Main(validArgs)); // this will start the app and try to actually run it
-            RootCommand root = App.BuildRootCommand();
+            secretsHelper.CreateValidSecrets();
+            try
+            {
+                var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
 
-            Assert.True(root.Parse(validArgs).Errors.Count == 0, "AwaitMode Success");
+                RootCommand root = App.BuildRootCommand();
 
-            // Assert.True(root.Parse("-s", "--server").Errors.Count == 0, "Server(s) to test");
-            // Assert.True(root.Parse("-f", "--files").Errors.Count == 0, "List of files to test");
-            // Assert.True(root.Parse("--zone").Errors.Count == 0, "Zone for logging");
-            // Assert.True(root.Parse("--region").Errors.Count == 0, "Region for logging");
-            // Assert.True(root.Parse("-p", "--prometheus").Errors.Count == 0, "Send metrics to Prometheus");
-            // Assert.True(root.Parse("--tag").Errors.Count == 0, "Tag for logging");
-            // Assert.True(root.Parse("-l", "--sleep").Errors.Count == 0, "Sleep (ms) between each request");
-            // Assert.True(root.Parse("-j", "--strict-json").Errors.Count == 0, "Use strict json when parsing");
-            // Assert.True(root.Parse("-u", "--base-url").Errors.Count == 0, "Base url for files");
-            // Assert.True(root.Parse("-v", "--verbose").Errors.Count == 0, "Display verbose results");
-            // Assert.True(root.Parse("-r", "--run-loop").Errors.Count == 0, "Run test in an infinite loop");
-            // Assert.True(root.Parse("--verbose-errors").Errors.Count == 0, "Log verbose error messages");
-            // Assert.True(root.Parse("--random").Errors.Count == 0, "Run requests randomly (requires --run-loop)");
-            // Assert.True(root.Parse("--duration").Errors.Count == 0, "Test duration (seconds)  (requires --run-loop)");
-            // Assert.True(root.Parse("--summary-minutes").Errors.Count == 0, "Display summary results (minutes)  (requires --run-loop)");
-            // Assert.True(root.Parse("-t", "--timeout").Errors.Count == 0, "Request timeout (seconds)");
-            // Assert.True(root.Parse("--max-concurrent").Errors.Count == 0, "Max concurrent requests");
-            // Assert.True(root.Parse("--max-errors").Errors.Count == 0, "Max validation errors");
-            // Assert.True(root.Parse("--delay-start").Errors.Count == 0, "Delay test start (seconds)");
-            // Assert.True(root.Parse("--client-refresh").Errors.Count == 0, "How often to refresh HTTP client (seconds)");
-            // Assert.True(root.Parse("-d", "--dry-run").Errors.Count == 0, "Validates configuration");
-            // Assert.True(root.Parse("--secrets-volume").Errors.Count == 0, "Secrets Volume Path");
+                Assert.True(root.Parse(validArgs).Errors.Count == 0, "All arguments supplied.");
+            }
+            finally
+            {
+                SecretsHelper.DeleteSecrets();
+            }
         }
 
         /// <summary>
-        /// Test the failure case of LodeRunned in Await mode.
+        /// Test the failure case of LodeRunner in Await mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "AwaitMode - missing secrets-volume")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "AwaitMode - missing delay-start")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "secrets-volume is not supplied")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "delay-start is not supplied")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsVolumeEndMessage, "secrets folder does not exist")]
         public void AwaitMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
+            using var secretsHelper = new SecretsHelper();
+
+            SecretsHelper.DeleteSecrets();
+
             RootCommand root = App.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
@@ -81,7 +69,7 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the success case of LodeRunned in Traditional mode.
+        /// Test the success case of LodeRunner in Traditional mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="messageifFailed">The message to display if test failed.</param>
@@ -99,7 +87,7 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the failure case of LodeRunned in Traditional mode.
+        /// Test the failure case of LodeRunner in Traditional mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
@@ -118,7 +106,7 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the failure case of LodeRunned in Traditional mode for Validated Dependencies for the ones we use GetValueOrDefault.
+        /// Test the failure case of LodeRunner in Traditional mode when validating dependencies for the ones that use GetValueOrDefault.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
@@ -149,17 +137,33 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the success case of LodeRunned in Traditional mode.
+        /// Test the success cases of LodeRunner in Traditional mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "5" }, "Argument --delay-start")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-errors", "1" }, "Argument --max-errors")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json" }, "Minimum requirements met")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "5" }, "Requirements met for argument --delay-start")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-errors", "1" }, "Requirements met for argument --max-errors")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--zone", "central" }, "Requirements met for argument --zone")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--region", "US-central" }, "Requirements met for argument --region")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--prometheus", "true" }, "Requirements met for argument --prometheus")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--tag", "myTag" }, "Requirements met for argument --tag")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--sleep", "500" }, "Requirements met for argument --tag")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--strict-json", "false" }, "Requirements met for argument --strict-json")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--base-url", "https://" }, "Requirements met for argument --base-url")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--verbose", "true" }, "Requirements met for argument --verbose")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--run-loop", "true" }, "Requirements met for argument --run-loop")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--verbose-errors", "true" }, "Requirements met for argument --verbose-errors")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--summary-minutes", "1" }, "Requirements met for argument --summary-minutes")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--timeout", "10" }, "Requirements met for argument --timeout")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-concurrent", "10" }, "Requirements met for argument --max-concurrent")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--client-refresh", "10" }, "Requirements met for argument --client-refresh")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--dry-run", "true" }, "Requirements met for argument --dry-run")]
         public void TraditionalMode_Success(string[] args, string messageifFailed)
         {
+            // Note: "--random", "--duration", "--secrets-volume" and "--delay-start" are tested on different Unit Tests.
             RootCommand root = App.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
@@ -168,24 +172,37 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the failure case of LodeRunned in Traditional mode.
+        /// Test the failure cases of LodeRunner in Traditional mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
+        [InlineData(new string[] { "-s", "-f", "memory-baseline.json", }, "Required argument missing for option: -s", "Minimum requirements not met for argument -- server")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f" }, "Required argument missing for option: -f", "Minimum requirements not met for argument --files")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-errors", "-1" }, "must be an integer >= 1", "Argument --max-errors")]
-        [InlineData(new string[] { "-s", "-f", "memory-baseline.json", }, "Required argument missing for option: -s", "Minimum requirements not met for server")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f" }, "Required argument missing for option: -f", "Minimum requirements not met for --files")]
-
-        // TODO add individual params to test other test cases
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--zone", "5" }, "must be at least 3 characters", "Minimum requirements not met for argument --zone")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--region", "US" }, "must be at least 3 characters", "Minimum requirements not met for argument --region")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--prometheus", "2" }, "Unrecognized command or argument", "Minimum requirements not met for argument --prometheus")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--tag", "tg" }, "must be at least 3 characters", "Minimum requirements not met for argument --tag")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--sleep", "sleep" }, "must be an integer >= 1", "Minimum requirements not met for argument --sleep")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--strict-json", "1" }, "Unrecognized command or argument", "Minimum requirements not met for argument --strict-json")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--base-url", "ur" }, "must be at least 3 characters", "Minimum requirements not met for argument --base-url")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--verbose", "0" }, "Unrecognized command or argument", "Minimum requirements not met for argument --verbose")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--run-loop", "0" }, "Unrecognized command or argument", "Minimum requirements not met for argument --run-loop")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--verbose-errors", "0" }, "Unrecognized command or argument", "Minimum requirements not met for argument --verbose-errors")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--summary-minutes", "time" }, "must be an integer >= 1", "Minimum requirements not met for argument --summary-minutes")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--timeout", "-1" }, "must be an integer >= 1", "Minimum requirements not met for argument --timeout")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-concurrent", "-1" }, "must be an integer >= 1", "Minimum requirements not met for argument --max-concurrent")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--client-refresh", "-1" }, "must be an integer >= 1", "Minimum requirements not met for argument --client-refresh")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--dry-run", "0" }, "Unrecognized command or argument", "Minimum requirements not met for argument --dry-run")]
         public void TraditionalMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
+            // Note: "--random", "--duration", "--secrets-volume" and "--delay-start" are tested on different  Unit Tests.
             RootCommand root = App.BuildRootCommand();
 
-            IReadOnlyCollection<ParseError> errors = null;
-            errors = root.Parse(args).Errors;
+            var errors = root.Parse(args).Errors;
             Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
         }
     }

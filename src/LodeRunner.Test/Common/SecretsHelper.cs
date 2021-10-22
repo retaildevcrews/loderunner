@@ -76,7 +76,10 @@ namespace LodeRunner.Test.Common
         /// </summary>
         internal static void DeleteSecrets()
         {
-            Directory.Delete($"{Directory.GetCurrentDirectory()}/secrets", true);
+            if (Directory.Exists($"{Directory.GetCurrentDirectory()}/secrets"))
+            {
+                Directory.Delete($"{Directory.GetCurrentDirectory()}/secrets", true);
+            }
         }
 
         /// <summary>
