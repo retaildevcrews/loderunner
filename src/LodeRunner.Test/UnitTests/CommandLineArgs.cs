@@ -33,9 +33,10 @@ namespace LodeRunner.Test.UnitTests
 
             try
             {
-                var validArgs = new string[] { "-s", "https://worka.aks-sb2.com", "-f", "memory-baseline1.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
+                var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
 
                 // Assert.Equal(0, await App.Main(validArgs)); // this will start the app and try to actually run it
+
                 RootCommand root = App.BuildRootCommand();
 
                 Assert.True(root.Parse(validArgs).Errors.Count == 0, "AwaitMode Success");
@@ -72,9 +73,14 @@ namespace LodeRunner.Test.UnitTests
         /// <summary>
         /// Test the Failure case of LodeRunned in Await mode.
         /// </summary>
-        [Fact]
+        /// <param name="args">The arguments.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        /// <param name="messageifErrorEncountered">The message to display if an error is encountered.</param>
+        [Theory]
         [Trait("Category", "Unit")]
-        public void AwaitMode_Failure()
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "AwaitMode - missing secrets-volume")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "AwaitMode - missing delay-start")]
+        public void AwaitMode_Failure(string[] args, string expectedErrorMessage, string messageifErrorEncountered)
         {
             using var secretsHelper = new SecretsHelper();
 
@@ -82,18 +88,11 @@ namespace LodeRunner.Test.UnitTests
 
             try
             {
-                // var validArgs = new string[] { "-s", "https://worka.aks-sb2.com", "-f", "memory-baseline1.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
-
-                // Assert.Equal(1, await App.Main(validArgs)); // this will start the app and try to actually run it
                 RootCommand root = App.BuildRootCommand();
 
-                var errors = root.Parse(new string[] { "-s", "https://worka.aks-sb2.com", "-f", "memory-baseline1.json", "--delay-start", "-1" }).Errors;
+                var errors = root.Parse(args).Errors;
 
-                Assert.True(errors.Count == 1 || errors.Any(m => m.Message.Contains(SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage)), "AwaitMode - missing secrets-volume");
-
-                errors = root.Parse(new string[] { "-s", "https://worka.aks-sb2.com", "-f", "memory-baseline1.json", "--secrets-volume", "secrets" }).Errors;
-
-                Assert.True(errors.Count == 1 || errors.Any(m => m.Message.Contains(SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage)), "AwaitMode - missing delay-start");
+                Assert.True(errors.Count == 1 || errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifErrorEncountered);
             }
             finally
             {

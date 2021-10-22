@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -58,7 +59,7 @@ namespace LodeRunner.Test.Common
 
             foreach (var filename in this.secretFiles)
             {
-                File.CreateText($"{Directory.GetCurrentDirectory()}/secrets/{filename}");
+                using StreamWriter sw = File.CreateText($"{Directory.GetCurrentDirectory()}/secrets/{filename}");
             }
         }
 
