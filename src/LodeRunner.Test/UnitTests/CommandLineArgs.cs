@@ -2,8 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -108,7 +111,7 @@ namespace LodeRunner.Test.UnitTests
         [Trait("Category", "Unit")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1", "--run-loop", "true" }, "Validation for --duration.")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true", "--run-loop", "true" }, "Validation for --random")]
-        public void TraditionaMode_ValidateDependencies_Success(string[] args, string messageifFailed)
+        public void TraditionalMode_ValidateDependencies_Success(string[] args, string messageifFailed)
         {
             using var secretsHelper = new SecretsHelper();
 
@@ -138,7 +141,7 @@ namespace LodeRunner.Test.UnitTests
         [Trait("Category", "Unit")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1" }, SystemConstants.CmdLineValidationDurationAndLoopMessage, "Validation for --duration.")]
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
-        public void TraditionaMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
+        public void TraditionalMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             using var secretsHelper = new SecretsHelper();
 
@@ -151,6 +154,76 @@ namespace LodeRunner.Test.UnitTests
                 var errors = root.Parse(args).Errors;
 
                 Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
+            }
+            finally
+            {
+                SecretsHelper.DeleteSecrets();
+            }
+        }
+
+        /// <summary>
+        /// Test the success case of LodeRunned in Traditional mode.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <param name="messageifFailed">The message to display if test failed.</param>
+        [Theory]
+        [Trait("Category", "Unit")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "5" }, "Argument --delay-start")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-errors", "1" }, "Argument --max-errors")]
+        // TODO add individual params to test other test cases
+        public void TraditionalMode_Success(string[] args, string messageifFailed)
+        {
+            using var secretsHelper = new SecretsHelper();
+
+            secretsHelper.CreateEmptySecrets();
+
+            try
+            {
+                RootCommand root = App.BuildRootCommand();
+
+                var errors = root.Parse(args).Errors;
+
+                Assert.True(errors.Count == 0, messageifFailed);
+            }
+            finally
+            {
+                SecretsHelper.DeleteSecrets();
+            }
+        }
+
+        /// <summary>
+        /// Test the failure case of LodeRunned in Traditional mode.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        /// <param name="messageifFailed">The message to display if test failed.</param>
+        [Theory]
+        [Trait("Category", "Unit")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-2" }, "must be an integer >= -1", "Argument --delay-start")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--max-errors", "-1" }, "must be an integer >= 1", "Argument --max-errors")]
+        // TODO add individual params to test other test cases
+        public void TraditionalMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
+        {
+            using var secretsHelper = new SecretsHelper();
+
+            secretsHelper.CreateEmptySecrets();
+
+            try
+            {
+                RootCommand root = App.BuildRootCommand();
+
+                IReadOnlyCollection<ParseError> errors = null;
+                try
+                {
+                    errors = root.Parse(args).Errors;
+                    Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
+                }
+
+                // This validation throws an exception when parsing.
+                catch (Exception ex)
+                {
+                    Assert.True(ex.Message.Contains(expectedErrorMessage), messageifFailed);
+                }
             }
             finally
             {
