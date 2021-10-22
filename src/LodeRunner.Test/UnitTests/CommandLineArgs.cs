@@ -21,7 +21,7 @@ namespace LodeRunner.Test.UnitTests
         // Theories: are tests which are only true for a particular set of data.
 
         /// <summary>
-        /// Test the succeeded case  of LodeRunner in Await mode.
+        /// Test the success case of LodeRunner in Await mode.
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
@@ -36,7 +36,6 @@ namespace LodeRunner.Test.UnitTests
                 var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
 
                 // Assert.Equal(0, await App.Main(validArgs)); // this will start the app and try to actually run it
-
                 RootCommand root = App.BuildRootCommand();
 
                 Assert.True(root.Parse(validArgs).Errors.Count == 0, "AwaitMode Success");
@@ -71,16 +70,16 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test the Failure case of LodeRunned in Await mode.
+        /// Test the failure case of LodeRunned in Await mode.
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
-        /// <param name="messageifErrorEncountered">The message to display if an error is encountered.</param>
+        /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "AwaitMode - missing secrets-volume")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline1.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "AwaitMode - missing delay-start")]
-        public void AwaitMode_Failure(string[] args, string expectedErrorMessage, string messageifErrorEncountered)
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "AwaitMode - missing secrets-volume")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "AwaitMode - missing delay-start")]
+        public void AwaitMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             using var secretsHelper = new SecretsHelper();
 
@@ -92,7 +91,66 @@ namespace LodeRunner.Test.UnitTests
 
                 var errors = root.Parse(args).Errors;
 
-                Assert.True(errors.Count == 1 || errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifErrorEncountered);
+                Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
+            }
+            finally
+            {
+                SecretsHelper.DeleteSecrets();
+            }
+        }
+
+        /// <summary>
+        /// Test the success case of LodeRunned in Traditional mode.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <param name="messageifFailed">The message to display if test failed.</param>
+        [Theory]
+        [Trait("Category", "Unit")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1", "--run-loop", "true" }, "Validation for --duration.")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true", "--run-loop", "true" }, "Validation for --random")]
+        public void TraditionaMode_ValidateDependencies_Success(string[] args, string messageifFailed)
+        {
+            using var secretsHelper = new SecretsHelper();
+
+            secretsHelper.CreateEmptySecrets();
+
+            try
+            {
+                RootCommand root = App.BuildRootCommand();
+
+                var errors = root.Parse(args).Errors;
+
+                Assert.True(errors.Count == 0, messageifFailed);
+            }
+            finally
+            {
+                SecretsHelper.DeleteSecrets();
+            }
+        }
+
+        /// <summary>
+        /// Test the failure case of LodeRunned in Traditional mode.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        /// <param name="messageifFailed">The message to display if test failed.</param>
+        [Theory]
+        [Trait("Category", "Unit")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1" }, SystemConstants.CmdLineValidationDurationAndLoopMessage, "Validation for --duration.")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
+        public void TraditionaMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
+        {
+            using var secretsHelper = new SecretsHelper();
+
+            secretsHelper.CreateEmptySecrets();
+
+            try
+            {
+                RootCommand root = App.BuildRootCommand();
+
+                var errors = root.Parse(args).Errors;
+
+                Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
             }
             finally
             {
