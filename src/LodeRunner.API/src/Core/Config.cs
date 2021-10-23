@@ -83,8 +83,7 @@ namespace LodeRunner.API
 
             set
             {
-                this.secretsVolume = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
-            }
+                this.secretsVolume = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();            }
         }
 
         /// <summary>
@@ -99,8 +98,7 @@ namespace LodeRunner.API
 
             set
             {
-                this.cosmosName = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
-            }
+                this.cosmosName = string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();            }
         }
 
         /// <summary>

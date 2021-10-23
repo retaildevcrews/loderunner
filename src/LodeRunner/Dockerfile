@@ -6,6 +6,7 @@ COPY ./LodeRunner.sln /src/
 COPY ./LodeRunner /src/LodeRunner
 COPY ./LodeRunner.Data /src/LodeRunner.Data
 COPY ./LodeRunner.Core /src/LodeRunner.Core
+COPY ./LodeRunner.Test /src/LodeRunner.Test
 
 ### Build the release app
 WORKDIR /src

@@ -26,7 +26,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The region.
         /// </value>
-        public string Region { get; set; } = string.Empty;
+        public string Region { get; set; }
 
         /// <summary>
         /// Gets or sets the zone.
@@ -70,7 +70,7 @@ namespace LodeRunner.Core.Models
         {
             return new LoadClient
             {
-                Version = "222222222222222",
+                Version = "0.3.0 - 717 - 1030",
                 Name = "Central - az - central - us - 2",
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? "Central" : config.Region,
                 Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? "az-central-us" : config.Zone,
