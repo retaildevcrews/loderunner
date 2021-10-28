@@ -27,8 +27,8 @@ namespace LodeRunner.Core.Models.Validators
                 .IsInEnum();
             this.RuleFor(m => m.LastUpdated)
                 .GreaterThan(minDate);
-            this.RuleFor(m => m.StatusDuration)
-                .GreaterThan(0);
+            this.RuleFor(m => m.LastStatusChange)
+                .GreaterThan(minDate);
             this.RuleFor(m => m.Status).
                 IsInEnum();
             this.RuleFor(m => m.LoadClient)

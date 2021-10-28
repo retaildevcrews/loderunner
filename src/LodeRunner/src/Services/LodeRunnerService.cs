@@ -38,8 +38,6 @@ namespace LodeRunner.Services
 
             this.clientStatus = new ClientStatus
             {
-                // TODO: need to set the correct StatusDuration, this is just an example
-                StatusDuration = 1,
                 Status = ClientStatusType.Starting,
                 LoadClient = this.loadClient,
             };
@@ -125,7 +123,7 @@ namespace LodeRunner.Services
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
             // Update Entity, TODO: do we need a lock here?
-            clientStatus.LastUpdated = args.LastUpdated;
+
             clientStatus.Message = args.Message;
             clientStatus.Status = args.Status;
 

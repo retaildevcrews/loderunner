@@ -114,7 +114,6 @@ namespace LodeRunner.Services
         public void TerminateService(ClientStatus clientStatus)
         {
             // Update Entity
-            clientStatus.LastUpdated = DateTime.UtcNow;
             clientStatus.Message = "Termination requested via Cancellation Token.";
             clientStatus.Status = ClientStatusType.Terminating;
 
