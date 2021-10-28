@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using LodeRunner.API;
 using Microsoft.AspNetCore.Builder;
+using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
 namespace LodeRunner.API.Middleware
 {
@@ -34,16 +35,10 @@ namespace LodeRunner.API.Middleware
         public static void Init()
         {
             // cache the version info
-            if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
-            {
-                version = v.InformationalVersion;
-            }
+            version = LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly());
 
             // cache the application name
-            if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyTitleAttribute)) is AssemblyTitleAttribute n)
-            {
-                name = n.Title;
-            }
+            name = LRAssemblyExtensions.GetTitle(Assembly.GetEntryAssembly());
         }
 
         /// <summary>

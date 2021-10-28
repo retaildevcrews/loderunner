@@ -61,17 +61,28 @@ namespace LodeRunner.Core.Models
         public DateTime StartTime { get; set; }
 
         /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public override string Name
+        {
+            get { return $"{this.Region}-{this.Zone}-{DateTime.UtcNow.Ticks}"; }
+        }
+
+        /// <summary>
         /// Gets the new.
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="lastUpdated">The last updated date time.</param>
+        /// <param name="version">The entry assembly version.</param>
         /// <returns>a new LoadClient entity.</returns>
-        public static LoadClient GetNew(ILRConfig config, DateTime lastUpdated)
+        public static LoadClient GetNew(ILRConfig config, DateTime lastUpdated, string version)
         {
             return new LoadClient
             {
-                Version = "0.3.0 - 717 - 1030",
-                Name = "Central - az - central - us - 2",
+                Version = version,
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? "Central" : config.Region,
                 Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? "az-central-us" : config.Zone,
                 Prometheus = config.Prometheus,

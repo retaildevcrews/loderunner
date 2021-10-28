@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
 namespace LodeRunner
 {
@@ -48,15 +49,11 @@ namespace LodeRunner
         {
             if (string.IsNullOrWhiteSpace(version))
             {
-                if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
-                {
-                    version = v.InformationalVersion;
-                    shortVersion = version;
+                version = LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly());
 
-                    if (version.Contains('-', StringComparison.OrdinalIgnoreCase))
-                    {
-                        shortVersion = version.Substring(0, version.IndexOf('-', StringComparison.OrdinalIgnoreCase));
-                    }
+                if (version.Contains('-', StringComparison.OrdinalIgnoreCase))
+                {
+                     shortVersion = version.Substring(0, version.IndexOf('-', StringComparison.OrdinalIgnoreCase));
                 }
             }
         }

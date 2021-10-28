@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
@@ -13,6 +14,7 @@ using LodeRunner.Events;
 using LodeRunner.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
 namespace LodeRunner.Services
 {
@@ -32,7 +34,7 @@ namespace LodeRunner.Services
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
 
-            this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow);
+            this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow, LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly()));
 
             this.clientStatus = new ClientStatus
             {

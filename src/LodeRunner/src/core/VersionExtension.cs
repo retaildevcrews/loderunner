@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
 namespace LodeRunner
 {
@@ -28,10 +29,7 @@ namespace LodeRunner
                 // use reflection to get the version
                 if (string.IsNullOrWhiteSpace(version))
                 {
-                    if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
-                    {
-                        version = v.InformationalVersion;
-                    }
+                    version = LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly());
                 }
 
                 return version;
