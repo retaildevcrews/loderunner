@@ -68,7 +68,7 @@ namespace LodeRunner.Core.Models
         /// </value>
         public override string Name
         {
-            get { return $"{this.Region}-{this.Zone}-{DateTime.UtcNow.Ticks}"; }
+            get { return $"{this.Region}-{this.Zone}"; }
         }
 
         /// <summary>
