@@ -27,7 +27,7 @@ namespace LodeRunner.API.Models
             this.StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
             this.ClientStatusId = clientStatus.Id;
             this.LastUpdated = clientStatus.LastUpdated;
-            this.StatusDuration = clientStatus.StatusDuration;
+            this.LastStatusChange = clientStatus.LastStatusChange;
             this.Status = clientStatus.Status;
             this.Message = clientStatus.Message;
         }
@@ -88,9 +88,9 @@ namespace LodeRunner.API.Models
         public DateTime LastUpdated { get; set; }
 
         /// <summary>
-        /// Gets or sets duration since last status change.
+        /// Gets or sets the last status change date time.
         /// </summary>
-        public int StatusDuration { get; set; }
+        public DateTime LastStatusChange { get; set; }
 
         /// <summary>
         /// Gets or sets client status.

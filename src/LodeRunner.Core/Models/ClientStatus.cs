@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace LodeRunner.Core.Models
 {
@@ -10,21 +12,29 @@ namespace LodeRunner.Core.Models
     /// </summary>
     public class ClientStatus : BaseEntityModel
     {
+        private ClientStatusType status;
+
+        private string message = string.Empty;
+
+        private int ttl = SystemConstants.ClientStatusExpirationTime;
+
+        private LoadClient loadClient;
+
         /// <summary>
-        /// Gets or sets the last updated.
+        /// Gets the last updated.
         /// </summary>
         /// <value>
         /// The last updated.
         /// </value>
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdated { get; private set; }
 
         /// <summary>
-        /// Gets or sets the duration of the status.
+        /// Gets the last status change date time.
         /// </summary>
         /// <value>
         /// The duration of the status.
         /// </value>
-        public int StatusDuration { get; set; }
+        public DateTime LastStatusChange { get; private set; }
 
         /// <summary>
         /// Gets or sets the status.
@@ -32,7 +42,27 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The status.
         /// </value>
-        public ClientStatusType Status { get; set; }
+        public ClientStatusType Status
+        {
+            get
+            {
+                return this.status;
+            }
+
+            set
+            {
+                DateTime updatedDateTime = DateTime.UtcNow;
+
+                this.LastUpdated = updatedDateTime;
+
+                if (this.status != value)
+                {
+                    this.LastStatusChange = updatedDateTime;
+                }
+
+                this.status = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the message.
@@ -40,7 +70,19 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The message.
         /// </value>
-        public string Message { get; set; }
+        public string Message
+        {
+            get
+            {
+                return this.message;
+            }
+
+            set
+            {
+                this.message = value;
+                this.LastUpdated = DateTime.UtcNow;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the load client.
@@ -48,7 +90,19 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The load client.
         /// </value>
-        public LoadClient LoadClient { get; set; }
+        public LoadClient LoadClient
+        {
+            get
+            {
+                return this.loadClient;
+            }
+
+            set
+            {
+                this.loadClient = value;
+                this.LastUpdated = DateTime.UtcNow;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the Time to live in seconds.
@@ -56,6 +110,18 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The TTL.
         /// </value>
-        public int Ttl { get; set; } = SystemConstants.ClientStatusExpirationTime;
+        public int Ttl
+        {
+            get
+            {
+                return this.ttl;
+            }
+
+            set
+            {
+                this.ttl = value;
+                this.LastUpdated = DateTime.UtcNow;
+            }
+        }
     }
 }
