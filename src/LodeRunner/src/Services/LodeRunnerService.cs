@@ -14,7 +14,6 @@ using LodeRunner.Events;
 using LodeRunner.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
 namespace LodeRunner.Services
 {
@@ -34,7 +33,7 @@ namespace LodeRunner.Services
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
 
-            this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow, LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly()));
+            this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow);
 
             this.clientStatus = new ClientStatus
             {

@@ -3,12 +3,11 @@
 
 using System;
 using System.Reflection;
-using LRAssemblyExtensions = LodeRunner.Core.Extensions.AssemblyExtensions;
 
-namespace LodeRunner
+namespace LodeRunner.Core
 {
     /// <summary>
-    /// Assembly Versioning
+    /// Assembly Versioning.
     /// </summary>
     public sealed class Version
     {
@@ -17,7 +16,7 @@ namespace LodeRunner
         private static string shortVersion = string.Empty;
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         public static string AssemblyVersion
         {
@@ -30,7 +29,7 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         public static string ShortVersion
         {
@@ -43,17 +42,21 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         private static void SetVersion()
         {
             if (string.IsNullOrWhiteSpace(version))
             {
-                version = LRAssemblyExtensions.GetVersion(Assembly.GetEntryAssembly());
-
-                if (version.Contains('-', StringComparison.OrdinalIgnoreCase))
+                if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
                 {
-                     shortVersion = version.Substring(0, version.IndexOf('-', StringComparison.OrdinalIgnoreCase));
+                    version = v.InformationalVersion;
+                    shortVersion = version;
+
+                    if (version.Contains('-', StringComparison.OrdinalIgnoreCase))
+                    {
+                        shortVersion = version.Substring(0, version.IndexOf('-', StringComparison.OrdinalIgnoreCase));
+                    }
                 }
             }
         }

@@ -18,5 +18,10 @@ namespace LodeRunner.Core
         /// The client status expiration time.
         /// </summary>
         public const int ClientStatusExpirationTime = 60;
+
+        /// <summary>
+        /// The unknown constant used for Region or Zone.
+        /// </summary>
+        public const string Unknown = "Unknown";
     }
 }
