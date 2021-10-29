@@ -18,6 +18,8 @@ namespace LodeRunner.Core.Models
 
         private int ttl = SystemConstants.ClientStatusExpirationTime;
 
+        private LoadClient loadClient;
+
         /// <summary>
         /// Gets the last updated.
         /// </summary>
@@ -88,7 +90,19 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The load client.
         /// </value>
-        public LoadClient LoadClient { get; set; }
+        public LoadClient LoadClient
+        {
+            get
+            {
+                return this.loadClient;
+            }
+
+            set
+            {
+                this.loadClient = value;
+                this.LastUpdated = DateTime.UtcNow;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the Time to live in seconds.
