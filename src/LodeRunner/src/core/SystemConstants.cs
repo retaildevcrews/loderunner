@@ -22,7 +22,5 @@ namespace LodeRunner
         public const string CmdLineValidationSecretsVolumeBeginningMessage = "--secrets-volume (";
 
         public const string CmdLineValidationSecretsVolumeEndMessage = ") does not exist";
-
-        public const string Unknown = "Unknown";
     }
 }
