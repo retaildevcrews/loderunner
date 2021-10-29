@@ -70,10 +70,9 @@ namespace LodeRunner.Core.Models
         {
             return new LoadClient
             {
-                Version = "0.3.0 - 717 - 1030",
-                Name = "Central - az - central - us - 2",
-                Region = string.IsNullOrWhiteSpace(config.Region) == true ? "Central" : config.Region,
-                Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? "az-central-us" : config.Zone,
+                Version = Core.Version.AssemblyVersion,
+                Region = string.IsNullOrWhiteSpace(config.Region) == true ? SystemConstants.Unknown : config.Region,
+                Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? SystemConstants.Unknown : config.Zone,
                 Prometheus = config.Prometheus,
                 StartupArgs = $"--delay-start {config.DelayStart} --secrets-volume {config.SecretsVolume}",
                 StartTime = lastUpdated,

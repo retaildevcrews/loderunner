@@ -4,10 +4,10 @@
 using System;
 using System.Reflection;
 
-namespace LodeRunner
+namespace LodeRunner.Core
 {
     /// <summary>
-    /// Assembly Versioning
+    /// Assembly Versioning.
     /// </summary>
     public sealed class Version
     {
@@ -16,7 +16,7 @@ namespace LodeRunner
         private static string shortVersion = string.Empty;
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         public static string AssemblyVersion
         {
@@ -29,7 +29,7 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         public static string ShortVersion
         {
@@ -42,7 +42,7 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Gets assembly version
+        /// Gets assembly version.
         /// </summary>
         private static void SetVersion()
         {

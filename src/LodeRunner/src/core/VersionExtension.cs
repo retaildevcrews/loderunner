@@ -15,29 +15,6 @@ namespace LodeRunner
         // cached response
         private static byte[] responseBytes;
 
-        // cache version info as it doesn't change
-        private static string version = string.Empty;
-
-        /// <summary>
-        /// Gets the app version
-        /// </summary>
-        public static string Version
-        {
-            get
-            {
-                // use reflection to get the version
-                if (string.IsNullOrWhiteSpace(version))
-                {
-                    if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
-                    {
-                        version = v.InformationalVersion;
-                    }
-                }
-
-                return version;
-            }
-        }
-
         /// <summary>
         /// Middleware extension method to handle /version request
         /// </summary>
@@ -54,7 +31,7 @@ namespace LodeRunner
                     // cache the version info for performance
                     if (responseBytes == null)
                     {
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Version);
+                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Core.Version.AssemblyVersion);
                     }
 
                     // return the version info

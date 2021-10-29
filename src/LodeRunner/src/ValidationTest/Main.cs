@@ -551,7 +551,7 @@ namespace LodeRunner
             {
                 { "Date", DateTime.UtcNow },
                 { "EventType", "Startup" },
-                { "Version", Version.AssemblyVersion },
+                { "Version", Core.Version.AssemblyVersion },
                 { "Host", string.Join(' ', config.Server) },
                 { "BaseUrl", config.BaseUrl },
                 { "Files", string.Join(' ', config.Files) },
@@ -595,7 +595,7 @@ namespace LodeRunner
                 Timeout = new TimeSpan(0, 0, config.Timeout),
                 BaseAddress = new Uri(host),
             };
-            client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Version.ShortVersion}");
+            client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Core.Version.ShortVersion}");
 
             return client;
         }
