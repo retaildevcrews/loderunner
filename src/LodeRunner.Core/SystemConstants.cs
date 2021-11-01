@@ -23,5 +23,15 @@ namespace LodeRunner.Core
         /// The unknown constant used for Region or Zone.
         /// </summary>
         public const string Unknown = "Unknown";
+
+        /// <summary>
+        /// The lode runner port setting name.
+        /// </summary>
+        public const string LodeRunnerPortSettingName = "LodeRunnerPort";
+
+        /// <summary>
+        /// The lode runner API port setting name.
+        /// </summary>
+        public const string LodeRunnerAPIPortSettingName = "LodeRunnerAPIPort";
     }
 }

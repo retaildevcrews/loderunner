@@ -71,6 +71,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\appsettings.Debug.json" Link="appsettings.Debug.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LodeRunner.Core\LodeRunner.Core.csproj" />
     <ProjectReference Include="..\LodeRunner.Data\LodeRunner.Data.csproj" />
   </ItemGroup>
