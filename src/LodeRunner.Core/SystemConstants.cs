@@ -38,5 +38,10 @@ namespace LodeRunner.Core
         /// The lode runner UI port setting name.
         /// </summary>
         public const string LodeRunnerUIPortSettingName = "LodeRunnerUIPort";
+
+        /// <summary>
+        /// The ASP net core enviroment.
+        /// </summary>
+        public const string AspNetCoreEnviroment = "ASPNETCORE_ENVIRONMENT";
     }
 }

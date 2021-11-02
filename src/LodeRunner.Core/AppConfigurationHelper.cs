@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using Microsoft.Extensions.Configuration;
 
 namespace LodeRunner.Core
@@ -46,12 +47,13 @@ namespace LodeRunner.Core
         /// <param name="defaultPort">The default port.</param>
         /// <param name="appName">The name of the application as defined in the configuration json files.</param>
         /// <returns>The port number for LodeRunner to run on.</returns>
-        public static int GetPort(int defaultPort, string appName)
+        private static int GetPort(int defaultPort, string appName)
         {
-#if DEBUG
-            // NOTE: the Option parameter is false, meaning that if in Debug mode the file must exist.
+            string envName = Environment.GetEnvironmentVariable(SystemConstants.AspNetCoreEnviroment);
+
+            // NOTE: the Option parameter is false, meaning that the file must exist.
             var configBuilder = new ConfigurationBuilder()
-                    .AddJsonFile($"appsettings.Debug.json", false);
+                .AddJsonFile($"appsettings.{envName}.json", false);
 
             var hostConfig = configBuilder.Build();
 
@@ -61,9 +63,6 @@ namespace LodeRunner.Core
             }
 
             return lodeRunnerPort;
-#else
-            return defaultPort;
-#endif
         }
     }
 }

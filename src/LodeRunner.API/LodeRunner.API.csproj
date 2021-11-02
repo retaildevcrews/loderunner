@@ -53,9 +53,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <Content Update="appsettings.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
 
     <None Include="ascii-art.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -71,7 +68,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\appsettings.Debug.json" Link="appsettings.Debug.json">
+    <Content Include="..\AppSettings\appsettings.Development.json" Link="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\AppSettings\appsettings.Production.json" Link="appsettings.Production.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

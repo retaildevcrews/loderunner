@@ -98,8 +98,6 @@ namespace LodeRunner
         {
             int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
 
-            Console.WriteLine($"LodeRunner will be listening on: http://[::]:{portNumber}");
-
             // configure the web host builder
             return Host.CreateDefaultBuilder()
                         .ConfigureWebHostDefaults(webBuilder =>
