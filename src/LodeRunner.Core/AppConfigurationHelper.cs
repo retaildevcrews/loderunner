@@ -31,6 +31,16 @@ namespace LodeRunner.Core
         }
 
         /// <summary>
+        /// Gets the load runner UI port.
+        /// </summary>
+        /// <param name="defaultPort">The default port.</param>
+        /// <returns>>The port number for LodeRunner.UI to run on.</returns>
+        public static int GetLoadRunnerUIPort(int defaultPort)
+        {
+            return GetPort(defaultPort, SystemConstants.LodeRunnerUIPortSettingName);
+        }
+
+        /// <summary>
         /// Gets the app port.
         /// </summary>
         /// <param name="defaultPort">The default port.</param>

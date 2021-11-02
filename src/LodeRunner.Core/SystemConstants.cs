@@ -33,5 +33,10 @@ namespace LodeRunner.Core
         /// The lode runner API port setting name.
         /// </summary>
         public const string LodeRunnerAPIPortSettingName = "LodeRunnerAPIPort";
+
+        /// <summary>
+        /// The lode runner UI port setting name.
+        /// </summary>
+        public const string LodeRunnerUIPortSettingName = "LodeRunnerUIPort";
     }
 }

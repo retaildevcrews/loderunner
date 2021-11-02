@@ -52,5 +52,10 @@ namespace LodeRunner.API
         /// The unknown string.
         /// </summary>
         public const string Unknown = "unknown";
+
+        /// <summary>
+        /// The lode runner UI default port.
+        /// </summary>
+        public const int LodeRunnerUIDefaultPort = 3000;
     }
 }

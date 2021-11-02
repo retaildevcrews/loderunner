@@ -9,6 +9,7 @@ using LodeRunner.API.Handlers.ExceptionMiddleware;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
@@ -108,9 +109,10 @@ namespace LodeRunner.API
 
             if (env.IsDevelopment())
             {
+                int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
                 app.UseCors(builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000")
+                    builder.WithOrigins($"http://localhost:{portNumber}")
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
