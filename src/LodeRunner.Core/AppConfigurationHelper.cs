@@ -51,6 +51,11 @@ namespace LodeRunner.Core
         {
             string envName = Environment.GetEnvironmentVariable(SystemConstants.AspNetCoreEnviroment);
 
+            if (string.IsNullOrEmpty(envName))
+            {
+                envName = SystemConstants.ProductionEnvironment;
+            }
+
             // NOTE: the Option parameter is false, meaning that the file must exist.
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.{envName}.json", false);

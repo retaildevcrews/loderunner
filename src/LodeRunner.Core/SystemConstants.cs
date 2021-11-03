@@ -43,5 +43,10 @@ namespace LodeRunner.Core
         /// The ASP net core enviroment.
         /// </summary>
         public const string AspNetCoreEnviroment = "ASPNETCORE_ENVIRONMENT";
+
+        /// <summary>
+        /// The AppSetting production environment name.
+        /// </summary>
+        public const string ProductionEnvironment = "Production";
     }
 }

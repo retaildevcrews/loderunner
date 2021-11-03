@@ -43,7 +43,7 @@ jobs:
       if: ${{ inputs.run_and_test }}    
       run: |
 
-        docker run -d --rm -p 8080:8081--name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
+        docker run -d --rm --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
