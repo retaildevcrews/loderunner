@@ -178,6 +178,13 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
     - number of milliseconds to sleep between requests
     - default `1000`
 
+### Port configuration
+
+- When LodeRunner needs a port to run on, it uses port 8080 by default.
+- The port number can be updated by editing the corresponding appsettings file.
+  - [`appsettings.Development.json`](../AppSettings/appsettings.Development.json).
+  - [`appsettings.Production.json`](../AppSettings/appsettings.Production.json).
+
 ## Running as part of an CI-CD pipeline
 
 Loderunner will return a non-zero exit code (fail) under the following conditions
