@@ -63,13 +63,9 @@ namespace LodeRunner.API.Middleware.Validation
         /// <returns>Category.</returns>
         public static string GetCategory(HttpContext context, out string subCategory, out string mode)
         {
-            string category;
-
             string path = RequestLogger.GetPathAndQuerystring(context.Request).ToLowerInvariant();
 
-            category = GetCategory(path, out subCategory, out mode);
-
-            return category;
+            return GetCategory(path, out subCategory, out mode);
         }
 
         /// <summary>
