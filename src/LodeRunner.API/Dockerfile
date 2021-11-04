@@ -6,6 +6,7 @@ COPY ./LodeRunner.API.sln /src/
 COPY ./LodeRunner.API /src/LodeRunner.API
 COPY ./LodeRunner.Data /src/LodeRunner.Data
 COPY ./LodeRunner.Core /src/LodeRunner.Core
+COPY ./AppSettings /src/AppSettings
 
 WORKDIR /src
 

@@ -42,8 +42,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference> 
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" /> 
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +53,15 @@
     <None Remove="src\core\NewFile.txt" />
     <None Remove="src\events\" />
   </ItemGroup>
+
+   <ItemGroup>
+     <Content Include="..\AppSettings\appsettings.Development.json" Link="appsettings.Development.json">
+       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+     </Content>
+     <Content Include="..\AppSettings\appsettings.Production.json" Link="appsettings.Production.json">
+       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+     </Content>
+   </ItemGroup>
 
   <ItemGroup>
     <None Include="src\.editorconfig" />

@@ -23,5 +23,30 @@ namespace LodeRunner.Core
         /// The unknown constant used for Region or Zone.
         /// </summary>
         public const string Unknown = "Unknown";
+
+        /// <summary>
+        /// The lode runner port setting name.
+        /// </summary>
+        public const string LodeRunnerPortSettingName = "LodeRunnerPort";
+
+        /// <summary>
+        /// The lode runner API port setting name.
+        /// </summary>
+        public const string LodeRunnerAPIPortSettingName = "LodeRunnerAPIPort";
+
+        /// <summary>
+        /// The lode runner UI port setting name.
+        /// </summary>
+        public const string LodeRunnerUIPortSettingName = "LodeRunnerUIPort";
+
+        /// <summary>
+        /// The ASP net core enviroment.
+        /// </summary>
+        public const string AspNetCoreEnviroment = "ASPNETCORE_ENVIRONMENT";
+
+        /// <summary>
+        /// The AppSetting production environment name.
+        /// </summary>
+        public const string ProductionEnvironment = "Production";
     }
 }

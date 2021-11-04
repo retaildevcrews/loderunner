@@ -1,37 +1,44 @@
-# RelayRunner
+# LodeRunner.API
 
-RelayRunner is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
+LodeRunner.API is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
 
-## Running the Backend Application
+## Running the API
 
 1. Clone the Repo:
-      `git clone https://github.com/retaildevcrews/relayrunner.git`
+      `git clone https://github.com/retaildevcrews/loderunner.git`
 
-2. Change into the backend directory:
-      `cd backend`
+2. Change into the API directory:
+      `cd src/LodeRunner.API`
 
 3. Run the Application
       `dotnet run`
 
 You should see the following response:
-> Hosting environment: Production
-Content root path: /workspaces/relayrunner/backend
-Now listening on: http://[::]:8080
+> Hosting environment: Development or Production
+Content root path: /src/LodeRunner.API
+Now listening on: http://[::]:8081
 Application started. Press Ctrl+C to shut down.
 
-## Testing the Backend Application
+### Port configuration
+
+- LodeRunner.API runs on port 8081 by default.
+- The port number can be updated by editing the corresponding appsettings file.
+  - [`appsettings.Development.json`](../AppSettings/appsettings.Development.json).
+  - [`appsettings.Production.json`](../AppSettings/appsettings.Production.json).
+
+## Testing the API
 
 ```bash
  
 # test using httpie (installed automatically in Codespaces)
-http localhost:8080/api/version
+http localhost:8081/api/version
  
 # test using curl
-curl localhost:8080/api/version
+curl localhost:8081/api/version
  
 ```
 
-Stop RelayRunner by typing Ctrl-C or the stop button if run via F5
+Stop API application by typing Ctrl-C or the stop button if run via F5
 
 ## Contributing
 

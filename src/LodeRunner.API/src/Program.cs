@@ -266,6 +266,8 @@ namespace LodeRunner.API
         // Build the web host
         private static IWebHost BuildHost(Config config, NgsaLog ngsalog)
         {
+            int portNumber = AppConfigurationHelper.GetLoadRunnerApiPort(config.WebHostPort);
+
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
@@ -275,7 +277,7 @@ namespace LodeRunner.API
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
-                .UseUrls($"http://*:{config.WebHostPort}/")
+                .UseUrls($"http://*:{portNumber}/")
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>
