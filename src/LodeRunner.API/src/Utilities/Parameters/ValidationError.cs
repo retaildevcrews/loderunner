@@ -30,8 +30,8 @@ namespace LodeRunner.API.Middleware.Validation
         {
             return fieldName.ToUpperInvariant() switch
             {
-                "CLIENTSTATUSID" => "The parameter 'cientStatusId' should be a non-empty string",
-                _ => $"Unknown parameter: {fieldName}",
+                SystemConstants.ClientStatusID => SystemConstants.ErrorMessageSuccess,
+                _ => $"{SystemConstants.ErrorMessageUnknownParameter} {fieldName}",
             };
         }
 
@@ -42,16 +42,16 @@ namespace LodeRunner.API.Middleware.Validation
         /// <returns>link to doc.</returns>
         public static string GetErrorLink(string path)
         {
-            string s = "https://github.com/retaildevcrews/loderunner/blob/main/docs/ParameterValidation.md";
+            string result = SystemConstants.ErrorLink;
 
             path = path.ToLowerInvariant();
 
-            if (path.StartsWith("/api/clients/"))
+            if (path.StartsWith(SystemConstants.ErrorLinkPath))
             {
-                s += "#clients-direct-read";
+                result += SystemConstants.ErrorLinkPathAnchor;
             }
 
-            return s;
+            return result;
         }
 
         /// <summary>
@@ -67,35 +67,50 @@ namespace LodeRunner.API.Middleware.Validation
 
             string path = RequestLogger.GetPathAndQuerystring(context.Request).ToLowerInvariant();
 
-            if (path.StartsWith("/api/clients/"))
+            category = GetCategory(path, out subCategory, out mode);
+
+            return category;
+        }
+
+        /// <summary>
+        /// Gets the category.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="subCategory">The sub category.</param>
+        /// <param name="mode">The mode.</param>
+        /// <returns>The Category.</returns>
+        public static string GetCategory(string path, out string subCategory, out string mode)
+        {
+            string category;
+            if (path.StartsWith(SystemConstants.CategoryPathClientWithSlash))
             {
-                category = "Client";
-                subCategory = "Client";
-                mode = "Direct";
+                category = SystemConstants.CategoryClient;
+                subCategory = SystemConstants.CategorySubCategoryClient;
+                mode = SystemConstants.CategoryModeDirect;
             }
-            else if (path.StartsWith("/api/clients"))
+            else if (path.StartsWith(SystemConstants.CategoryPathClientWithoutSlash))
             {
-                category = "Client";
-                subCategory = "Client";
-                mode = "Static";
+                category = SystemConstants.CategoryClient;
+                subCategory = SystemConstants.CategorySubCategoryClient;
+                mode = SystemConstants.CategoryModeStatic;
             }
-            else if (path.StartsWith("/healthz"))
+            else if (path.StartsWith(SystemConstants.CategoryPathHealthz))
             {
-                category = "Healthz";
-                subCategory = "Healthz";
-                mode = "Healthz";
+                category = SystemConstants.CategoryHealthz;
+                subCategory = SystemConstants.CategorySubCategoryHealthz;
+                mode = SystemConstants.CategoryModeHealthz;
             }
-            else if (path.StartsWith("/metrics"))
+            else if (path.StartsWith(SystemConstants.CategoryPathMetrics))
             {
-                category = "Metrics";
-                subCategory = "Metrics";
-                mode = "Metrics";
+                category = SystemConstants.CategoryMetrics;
+                subCategory = SystemConstants.CategorySubCategoryMetrics;
+                mode = SystemConstants.CategoryModeMetrics;
             }
             else
             {
-                category = "Static";
-                subCategory = "Static";
-                mode = "Static";
+                category = SystemConstants.CategoryStatic;
+                subCategory = SystemConstants.CategorySubCategoryStatic;
+                mode = SystemConstants.CategoryModeStatic;
             }
 
             return category;
