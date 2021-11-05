@@ -57,5 +57,115 @@ namespace LodeRunner.API
         /// The lode runner UI default port.
         /// </summary>
         public const int LodeRunnerUIDefaultPort = 3000;
+
+        /// <summary>
+        /// The client status identifier.
+        /// </summary>
+        public const string ClientStatusID = "CLIENTSTATUSID";
+
+        /// <summary>
+        /// The error message success.
+        /// </summary>
+        public const string ErrorMessageSuccess = "The parameter 'cientStatusId' should be a non-empty string";
+
+        /// <summary>
+        /// The error message unknown.
+        /// </summary>
+        public const string ErrorMessageUnknownParameter = "Unknown parameter:";
+
+        /// <summary>
+        /// The error link.
+        /// </summary>
+        public const string ErrorLink = "https://github.com/retaildevcrews/loderunner/blob/main/docs/ParameterValidation.md";
+
+        /// <summary>
+        /// The error link path.
+        /// </summary>
+        public const string ErrorLinkPath = "/api/clients/";
+
+        /// <summary>
+        /// The error link path anchor.
+        /// </summary>
+        public const string ErrorLinkPathAnchor = "#clients-direct-read";
+
+        /// <summary>
+        /// The category path client with slash.
+        /// </summary>
+        public const string CategoryPathClientWithSlash = "/api/clients/";
+
+        /// <summary>
+        /// The category path client without slash.
+        /// </summary>
+        public const string CategoryPathClientWithoutSlash = "/api/clients";
+
+        /// <summary>
+        /// The category client.
+        /// </summary>
+        public const string CategoryClient = "Client";
+
+        /// <summary>
+        /// The category sub category client.
+        /// </summary>
+        public const string CategorySubCategoryClient = "Client";
+
+        /// <summary>
+        /// The category mode direct.
+        /// </summary>
+        public const string CategoryModeDirect = "Direct";
+
+        /// <summary>
+        /// The category mode static.
+        /// </summary>
+        public const string CategoryModeStatic = "Static";
+
+        /// <summary>
+        /// The category path healthz.
+        /// </summary>
+        public const string CategoryPathHealthz = "/healthz";
+
+        /// <summary>
+        /// The category healthz.
+        /// </summary>
+        public const string CategoryHealthz = "Healthz";
+
+        /// <summary>
+        /// The category sub category healthz.
+        /// </summary>
+        public const string CategorySubCategoryHealthz = "Healthz";
+
+        /// <summary>
+        /// The category mode healthz.
+        /// </summary>
+        public const string CategoryModeHealthz = "Healthz";
+
+        /// <summary>
+        /// The category path metrics.
+        /// </summary>
+        public const string CategoryPathMetrics = "/metrics";
+
+        /// <summary>
+        /// The category metrics.
+        /// </summary>
+        public const string CategoryMetrics = "Metrics";
+
+        /// <summary>
+        /// The category sub category metrics.
+        /// </summary>
+        public const string CategorySubCategoryMetrics = "Metrics";
+
+        /// <summary>
+        /// The category mode metrics.
+        /// </summary>
+        public const string CategoryModeMetrics = "Metrics";
+
+        /// <summary>
+        /// The category static.
+        /// </summary>
+        public const string CategoryStatic = "Static";
+
+        /// <summary>
+        /// The category sub category static.
+        /// </summary>
+        public const string CategorySubCategoryStatic = "Static";
     }
 }

@@ -6,12 +6,14 @@ COPY ./LodeRunner.API.sln /src/
 COPY ./LodeRunner.API /src/LodeRunner.API
 COPY ./LodeRunner.Data /src/LodeRunner.Data
 COPY ./LodeRunner.Core /src/LodeRunner.Core
+COPY ./LodeRunner.API.Test /src/LodeRunner.API.Test
 COPY ./AppSettings /src/AppSettings
 
 WORKDIR /src
 
-# build the app
-RUN dotnet publish -c Release -o /app
+# build the app and test
+RUN dotnet test ./LodeRunner.API.Test/ --collect:"XPlat Code Coverage" --logger "console;verbosity=minimal" --filter "Category=Unit" && \
+    dotnet publish -c Release -o /app
 
 ###########################################################
 
