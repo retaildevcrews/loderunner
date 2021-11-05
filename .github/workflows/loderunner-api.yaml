@@ -65,7 +65,67 @@ jobs:
           sleep 1
           ((wait_time=wait_time+1))
         done
-    
+
+    - name: Docker Build LodeRunner
+      if: ${{ inputs.run_and_test }}
+      run: |
+        docker build ./src -t image -f ./src/LodeRunner/Dockerfile
+
+    - name: LodeRunner and LodeRunner.API Integration Testing.
+      if: ${{ inputs.run_and_test }}
+      run: |
+        echo "Running LoadRunner..."
+
+        echo "PR Number: ${{ github.event.pull_request.number }}"
+        
+        docker run -d --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json --region IntegrationTesting-PR${{ github.event.pull_request.number }}
+
+        echo "Waiting for LodeRunner to start on Client mode..."
+
+        wait_time=5
+        sleep $wait_time
+
+        while true
+        do
+          STATUS=$(curl -s -X GET -G localhost:8080/api/clients | jq -r --arg region "IntegrationTesting-PR${{ github.event.pull_request.number }}" '.[] | if .region == $region then .status else empty end')
+          
+          if [[ "$STATUS" == "Ready" ]] ; then
+            echo "LodeRunner Status is Ready!"
+            echo "Now terminating container ..."
+            docker stop l8rAwait
+            break
+          fi
+          if [ $wait_time -gt 15 ] ; then
+            echo -e "\n timeout waiting for LodeRunner.API ChangeFeed to process Ready status."
+            exit 1
+          fi
+         
+          sleep 1
+          ((wait_time=wait_time+1))
+        done  
+
+        echo "Waiting for LodeRunner to terminate..."
+
+        wait_time=5
+        sleep $wait_time
+
+        while true
+        do
+          STATUS=$(curl -s -X GET -G http://localhost:8080/api/clients | jq -r --arg region "IntegrationTesting-PR${{ github.event.pull_request.number }}" '.[] | if .region == $region then .status else empty end')          
+
+          if [[ "$STATUS" == "Terminating" ]] ; then
+            echo "LodeRunner Status is Terminating!"
+            break
+          fi
+          if [ $wait_time -gt 15 ] ; then
+            echo -e "\n timeout waiting for LodeRunner.API ChangeFeed to process Terminating status."
+            exit 1
+          fi
+            
+          sleep 1
+          ((wait_time=wait_time+1))
+        done 
+
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}    
       run: |
