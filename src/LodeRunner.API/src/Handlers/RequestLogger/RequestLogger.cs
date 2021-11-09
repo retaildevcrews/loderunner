@@ -52,8 +52,8 @@ namespace LodeRunner.API.Middleware
             }
 
             requestHistogram = Metrics.CreateHistogram(
-                "RelayRunnerDuration",
-                "Histogram of RelayRunner request duration",
+                "LodeRunnerAPIDuration",
+                "Histogram of LodeRunnerAPI request duration",
                 new HistogramConfiguration
                 {
                     Buckets = Histogram.ExponentialBuckets(1, 2, 10),
@@ -61,8 +61,8 @@ namespace LodeRunner.API.Middleware
                 });
 
             requestSummary = Metrics.CreateSummary(
-                "RelayRunnerSummary",
-                "Summary of RelayRunner request duration",
+                "LodeRunnerAPISummary",
+                "Summary of LodeRunnerAPI request duration",
                 new SummaryConfiguration
                 {
                     SuppressInitialValue = true,

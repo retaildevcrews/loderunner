@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LodeRunner.API.Data;
@@ -20,6 +22,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Prometheus;
 
 namespace LodeRunner.API
@@ -107,8 +110,23 @@ namespace LodeRunner.API
             // add middleware handlers
             app.UseRouting();
 
+            _ = app.UseEndpoints(ep =>
+                {
+                    ep.MapControllers();
+                    ep.MapMetrics();
+                })
+            .UseVersion();
+
             if (env.IsDevelopment())
             {
+                app.UseSwagger();
+
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", SwaggerTitle);
+                    options.RoutePrefix = string.Empty;
+                });
+
                 int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
                 app.UseCors(builder =>
                 {
@@ -117,24 +135,20 @@ namespace LodeRunner.API
                         .AllowAnyHeader();
                 });
             }
-
-            app.UseEndpoints(ep =>
+            else
             {
-                ep.MapControllers();
-                ep.MapMetrics();
-            })
-            .UseSwaggerUI(c =>
-            {
-                if (!string.IsNullOrEmpty(config.UrlPrefix))
+                app.UseSwaggerUI(c =>
                 {
-                    swaggerPath = config.UrlPrefix + swaggerPath;
-                }
+                    if (!string.IsNullOrEmpty(config.UrlPrefix))
+                    {
+                        swaggerPath = config.UrlPrefix + swaggerPath;
+                    }
 
-                c.SwaggerEndpoint(swaggerPath, SwaggerTitle);
-                c.RoutePrefix = string.Empty;
-            })
-            .UseSwaggerReplaceJson("swagger.json", config.UrlPrefix)
-            .UseVersion();
+                    c.SwaggerEndpoint(swaggerPath, SwaggerTitle);
+                    c.RoutePrefix = string.Empty;
+                })
+                .UseSwaggerReplaceJson("swagger.json", config.UrlPrefix);
+            }
         }
 
         /// <summary>
@@ -143,6 +157,24 @@ namespace LodeRunner.API
         /// <param name="services">The services in the web host.</param>
         public static void ConfigureServices(IServiceCollection services)
         {
+            string envName = Environment.GetEnvironmentVariable(Core.SystemConstants.AspNetCoreEnviroment);
+
+            if (envName == Core.SystemConstants.DevelopmentEnvironment)
+            {
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = SwaggerTitle, Version = "v1" });
+
+                    // NOTE: this is needed to pull example tag from method documentation.
+                    var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
+                    c.IncludeXmlComments(filePath);
+
+                    c.EnableAnnotations();
+                });
+
+                services.AddSwaggerGenNewtonsoftSupport();
+            }
+
             services.AddCors();
 
             // set json serialization defaults and api behavior

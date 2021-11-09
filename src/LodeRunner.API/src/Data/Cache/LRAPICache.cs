@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
@@ -128,6 +129,17 @@ namespace LodeRunner.API.Data
         }
 
         /// <summary>
+        /// Sets the load test configuration.
+        /// </summary>
+        /// <param name="loadTestConfig">The load test configuration.</param>
+        public void SetLoadTestConfig(LoadTestConfig loadTestConfig)
+        {
+            this.SetEntry(loadTestConfig.Id, loadTestConfig, this.GetMemoryCacheEntryOptions());
+
+            //loadTestConfigService.Set(loadTestConfig);
+        }
+
+        /// <summary>
         /// Internals the return OK result.
         /// </summary>
         /// <param name="results">The results.</param>
@@ -175,7 +187,6 @@ namespace LodeRunner.API.Data
         /// <summary>
         /// Gets the memory cache entry options.
         /// </summary>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>
         /// The MemoryCacheEntryOptions.
         /// </returns>
@@ -227,6 +238,9 @@ namespace LodeRunner.API.Data
              });
         }
 
+        /// <summary>
+        /// Sets the client cache.
+        /// </summary>
         private void SetClientCache()
         {
             // log the request
@@ -241,7 +255,7 @@ namespace LodeRunner.API.Data
                 {
                     var client = new Client(item);
 
-                    this.SetEntry(client.ClientStatusId, client, this.GetMemoryCacheEntryOptions());
+                    this.SetEntry<Client>(client.ClientStatusId, client, this.GetMemoryCacheEntryOptions());
                 }
             }
             catch (CosmosException ce)

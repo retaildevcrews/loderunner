@@ -48,5 +48,10 @@ namespace LodeRunner.Core
         /// The AppSetting production environment name.
         /// </summary>
         public const string ProductionEnvironment = "Production";
+
+        /// <summary>
+        /// The AppSetting development environment name.
+        /// </summary>
+        public const string DevelopmentEnvironment = "Development";
     }
 }

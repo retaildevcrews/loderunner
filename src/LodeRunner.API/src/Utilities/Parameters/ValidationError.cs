@@ -13,11 +13,13 @@ namespace LodeRunner.API.Middleware.Validation
         /// <summary>
         /// Gets or sets error Target.
         /// </summary>
+        /// <example>clientStatusId</example>
         public string Target { get; set; }
 
         /// <summary>
         /// Gets or sets error Message.
         /// </summary>
+        /// <example>The parameter 'cientStatusId' should be a non-empty string.</example>
         public string Message { get; set; }
 
         /// <summary>

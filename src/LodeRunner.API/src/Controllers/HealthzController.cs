@@ -2,12 +2,14 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
 {
@@ -27,7 +29,6 @@ namespace LodeRunner.API.Controllers
         /// Initializes a new instance of the <see cref="HealthzController"/> class.
         /// </summary>
         /// <param name="logger">logger.</param>
-        /// <param name="dal">data access layer.</param>
         /// <param name="hcLogger">HealthCheck logger.</param>
         public HealthzController(ILogger<HealthzController> logger, ILogger<CosmosHealthCheck> hcLogger)
         {
@@ -36,14 +37,17 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
-        /// Returns a plain text health status (Healthy, Degraded or Unhealthy).
+        /// Returns a plain text health status (pass, warn or fail).
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>The IActionResult.</returns>
         [HttpGet]
-        [Produces("text/plain")]
-        [ProducesResponseType(typeof(string), 200)]
+        [SwaggerResponse((int)HttpStatusCode.OK, "string (pass, warn or fail)", null, "text/plain")]
+        [SwaggerOperation(
+            Summary = "Healthz Check (simple)",
+            Description = "Returns a text/plain health status (pass, warn or fail)",
+            OperationId = "GetClientByClientStatusId")]
         public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             // get list of genres as list of string
@@ -63,8 +67,11 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("ietf")]
-        [Produces("application/health+json")]
-        [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
+        [SwaggerResponse((int)HttpStatusCode.OK, "IetfHealthCheck", typeof(CosmosHealthCheck), "application/health+json")]
+        [SwaggerOperation(
+            Summary = "Healthz Check (IETF)",
+            Description = "Returns an IetfHealthCheck document from the Health Check",
+            OperationId = "RunIetfAsync")]
         public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService,  [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             this.logger.LogInformation(nameof(this.RunHealthzAsync));

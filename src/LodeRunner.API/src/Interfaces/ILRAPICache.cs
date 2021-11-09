@@ -2,9 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 
@@ -42,5 +44,11 @@ namespace LodeRunner.API.Interfaces
         /// </summary>
         /// <returns>Enumerable of clients.</returns>
         IEnumerable<Client> GetClients();
+
+        /// <summary>
+        /// Sets the load test configuration.
+        /// </summary>
+        /// <param name="loadTestConfig">The load test configuration.</param>
+        void SetLoadTestConfig(LoadTestConfig loadTestConfig);
     }
 }
