@@ -1,4 +1,4 @@
-.PHONY: help all create delete deploy check clean rrapi rrui rrprod ngsa lr reset-prometheus reset-grafana jumpbox
+.PHONY: help all create delete deploy check clean lr-beta lr-local reset-prometheus reset-grafana jumpbox
 
 help :
 	@echo "Usage:"
@@ -8,11 +8,8 @@ help :
 	@echo "   make deploy           - deploy the apps to the cluster"
 	@echo "   make check            - curl endpoints cluster"
 	@echo "   make clean            - delete deployments"
-	@echo "   make beta             - deploy all loderunner images from registry"
-	@echo "   make lrapi            - build and deploy a local loderunner-api docker image"
-	@echo "   make lrui             - build and deploy a local loderunner-client docker image"
-	@echo "   make ngsa             - build and deploy a local ngsa-app docker image"
-	@echo "   make lr               - build and deploy a local loderunner docker image"
+	@echo "   make lr-beta          - deploy all loderunner images from registry"
+	@echo "   make lr-local         - build and deploy all local loderunner images"
 	@echo "   make reset-prometheus - reset the Prometheus volume (existing data is deleted)"
 	@echo "   make reset-grafana    - reset the Grafana volume (existing data is deleted)"
 	@echo "   make jumpbox          - deploy a 'jumpbox' pod"
@@ -39,49 +36,53 @@ create : delete
 deploy :
 	# deploy ngsa-app
 	@# continue on most errors
-	-kubectl apply -f deploy/ngsa-memory
+	-kubectl apply -f deploy/ngsa
 
-	# deploy loderunner after the ngsa-app starts
-	@kubectl wait pod ngsa-memory --for condition=ready --timeout=30s
-	-kubectl apply -f deploy/loderunner-local
+	# Delete LodeRunner.UI node_modules for docker context
+	@rm -rf ./src/LodeRunner.UI/node_modules
 
-	# Create backend image from codebase
-	@docker build ./backend -t k3d-registry.localhost:5000/loderunner-api:local
-	# Load new backend image to k3d registry
+	# Create LodeRunner image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/ngsa-lr:local -f ./src/LodeRunner/Dockerfile
+	# Load new LodeRunner image to k3d registry
+	@docker push k3d-registry.localhost:5000/ngsa-lr:local
+
+	# Create LodeRunner.API image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
+	# Load new LodeRunner.API image to k3d registry
 	@docker push k3d-registry.localhost:5000/loderunner-api:local
-	# deploy local relayrunner backend
-	-kubectl apply -f deploy/loderunner-api/local
 
-	# Create client image from codebase
-	@docker build ./client --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
+	# Create LodeRunner.UI image from codebase
+	@docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
 	# Load new client image to k3d registry
 	@docker push k3d-registry.localhost:5000/loderunner-ui:local
-	# deploy local relayrunner client
-	-kubectl apply -f deploy/loderunner-ui:local
+
+	# deploy local LodeRunner, LodeRunner.API, and LodeRunner.UI after the ngsa-app starts
+	@kubectl wait pod -n ngsa --all --for condition=ready --timeout=30s
+	-kubectl apply -f deploy/loderunner/local/1-namespace.yaml
+	-kubectl create secret generic lr-secrets --namespace=loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${LR_KEY} --from-literal=CosmosUrl=${LR_URL}
+	-kubectl apply -f deploy/loderunner/local
 
 	# deploy prometheus and grafana
-	-kubectl apply -f deploy/prometheus
-	-kubectl apply -f deploy/grafana
-
+	-kubectl apply -f deploy/monitoring
+	
 	# deploy fluentbit
-	-kubectl create secret generic log-secrets --from-literal=WorkspaceId=dev --from-literal=SharedKey=dev
-	-kubectl apply -f deploy/fluentbit/account.yaml
-	-kubectl apply -f deploy/fluentbit/log.yaml
-	-kubectl apply -f deploy/fluentbit/stdout-config.yaml
+	-kubectl apply -f deploy/fluentbit/namespace.yaml
+	-kubectl create secret generic fluentbit-secrets --namespace fluentbit --from-literal=WorkspaceId=dev --from-literal=SharedKey=dev
+	-kubectl apply -f deploy/fluentbit/role.yaml
+	-kubectl apply -f deploy/fluentbit/config-log.yaml
+	-kubectl apply -f deploy/fluentbit/config.yaml
 	-kubectl apply -f deploy/fluentbit/fluentbit-pod.yaml
 
 	# wait for pods to start
-	@kubectl wait pod -A --all --for condition=ready --timeout=60s
+	@kubectl wait pod -A --all --for condition=ready --timeout=100s
 
 	# display pod status
-	-kubectl get po -A | grep "default\|monitoring"
+	-kubectl get po -A | grep -v "kube-system"
 
 check :
 	# curl all of the endpoints
 	@echo "\nchecking ngsa-memory..."
 	@curl localhost:30080/version
-	@echo "\n\nchecking loderunner..."
-	@curl localhost:30088/version
 	@echo "\n\nchecking prometheus..."
 	@curl localhost:30000
 	@echo "\nchecking grafana..."
@@ -94,124 +95,83 @@ check :
 clean :
 	# delete the deployment
 	@# continue on error
-	-kubectl delete -f deploy/loderunner-local --ignore-not-found=true
-	-kubectl delete -f deploy/ngsa-memory --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner --ignore-not-found=true
+	-kubectl delete -f deploy/ngsa --ignore-not-found=true
+	-kubectl delete -f deploy/monitoring --ignore-not-found=true
 	-kubectl delete ns monitoring --ignore-not-found=true
 	-kubectl delete -f deploy/fluentbit/fluentbit-pod.yaml --ignore-not-found=true
-	-kubectl delete -f deploy/loderunner-ui/local --ignore-not-found=true
-	-kubectl delete -f deploy/loderunner-api/local --ignore-not-found=true
-	-kubectl delete secret log-secrets --ignore-not-found=true
+	-kubectl delete -f deploy/fluentbit/config.yaml --ignore-not-found=true
+	-kubectl delete -f deploy/fluentbit/config-log.yaml --ignore-not-found=true
+	-kubectl delete -f deploy/fluentbit/role.yaml --ignore-not-found=true
+	-kubectl delete -f deploy/fluentbit/namespace.yaml --ignore-not-found=true
+	-kubectl delete secret fluentbit-secrets --namespace fluentbit --ignore-not-found=true
 
 	# show running pods
 	@kubectl get po -A
 
-beta:
-	# delete local backend pod and deploy image from ghcr
-	-kubectl delete -f deploy/loderunner-api/local --ignore-not-found=true
-	kubectl apply -f deploy/loderunner-api
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod loderunner-api --for condition=ready --timeout=30s
-
-	# delete local client pod and deploy image from ghcr
-	-kubectl delete -f deploy/loderunner-ui/local --ignore-not-found=true
-	kubectl apply -f deploy/loderunner-ui
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod loderunner-ui --for condition=ready --timeout=30s
-
-	# delete local loderunner pod and deploy image from ghcr
-	-kubectl delete -f deploy/loderunner-local --ignore-not-found=true
-	kubectl apply -f deploy/loderunner
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod loderunner --for condition=ready --timeout=30s
-	@kubectl get po
-
-	# display the loderunner version
-	-http localhost:30088/version
-
-	# display the backend version
-	-http localhost:32088/version
-
-	# hit the client endpoint
-	-http -h localhost:32080
-
-lrapi:
-	# build the local image and load into k3d
-	docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
-	docker push k3d-registry.localhost:5000/loderunner-api:local
-
-	# delete/deploy the local backend
-	-kubectl delete -f deploy/loderunner-api/local --ignore-not-found=true
-	kubectl apply -f deploy/loderunner-api/local
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod loderunner-api --for condition=ready --timeout=30s
-
-	@kubectl get po
-
-	# display the version
-	-http localhost:32088/version
-
-lrui:
-	# build the local image and load into k3d
-	docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
-	docker push k3d-registry.localhost:5000/loderunner-ui:local
-
-	# delete/deploy local client
-	-kubectl delete -f deploy/loderunner-ui/local --ignore-not-found=true
-	kubectl apply -f deploy/loderunner-ui/local
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod loderunner-ui --for condition=ready --timeout=30s
-
-	@kubectl get po
-
-	# hit the client endpoint
-	-http -h localhost:32080
-
-ngsa :
-	# build the local image of ngsa-app and load into k3d
-	docker build ../ngsa-app -t k3d-registry.localhost:5000/ngsa-app:local
-	docker push k3d-registry.localhost:5000/ngsa-app:local
-
-	# delete loderunner
+lr-beta:
+	# delete local LodeRunner, LodeRunner.API, and LodeRunner.UI
+	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
+	# delete LodeRunner, LodeRunner.API, and LodeRunner.UI with remote registry images
 	-kubectl delete -f deploy/loderunner --ignore-not-found=true
-
-	# delete/deploy the ngsa-app
-	-kubectl delete -f deploy/ngsa-memory --ignore-not-found=true
-	kubectl apply -f deploy/ngsa-local
-
-	# deploy loderunner after app starts
-	@kubectl wait pod ngsa-memory --for condition=ready --timeout=30s
-	@sleep 5
-	kubectl apply -f deploy/loderunner
-	@kubectl wait pod loderunner --for condition=ready --timeout=30s
-
-	@kubectl get po
-
-	# display the ngsa-app version
-	-http localhost:30080/version
-
-lr :
-	# build the local image of loderunner and load into k3d
-	docker build ../loderunner -t k3d-registry.localhost:5000/ngsa-lr:local
-	docker push k3d-registry.localhost:5000/ngsa-lr:local
 	
-	# delete / create loderunner
-	-kubectl delete -f deploy/loderunner --ignore-not-found=true
-	kubectl apply -f deploy/loderunner-local
-	kubectl wait pod loderunner --for condition=ready --timeout=30s
-	@kubectl get po
+	# deploy remote registry images
+	-kubectl apply -f deploy/loderunner/namespace.yaml
+	-kubectl create secret generic lr-secrets --namespace=loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${LR_KEY} --from-literal=CosmosUrl=${LR_URL}
+	-kubectl apply -f deploy/loderunner/loderunner.yaml
+	-kubectl apply -f deploy/loderunner/loderunner-ui.yaml
+	-kubectl apply -f deploy/loderunner/loderunner-api.yaml
 
-	# display the current version
-	-http localhost:30088/version
+	# wait for pod to be ready
+	@sleep 5
+	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
+
+	@kubectl get po -n loderunner
+
+	# display the current LodeRunner.API version
+	-http localhost:32088/version
+	# hit the LodeRunner.UI endpoint
+	-http -h localhost:32080
+
+lr-local:
+	# Delete LodeRunner.UI node_modules for docker context
+	@rm -rf ./src/LodeRunner.UI/node_modules
+
+	# Create LodeRunner image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/ngsa-lr:local -f ./src/LodeRunner/Dockerfile
+	# Load new LodeRunner image to k3d registry
+	@docker push k3d-registry.localhost:5000/ngsa-lr:local
+
+	# Create LodeRunner.API image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
+	# Load new LodeRunner.API image to k3d registry
+	@docker push k3d-registry.localhost:5000/loderunner-api:local
+
+	# Create LodeRunner.UI image from codebase
+	@docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
+	# Load new client image to k3d registry
+	@docker push k3d-registry.localhost:5000/loderunner-ui:local
+
+	# Delete previous deployed LodeRunner apps
+	-kubectl delete -f deploy/loderunner --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
+
+	# deploy local LodeRunner, LodeRunner.API, and LodeRunner.UI
+	-kubectl apply -f deploy/loderunner/local/1-namespace.yaml
+	-kubectl create secret generic lr-secrets --namespace=loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${LR_KEY} --from-literal=CosmosUrl=${LR_URL}
+	-kubectl apply -f deploy/loderunner/local
+
+	# wait for pod to be ready
+	@sleep 5
+	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
+
+	@kubectl get po -n loderunner
+
+	# display the current LodeRunner.API version
+	-http localhost:32088/version
+	# hit the LodeRunner.UI endpoint
+	-http -h localhost:32080
 
 reset-prometheus :
 	# remove and create the /prometheus volume
