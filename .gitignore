@@ -306,7 +306,7 @@ spikes/istio-multicluster/istio-*-cluster.yaml
 node_modules
 dist
 .nyc_output
-src/LodeRunner.UI/.env.local
+src/LodeRunner.UI/.env.*
 
 ### OSX ###
 # General
