@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loderunner-benchmark-cosmos
+  namespace: loderunner-benchmark-cosmos
+  labels:
+    app.kubernetes.io/name: loderunner-benchmark-cosmos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loderunner-benchmark-cosmos
+  template:
+    metadata:
+      labels:
+        app: loderunner-benchmark-cosmos
+    spec:
+      containers:
+      - name: app
+        image: ghcr.io/retaildevcrews/ngsa-lr:beta
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+        args: 
+        - -l
+        - "100"
+        - -r
+        - -s
+        - http://ngsa-cosmos:8080
+        - -f
+        - benchmark.json
+        - --prometheus
+        - --zone
+        - dev
+        - --region
+        - dev
+    

@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loderunner
+  name: loderunner-ui
   namespace: loderunner
   labels:
-    app.kubernetes.io/name: loderunner
+    app.kubernetes.io/name: loderunner-ui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: loderunner
+      app: loderunner-ui
   template:
     metadata:
       labels:
-        app: loderunner
+        app: loderunner-ui
     spec:
       containers:
         - name: app
-          image: ghcr.io/retaildevcrews/ngsa-lr:beta
+          image: ghcr.io/retaildevcrews/loderunner-ui:beta
           imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 80
               protocol: TCP
           resources:
             limits:
@@ -30,30 +30,20 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "500m"
-          args:
-          - -l
-          - "1000"
-          - -r
-          - -s
-          - http://ngsa-memory.ngsa:8080
-          - http://ngsa-cosmos.ngsa:8080
-          - http://ngsa-java.ngsa:8080
-          - -f
-          - benchmark.json
-          - -p
+
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: loderunner
+  name: loderunner-ui
   namespace: loderunner
 spec:
   type: ClusterIP
   ports:
-    - port: 8080
+    - port: 80
       targetPort: http
       protocol: TCP
       name: http
   selector:
-    app: loderunner
+    app: loderunner-ui
