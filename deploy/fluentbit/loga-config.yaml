@@ -1,10 +1,9 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fluent-bit-config
-  namespace: default
-  labels:
-    k8s-app: fluent-bit
+  name: fluentbit
+  namespace: fluentbit
 data:
   fluent-bit.conf: |
     [SERVICE]
@@ -15,25 +14,27 @@ data:
         HTTP_Server   On
         HTTP_Listen   0.0.0.0
         HTTP_Port     2020
+        storage.path  /var/log/flb-storage/
+        storage.sync  normal
+        storage.backlog.mem_limit 32MB
     @INCLUDE input-kubernetes.conf
     @INCLUDE filter-kubernetes.conf
     @INCLUDE output.conf
-
   output.conf: |
     [OUTPUT]
         Name            azure
-        Match           kube.var.log.containers.lode*.*
-        Customer_ID     ${WorkspaceId}
-        Shared_Key      ${SharedKey}
-        Log_Type        ${lodeLog}
-
+        Match           kube.var.log.containers.loderunner*.*
+        Customer_ID     ${WORKSPACE_ID}
+        Shared_Key      ${SHARED_KEY}
+        Log_Type        ${LODE_LOG}
+        storage.total_limit_size  15M
     [OUTPUT]
         Name            azure
         Match           kube.var.log.containers.ngsa*.*
-        Customer_ID     ${WorkspaceId}
-        Shared_Key      ${SharedKey}
-        Log_Type        ${ngsaLog}
-
+        Customer_ID     ${WORKSPACE_ID}
+        Shared_Key      ${SHARED_KEY}
+        Log_Type        ${NGSA_LOG}
+        storage.total_limit_size  15M
   input-kubernetes.conf: |
     [INPUT]
         Name              tail
@@ -41,10 +42,10 @@ data:
         Path              /var/log/containers/*.log
         Parser            cri
         DB                /var/log/flb_kube.db
-        Mem_Buf_Limit     5MB
+        Mem_Buf_Limit     32MB
         Skip_Long_Lines   Off
         Refresh_Interval  10
-
+        storage.type      filesystem
   filter-kubernetes.conf: |
     [FILTER]
         Name                kubernetes
@@ -60,28 +61,25 @@ data:
         K8S-Logging.Exclude Off
         Annotations         Off
         Labels              On
-
     [FILTER]
         Name                nest
         Match               kube.*
         Operation           lift
         Nested_under        kubernetes
         Add_prefix          kubernetes_
-
     [FILTER]
         Name                nest
         Match               kube.*
         Operation           lift
         Nested_under        kubernetes_labels
         Add_prefix          kubernetes_labels_
-
     [FILTER]
         Name    modify
         Match   kube.*
-        Copy    kubernetes_labels_app.kubernetes.io/instance   k_app
+        Add     Zone                                           ${ZONE}
+        Add     Region                                         ${REGION}
         Copy    kubernetes_labels_app                          k_app
         Copy    kubernetes_container_name                      k_container
-
   parsers.conf: |
     [PARSER]
         Name         json
@@ -89,21 +87,18 @@ data:
         Time_Key     time
         Time_Format  %d/%b/%Y:%H:%M:%S %z
         Time_Keep    Off
-
     [PARSER]
         Name         syslog
         Format       regex
         Regex        ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
         Time_Key     time
         Time_Format  %b %d %H:%M:%S
-
     [PARSER]
         Name         cri
         Format       regex
         Regex        ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
         Time_Key     time
         Time_Format  %Y-%m-%dT%H:%M:%S.%L%z
-
     [PARSER]
         Name         docker
         Format       json

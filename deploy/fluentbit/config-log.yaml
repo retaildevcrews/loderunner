@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentbit-log-config
+  namespace: fluentbit
+data:
+  zone: Dev
+  region: Dev
+  lodeLog: loderunner
+  ngsaLog: ngsa
