@@ -44,7 +44,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>The IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "string (pass, warn or fail)", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`string` (pass, warn or fail)", null, "text/plain")]
         [SwaggerOperation(
             Summary = "Healthz Check (simple)",
             Description = "Returns a text/plain health status (pass, warn or fail)",
@@ -68,10 +68,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("ietf")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "IetfHealthCheck", typeof(CosmosHealthCheck), "application/health+json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`IetfHealthCheck`", typeof(CosmosHealthCheck), "application/health+json")]
         [SwaggerOperation(
             Summary = "Healthz Check (IETF)",
-            Description = "Returns an IetfHealthCheck document from the Health Check",
+            Description = "Returns an `IetfHealthCheck` document from the Health Check",
             OperationId = "RunIetfAsync")]
         public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService,  [FromServices] CancellationTokenSource cancellationTokenSource)
         {

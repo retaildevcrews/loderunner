@@ -38,11 +38,11 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Load Test Config was created.", typeof(LoadTestConfig))]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadTestConfig` was created.", typeof(LoadTestConfig))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Creates a new LoadTestConfig item",
-            Description = "Requires LoadTest Config payload",
+            Description = "Requires Load Test Config payload",
             OperationId = "CreateLoadTestConfig")]
         [Route("create")]
         public IActionResult CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigDto loadTestConfigDTO, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
