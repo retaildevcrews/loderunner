@@ -18,6 +18,7 @@ namespace LodeRunner.API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [SwaggerTag("Read Clients")]
     public class ClientsController : Controller
     {
         private static readonly NgsaLog Logger = new ()

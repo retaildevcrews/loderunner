@@ -20,6 +20,7 @@ namespace LodeRunner.API.Controllers
     /// </summary>
     [Route("[controller]")]
     [ResponseCache(Duration = 60)]
+    [SwaggerTag("Handle the /healthz* requests")]
     public class HealthzController : Controller
     {
         private readonly ILogger logger;

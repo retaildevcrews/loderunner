@@ -3,9 +3,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LodeRunner.API.Core;
 using LodeRunner.API.Data;
 using LodeRunner.API.Handlers.ExceptionMiddleware;
 using LodeRunner.API.Interfaces;
@@ -33,7 +35,7 @@ namespace LodeRunner.API
     public class Startup
     {
         private const string SwaggerTitle = "LodeRunner.API";
-        private static string swaggerPath = "/swagger.json";
+        private static readonly string SwaggerPath = "/swagger/v1/swagger.json";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
@@ -110,23 +112,8 @@ namespace LodeRunner.API
             // add middleware handlers
             app.UseRouting();
 
-            _ = app.UseEndpoints(ep =>
-                {
-                    ep.MapControllers();
-                    ep.MapMetrics();
-                })
-            .UseVersion();
-
             if (env.IsDevelopment())
             {
-                app.UseSwagger();
-
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", SwaggerTitle);
-                    options.RoutePrefix = string.Empty;
-                });
-
                 int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
                 app.UseCors(builder =>
                 {
@@ -135,20 +122,21 @@ namespace LodeRunner.API
                         .AllowAnyHeader();
                 });
             }
-            else
-            {
-                app.UseSwaggerUI(c =>
-                {
-                    if (!string.IsNullOrEmpty(config.UrlPrefix))
-                    {
-                        swaggerPath = config.UrlPrefix + swaggerPath;
-                    }
 
-                    c.SwaggerEndpoint(swaggerPath, SwaggerTitle);
-                    c.RoutePrefix = string.Empty;
+            //Configure Swagger
+            app.UseSwagger();
+
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint(SwaggerPath, SwaggerTitle);
+                options.RoutePrefix = string.Empty;
+            })
+            .UseEndpoints(ep =>
+                {
+                    ep.MapControllers();
+                    ep.MapMetrics();
                 })
-                .UseSwaggerReplaceJson("swagger.json", config.UrlPrefix);
-            }
+            .UseVersion();
         }
 
         /// <summary>
@@ -157,23 +145,7 @@ namespace LodeRunner.API
         /// <param name="services">The services in the web host.</param>
         public static void ConfigureServices(IServiceCollection services)
         {
-            string envName = Environment.GetEnvironmentVariable(Core.SystemConstants.AspNetCoreEnviroment);
-
-            if (envName == Core.SystemConstants.DevelopmentEnvironment)
-            {
-                services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = SwaggerTitle, Version = "v1" });
-
-                    // NOTE: this is needed to pull example tag from method documentation.
-                    var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
-                    c.IncludeXmlComments(filePath);
-
-                    c.EnableAnnotations();
-                });
-
-                services.AddSwaggerGenNewtonsoftSupport();
-            }
+            AddSwaggerServices(services);
 
             services.AddCors();
 
@@ -208,6 +180,37 @@ namespace LodeRunner.API
 
                 .AddSingleton<LRAPICache>()
                 .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>());
+        }
+
+        /// <summary>
+        /// Add Swagger Services
+        /// </summary>
+        /// <param name="services">Service Collection.</param>
+        private static void AddSwaggerServices(IServiceCollection services)
+        {
+            ServiceDescriptor configDescriptor = services.FirstOrDefault(s => s.ServiceType == typeof(Config));
+
+            if (configDescriptor == null || configDescriptor.ImplementationInstance == null)
+            {
+                throw new NullReferenceException("Unable to retrieve Config implementation from IServiceCollection");
+            }
+
+            Config config = (Config)configDescriptor.ImplementationInstance;
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = SwaggerTitle, Version = "v1" });
+
+                // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
+                c.IncludeXmlComments(filePath);
+
+                c.EnableAnnotations();
+
+                c.DocumentFilter<PathPrefixInsertDocumentFilter>(config.UrlPrefix);
+            });
+
+            services.AddSwaggerGenNewtonsoftSupport();
         }
     }
 }

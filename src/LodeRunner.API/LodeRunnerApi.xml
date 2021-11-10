@@ -773,6 +773,24 @@
             <param name="mode">The mode.</param>
             <returns>The Category.</returns>
         </member>
+        <member name="T:LodeRunner.API.Core.PathPrefixInsertDocumentFilter">
+            <summary>
+            Represents the Custom Path Prefix Insert class.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.Core.PathPrefixInsertDocumentFilter.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.Core.PathPrefixInsertDocumentFilter"/> class.
+            </summary>
+            <param name="prefix">The prefix.</param>
+        </member>
+        <member name="M:LodeRunner.API.Core.PathPrefixInsertDocumentFilter.Apply(Microsoft.OpenApi.Models.OpenApiDocument,Swashbuckle.AspNetCore.SwaggerGen.DocumentFilterContext)">
+            <summary>
+            Applies the specified swagger document.
+            </summary>
+            <param name="swaggerDoc">The swagger document.</param>
+            <param name="context">The context.</param>
+        </member>
         <member name="T:LodeRunner.API.Startup">
             <summary>
             WebHostBuilder Startup.
@@ -801,6 +819,12 @@
             Service configuration.
             </summary>
             <param name="services">The services in the web host.</param>
+        </member>
+        <member name="M:LodeRunner.API.Startup.AddSwaggerServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Add Swagger Services
+            </summary>
+            <param name="services">Service Collection.</param>
         </member>
         <member name="T:LodeRunner.API.SystemConstants">
             <summary>

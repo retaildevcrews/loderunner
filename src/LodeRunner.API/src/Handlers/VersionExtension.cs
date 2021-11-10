@@ -20,7 +20,7 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Gets the app version.
         /// </summary>
-        public static string Version => Core.Version.AssemblyVersion;
+        public static string Version => LodeRunner.Core.Version.AssemblyVersion;
 
         /// <summary>
         /// Gets the app name.

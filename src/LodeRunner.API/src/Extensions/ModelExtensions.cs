@@ -16,10 +16,10 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <param name="loadTestConfigDto">The load test configuration.</param>
         /// <returns>LoadTestConfig.</returns>
-        public static Core.Models.LoadTestConfig DtoToModel(this Data.Dtos.LoadTestConfigDto loadTestConfigDto)
+        public static LoadTestConfig DtoToModel(this Data.Dtos.LoadTestConfigDto loadTestConfigDto)
         {
             // TODO: Validate LoadTestConfigDto before to create Model
-            return new Core.Models.LoadTestConfig
+            return new LoadTestConfig
             {
                 Files = loadTestConfigDto.Files,
 

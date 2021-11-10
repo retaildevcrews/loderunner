@@ -62,7 +62,6 @@ namespace LodeRunner.API.Controllers
 
                 appCache.SetLoadTestConfig(loadTestConfig);
 
-                // TODO: Do we need to improve the Result to say something about successfully created ?
                 return appCache.HandleCacheResult(loadTestConfig, Logger);
             }
             else
