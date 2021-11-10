@@ -48,7 +48,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerOperation(
             Summary = "Healthz Check (simple)",
             Description = "Returns a text/plain health status (pass, warn or fail)",
-            OperationId = "GetClientByClientStatusId")]
+            OperationId = "RunHealthzAsync")]
         public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             // get list of genres as list of string

@@ -53,11 +53,6 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateCancellationInProgressResult();
             }
 
-            if (!ModelState.IsValid)
-            {
-                return ResultHandler.CreateResult("Invalid Model.", HttpStatusCode.BadRequest);
-            }
-
             if (loadTestConfigDTO.Validate(out string errorMessage))
             {
                 var loadTestConfig = loadTestConfigDTO.DtoToModel();
