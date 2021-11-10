@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using LodeRunner.API.Data.Dtos.Validators;
 using LodeRunner.Core.Models;
@@ -13,7 +14,7 @@ namespace LodeRunner.API.Data.Dtos
     /// <summary>
     /// Represents the Load Test Config DTO.
     /// </summary>
-    [SwaggerSchema(Required = new[] { "Description" })]
+    // [SwaggerSchema(Required = new[] { "Description" })]
     public class LoadTestConfigDto
     {
         /// <summary>
@@ -22,7 +23,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The name.
         /// </value>
-        [SwaggerSchema("The Load Test Config name")]
+        // [SwaggerSchema("The Load Test Config name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace LodeRunner.API.Data.Dtos
         /// </value>
         [Required]
         [ValidateList(ErrorMessage = "Files list cannot be null or empty.")]
+        [Description("-f")]
         public List<string> Files { get; set; }
 
         /// <summary>
@@ -41,6 +43,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         ///   <c>true</c> if [strict json]; otherwise, <c>false</c>.
         /// </value>
+        [Description("-j")]
         public bool StrictJson { get; set; }
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The base URL.
         /// </value>
+        [Description("--base-url")]
         public string BaseURL { get; set; }
 
         /// <summary>
@@ -57,6 +61,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         ///   <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
         /// </value>
+        [Description("--verbose-errors")]
         public bool VerboseErrors { get; set; }
 
         /// <summary>
@@ -65,6 +70,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         ///   <c>true</c> if randomize; otherwise, <c>false</c>.
         /// </value>
+        [Description("--random")]
         public bool Randomize { get; set; }
 
         /// <summary>
@@ -73,6 +79,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The timeout.
         /// </value>
+        [Description("--timeout")]
         public int Timeout { get; set; }
 
         /// <summary>
@@ -83,6 +90,7 @@ namespace LodeRunner.API.Data.Dtos
         /// </value>
         [Required]
         [ValidateList(ErrorMessage = "Server list cannot be null or empty.")]
+        [Description("-s")]
         public List<string> Server { get; set; }
 
         /// <summary>
@@ -91,6 +99,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The tag.
         /// </value>
+        [Description("--tag")]
         public string Tag { get; set; }
 
         /// <summary>
@@ -99,6 +108,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The sleep.
         /// </value>
+        [Description("--sleep")]
         public int Sleep { get; set; }
 
         /// <summary>
@@ -107,6 +117,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         ///   <c>true</c> if [run loop]; otherwise, <c>false</c>.
         /// </value>
+        [Description("--run-loop")]
         public bool RunLoop { get; set; }
 
         /// <summary>
@@ -115,6 +126,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The duration.
         /// </value>
+        [Description("--duration")]
         public int Duration { get; set; }
 
         /// <summary>
@@ -123,6 +135,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         /// The maximum errors.
         /// </value>
+        [Description("--max-errors")]
         public int MaxErrors { get; set; }
 
         /// <summary>
@@ -133,6 +146,7 @@ namespace LodeRunner.API.Data.Dtos
         /// </value>
         [Required]
         [Range(0, 900, ErrorMessage = "Can only be between 0 .. 900")]
+        [Description("--delay-start")]
         public int DelayStart { get; set; }
 
         /// <summary>
@@ -141,6 +155,7 @@ namespace LodeRunner.API.Data.Dtos
         /// <value>
         ///   <c>true</c> if [dry run]; otherwise, <c>false</c>.
         /// </value>
+        [Description("--dry-run")]
         public bool DryRun { get; set; }
     }
 }

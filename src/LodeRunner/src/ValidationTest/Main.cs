@@ -132,7 +132,7 @@ namespace LodeRunner
             if (config == null)
             {
                 Console.WriteLine("RunOnce:Config is null");
-                return SystemConstants.ExitFail;
+                return Core.SystemConstants.ExitFail;
             }
 
             //DisplayStartupMessage(config);
@@ -316,11 +316,11 @@ namespace LodeRunner
                 if (!tce.Task.IsCompleted)
                 {
                     Console.WriteLine($"Exception: {tce}");
-                    return SystemConstants.ExitFail;
+                    return Core.SystemConstants.ExitFail;
                 }
 
                 // task is completed
-                return SystemConstants.ExitSuccess;
+                return Core.SystemConstants.ExitSuccess;
             }
             catch (OperationCanceledException oce)
             {
@@ -328,20 +328,20 @@ namespace LodeRunner
                 if (!token.IsCancellationRequested)
                 {
                     Console.Write($"Exception: {oce}");
-                    return SystemConstants.ExitFail;
+                    return Core.SystemConstants.ExitFail;
                 }
 
                 // Operation was cancelled
-                return SystemConstants.ExitSuccess;
+                return Core.SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex}");
-                return SystemConstants.ExitFail;
+                return Core.SystemConstants.ExitFail;
             }
 
             // graceful exit
-            return SystemConstants.ExitSuccess;
+            return Core.SystemConstants.ExitSuccess;
         }
 
         /// <summary>

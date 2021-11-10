@@ -7,19 +7,19 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using Ngsa.Middleware.CommandLine;
+using LodeRunner.Core.Interfaces;
 
-namespace LodeRunner
+namespace LodeRunner.Core.CommandLine
 {
     /// <summary>
-    /// Main application class
+    /// Main application class.
     /// </summary>
-    public sealed partial class App
+    public sealed class LRCommandLine
     {
         /// <summary>
-        /// Build the RootCommand for parsing
+        /// Build the RootCommand for parsing.
         /// </summary>
-        /// <returns>RootCommand</returns>
+        /// <returns>RootCommand.</returns>
         public static RootCommand BuildRootCommand()
         {
             RootCommand root = new ()
@@ -58,8 +58,12 @@ namespace LodeRunner
             return root;
         }
 
-        // handle --dry-run
-        internal static int DoDryRun(Config config)
+        /// <summary>
+        /// handle --dry-run.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns>Success or Failure code.</returns>
+        public static int DoDryRun(ILRConfig config) // this needs to be interface.
         {
             DisplayAsciiArt();
 
@@ -102,8 +106,8 @@ namespace LodeRunner
         }
 
         /// <summary>Validates combinations of parameters and dependencies.</summary>
-        /// <param name="result">The ComandResult object</param>
-        /// <returns> empty string if no issues found </returns>
+        /// <param name="result">The ComandResult object.</param>
+        /// <returns> empty string if no issues found.</returns>
         private static string ValidateDependencies(CommandResult result)
         {
             string msg = string.Empty;

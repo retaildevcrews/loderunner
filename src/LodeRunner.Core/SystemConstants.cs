@@ -40,7 +40,7 @@ namespace LodeRunner.Core
         public const string LodeRunnerUIPortSettingName = "LodeRunnerUIPort";
 
         /// <summary>
-        /// The ASP net core enviroment.
+        /// The ASP net core environment.
         /// </summary>
         public const string AspNetCoreEnviroment = "ASPNETCORE_ENVIRONMENT";
 
@@ -53,5 +53,45 @@ namespace LodeRunner.Core
         /// The AppSetting development environment name.
         /// </summary>
         public const string DevelopmentEnvironment = "Development";
+
+        /// <summary>
+        /// The command line validation duration and loop message.
+        /// </summary>
+        public const string CmdLineValidationDurationAndLoopMessage = "--run-loop must be true to use --duration";
+
+        /// <summary>
+        /// The command line validation random and loop message.
+        /// </summary>
+        public const string CmdLineValidationRandomAndLoopMessage = "--run-loop must be true to use --random";
+
+        /// <summary>
+        /// The command line validation delay start and empty secrets message.
+        /// </summary>
+        public const string CmdLineValidationDelayStartAndEmptySecretsMessage = "--secrets-volume cannot be empty when --delay-start is equals to -1";
+
+        /// <summary>
+        /// The command line validation secrets and invalid delay start message.
+        /// </summary>
+        public const string CmdLineValidationSecretsAndInvalidDelayStartMessage = "--secrets-volume requires --delay-start to be equals to negative one (-1)";
+
+        /// <summary>
+        /// The command line validation secrets volume beginning message.
+        /// </summary>
+        public const string CmdLineValidationSecretsVolumeBeginningMessage = "--secrets-volume (";
+
+        /// <summary>
+        /// The command line validation secrets volume end message.
+        /// </summary>
+        public const string CmdLineValidationSecretsVolumeEndMessage = ") does not exist";
+
+        /// <summary>
+        /// The exit success.
+        /// </summary>
+        public const int ExitSuccess = 0;
+
+        /// <summary>
+        /// The exit fail.
+        /// </summary>
+        public const int ExitFail = 1;
     }
 }

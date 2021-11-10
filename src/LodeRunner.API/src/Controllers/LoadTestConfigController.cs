@@ -9,6 +9,7 @@ using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -37,7 +38,8 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Load Test Config was created.", typeof(Client[]))]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Load Test Config was created.", typeof(LoadTestConfig))]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Creates a new LoadTestConfig item",
             Description = "Requires LoadTest Config payload",
@@ -56,17 +58,24 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateResult("Invalid Model.", HttpStatusCode.BadRequest);
             }
 
-            if (loadTestConfigDTO.Validate())
+            if (loadTestConfigDTO.Validate(out string errorMessage))
             {
                 var loadTestConfig = loadTestConfigDTO.DtoToModel();
 
-                appCache.SetLoadTestConfig(loadTestConfig);
+                var result = appCache.SetLoadTestConfig(loadTestConfig);
 
-                return appCache.HandleCacheResult(loadTestConfig, Logger);
+                if (result.Result)
+                {
+                    return appCache.HandleCacheResult(loadTestConfig, Logger);
+                }
+                else
+                {
+                    return ResultHandler.CreateResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
+                }
             }
             else
             {
-                return ResultHandler.CreateResult("Invalid Data.", HttpStatusCode.BadRequest);
+                return ResultHandler.CreateResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
             }
         }
     }

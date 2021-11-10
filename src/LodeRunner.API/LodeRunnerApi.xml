@@ -441,12 +441,28 @@
             <param name="loadTestConfigDto">The load test configuration.</param>
             <returns>LoadTestConfig.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.API.Data.Dtos.LoadTestConfigDto)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.API.Data.Dtos.LoadTestConfigDto,System.String@)">
             <summary>
             Validates the specified load test configuration dto.
             </summary>
             <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <param name="errorMessage">Error MEssage String if any.</param>
             <returns>Whether or not  the DTO passes validation.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.API.Data.Dtos.LoadTestConfigDto)">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <returns>the args</returns>
+        </member>
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.API.Data.Dtos.LoadTestConfigDto,System.String)">
+            <summary>
+            Fields the value.
+            </summary>
+            <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <param name="fieldName">Name of the field.</param>
+            <returns>The value.</returns>
         </member>
         <member name="T:LodeRunner.API.Middleware.RequestLogger">
             <summary>
@@ -999,6 +1015,11 @@
         <member name="F:LodeRunner.API.SystemConstants.InvalidClientStatusId">
             <summary>
             The invalid client status identifier.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToCreateLoadTestConfig">
+            <summary>
+            The unable to create load test configuration.
             </summary>
         </member>
         <member name="T:LodeRunner.API.Data.LRAPICache">

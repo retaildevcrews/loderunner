@@ -177,5 +177,10 @@ namespace LodeRunner.API
         /// The invalid client status identifier.
         /// </summary>
         public const string InvalidClientStatusId = "Invalid Client Status Id.";
+
+        /// <summary>
+        /// The unable to create load test configuration.
+        /// </summary>
+        public const string UnableToCreateLoadTestConfig = "Unable to create Load Test Config item.";
     }
 }
