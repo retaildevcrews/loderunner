@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
@@ -49,6 +50,7 @@ namespace LodeRunner.API.Interfaces
         /// Sets the load test configuration.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
-        void SetLoadTestConfig(LoadTestConfig loadTestConfig);
+        /// <returns>Whether LoadTestConfig was successfully posted into Cosmos and Cache.</returns>
+        Task<bool> SetLoadTestConfig(LoadTestConfig loadTestConfig);
     }
 }

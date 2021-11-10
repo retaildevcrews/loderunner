@@ -1050,6 +1050,9 @@
             Sets the load test configuration.
             </summary>
             <param name="loadTestConfig">The load test configuration.</param>
+            <returns>
+            Whether LoadTestConfig was successfully posted into Cosmos and Cache.
+            </returns>
         </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.InternalReturnOKResult(System.Object)">
             <summary>
@@ -1618,6 +1621,7 @@
             Sets the load test configuration.
             </summary>
             <param name="loadTestConfig">The load test configuration.</param>
+            <returns>Whether LoadTestConfig was successfully posted into Cosmos and Cache.</returns>
         </member>
         <member name="T:LodeRunner.API.Interfaces.ILRAPIChangeFeedService">
             <summary>

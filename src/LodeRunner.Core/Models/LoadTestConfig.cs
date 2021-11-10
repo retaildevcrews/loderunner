@@ -80,7 +80,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The sleep.
         /// </value>
-        public string Sleep { get; set; }
+        public int Sleep { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [run loop].

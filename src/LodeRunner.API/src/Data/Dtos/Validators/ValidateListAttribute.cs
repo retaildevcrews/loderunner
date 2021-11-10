@@ -20,7 +20,7 @@ namespace LodeRunner.API.Data.Dtos.Validators
         /// <returns>Success if Associated String List passes validation, otherwise error.</returns>
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value is not List<Type> list || list.Count == 0)
+            if (value is not List<string> list || list.Count == 0)
             {
                 return new ValidationResult(this.ErrorMessage);
             }

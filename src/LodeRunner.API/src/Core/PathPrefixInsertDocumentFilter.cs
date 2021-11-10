@@ -33,6 +33,11 @@ namespace LodeRunner.API.Core
         /// <param name="context">The context.</param>
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
+            if (string.IsNullOrWhiteSpace(this.pathPrefix))
+            {
+                return;
+            }
+
             var paths = swaggerDoc.Paths.Keys.ToList();
             foreach (var path in paths)
             {

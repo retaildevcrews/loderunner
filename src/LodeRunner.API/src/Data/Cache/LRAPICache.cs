@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
@@ -132,11 +133,23 @@ namespace LodeRunner.API.Data
         /// Sets the load test configuration.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
-        public void SetLoadTestConfig(LoadTestConfig loadTestConfig)
+        /// <returns>
+        /// Whether LoadTestConfig was successfully posted into Cosmos and Cache.
+        /// </returns>
+        public async Task<bool> SetLoadTestConfig(LoadTestConfig loadTestConfig)
         {
-            this.SetEntry(loadTestConfig.Id, loadTestConfig, this.GetMemoryCacheEntryOptions());
+            LoadTestConfig insertedLoadTestConfig = await loadTestConfigService.Post(loadTestConfig, this.CancellationTokenSource.Token).ConfigureAwait(false);
 
-           // loadTestConfigService.Set(loadTestConfig);
+            if (insertedLoadTestConfig != null)
+            {
+                this.SetEntry(insertedLoadTestConfig.Id, insertedLoadTestConfig, this.GetMemoryCacheEntryOptions());
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

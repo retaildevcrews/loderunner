@@ -16,9 +16,8 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <param name="loadTestConfigDto">The load test configuration.</param>
         /// <returns>LoadTestConfig.</returns>
-        public static LoadTestConfig DtoToModel(this Data.Dtos.LoadTestConfigDto loadTestConfigDto)
+        public static LoadTestConfig DtoToModel(this LoadTestConfigDto loadTestConfigDto)
         {
-            // TODO: Validate LoadTestConfigDto before to create Model
             return new LoadTestConfig
             {
                 Files = loadTestConfigDto.Files,
@@ -56,9 +55,14 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <param name="loadTestConfigDto">The load test configuration dto.</param>
         /// <returns>Whether or not  the DTO passes validation.</returns>
-        public static bool Validate(this Data.Dtos.LoadTestConfigDto loadTestConfigDto)
+        public static bool Validate(this LoadTestConfigDto loadTestConfigDto)
         {
-            return true;
+            // TODO: Ideally this validation should be the same as when we validate LodeRunner Commands
+            bool validFiles = loadTestConfigDto.Files != null && loadTestConfigDto.Files.Count > 0;
+
+            bool validServers = loadTestConfigDto.Server != null && loadTestConfigDto.Server.Count > 0;
+
+            return validFiles && validServers;
         }
     }
 }
