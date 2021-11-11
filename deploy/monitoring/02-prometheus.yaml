@@ -135,12 +135,6 @@ data:
       - job_name: 'ngsa-memory'
         static_configs:
           - targets: [ 'ngsa-memory.ngsa.svc.cluster.local:8080' ]
-      - job_name: 'ngsa-cosmos'
-        static_configs:
-          - targets: [ 'ngsa-cosmos.ngsa.svc.cluster.local:8080' ]
-      - job_name: 'ngsa-java'
-        static_configs:
-          - targets: [ 'ngsa-java.ngsa.svc.cluster.local:8080' ]
       - job_name: 'loderunner'
         static_configs:
           - targets: [ 'loderunner.loderunner.svc.cluster.local:8080' ]

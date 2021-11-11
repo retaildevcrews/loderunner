@@ -36,8 +36,6 @@ spec:
           - -r
           - -s
           - http://ngsa-memory.ngsa:8080
-          - http://ngsa-cosmos.ngsa:8080
-          - http://ngsa-java.ngsa:8080
           - -f
           - benchmark.json
           - -p
