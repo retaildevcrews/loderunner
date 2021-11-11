@@ -149,32 +149,4 @@ namespace LodeRunner.Core.Models
         [Description("--dry-run")]
         public bool DryRun { get; set; }
     }
-
-    /// <summary>
-    /// LoadRestConfig Payload.
-    /// </summary>
-    [SwaggerSchemaFilter(typeof(LoadTestConfigPayloadSchemaFilter))]
-#pragma warning disable SA1402 // File may only contain a single type
-    public class LoadTestConfigPayload : LoadTestConfig
-#pragma warning restore SA1402 // File may only contain a single type
-    {
-        /// <summary>
-        /// Gets the type of the entity.
-        /// </summary>
-        /// <value>
-        /// The type of the entity.
-        /// </value>
-        public override EntityType EntityType
-        {
-            get
-            {
-                if (this.entityType == EntityType.Unassigned)
-                {
-                    this.entityType = this.GetType().BaseType.Name.As<EntityType>(EntityType.Unassigned);
-                }
-
-                return this.entityType;
-            }
-        }
-    }
 }

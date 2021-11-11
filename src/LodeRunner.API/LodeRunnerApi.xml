@@ -80,7 +80,7 @@
             Handle all of the /api/loadtestconfig requests.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfig,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Creates the load test configuration.
             </summary>

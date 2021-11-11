@@ -22,11 +22,7 @@ namespace LodeRunner.Core.SchemaFilters
         {
             schema.Example = new OpenApiObject
             {
-                // ["id"] = new OpenApiString("7abcc308-14c4-43eb-b1ee-e351f4db2a08"),
                 ["name"] = new OpenApiString("Sample - LoadTestConfig"),
-
-                // ["entityType"] = new OpenApiString("LoadTestConfig"),
-                // ["partitionKey"] = new OpenApiString("LoadTestConfig"),
                 ["files"] = new OpenApiArray
                             {
                                 new OpenApiString("baseline.json"),
