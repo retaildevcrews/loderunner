@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AutoMapper;
+using LodeRunner.API.AutoMapperProfiles;
 using LodeRunner.API.Core;
 using LodeRunner.API.Data;
 using LodeRunner.API.Handlers.ExceptionMiddleware;
@@ -15,6 +17,7 @@ using LodeRunner.API.Middleware;
 using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
@@ -147,6 +150,8 @@ namespace LodeRunner.API
         {
             AddSwaggerServices(services);
 
+            services.AddAutoMapper(typeof(LoadTestConfigProfile));
+
             services.AddCors();
 
             // set json serialization defaults and api behavior
@@ -203,6 +208,9 @@ namespace LodeRunner.API
 
                 // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
+                c.IncludeXmlComments(filePath);
+
+                filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunner.Core.xml");
                 c.IncludeXmlComments(filePath);
 
                 c.EnableAnnotations();

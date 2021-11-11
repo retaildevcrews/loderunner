@@ -30,6 +30,23 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
+        /// Content Result from data.
+        /// </summary>
+        /// <typeparam name="TEntity">the data type</typeparam>
+        /// <param name="data">the data.</param>
+        /// <param name="statusCode">The http code.</param>
+        /// <returns>the Json Result</returns>
+        public static JsonResult CreateResult<TEntity>(TEntity data, HttpStatusCode statusCode)
+        {
+            JsonResult res = new (data)
+            {
+                StatusCode = (int)statusCode,
+            };
+
+            return res;
+        }
+
+        /// <summary>
         /// ContentResult factory.
         /// Creates Cancellation InProgress Result.
         /// </summary>

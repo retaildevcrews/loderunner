@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace LodeRunner.API.Data.Dtos.Validators
+namespace LodeRunner.Core.Models.Validators
 {
     /// <summary>
     /// Represents the Custom Attribute Validation for String List.

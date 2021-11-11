@@ -8,7 +8,6 @@ using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using LodeRunner.API.Data.Dtos;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Models;
 
@@ -20,55 +19,16 @@ namespace LodeRunner.API.Middleware
     public static class ModelExtensions
     {
         /// <summary>
-        /// Converts LoadTestConfig model to LoadTestConfigDTO.
+        /// Validates the specified load test configuration.
         /// </summary>
-        /// <param name="loadTestConfigDto">The load test configuration.</param>
-        /// <returns>LoadTestConfig.</returns>
-        public static LoadTestConfig DtoToModel(this LoadTestConfigDto loadTestConfigDto)
-        {
-            return new LoadTestConfig
-            {
-                Files = loadTestConfigDto.Files,
-
-                StrictJson = loadTestConfigDto.StrictJson,
-
-                BaseURL = loadTestConfigDto.BaseURL,
-
-                VerboseErrors = loadTestConfigDto.VerboseErrors,
-
-                Randomize = loadTestConfigDto.Randomize,
-
-                Timeout = loadTestConfigDto.Timeout,
-
-                Server = loadTestConfigDto.Server,
-
-                Tag = loadTestConfigDto.Tag,
-
-                Sleep = loadTestConfigDto.Sleep,
-
-                RunLoop = loadTestConfigDto.RunLoop,
-
-                Duration = loadTestConfigDto.Duration,
-
-                MaxErrors = loadTestConfigDto.MaxErrors,
-
-                DelayStart = loadTestConfigDto.DelayStart,
-
-                DryRun = loadTestConfigDto.DryRun,
-            };
-        }
-
-        /// <summary>
-        /// Validates the specified load test configuration dto.
-        /// </summary>
-        /// <param name="loadTestConfigDto">The load test configuration dto.</param>
+        /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="errorMessage">Error MEssage String if any.</param>
         /// <returns>Whether or not  the DTO passes validation.</returns>
-        public static bool Validate(this LoadTestConfigDto loadTestConfigDto, out string errorMessage)
+        public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage)
         {
             RootCommand root = LRCommandLine.BuildRootCommand();
 
-            string[] args = GetArgs(loadTestConfigDto);
+            string[] args = GetArgs(loadTestConfig);
 
             bool result = false;
 
@@ -97,11 +57,11 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Gets the arguments.
         /// </summary>
-        /// <param name="loadTestConfigDto">The load test configuration dto.</param>
+        /// <param name="loadTestConfig">The load test configuration.</param>
         /// <returns>the args</returns>
-        private static string[] GetArgs(LoadTestConfigDto loadTestConfigDto)
+        private static string[] GetArgs(LoadTestConfig loadTestConfig)
         {
-            var properties = loadTestConfigDto.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
+            var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
 
             List<string> argsList = new ();
 
@@ -111,7 +71,7 @@ namespace LodeRunner.API.Middleware
                 if (descriptionAttributes.Length > 0)
                 {
                     argsList.Add(descriptionAttributes[0].Description);
-                    argsList.Add(loadTestConfigDto.FieldValue(prop.Name));
+                    argsList.Add(loadTestConfig.FieldValue(prop.Name));
                 }
             }
 
@@ -121,10 +81,10 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Fields the value.
         /// </summary>
-        /// <param name="loadTestConfigDto">The load test configuration dto.</param>
+        /// <param name="loadTestConfigDto">The load test configuration.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>The value.</returns>
-        private static string FieldValue(this LoadTestConfigDto loadTestConfigDto, string fieldName)
+        private static string FieldValue(this LoadTestConfig loadTestConfigDto, string fieldName)
         {
             string result = string.Empty;
 

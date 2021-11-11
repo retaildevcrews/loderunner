@@ -4,6 +4,12 @@
         <name>aspnetapp</name>
     </assembly>
     <members>
+        <member name="T:LodeRunner.API.AutoMapperProfiles.LoadTestConfigProfile">
+            <summary>
+            Represents the LoadTestConfig Auto-mapping Profile
+            </summary>
+            <seealso cref="T:AutoMapper.Profile" />
+        </member>
         <member name="T:LodeRunner.API.Controllers.ClientsController">
             <summary>
             Handle all of the /api/clients requests.
@@ -74,12 +80,12 @@
             Handle all of the /api/loadtestconfig requests.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.API.Data.Dtos.LoadTestConfigDto,LodeRunner.API.Interfaces.ILRAPICache,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfig,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Creates the load test configuration.
             </summary>
-            <param name="loadTestConfigDTO">The load test configuration dto.</param>
-            <param name="appCache">The application cache.</param>
+            <param name="loadTestConfigPayload">The load test configuration.</param>
+            <param name="loadTestConfigService">load Test Config Service.</param>
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
@@ -434,33 +440,26 @@
             Provides Extension methods for Models.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.DtoToModel(LodeRunner.API.Data.Dtos.LoadTestConfigDto)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.Core.Models.LoadTestConfig,System.String@)">
             <summary>
-            Converts LoadTestConfig model to LoadTestConfigDTO.
+            Validates the specified load test configuration.
             </summary>
-            <param name="loadTestConfigDto">The load test configuration.</param>
-            <returns>LoadTestConfig.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.API.Data.Dtos.LoadTestConfigDto,System.String@)">
-            <summary>
-            Validates the specified load test configuration dto.
-            </summary>
-            <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <param name="loadTestConfig">The load test configuration.</param>
             <param name="errorMessage">Error MEssage String if any.</param>
             <returns>Whether or not  the DTO passes validation.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.API.Data.Dtos.LoadTestConfigDto)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.Core.Models.LoadTestConfig)">
             <summary>
             Gets the arguments.
             </summary>
-            <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <param name="loadTestConfig">The load test configuration.</param>
             <returns>the args</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.API.Data.Dtos.LoadTestConfigDto,System.String)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.Core.Models.LoadTestConfig,System.String)">
             <summary>
             Fields the value.
             </summary>
-            <param name="loadTestConfigDto">The load test configuration dto.</param>
+            <param name="loadTestConfigDto">The load test configuration.</param>
             <param name="fieldName">Name of the field.</param>
             <returns>The value.</returns>
         </member>
@@ -574,6 +573,15 @@
             <param name="message">string.</param>
             <param name="statusCode">int.</param>
             <returns>JsonResult.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult``1(``0,System.Net.HttpStatusCode)">
+            <summary>
+            Content Result from data.
+            </summary>
+            <typeparam name="TEntity">the data type</typeparam>
+            <param name="data">the data.</param>
+            <param name="statusCode">The http code.</param>
+            <returns>the Json Result</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateCancellationInProgressResult">
             <summary>
@@ -1066,15 +1074,6 @@
             </summary>
             <param name="doc">Changefeed item.</param>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.SetLoadTestConfig(LodeRunner.Core.Models.LoadTestConfig)">
-            <summary>
-            Sets the load test configuration.
-            </summary>
-            <param name="loadTestConfig">The load test configuration.</param>
-            <returns>
-            Whether LoadTestConfig was successfully posted into Cosmos and Cache.
-            </returns>
-        </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.InternalReturnOKResult(System.Object)">
             <summary>
             Internals the return OK result.
@@ -1100,144 +1099,6 @@
             <summary>
             Sets the client cache.
             </summary>
-        </member>
-        <member name="T:LodeRunner.API.Data.Dtos.LoadTestConfigDto">
-            <summary>
-            Represents the Load Test Config DTO.
-            </summary>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Name">
-            <summary>
-            Gets or sets the name.
-            </summary>
-            <value>
-            The name.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Files">
-            <summary>
-            Gets or sets the files.
-            </summary>
-            <value>
-            The files.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.StrictJson">
-            <summary>
-            Gets or sets a value indicating whether [strict json].
-            </summary>
-            <value>
-              <c>true</c> if [strict json]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.BaseURL">
-            <summary>
-            Gets or sets the base URL.
-            </summary>
-            <value>
-            The base URL.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.VerboseErrors">
-            <summary>
-            Gets or sets a value indicating whether [verbose errors].
-            </summary>
-            <value>
-              <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Randomize">
-            <summary>
-            Gets or sets a value indicating whether this <see cref="T:LodeRunner.API.Data.Dtos.LoadTestConfigDto"/> is randomize.
-            </summary>
-            <value>
-              <c>true</c> if randomize; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Timeout">
-            <summary>
-            Gets or sets the timeout.
-            </summary>
-            <value>
-            The timeout.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Server">
-            <summary>
-            Gets or sets the server.
-            </summary>
-            <value>
-            The server.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Tag">
-            <summary>
-            Gets or sets the tag.
-            </summary>
-            <value>
-            The tag.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Sleep">
-            <summary>
-            Gets or sets the sleep.
-            </summary>
-            <value>
-            The sleep.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.RunLoop">
-            <summary>
-            Gets or sets a value indicating whether [run loop].
-            </summary>
-            <value>
-              <c>true</c> if [run loop]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.Duration">
-            <summary>
-            Gets or sets the duration.
-            </summary>
-            <value>
-            The duration.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.MaxErrors">
-            <summary>
-            Gets or sets the maximum errors.
-            </summary>
-            <value>
-            The maximum errors.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.DelayStart">
-            <summary>
-            Gets or sets the delay start.
-            </summary>
-            <value>
-            The delay start.
-            </value>
-        </member>
-        <member name="P:LodeRunner.API.Data.Dtos.LoadTestConfigDto.DryRun">
-            <summary>
-            Gets or sets a value indicating whether [dry run].
-            </summary>
-            <value>
-              <c>true</c> if [dry run]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="T:LodeRunner.API.Data.Dtos.Validators.ValidateListAttribute">
-            <summary>
-            Represents the Custom Attribute Validation for String List.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Data.Dtos.Validators.ValidateListAttribute.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
-            <summary>
-            Determines if the associated String List is valid.
-            </summary>
-            <param name="value">The value.</param>
-            <param name="validationContext">The validation context.</param>
-            <returns>Success if Associated String List passes validation, otherwise error.</returns>
         </member>
         <member name="T:LodeRunner.API.Models.Client">
             <summary>
@@ -1636,13 +1497,6 @@
             Gets clients from cache.
             </summary>
             <returns>Enumerable of clients.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.SetLoadTestConfig(LodeRunner.Core.Models.LoadTestConfig)">
-            <summary>
-            Sets the load test configuration.
-            </summary>
-            <param name="loadTestConfig">The load test configuration.</param>
-            <returns>Whether LoadTestConfig was successfully posted into Cosmos and Cache.</returns>
         </member>
         <member name="T:LodeRunner.API.Interfaces.ILRAPIChangeFeedService">
             <summary>

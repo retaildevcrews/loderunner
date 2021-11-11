@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LodeRunner.API.Data.Dtos;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Interfaces;
@@ -45,12 +44,5 @@ namespace LodeRunner.API.Interfaces
         /// </summary>
         /// <returns>Enumerable of clients.</returns>
         IEnumerable<Client> GetClients();
-
-        /// <summary>
-        /// Sets the load test configuration.
-        /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <returns>Whether LoadTestConfig was successfully posted into Cosmos and Cache.</returns>
-        Task<bool> SetLoadTestConfig(LoadTestConfig loadTestConfig);
     }
 }

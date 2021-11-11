@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using LodeRunner.API.Data.Dtos;
+using AutoMapper;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
+using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -23,45 +24,43 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update LoadTest Configurations")]
     public class LoadTestConfigController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
+        private readonly IMapper autoMapper;
+
+        public LoadTestConfigController(IMapper mapper)
         {
-            Name = typeof(LoadTestConfigController).FullName,
-            ErrorMessage = "LoadTestConfigControllerControllerException",
-            NotFoundError = "LoadTestConfigs Not Found",
-        };
+            autoMapper = mapper;
+        }
 
         /// <summary>
         /// Creates the load test configuration.
         /// </summary>
-        /// <param name="loadTestConfigDTO">The load test configuration dto.</param>
-        /// <param name="appCache">The application cache.</param>
+        /// <param name="loadTestConfigPayload">The load test configuration.</param>
+        /// <param name="loadTestConfigService">load Test Config Service.</param>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadTestConfig` was created.", typeof(LoadTestConfig))]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadTestConfig` was created.", typeof(LoadTestConfig), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Creates a new LoadTestConfig item",
             Description = "Requires Load Test Config payload",
             OperationId = "CreateLoadTestConfig")]
-        [Route("create")]
-        public IActionResult CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigDto loadTestConfigDTO, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public IActionResult CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfig loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
-            // NOTE: We use DTO approach to protect from mass assignment/over posting attacks.
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return ResultHandler.CreateCancellationInProgressResult();
             }
 
-            if (loadTestConfigDTO.Validate(out string errorMessage))
+            LoadTestConfig loadTestConfig = autoMapper.Map<LoadTestConfig>(loadTestConfigPayload);
+
+            if (loadTestConfig.Validate(out string errorMessage))
             {
-                var loadTestConfig = loadTestConfigDTO.DtoToModel();
+                var insertedLoadTestConfig = loadTestConfigService.Post(loadTestConfig, cancellationTokenSource.Token).Result;
 
-                var result = appCache.SetLoadTestConfig(loadTestConfig);
-
-                if (result.Result)
+                if (insertedLoadTestConfig != null)
                 {
-                    return appCache.HandleCacheResult(loadTestConfig, Logger);
+                    return ResultHandler.CreateResult(insertedLoadTestConfig, HttpStatusCode.OK);
                 }
                 else
                 {

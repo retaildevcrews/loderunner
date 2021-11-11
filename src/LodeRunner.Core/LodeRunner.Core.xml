@@ -1,0 +1,1211 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LodeRunner.Core</name>
+    </assembly>
+    <members>
+        <member name="T:LodeRunner.Core.AppConfigurationHelper">
+            <summary>
+            App Configuration helper class.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.GetLoadRunnerPort(System.Int32)">
+            <summary>
+            Gets the LoadRunner port.
+            </summary>
+            <param name="defaultPort">The default port.</param>
+            <returns>The port number for LodeRunner to run on.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.GetLoadRunnerApiPort(System.Int32)">
+            <summary>
+            Gets the LoadRunner API port.
+            </summary>
+            <param name="defaultPort">The default port.</param>
+            <returns>The port number for LodeRunner.API to run on.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.GetLoadRunnerUIPort(System.Int32)">
+            <summary>
+            Gets the load runner UI port.
+            </summary>
+            <param name="defaultPort">The default port.</param>
+            <returns>>The port number for LodeRunner.UI to run on.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.GetPort(System.Int32,System.String)">
+            <summary>
+            Gets the app port.
+            </summary>
+            <param name="defaultPort">The default port.</param>
+            <param name="appName">The name of the application as defined in the configuration json files.</param>
+            <returns>The port number for LodeRunner to run on.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.Cache.BaseAppCache">
+            <summary>
+            Represents the Base Cache class implementation.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseAppCache.#ctor(System.Threading.CancellationTokenSource)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Cache.BaseAppCache"/> class.
+            </summary>
+            <param name="cancellationTokenSource">The cancellation token source.</param>
+        </member>
+        <member name="P:LodeRunner.Core.Cache.BaseAppCache.CancellationTokenSource">
+            <summary>
+            Gets the cancellation token source.
+            </summary>
+            <value>
+            The cancellation token source.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseAppCache.GetEntries``1">
+            <summary>
+            Gets the entries.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <returns>
+            The Entries as Enumerable.
+            </returns>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseAppCache.GetEntry``1(System.Object)">
+            <summary>
+            Gets the entry.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <param name="key">The key.</param>
+            <returns>the cache entry.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseAppCache.SetEntry``1(System.Object,``0,Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions)">
+            <summary>
+            Sets the entry.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseAppCache.GetMemCache``1">
+            <summary>
+            Creates or Gets the typed cache.
+            </summary>
+            <typeparam name="TEntity">The cache entity type.</typeparam>
+            <returns>the typed cache.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.Cache.BaseMemoryCache">
+            <summary>
+            The Extensions Memory Base Class.
+            </summary>
+            <seealso cref="T:Microsoft.Extensions.Caching.Memory.MemoryCache" />
+        </member>
+        <member name="F:LodeRunner.Core.Cache.BaseMemoryCache.GetEntriesCollection">
+            <summary>
+            The get entries collection.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseMemoryCache.#ctor(Microsoft.Extensions.Caching.Memory.MemoryCacheOptions,LodeRunner.Core.Models.EntityType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Cache.BaseMemoryCache"/> class.
+            </summary>
+            <param name="memoryOption">The memory option.</param>
+            <param name="entityType">Type of the entity.</param>
+        </member>
+        <member name="P:LodeRunner.Core.Cache.BaseMemoryCache.CacheName">
+            <summary>
+            Gets the name of the cache.
+            </summary>
+            <value>
+            The name of the cache.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseMemoryCache.GetKeys">
+            <summary>
+            Gets the keys.
+            </summary>
+            <returns>Cache Keys Enumerable.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.Cache.BaseMemoryCache.GetKeys``1">
+            <summary>
+            Gets the keys.
+            </summary>
+            <typeparam name="T">Key Type.</typeparam>
+            <returns>Cache Keys Enumerable.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.CommandLine.LRCommandLine">
+            <summary>
+            Main application class.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.BuildRootCommand">
+            <summary>
+            Build the RootCommand for parsing.
+            </summary>
+            <returns>RootCommand.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.DoDryRun(LodeRunner.Core.Interfaces.ILRConfig)">
+            <summary>
+            handle --dry-run.
+            </summary>
+            <param name="config">The configuration.</param>
+            <returns>Success or Failure code.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.ValidateDependencies(System.CommandLine.Parsing.CommandResult)">
+            <summary>Validates combinations of parameters and dependencies.</summary>
+            <param name="result">The ComandResult object.</param>
+            <returns> empty string if no issues found.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.CommandLine.Parsers">
+            <summary>
+            Represents the Parsers implementation.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseString(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parses the string command line arg.
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseStringList(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parses the string list command line arg (--files).
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseBool(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parses the boolean command line arg.
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseIntGEZero(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parser for integer >= 0.
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseIntGTZero(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parser for integer > 0..
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseIntGENegOne(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Parser for integer >=-1.
+            </summary>
+            <param name="result">The result.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.ParseInt(System.CommandLine.Parsing.ArgumentResult,System.Int32)">
+            <summary>
+            Parser for Integer.
+            </summary>
+            <param name="result">The result.</param>
+            <param name="minValue">The minimum value.</param>
+            <returns>The Argument Value.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.Parsers.GetCommandDefaultValues(System.CommandLine.Parsing.ArgumentResult)">
+            <summary>
+            Gets default values for command line args.
+            </summary>
+            <param name="result">The result.</param>
+            <returns>the default value.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.Extensions.StringExtensions">
+            <summary>
+            Provides String Extension methods.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Extensions.StringExtensions.As``1(System.String,System.Nullable{``0},System.Boolean)">
+            <summary>
+            Get the Enum from string.
+            </summary>
+            <typeparam name="TEnum">The type of the enum.</typeparam>
+            <param name="value">The value.</param>
+            <param name="defaultValue">The default value.</param>
+            <param name="useDefaultIfCannotConvert"> determines id Default Value will be use id in-string cannot be converted to Enum value.</param>
+            <returns>The Enum type.</returns>
+            <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">
+            Cannot coerce {value} to {typeof(TEnum).Name}
+            or
+            Cannot coerce {value} to {typeof(TEnum).Name}.
+            </exception>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.IAppCache">
+            <summary>
+            Application Cache Interface.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Interfaces.IAppCache.GetEntries``1">
+            <summary>
+            Gets the entries.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <returns>The Entries as Enumerable.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.Interfaces.IAppCache.GetEntry``1(System.Object)">
+            <summary>
+            Gets the entry.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <param name="key">The key.</param>
+            <returns>the cache entry.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.Interfaces.IAppCache.SetEntry``1(System.Object,``0,Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions)">
+            <summary>
+            Sets the entry.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.IBaseEntityModel">
+            <summary>
+            Base LoadEntity Model Interface.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IBaseEntityModel.Id">
+            <summary>
+            Gets or sets the identifier.
+            </summary>
+            <value>
+            The identifier.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IBaseEntityModel.PartitionKey">
+            <summary>
+            Gets the partition key.
+            </summary>
+            <value>
+            The partition key.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IBaseEntityModel.EntityType">
+            <summary>
+            Gets  the type of the entity.
+            </summary>
+            <value>
+            The type of the entity.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IBaseEntityModel.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.ICommonConfig">
+            <summary>
+            Configurations for Logging.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICommonConfig.LogLevel">
+            <summary>
+            Gets the log level.
+            </summary>
+            <value>
+            The log level.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICommonConfig.RequestLogLevel">
+            <summary>
+            Gets the request log level.
+            </summary>
+            <value>
+            The request log level.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICommonConfig.IsLogLevelSet">
+            <summary>
+            Gets a value indicating whether this instance is log level set.
+            </summary>
+            <value>
+              <c>true</c> if this instance is log level set; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICommonConfig.UrlPrefix">
+            <summary>
+            Gets the URL prefix.
+            </summary>
+            <value>
+            The URL prefix.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICommonConfig.WebHostPort">
+            <summary>
+            Gets or sets the web host port.
+            </summary>
+            <value>
+            The web host port.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.ICosmosConfig">
+            <summary>
+            Configuration for Cosmos.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.SecretsVolume">
+            <summary>
+            Gets the secrets volume.
+            </summary>
+            <value>
+            The secrets volume.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.CosmosName">
+            <summary>
+            Gets the name of the cosmos.
+            </summary>
+            <value>
+            The name of the cosmos.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.Secrets">
+            <summary>
+            Gets the secrets.
+            </summary>
+            <value>
+            The secrets.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.Retries">
+            <summary>
+            Gets the retries.
+            </summary>
+            <value>
+            The retries.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.CosmosTimeout">
+            <summary>Gets the cosmos max retry wait time for cosmos requests in seconds.</summary>
+            <value>Time in seconds.</value>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.ILRConfig">
+            <summary>
+            The Config Interface.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Server">
+            <summary>
+            gets or sets the server / url.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Files">
+            <summary>
+            gets or sets the list of files to read.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Prometheus">
+            <summary>
+            Gets or sets a value indicating whether to the use Prometheus flag.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Zone">
+            <summary>
+            gets or sets the zone to log.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Region">
+            <summary>
+            gets or sets the region to log.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Tag">
+            <summary>
+            gets or sets the tag to log.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.RunLoop">
+            <summary>
+            Gets or sets a value indicating whether we should run in a loop.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Sleep">
+            <summary>
+            gets or sets the sleep time between requests in ms.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Duration">
+            <summary>
+            gets or sets the duration of the test in seconds.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Random">
+            <summary>
+            Gets or sets a value indicating whether we should use random tests vs. sequential.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Verbose">
+            <summary>
+            Gets or sets a value indicating whether logs should be verbose.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Timeout">
+            <summary>
+            gets or sets the request time out in seconds.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.MaxConcurrent">
+            <summary>
+            gets or sets the max concurrent requests.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.MaxErrors">
+            <summary>
+            gets or sets the max errors before the test exits with a non-zero response.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.DryRun">
+            <summary>
+            Gets or sets a value indicating whether we should do a dry run.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.BaseUrl">
+            <summary>
+            gets or sets the base url for test files.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.SummaryMinutes">
+            <summary>
+            gets or sets the summary generation time in minutes.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.VerboseErrors">
+            <summary>
+            Gets or sets a value indicating whether we should display verbose errors or just the count.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.DelayStart">
+            <summary>
+            gets or sets the seconds to delay before starting the test.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.StrictJson">
+            <summary>
+            gets or sets a value indicating whether we should use strict json parsing.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.WebHostPort">
+            <summary>
+            Gets or sets the WebHost Port.
+            </summary>
+            <value>
+            The port.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.ClientRefresh">
+            <summary>
+            gets or sets the seconds to refresh the http client.
+            </summary>
+            <value>
+            The client refresh.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.IModelValidator`1">
+            <summary>
+            Model Validator Interface.
+            </summary>
+            <typeparam name="TEntity">Entity.</typeparam>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IModelValidator`1.ErrorMessage">
+            <summary>
+            Gets the error message.
+            </summary>
+            <value>
+            The error message.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IModelValidator`1.IsValid">
+            <summary>
+            Gets a value indicating whether validation succeeded.
+            </summary>
+            <value>
+              <c>true</c> if this instance is valid; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.IModelValidator`1.ValidationResult">
+            <summary>
+            Gets the validation result.
+            </summary>
+            <value>
+            The validation result.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Interfaces.IModelValidator`1.ValidateEntity(`0)">
+            <summary>
+            Validates the entity.
+            </summary>
+            <param name="entity">The entity.</param>
+            <returns>True if valid, otherwise false.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.Interfaces.ISecrets">
+            <summary>
+            Represents the Secrets Interface.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ISecrets.Volume">
+            <summary>
+            Gets the volume.
+            </summary>
+            <value>
+            The volume.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ISecrets.CosmosServer">
+            <summary>
+            Gets the cosmos server.
+            </summary>
+            <value>
+            The cosmos server.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ISecrets.CosmosKey">
+            <summary>
+            Gets the cosmos key.
+            </summary>
+            <value>
+            The cosmos key.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ISecrets.CosmosDatabase">
+            <summary>
+            Gets the cosmos database.
+            </summary>
+            <value>
+            The cosmos database.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ISecrets.CosmosCollection">
+            <summary>
+            Gets the cosmos collection.
+            </summary>
+            <value>
+            The cosmos collection.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.BaseEntityModel">
+            <summary>
+              BaseEntityModel is base abstract class for all entities and model.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.BaseEntityModel.entityType">
+            <summary>
+            The entity type.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.BaseEntityModel.Id">
+            <summary>
+            Gets or sets the identifier.
+            </summary>
+            <value>
+            The identifier.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.BaseEntityModel.PartitionKey">
+            <summary>
+            Gets the partition key.
+            </summary>
+            <value>
+            The partition key.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.BaseEntityModel.EntityType">
+            <summary>
+            Gets the type of the entity.
+            </summary>
+            <value>
+            The type of the entity.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.BaseEntityModel.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.ClientStatus">
+            <summary>
+              ClientStatus is primarily for conveying the current status, time of that status, and the LoadClient settings to consuming apps.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.LastUpdated">
+            <summary>
+            Gets the last updated.
+            </summary>
+            <value>
+            The last updated.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.LastStatusChange">
+            <summary>
+            Gets the last status change date time.
+            </summary>
+            <value>
+            The duration of the status.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.Status">
+            <summary>
+            Gets or sets the status.
+            </summary>
+            <value>
+            The status.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.Message">
+            <summary>
+            Gets or sets the message.
+            </summary>
+            <value>
+            The message.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.LoadClient">
+            <summary>
+            Gets or sets the load client.
+            </summary>
+            <value>
+            The load client.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.ClientStatus.Ttl">
+            <summary>
+            Gets or sets the Time to live in seconds.
+            </summary>
+            <value>
+            The TTL.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.ClientStatusType">
+            <summary>
+            Client Status Types.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.ClientStatusType.Starting">
+            <summary>
+            Starting client status
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.ClientStatusType.Ready">
+            <summary>
+            Ready client status
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.ClientStatusType.Testing">
+            <summary>
+            Testing client status
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.ClientStatusType.Terminating">
+            <summary>
+            Terminating client status
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.EntityType">
+            <summary>
+            Entity Types.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.Client">
+            <summary>
+            Represents a front end compatible representation of ClientStatus
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.ClientStatus">
+            <summary>
+            ClientStatus entity type
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.LoadTestConfig">
+            <summary>
+            LoadTestConfig entity type
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.TestRun">
+            <summary>
+            TestRun entity type
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.LoadClient">
+            <summary>
+            The load client
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.Models.EntityType.Unassigned">
+            <summary>
+            Unassigned entity type
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.LoadClient">
+            <summary>
+            LoadClient Model.
+            </summary>
+            <seealso cref="T:LodeRunner.Core.Models.BaseEntityModel" />
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.Version">
+            <summary>
+            Gets or sets the version.
+            </summary>
+            <value>
+            The version.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.Region">
+            <summary>
+            Gets or sets the region.
+            </summary>
+            <value>
+            The region.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.Zone">
+            <summary>
+            Gets or sets the zone.
+            </summary>
+            <value>
+            The zone.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.Prometheus">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:LodeRunner.Core.Models.LoadClient"/> is prometheus.
+            </summary>
+            <value>
+              <c>true</c> if prometheus; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.StartupArgs">
+            <summary>
+            Gets or sets the startup arguments.
+            </summary>
+            <value>
+            The startup arguments.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadClient.StartTime">
+            <summary>
+            Gets or sets the start time.
+            </summary>
+            <value>
+            The start time.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadClient.GetNew(LodeRunner.Core.Interfaces.ILRConfig,System.DateTime)">
+            <summary>
+            Gets the new.
+            </summary>
+            <param name="config">The configuration.</param>
+            <param name="lastUpdated">The last updated date time.</param>
+            <returns>a new LoadClient entity.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.Models.LoadResult">
+            <summary>
+            LoadResult model.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.LoadTestConfig">
+            <summary>
+            LoadRestConfig Model.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Files">
+            <summary>
+            Gets or sets the files.
+            </summary>
+            <value>
+            The files.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.StrictJson">
+            <summary>
+            Gets or sets a value indicating whether [strict json].
+            </summary>
+            <value>
+              <c>true</c> if [strict json]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.BaseURL">
+            <summary>
+            Gets or sets the base URL.
+            </summary>
+            <value>
+            The base URL.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.VerboseErrors">
+            <summary>
+            Gets or sets a value indicating whether [verbose errors].
+            </summary>
+            <value>
+              <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Randomize">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:LodeRunner.Core.Models.LoadTestConfig"/> is randomize.
+            </summary>
+            <value>
+              <c>true</c> if randomize; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Timeout">
+            <summary>
+            Gets or sets the timeout.
+            </summary>
+            <value>
+            The timeout.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Server">
+            <summary>
+            Gets or sets the server.
+            </summary>
+            <value>
+            The server.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Tag">
+            <summary>
+            Gets or sets the tag.
+            </summary>
+            <value>
+            The tag.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Sleep">
+            <summary>
+            Gets or sets the sleep.
+            </summary>
+            <value>
+            The sleep.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.RunLoop">
+            <summary>
+            Gets or sets a value indicating whether [run loop].
+            </summary>
+            <value>
+              <c>true</c> if [run loop]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.Duration">
+            <summary>
+            Gets or sets the duration.
+            </summary>
+            <value>
+            The duration.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.MaxErrors">
+            <summary>
+            Gets or sets the maximum errors.
+            </summary>
+            <value>
+            The maximum errors.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.DelayStart">
+            <summary>
+            Gets or sets the delay start.
+            </summary>
+            <value>
+            The delay start.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfig.DryRun">
+            <summary>
+            Gets or sets a value indicating whether [dry run].
+            </summary>
+            <value>
+              <c>true</c> if [dry run]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.LoadTestConfigPayload">
+            <summary>
+            LoadRestConfig Payload.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.EntityType">
+            <summary>
+            Gets the type of the entity.
+            </summary>
+            <value>
+            The type of the entity.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.TestRun">
+            <summary>
+            TestRun Model.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.LoadTestConfig">
+            <summary>
+            Gets or sets the load test configuration.
+            </summary>
+            <value>
+            The load test configuration.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.LoadClients">
+            <summary>
+            Gets or sets the load clients.
+            </summary>
+            <value>
+            The load clients.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.CreatedTime">
+            <summary>
+            Gets or sets the created time.
+            </summary>
+            <value>
+            The created time.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.StartTime">
+            <summary>
+            Gets or sets the start time.
+            </summary>
+            <value>
+            The start time.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.CompletedTime">
+            <summary>
+            Gets or sets the completed time.
+            </summary>
+            <value>
+            The completed time.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRun.ClientResults">
+            <summary>
+            Gets or sets the client results.
+            </summary>
+            <value>
+            The client results.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.BaseEntityValidator`1">
+            <summary>
+             Represents the Base Entity Validator implementation.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+        </member>
+        <member name="P:LodeRunner.Core.Models.Validators.BaseEntityValidator`1.ErrorMessage">
+            <summary>
+            Gets the error message as string including the Entity Property-ErroeMessage.
+            </summary>
+            <value>
+            The error message.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.Validators.BaseEntityValidator`1.IsValid">
+            <summary>
+            Gets a value indicating whether validation succeeded.
+            </summary>
+            <value>
+              <c>true</c> if this instance is valid; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.Validators.BaseEntityValidator`1.ValidationResult">
+            <summary>
+            Gets the validation result.
+            </summary>
+            <value>
+            The validation result.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.BaseEntityValidator`1.ValidateEntity(`0)">
+            <summary>
+            Validates the entity.
+            </summary>
+            <param name="entity">The entity.</param>
+            <returns>
+            True if valid, otherwise false.
+            </returns>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.ClientStatusValidator">
+            <summary>
+            ClientStatusValidator.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.ClientStatusValidator.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.ClientStatusValidator"/> class.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.LoadClientValidator">
+            <summary>
+            LoadClientValidator.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.LoadClientValidator.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.LoadClientValidator"/> class.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.LoadTestConfigValidator">
+            <summary>
+            LoadTestConfigValidator.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.LoadTestConfigValidator.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.LoadTestConfigValidator"/> class.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.ValidateListAttribute">
+            <summary>
+            Represents the Custom Attribute Validation for String List.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.ValidateListAttribute.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
+            <summary>
+            Determines if the associated String List is valid.
+            </summary>
+            <param name="value">The value.</param>
+            <param name="validationContext">The validation context.</param>
+            <returns>Success if Associated String List passes validation, otherwise error.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.LoadTestConfigPayloadSchemaFilter">
+            <summary>
+            Defines the LoadTestConfig Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.LoadTestConfigPayloadSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
+        </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.LoadTestConfigSchemaFilter">
+            <summary>
+            Defines the LoadTestConfig Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.LoadTestConfigSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
+        </member>
+        <member name="T:LodeRunner.Core.SystemConstants">
+            <summary>
+            System Constants class for Data.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.ClientStatusExpirationTime">
+            <summary>
+            The client status expiration time.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.Unknown">
+            <summary>
+            The unknown constant used for Region or Zone.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.LodeRunnerPortSettingName">
+            <summary>
+            The lode runner port setting name.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.LodeRunnerAPIPortSettingName">
+            <summary>
+            The lode runner API port setting name.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.LodeRunnerUIPortSettingName">
+            <summary>
+            The lode runner UI port setting name.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.AspNetCoreEnviroment">
+            <summary>
+            The ASP net core environment.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.ProductionEnvironment">
+            <summary>
+            The AppSetting production environment name.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.DevelopmentEnvironment">
+            <summary>
+            The AppSetting development environment name.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationDurationAndLoopMessage">
+            <summary>
+            The command line validation duration and loop message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationRandomAndLoopMessage">
+            <summary>
+            The command line validation random and loop message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage">
+            <summary>
+            The command line validation delay start and empty secrets message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage">
+            <summary>
+            The command line validation secrets and invalid delay start message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsVolumeBeginningMessage">
+            <summary>
+            The command line validation secrets volume beginning message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsVolumeEndMessage">
+            <summary>
+            The command line validation secrets volume end message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.ExitSuccess">
+            <summary>
+            The exit success.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.ExitFail">
+            <summary>
+            The exit fail.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Version">
+            <summary>
+            Assembly Versioning.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Version.AssemblyVersion">
+            <summary>
+            Gets assembly version.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Version.ShortVersion">
+            <summary>
+            Gets assembly version.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Version.SetVersion">
+            <summary>
+            Gets assembly version.
+            </summary>
+        </member>
+    </members>
+</doc>
