@@ -8,7 +8,6 @@ help :
 	@echo "   make deploy           - deploy the apps to the cluster"
 	@echo "   make check            - curl endpoints cluster"
 	@echo "   make clean            - delete deployments"
-	@echo "   make lr-beta          - deploy all loderunner images from registry"
 	@echo "   make lr-local         - build and deploy all local loderunner images"
 	@echo "   make reset-prometheus - reset the Prometheus volume (existing data is deleted)"
 	@echo "   make reset-grafana    - reset the Grafana volume (existing data is deleted)"
@@ -109,30 +108,6 @@ clean :
 
 	# show running pods
 	@kubectl get po -A
-
-lr-beta:
-	# delete local LodeRunner, LodeRunner.API, and LodeRunner.UI
-	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
-	# delete LodeRunner, LodeRunner.API, and LodeRunner.UI with remote registry images
-	-kubectl delete -f deploy/loderunner --ignore-not-found=true
-	
-	# deploy remote registry images
-	-kubectl apply -f deploy/loderunner/namespace.yaml
-	-kubectl create secret generic lr-secrets --namespace=loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${LR_KEY} --from-literal=CosmosUrl=${LR_URL}
-	-kubectl apply -f deploy/loderunner/loderunner.yaml
-	-kubectl apply -f deploy/loderunner/loderunner-ui.yaml
-	-kubectl apply -f deploy/loderunner/loderunner-api.yaml
-
-	# wait for pod to be ready
-	@sleep 5
-	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
-
-	@kubectl get po -n loderunner
-
-	# display the current LodeRunner.API version
-	-http localhost:32088/version
-	# hit the LodeRunner.UI endpoint
-	-http -h localhost:32080
 
 lr-local:
 	# Delete LodeRunner.UI node_modules for docker context
