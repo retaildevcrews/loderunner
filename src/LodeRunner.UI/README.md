@@ -1,8 +1,8 @@
-# RelayRunner
+# LodeRunner.UI
 
-RelayRunner is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
+LodeRunner.UI is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
 
-## Client Application Scripts
+## UI Application Scripts
 
 In the project directory, you can run:
 
@@ -19,28 +19,19 @@ In the project directory, you can run:
 - `npm run eject` : Removes the single build dependency from project and copies all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them.
   - *Note: this is a one-way operation. Once you `eject`, you can’t go back!*
 
-## Running the Client Application Locally
+## Running the UI Application Locally
 
-1. Clone the Repo `git clone https://github.com/retaildevcrews/relayrunner.git`
-2. Change into the relayrunner directory `cd relayrunner`
+1. Clone the Repo `git clone https://github.com/retaildevcrews/loderunner.git`
+2. Change into the loderunner directory `cd loderunner`
 3. Start the k3d cluster `make create`
-4. Deploy a pod with relayrunner-backend `make rrapi`
-5. Change into the client directory `cd client`
+4. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
+5. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
 6. Install node dependencies `npm clean-install`
 7. Start the client `npm start`
 
 ## Testing the Client Application
 
 Run tests on Client components and functions using `npm test`
-
-## Serve the Client Application on NGINX
-
-```bash
-// Use k3d to create a cluster
-make create
-// Build the client in production mode and serve on a pod running nginx
-make rrui
-```
 
 ## Contributing
 

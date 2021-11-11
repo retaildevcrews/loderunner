@@ -23,9 +23,9 @@ This will...
 - Use k3d to start a new cluster
 - Create a local docker registry
 - Start with the ngsa-app in in-memory mode as the load test application
-- Start with loderunner as the load test client
-- Start with a local build of relayrunner backend to manage load test configs and activities
-- Start with a local build of relayrunner client to display load test configs and activites
+- Start with a local build of LodeRunner in client mode
+- Start with a local build of LodeRunner.API
+- Start with a local build of LodeRunner.UI
 - Start monitoring: prometheus, grafana (not configured yet)
 - Start fluentbit
 - Start a jumpbox
