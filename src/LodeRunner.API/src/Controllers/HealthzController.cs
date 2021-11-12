@@ -5,6 +5,8 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Models;
+using LodeRunner.Core.SchemaFilters;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -68,7 +70,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("ietf")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`IetfHealthCheck`", typeof(CosmosHealthCheck), "application/health+json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`IetfHealthCheck`", typeof(IetfHealthCheck), "application/health+json")]
         [SwaggerOperation(
             Summary = "Healthz Check (IETF)",
             Description = "Returns an `IetfHealthCheck` document from the Health Check",

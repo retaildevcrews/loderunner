@@ -744,6 +744,11 @@
             Unassigned entity type
             </summary>
         </member>
+        <member name="T:LodeRunner.Core.Models.IetfHealthCheck">
+            <summary>
+            Represents the IetfHealthCheck class required to provide a response example.
+            </summary>
+        </member>
         <member name="T:LodeRunner.Core.Models.LoadClient">
             <summary>
             LoadClient Model.
@@ -1075,6 +1080,19 @@
             <param name="value">The value.</param>
             <param name="validationContext">The validation context.</param>
             <returns>Success if Associated String List passes validation, otherwise error.</returns>
+        </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.IetfHealthCheckSchemaFilter">
+            <summary>
+            Defines the IetfHealthCheck Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.IetfHealthCheckSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
         </member>
         <member name="T:LodeRunner.Core.SchemaFilters.LoadTestConfigPayloadSchemaFilter">
             <summary>
