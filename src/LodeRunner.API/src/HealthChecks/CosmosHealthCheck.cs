@@ -108,8 +108,8 @@ namespace LodeRunner.API
                 HealthStatus status = HealthStatus.Healthy;
 
                 // Run each health check
-                await this.GetClientStatusesAsync().ConfigureAwait(false);
-                await this.GetClientStatusByClientStatusIdAsync("1").ConfigureAwait(false);
+                await this.GetClientStatusesAsync(data).ConfigureAwait(false);
+                await this.GetClientStatusByClientStatusIdAsync("1", data).ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (object d in data.Values)
