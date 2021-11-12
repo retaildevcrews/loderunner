@@ -41,7 +41,7 @@ const Clients = ({
         <option value="5000">5 seconds</option>
         <option value="15000">15 seconds</option>
         <option value="30000">30 seconds</option>
-        <option value="60000">1 minutes</option>
+        <option value="60000">1 minute</option>
       </select>
       <div>
         {clients.map((c, index) => {
