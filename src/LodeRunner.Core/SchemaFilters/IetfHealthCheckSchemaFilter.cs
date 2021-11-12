@@ -27,30 +27,29 @@ namespace LodeRunner.Core.SchemaFilters
                 ["description"] = new OpenApiString("LoadRunner.API Health Check"),
                 ["instance"] = new OpenApiString("0"),
                 ["version"] = new OpenApiString("1.0.0502.0026"),
-
-                ["checks"] = new OpenApiArray
-                            {
-                                 new OpenApiObject
-                                {
-                                    ["status"] = new OpenApiString("pass"),
-                                    ["componentId"] = new OpenApiString("getClientByClientStatusId"),
-                                    ["componentType"] = new OpenApiString("datastore"),
-                                    ["observedUnit"] = new OpenApiString("ms"),
-                                    ["observedValue"] = new OpenApiString("1.4"),
-                                    ["targetValue"] = new OpenApiString("400"),
-                                    ["time"] = new OpenApiString("2021-05-02T10:25:11Z"),
-                                },
-                                 new OpenApiObject
-                                {
-                                    ["status"] = new OpenApiString("pass"),
-                                    ["componentId"] = new OpenApiString("searchClient"),
-                                    ["componentType"] = new OpenApiString("datastore"),
-                                    ["observedUnit"] = new OpenApiString("ms"),
-                                    ["observedValue"] = new OpenApiString("38.11"),
-                                    ["targetValue"] = new OpenApiString("400"),
-                                    ["time"] = new OpenApiString("2021-05-02T10:25:11Z"),
-                                },
-                            },
+                ["checks"] = new OpenApiObject
+                {
+                    ["getClientByClientStatusId:responseTime"] = new OpenApiObject
+                    {
+                        ["status"] = new OpenApiString("pass"),
+                        ["componentId"] = new OpenApiString("getClientByClientStatusId"),
+                        ["componentType"] = new OpenApiString("datastore"),
+                        ["observedUnit"] = new OpenApiString("ms"),
+                        ["observedValue"] = new OpenApiDouble(1.4),
+                        ["targetValue"] = new OpenApiInteger(400),
+                        ["time"] = new OpenApiString("2021-05-02T10:25:11Z"),
+                    },
+                    ["searchClient:responseTime"] = new OpenApiObject
+                    {
+                        ["status"] = new OpenApiString("pass"),
+                        ["componentId"] = new OpenApiString("searchClient"),
+                        ["componentType"] = new OpenApiString("datastore"),
+                        ["observedUnit"] = new OpenApiString("ms"),
+                        ["observedValue"] = new OpenApiDouble(38.11),
+                        ["targetValue"] = new OpenApiInteger(400),
+                        ["time"] = new OpenApiString("2021-05-02T10:25:11Z"),
+                    },
+                },
             };
         }
     }
