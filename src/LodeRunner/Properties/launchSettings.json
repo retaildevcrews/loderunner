@@ -2,7 +2,6 @@
   "profiles": {
     "LodeRunner - Development": {
       "commandName": "Project",
-      "commandLineArgs": "-s https://worka.aks-sb.com -f memory-baseline.json memory-benchmark.json --delay-start -1 --secrets-volume secrets",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
