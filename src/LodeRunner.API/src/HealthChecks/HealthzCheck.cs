@@ -15,7 +15,9 @@ namespace LodeRunner.API.Models
         /// <summary>
         /// Health chec timeout message.
         /// </summary>
-        public const string TimeoutMessage = "Request exceeded expected duration";
+        public const string TimeoutMessage = "Request exceeded the configured CosmosDB timeout";
+
+        public const string ExceededExpectedDurationMessage = "Request exceeded expected duration";
 
         /// <summary>
         /// Gets or sets health check status.

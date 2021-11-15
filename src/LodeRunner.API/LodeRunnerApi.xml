@@ -51,28 +51,31 @@
             <param name="logger">logger.</param>
             <param name="hcLogger">HealthCheck logger.</param>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunHealthzAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunHealthzAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
             <summary>
             Returns a plain text health status (pass, warn or fail).
             </summary>
             <param name="clientStatusService">The client status service.</param>
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
+            <param name="config">App Configuration.</param>
             <returns>The IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunIetfAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunIetfAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
             <summary>
             Returns an IETF (draft) health+json representation of the full Health Check.
             </summary>
             <param name="clientStatusService">The client status service.</param>
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
+            <param name="config">App Configuration.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunCosmosHealthCheck(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunCosmosHealthCheck(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.Core.Interfaces.ICosmosConfig)">
             <summary>
             Run the health check.
             </summary>
             <param name="clientStatusService">The client status service.</param>
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
+            <param name="cosmosConfig">App Cosmos Configuration.</param>
             <returns>HealthCheckResult.</returns>
         </member>
         <member name="T:LodeRunner.API.Controllers.LoadTestConfigController">
@@ -1388,12 +1391,13 @@
             The web site role env variable.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.CosmosHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{LodeRunner.API.CosmosHealthCheck},LodeRunner.Data.Interfaces.IClientStatusService)">
+        <member name="M:LodeRunner.API.CosmosHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{LodeRunner.API.CosmosHealthCheck},LodeRunner.Data.Interfaces.IClientStatusService,LodeRunner.Core.Interfaces.ICosmosConfig)">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.API.CosmosHealthCheck"/> class.
             </summary>
             <param name="logger">ILogger.</param>
             <param name="clientStatusService">the clientStatusService.</param>
+            <param name="cosmosConfig">App CosmosConfig Interface.</param>
         </member>
         <member name="M:LodeRunner.API.CosmosHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
             <summary>
