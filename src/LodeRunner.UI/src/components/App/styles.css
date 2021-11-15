@@ -1,0 +1,10 @@
+button {
+    cursor: pointer;
+}
+.app {
+    height: 100vh;
+}
+.app-staticposition {
+    display: flex;
+    height: 100%;
+}

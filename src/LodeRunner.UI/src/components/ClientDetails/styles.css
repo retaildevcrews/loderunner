@@ -1,0 +1,36 @@
+.clientdetails {
+  flex: auto;
+  padding: 6px 2em;
+  font-weight: bold;
+  overflow: auto;
+}
+.clientdetails-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+.clientdetails-header h1 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+.clientdetails-header svg:hover {
+  cursor: pointer;
+}
+.clientdetails-header-exit {
+  border: none;
+  border-radius: 4px;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+}
+.clientdetails-header-exit:hover {
+  background-color: #24b2b9;
+  color: white;
+}
+.clientdetails-sectiontitle {
+  margin-bottom: 0.2em;
+}
+.clientdetails-key {
+  color: #2c7f84;
+}

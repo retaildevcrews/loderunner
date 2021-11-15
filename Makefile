@@ -1,4 +1,4 @@
-.PHONY: help all create delete deploy check clean lr-beta lr-local reset-prometheus reset-grafana jumpbox
+.PHONY: help all create delete deploy check clean lr-local reset-prometheus reset-grafana jumpbox
 
 help :
 	@echo "Usage:"
