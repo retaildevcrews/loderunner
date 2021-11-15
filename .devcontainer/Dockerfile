@@ -1,6 +1,6 @@
 # this image is built and updated weekly
 # https://github.com/retaildevcrews/codespaces-images
-FROM ghcr.io/retaildevcrews/k3d:latest
+FROM ghcr.io/cse-labs/k3d:latest
 
 # some images require specific values
 ARG USERNAME=vscode

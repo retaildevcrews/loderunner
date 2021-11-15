@@ -120,7 +120,8 @@ namespace LodeRunner.API
                 int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
                 app.UseCors(builder =>
                 {
-                    builder.WithOrigins($"http://localhost:{portNumber}")
+                    builder.WithOrigins($"http://localhost:{portNumber}", "https://*.githubpreview.dev")
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
