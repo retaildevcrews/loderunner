@@ -83,12 +83,7 @@ jobs:
         echo "Waiting for LodeRunner to start on Client mode..."
 
         wait_time=5
-
-        echo "I will be wating 5 secs"
-
         sleep $wait_time
-
-        echo "OK I waited 5 secs"
 
         while true
         do
