@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LodeRunner.Core.CommandLine;
 using LodeRunner.Test.Common;
 using Xunit;
 
@@ -34,7 +35,7 @@ namespace LodeRunner.Test.UnitTests
             {
                 var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
 
-                RootCommand root = App.BuildRootCommand();
+                RootCommand root = LRCommandLine.BuildRootCommand();
 
                 Assert.True(root.Parse(validArgs).Errors.Count == 0, "All arguments supplied.");
             }
@@ -52,16 +53,16 @@ namespace LodeRunner.Test.UnitTests
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "secrets-volume is not supplied")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "delay-start is not supplied")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" }, SystemConstants.CmdLineValidationSecretsVolumeEndMessage, "secrets folder does not exist")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, Core.SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage, "secrets-volume is not supplied")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "secrets" }, Core.SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage, "delay-start is not supplied")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" }, Core.SystemConstants.CmdLineValidationSecretsVolumeEndMessage, "secrets folder does not exist")]
         public void AwaitMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             using var secretsHelper = new SecretsHelper();
 
             SecretsHelper.DeleteSecrets();
 
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
 
@@ -79,7 +80,7 @@ namespace LodeRunner.Test.UnitTests
         [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true", "--run-loop", "true" }, "Validation for --random")]
         public void TraditionalMode_ValidateDependencies_Success(string[] args, string messageifFailed)
         {
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
 
@@ -94,11 +95,11 @@ namespace LodeRunner.Test.UnitTests
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1" }, SystemConstants.CmdLineValidationDurationAndLoopMessage, "Validation for --duration.")]
-        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1" }, Core.SystemConstants.CmdLineValidationDurationAndLoopMessage, "Validation for --duration.")]
+        [InlineData(new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, Core.SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
         public void TraditionalMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
 
@@ -119,7 +120,7 @@ namespace LodeRunner.Test.UnitTests
         public void TraditionalMode_ValidateDependencies_With_Invalid_Data_And_GetValueOrDefault(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             // Note: we do not need to test for "--run-loop" and "--random" since they are both boolean type and default to "true", so exception is never thrown.
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             try
             {
@@ -164,7 +165,7 @@ namespace LodeRunner.Test.UnitTests
         public void TraditionalMode_Success(string[] args, string messageifFailed)
         {
             // Note: "--random", "--duration", "--secrets-volume" and "--delay-start" are tested on different Unit Tests.
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
 
@@ -200,7 +201,7 @@ namespace LodeRunner.Test.UnitTests
         public void TraditionalMode_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             // Note: "--random", "--duration", "--secrets-volume" and "--delay-start" are tested on different  Unit Tests.
-            RootCommand root = App.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
 
             var errors = root.Parse(args).Errors;
             Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);

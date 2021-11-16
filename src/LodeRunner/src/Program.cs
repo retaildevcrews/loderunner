@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
+using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -59,7 +60,7 @@ namespace LodeRunner
             }
 
             // build the System.CommandLine.RootCommand
-            RootCommand root = BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommand();
             root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
 
             // run the command handler
@@ -76,7 +77,7 @@ namespace LodeRunner
             if (config == null)
             {
                 Console.WriteLine("CommandOptions is null");
-                return SystemConstants.ExitFail;
+                return Core.SystemConstants.ExitFail;
             }
 
             using var l8rService = new LodeRunnerService(config, cancelTokenSource);

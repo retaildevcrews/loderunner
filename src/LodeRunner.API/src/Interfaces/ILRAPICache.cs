@@ -2,9 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 

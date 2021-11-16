@@ -117,5 +117,13 @@ namespace LodeRunner.Core.Interfaces
         /// The port.
         /// </value>
         int WebHostPort { get; set; }
+
+        /// <summary>
+        /// gets or sets the seconds to refresh the http client.
+        /// </summary>
+        /// <value>
+        /// The client refresh.
+        /// </value>
+        int ClientRefresh { get; set; }
     }
 }

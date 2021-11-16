@@ -2,10 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
+using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Data;
@@ -89,16 +89,16 @@ namespace LodeRunner.Services
                 if (!tce.Task.IsCompleted)
                 {
                     Console.WriteLine($"Exception: {tce}");
-                    return SystemConstants.ExitFail;
+                    return Core.SystemConstants.ExitFail;
                 }
 
                 // task is completed
-                return SystemConstants.ExitSuccess;
+                return Core.SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"\nException:{ex.Message}");
-                return SystemConstants.ExitFail;
+                return Core.SystemConstants.ExitFail;
             }
         }
 
@@ -217,7 +217,7 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private Task<int> StartDryRun()
         {
-            return Task.Run(() => App.DoDryRun(config));
+            return Task.Run(() => LRCommandLine.DoDryRun(config));
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace LodeRunner.Services
                 ProcessingEventBus.Dispose();
             }
 
-            return SystemConstants.ExitSuccess;
+            return Core.SystemConstants.ExitSuccess;
         }
 
         /// <summary>

@@ -18,6 +18,11 @@ namespace LodeRunner.API
         private const int MaxResponseTime = 200;
         private readonly Stopwatch stopwatch = new ();
 
+        private int CosmosTimeoutMs
+        {
+            get { return this.cosmosConfig.CosmosTimeout * 1000; }
+        }
+
         /// <summary>
         /// Build the response.
         /// </summary>
@@ -43,10 +48,15 @@ namespace LodeRunner.API
             };
 
             // check duration
-            if (result.Duration.TotalMilliseconds > targetDurationMs)
+            if (result.Duration.TotalMilliseconds >= CosmosTimeoutMs)
+            {
+                result.Status = HealthStatus.Unhealthy;
+                result.Message = $"{HealthzCheck.TimeoutMessage} of {CosmosTimeoutMs} milliseconds";
+            }
+            else if (result.Duration.TotalMilliseconds > targetDurationMs)
             {
                 result.Status = HealthStatus.Degraded;
-                result.Message = HealthzCheck.TimeoutMessage;
+                result.Message = HealthzCheck.ExceededExpectedDurationMessage;
             }
 
             // add the exception

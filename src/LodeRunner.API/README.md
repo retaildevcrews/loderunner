@@ -35,7 +35,24 @@ http localhost:8081/api/version
  
 # test using curl
 curl localhost:8081/api/version
- 
+
+# testing Health Check -  IetfHealthCheck
+ curl --request GET http://localhost:8081/Healthz/ietf 
+
+      # Overall Response Status
+            # The least successful status from Checks performed.
+
+      # Check Response time
+            # targetValue: The expected duration time (e.g 200ms)
+            # observedValue: The actual duration time (ms)
+            # CosmosTimeout: The configured CosmosDB timeout value (default 60 seconds)
+
+      # Check Status 
+            # Pass, if observedValue is less or equal to targetValue
+            # Warn, if observedValue is greater than targetValue and less than CosmosTimeout
+            # Fail, if observedValue is greater than CosmosTimeout
+      
+
 ```
 
 Stop API application by typing Ctrl-C or the stop button if run via F5

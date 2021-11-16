@@ -5,12 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using LodeRunner.API.Data;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
-using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
 {
@@ -19,6 +18,7 @@ namespace LodeRunner.API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [SwaggerTag("Read Clients")]
     public class ClientsController : Controller
     {
         private static readonly NgsaLog Logger = new ()
@@ -42,6 +42,12 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `Client` documents or empty array if not found.", typeof(Client[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerOperation(
+            Summary = "Gets a JSON array of Client objects",
+            Description = "Returns an array of `Client` documents",
+            OperationId = "GetClients")]
         public IActionResult GetClients([FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
@@ -62,6 +68,13 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Single `Client` document by clientStatusId.", typeof(Client), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Middleware.Validation.ValidationError), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerOperation(
+            Summary = "Gets a single JSON Client by Parameter, clientStatusId.",
+            Description = "Returns a single `Client` document by clientStatusId",
+            OperationId = "GetClientByClientStatusId")]
         public IActionResult GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
@@ -69,23 +82,18 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateCancellationInProgressResult();
             }
 
-            if (string.IsNullOrWhiteSpace(clientStatusId))
+            List<Middleware.Validation.ValidationError> errorlist = ClientParameters.ValidateClientStatusId(clientStatusId);
+
+            if (errorlist.Count > 0)
             {
-                return ResultHandler.CreateResult("clientStatusId cannot be empty.", HttpStatusCode.BadRequest);
-            }
+                Logger.LogWarning(nameof(this.GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
 
-            List<Middleware.Validation.ValidationError> list = ClientParameters.ValidateClientStatusId(clientStatusId);
-
-            if (list.Count > 0)
-            {
-                Logger.LogWarning(nameof(this.GetClientByClientStatusId), "Invalid Client Status Id", NgsaLog.LogEvent400, this.HttpContext);
-
-                return ResultHandler.CreateResult(list, RequestLogger.GetPathAndQuerystring(this.Request));
+                return ResultHandler.CreateResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             Client client = appCache.GetClientByClientStatusId(clientStatusId);
 
             return appCache.HandleCacheResult(client, Logger);
         }
-     }
+    }
  }

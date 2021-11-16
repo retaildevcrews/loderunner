@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -51,17 +52,20 @@ namespace LodeRunner.API
 
         private readonly ILogger logger;
         private readonly IClientStatusService clientStatusService;
+        private readonly ICosmosConfig cosmosConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosHealthCheck"/> class.
         /// </summary>
         /// <param name="logger">ILogger.</param>
         /// <param name="clientStatusService">the clientStatusService.</param>
-        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService)
+        /// <param name="cosmosConfig">App CosmosConfig Interface.</param>
+        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService, ICosmosConfig cosmosConfig)
         {
             // save to member vars
             this.logger = logger;
             this.clientStatusService = clientStatusService;
+            this.cosmosConfig = cosmosConfig;
 
             // setup serialization options
             if (jsonOptions == null)
@@ -108,8 +112,8 @@ namespace LodeRunner.API
                 HealthStatus status = HealthStatus.Healthy;
 
                 // Run each health check
-                await this.GetClientStatusesAsync().ConfigureAwait(false);
-                await this.GetClientStatusByClientStatusIdAsync("0").ConfigureAwait(false);
+                await this.GetClientStatusesAsync(data).ConfigureAwait(false);
+                await this.GetClientStatusByClientStatusIdAsync("1", data).ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (object d in data.Values)

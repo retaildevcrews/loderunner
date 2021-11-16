@@ -105,7 +105,7 @@ namespace LodeRunner.API
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                logger.LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
+                logger.LogInformation($"LodeRunner.API Backend Started", LodeRunner.API.Middleware.VersionExtension.Version);
 
                 // Preps the system.
                 InitializeSystemComponents();

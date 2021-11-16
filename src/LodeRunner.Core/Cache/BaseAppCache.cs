@@ -16,7 +16,6 @@ namespace LodeRunner.Core.Cache
     /// <summary>
     /// Represents the Base Cache class implementation.
     /// </summary>
-    /// <seealso cref="LodeRunner.Data.Interfaces.IAppCache" />
     public abstract class BaseAppCache : IAppCache
     {
         private readonly ConcurrentDictionary<string, BaseMemoryCache> cacheDictionary;

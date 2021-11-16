@@ -6,11 +6,18 @@ using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 
-namespace Ngsa.Middleware.CommandLine
+namespace LodeRunner.Core.CommandLine
 {
+    /// <summary>
+    /// Represents the Parsers implementation.
+    /// </summary>
     public static class Parsers
     {
-        // parse string command line arg
+        /// <summary>
+        /// Parses the string command line arg.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static string ParseString(ArgumentResult result)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
@@ -67,7 +74,11 @@ namespace Ngsa.Middleware.CommandLine
             return val;
         }
 
-        // parse List<string> command line arg (--files)
+        /// <summary>
+        /// Parses the string list command line arg (--files).
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static List<string> ParseStringList(ArgumentResult result)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
@@ -107,7 +118,11 @@ namespace Ngsa.Middleware.CommandLine
             return val;
         }
 
-        // parse boolean command line arg
+        /// <summary>
+        /// Parses the boolean command line arg.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static bool ParseBool(ArgumentResult result)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
@@ -172,25 +187,42 @@ namespace Ngsa.Middleware.CommandLine
             return val;
         }
 
-        // parser for integer >= 0
+        /// <summary>
+        /// Parser for integer >= 0.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static int ParseIntGEZero(ArgumentResult result)
         {
             return ParseInt(result, 0);
         }
 
-        // parser for integer > 0
+        /// <summary>
+        /// Parser for integer > 0..
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static int ParseIntGTZero(ArgumentResult result)
         {
             return ParseInt(result, 1);
         }
 
-        // parser for integer >=-1
+        /// <summary>
+        /// Parser for integer >=-1.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>The Argument Value.</returns>
         public static int ParseIntGENegOne(ArgumentResult result)
         {
             return ParseInt(result, -1);
         }
 
-        // parser for integer
+        /// <summary>
+        /// Parser for Integer.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="minValue">The minimum value.</param>
+        /// <returns>The Argument Value.</returns>
         public static int ParseInt(ArgumentResult result, int minValue)
         {
             string name = result.Parent?.Symbol.Name.ToUpperInvariant().Replace('-', '_');
@@ -234,7 +266,11 @@ namespace Ngsa.Middleware.CommandLine
             return val;
         }
 
-        // get default values for command line args
+        /// <summary>
+        /// Gets default values for command line args.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>the default value.</returns>
         public static int GetCommandDefaultValues(ArgumentResult result)
         {
             switch (result.Parent.Symbol.Name)

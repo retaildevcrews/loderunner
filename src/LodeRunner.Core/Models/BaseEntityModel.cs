@@ -12,7 +12,11 @@ namespace LodeRunner.Core.Models
     /// </summary>
     public abstract class BaseEntityModel : IBaseEntityModel
     {
-        private EntityType entityType = EntityType.Unassigned;
+        /// <summary>
+        /// The entity type.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "This field is utilized by derived implementation.")]
+        protected EntityType entityType = EntityType.Unassigned;
 
         /// <summary>
         /// Gets or sets the identifier.
