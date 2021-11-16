@@ -80,5 +80,11 @@
     <ProjectReference Include="..\LodeRunner.Data\LodeRunner.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="LodeRunnerApi.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>
