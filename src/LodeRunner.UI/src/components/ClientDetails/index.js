@@ -1,15 +1,21 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
 import Pencil from "../Pencil";
-import { ClientContext, PendingFeatureContext } from "../../contexts";
+import { ClientsContext, DisplayContext } from "../../contexts";
 import { CLIENT } from "../../models";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
-const ClientDetails = (props) => {
-  const { clientDetailsIndex, closeModal } = props;
-  const { clients } = useContext(ClientContext);
-  const { setIsPendingFeatureOpen } = useContext(PendingFeatureContext);
+const ClientDetails = () => {
+  const { clients, setOpenedClientDetailsIndex, openedClientDetailsIndex } =
+    useContext(ClientsContext);
+  const { setMainContent, setModalContent } = useContext(DisplayContext);
+
+  const openPendingFeatureModal = () => setModalContent("pendingFeature");
+
+  const closeClientDetails = () => {
+    setMainContent("configs");
+    setOpenedClientDetailsIndex(-1);
+  };
 
   const {
     [CLIENT.clientStatusId]: statusId,
@@ -25,7 +31,7 @@ const ClientDetails = (props) => {
     [CLIENT.status]: status,
     [CLIENT.version]: version,
     [CLIENT.zone]: zone,
-  } = clients[clientDetailsIndex];
+  } = clients[openedClientDetailsIndex];
 
   return (
     <div className="clientdetails">
@@ -37,8 +43,8 @@ const ClientDetails = (props) => {
             <button
               className="unset"
               type="button"
-              onClick={() => setIsPendingFeatureOpen(true)}
-              onKeyDown={() => setIsPendingFeatureOpen(true)}
+              onClick={openPendingFeatureModal}
+              onKeyDown={openPendingFeatureModal}
             >
               <Pencil fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
             </button>
@@ -51,8 +57,8 @@ const ClientDetails = (props) => {
         <button
           className="clientdetails-header-exit"
           type="button"
-          onClick={closeModal}
-          onKeyDown={closeModal}
+          onClick={closeClientDetails}
+          onKeyDown={closeClientDetails}
         >
           x
         </button>
@@ -103,11 +109,6 @@ const ClientDetails = (props) => {
       </div>
     </div>
   );
-};
-
-ClientDetails.propTypes = {
-  clientDetailsIndex: PropTypes.number.isRequired,
-  closeModal: PropTypes.func.isRequired,
 };
 
 export default ClientDetails;

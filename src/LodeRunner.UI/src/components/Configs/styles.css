@@ -1,0 +1,42 @@
+.configs {
+  flex: auto;
+  padding: 6px 2em;
+  font-weight: bold;
+  overflow: auto;
+}
+.configs-header h1 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+.configs-header svg:hover {
+  cursor: pointer;
+}
+.configs-key {
+  color: #24b2b9;
+}
+.configs-item:hover .configs-key {
+  color: #156064;
+}
+.configs-item {
+  margin: 6px 0;
+  border: none;
+  border-radius: 4px;
+  padding: 1em;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+  text-align: left;
+  display: block;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.configs-item:hover {
+  background-color: #24b2b9;
+  color: whitesmoke;
+}
+.configs-item-options {
+  display: flex;
+  align-items: center;
+}

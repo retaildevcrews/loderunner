@@ -1,18 +1,15 @@
 import { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import CheckMark from "../CheckMark";
-import { ClientContext } from "../../contexts";
+import { ClientsContext, DisplayContext } from "../../contexts";
 import { CLIENT, CLIENT_STATUSES } from "../../models";
 import "./styles.css";
 
-const Clients = ({
-  setFetchClientsInterval,
-  openClientDetails,
-  openedClientDetailsIndex,
-  closeClientDetails,
-}) => {
-  const { clients } = useContext(ClientContext);
+const Clients = ({ setFetchClientsInterval }) => {
   const [selectedClients, setSelectedClients] = useState({});
+  const { clients, setOpenedClientDetailsIndex, openedClientDetailsIndex } =
+    useContext(ClientsContext);
+  const { setMainContent } = useContext(DisplayContext);
 
   function toggleClient(loadClientId) {
     setSelectedClients({
@@ -23,9 +20,11 @@ const Clients = ({
 
   const toggleClientDetails = (index) => {
     if (index === openedClientDetailsIndex) {
-      closeClientDetails();
+      setMainContent("configs");
+      setOpenedClientDetailsIndex(-1);
     } else {
-      openClientDetails(index);
+      setMainContent("clientDetails");
+      setOpenedClientDetailsIndex(index);
     }
   };
 
@@ -85,9 +84,6 @@ const Clients = ({
 
 Clients.propTypes = {
   setFetchClientsInterval: PropTypes.func.isRequired,
-  openClientDetails: PropTypes.func.isRequired,
-  openedClientDetailsIndex: PropTypes.number.isRequired,
-  closeClientDetails: PropTypes.func.isRequired,
 };
 
 export default Clients;
