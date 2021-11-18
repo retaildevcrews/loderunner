@@ -41,7 +41,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
             }
             catch (Exception ex)
             {
-                this.logger.LogError("Global Exception", $"{ex.Message}", ex: ex);
+                await this.logger.LogError("Global Exception", $"{ex.Message}", ex: ex);
                 await this.HandleExceptionAsync(httpContext, ex);
             }
         }
@@ -63,7 +63,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
 
                 errorMessage = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}";
 
-                this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
+                await this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
 
                 errorMessage = $"{HttpStatusCode.InternalServerError} - {exception.Message}";
 
-                this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
+                await this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
             }
 
             await context.Response.WriteAsync(errorMessage);

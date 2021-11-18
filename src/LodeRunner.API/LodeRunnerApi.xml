@@ -344,6 +344,7 @@
             <param name="message">message to log.</param>
             <param name="context">http context.</param>
             <param name="dictionary">optional dictionary.</param>
+            <returns>The Task.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.NgsaLog.LogWarning(System.String,System.String,LodeRunner.API.Middleware.LogEventId,Microsoft.AspNetCore.Http.HttpContext,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
@@ -354,6 +355,7 @@
             <param name="eventId">Event ID.</param>
             <param name="context">http context.</param>
             <param name="dictionary">optional dictionary.</param>
+            <returns>The Task.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.NgsaLog.LogError(System.String,System.String,LodeRunner.API.Middleware.LogEventId,Microsoft.AspNetCore.Http.HttpContext,System.Exception,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
@@ -365,6 +367,7 @@
             <param name="context">http context.</param>
             <param name="ex">exception.</param>
             <param name="dictionary">optional dictionary.</param>
+            <returns>The Task.</returns>
         </member>
         <member name="T:LodeRunner.API.Middleware.TimeSpanConverter">
              <summary>
@@ -573,8 +576,8 @@
             <summary>
             ContentResult factory.
             </summary>
-            <param name="message">string.</param>
-            <param name="statusCode">int.</param>
+            <param name="message">The Message.</param>
+            <param name="statusCode">The Message StatusCode.</param>
             <returns>JsonResult.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult``1(``0,System.Net.HttpStatusCode)">
@@ -1055,27 +1058,28 @@
             <param name="logger">Logger.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(``0,LodeRunner.API.Middleware.NgsaLog)">
-            <inheritdoc/>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String)">
+        <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String,LodeRunner.API.Middleware.NgsaLog)">
             <summary>
             Gets client from cache by clientStatusId.
             </summary>
             <param name="clientStatusId">Client status ID.</param>
+            <param name="logger">The logger.</param>
             <returns>Client.</returns>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClients">
+        <member name="M:LodeRunner.API.Data.LRAPICache.GetClients(LodeRunner.API.Middleware.NgsaLog)">
             <summary>
-            Get clients from cache.
+            Gets clients from cache.
             </summary>
-            <returns>clients.</returns>
+            <param name="logger">The logger.</param>
+            <returns>
+            Enumerable of clients.
+            </returns>
         </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.ProcessClientStatusChange(Microsoft.Azure.Documents.Document)">
             <summary>
-            Processes clientStatus changefeed items.
+            Processes clientStatus change feed items.
             </summary>
-            <param name="doc">Changefeed item.</param>
+            <param name="doc">Change feed item.</param>
         </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.InternalReturnOKResult(System.Object)">
             <summary>
@@ -1480,13 +1484,6 @@
             </summary>
             <param name="doc">Changefeed item.</param>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClientByClientStatusId(System.String)">
-            <summary>
-            Gets client by clientStatusId from cache.
-            </summary>
-            <param name="clientStatusId">Client status ID.</param>
-            <returns>Client.</returns>
-        </member>
         <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(``0,LodeRunner.API.Middleware.NgsaLog)">
             <summary>
             Handles cache results.
@@ -1496,11 +1493,29 @@
             <param name="logger">Logger.</param>
             <returns>Action result.</returns>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClients">
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0},LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Handles the cache result.
+            </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
+            <param name="results">The results.</param>
+            <param name="logger">The logger.</param>
+            <returns>Action result.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClients(LodeRunner.API.Middleware.NgsaLog)">
             <summary>
             Gets clients from cache.
             </summary>
+            <param name="logger">The logger.</param>
             <returns>Enumerable of clients.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClientByClientStatusId(System.String,LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Gets client by clientStatusId from cache.
+            </summary>
+            <param name="clientStatusId">Client status ID.</param>
+            <param name="logger">The logger.</param>
+            <returns>Client.</returns>
         </member>
         <member name="T:LodeRunner.API.Interfaces.ILRAPIChangeFeedService">
             <summary>

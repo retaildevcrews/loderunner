@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
@@ -73,12 +74,16 @@ namespace LodeRunner.API.Middleware
         /// <param name="message">message to log.</param>
         /// <param name="context">http context.</param>
         /// <param name="dictionary">optional dictionary.</param>
-        public void LogInformation(string method, string message, HttpContext context = null, Dictionary<string, object> dictionary = null)
+        /// <returns>The Task.</returns>
+        public async Task LogInformation(string method, string message, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
-            if (LogLevel <= LogLevel.Information)
+            await Task.Run(() =>
             {
-                WriteLog(LogLevel.Information, this.GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
-            }
+                if (LogLevel <= LogLevel.Information)
+                {
+                    WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
+                }
+            });
         }
 
         /// <summary>
@@ -89,12 +94,16 @@ namespace LodeRunner.API.Middleware
         /// <param name="eventId">Event ID.</param>
         /// <param name="context">http context.</param>
         /// <param name="dictionary">optional dictionary.</param>
-        public void LogWarning(string method, string message, LogEventId eventId = null, HttpContext context = null, Dictionary<string, object> dictionary = null)
+        /// <returns>The Task.</returns>
+        public async Task LogWarning(string method, string message, LogEventId eventId = null, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
-            if (LogLevel <= LogLevel.Warning)
+            await Task.Run(() =>
             {
-                WriteLog(LogLevel.Warning, this.GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
-            }
+                if (LogLevel <= LogLevel.Warning)
+                {
+                    WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
+                }
+            });
         }
 
         /// <summary>
@@ -106,31 +115,35 @@ namespace LodeRunner.API.Middleware
         /// <param name="context">http context.</param>
         /// <param name="ex">exception.</param>
         /// <param name="dictionary">optional dictionary.</param>
-        public void LogError(string method, string message, LogEventId eventId = null, HttpContext context = null, Exception ex = null, Dictionary<string, object> dictionary = null)
+        /// <returns>The Task.</returns>
+        public async Task LogError(string method, string message, LogEventId eventId = null, HttpContext context = null, Exception ex = null, Dictionary<string, object> dictionary = null)
         {
-            if (LogLevel <= LogLevel.Error)
+            await Task.Run(() =>
             {
-                Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
-
-                // add exception
-                if (ex != null)
+                if (LogLevel <= LogLevel.Error)
                 {
-                    d.Add("ExceptionType", ex.GetType().FullName);
-                    d.Add("ExceptionMessage", ex.Message);
-                }
+                    Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
 
-                // add dictionary
-                if (dictionary != null && dictionary.Count > 0)
-                {
-                    foreach (KeyValuePair<string, object> kv in dictionary)
+                    // add exception
+                    if (ex != null)
                     {
-                        d.Add(kv.Key, kv.Value);
+                        d.Add("ExceptionType", ex.GetType().FullName);
+                        d.Add("ExceptionMessage", ex.Message);
                     }
-                }
 
-                // log the error
-                WriteLog(LogLevel.Error, d);
-            }
+                    // add dictionary
+                    if (dictionary != null && dictionary.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, object> kv in dictionary)
+                        {
+                            d.Add(kv.Key, kv.Value);
+                        }
+                    }
+
+                    // log the error
+                    WriteLog(LogLevel.Error, d);
+                }
+            });
         }
 
         // write the log to console or console.error

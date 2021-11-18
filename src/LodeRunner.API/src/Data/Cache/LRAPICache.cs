@@ -52,7 +52,7 @@ namespace LodeRunner.API.Data
         {
             this.clientStatusService = clientStatusService;
             this.loadTestConfigService = loadTestConfigService;
-            this.SetClientCache();
+            _ = this.SetClientCache();
         }
 
         /// <summary>
@@ -62,62 +62,78 @@ namespace LodeRunner.API.Data
         /// <param name="results">Results from cache get.</param>
         /// <param name="logger">Logger.</param>
         /// <returns>IActionResult.</returns>
-        public IActionResult HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
+        public async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
+            await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (!results.Any())
             {
-                logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
+                await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
-                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NoContent);
+                return await ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
-            return this.InternalReturnOKResult(results);
+            return await this.InternalReturnOKResult(results);
         }
 
-        /// <inheritdoc/>
-        public IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
+        ///// <summary>
+        ///// Handles cache results.
+        ///// </summary>
+        ///// <typeparam name="TEntity">Entity type.</typeparam>
+        ///// <param name="results">Results from the cache.</param>
+        ///// <param name="logger">Logger.</param>
+        ///// <returns>
+        ///// Action result.
+        ///// </returns>
+        public async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
-            logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
+            await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (results == null)
             {
-                logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
+                await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
-                return ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
+                return await ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
-            return this.InternalReturnOKResult(results);
+            return await this.InternalReturnOKResult(results);
         }
 
         /// <summary>
         /// Gets client from cache by clientStatusId.
         /// </summary>
         /// <param name="clientStatusId">Client status ID.</param>
+        /// <param name="logger">The logger.</param>
         /// <returns>Client.</returns>
-        public Client GetClientByClientStatusId(string clientStatusId)
+        public async Task<ActionResult> GetClientByClientStatusId(string clientStatusId, NgsaLog logger)
         {
             this.ValidateEntityId(clientStatusId);
 
-            return this.GetEntry<Client>(clientStatusId);
+            Client result = await this.GetEntry<Client>(clientStatusId);
+
+            return await HandleCacheResult(result, logger);
         }
 
         /// <summary>
-        /// Get clients from cache.
+        /// Gets clients from cache.
         /// </summary>
-        /// <returns>clients.</returns>
-        public IEnumerable<Client> GetClients()
+        /// <param name="logger">The logger.</param>
+        /// <returns>
+        /// Enumerable of clients.
+        /// </returns>
+        public async Task<ActionResult> GetClients(NgsaLog logger)
         {
-            return this.GetEntries<Client>();
+            IEnumerable<Client> result = await this.GetEntries<Client>().ConfigureAwait(false);
+
+            return await HandleCacheResult(result, logger);
         }
 
         /// <summary>
-        /// Processes clientStatus changefeed items.
+        /// Processes clientStatus change feed items.
         /// </summary>
-        /// <param name="doc">Changefeed item.</param>
+        /// <param name="doc">Change feed item.</param>
         public void ProcessClientStatusChange(Document doc)
         {
             ClientStatus clientStatus = (dynamic)doc;
@@ -133,7 +149,7 @@ namespace LodeRunner.API.Data
         /// </summary>
         /// <param name="results">The results.</param>
         /// <returns>The OK Action Result.</returns>
-        private IActionResult InternalReturnOKResult(object results)
+        private async Task<ActionResult> InternalReturnOKResult(object results)
         {
             try
             {
@@ -143,10 +159,10 @@ namespace LodeRunner.API.Data
             catch (Exception ex)
             {
                 // log and return exception
-                this.logger.LogError(nameof(this.HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+                await this.logger.LogError(nameof(this.HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
 
                 // return 500 error
-                return ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
+                return await ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
             }
         }
 
@@ -187,7 +203,7 @@ namespace LodeRunner.API.Data
              .RegisterPostEvictionCallback(async (key, value, reason, state) =>
              {
                  // log the request
-                 this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
+                 await this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
                  // NOTE: EvictionReason.Removed or EvictionReason.Replaced
                  if (reason <= EvictionReason.Replaced)
@@ -213,7 +229,7 @@ namespace LodeRunner.API.Data
                      // log Cosmos status code
                      if (ce.StatusCode == HttpStatusCode.NotFound)
                      {
-                         this.logger.LogInformation("MemoryCacheEntryOptions.RegisterPostEvictionCallback", $"{this.logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
+                         await this.logger.LogInformation("MemoryCacheEntryOptions.RegisterPostEvictionCallback", $"{this.logger.NotFoundError}: Removing Client {clientStatusId} from Cache");
                      }
                      else
                      {
@@ -230,10 +246,10 @@ namespace LodeRunner.API.Data
         /// <summary>
         /// Sets the client cache.
         /// </summary>
-        private void SetClientCache()
+        private async Task SetClientCache()
         {
             // log the request
-            this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
+            await this.logger.LogInformation(nameof(LRAPICache), CacheDataRequest);
 
             try
             {
@@ -252,7 +268,7 @@ namespace LodeRunner.API.Data
                 // log and return Cosmos status code
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
-                    this.logger.LogWarning(nameof(this.SetClientCache), this.logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    await this.logger.LogWarning(nameof(this.SetClientCache), this.logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
                 }
                 else
                 {

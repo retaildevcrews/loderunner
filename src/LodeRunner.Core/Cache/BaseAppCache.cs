@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
@@ -45,22 +46,25 @@ namespace LodeRunner.Core.Cache
         /// <returns>
         /// The Entries as Enumerable.
         /// </returns>
-        public IEnumerable<TEntity> GetEntries<TEntity>()
+        public async Task<IEnumerable<TEntity>> GetEntries<TEntity>()
         {
-            BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
-
-            List<TEntity> entryList = new ();
-
-            foreach (string itemKey in entityCache.GetKeys())
+            return await Task.Run(() =>
             {
-                TEntity cacheEntry = entityCache.Get<TEntity>(itemKey);
-                if (cacheEntry != null)
-                {
-                    entryList.Add(cacheEntry);
-                }
-            }
+                BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
 
-            return entryList;
+                List<TEntity> entryList = new ();
+
+                foreach (string itemKey in entityCache.GetKeys())
+                {
+                    TEntity cacheEntry = entityCache.Get<TEntity>(itemKey);
+                    if (cacheEntry != null)
+                    {
+                        entryList.Add(cacheEntry);
+                    }
+                }
+
+                return entryList;
+            });
         }
 
         /// <summary>
@@ -69,16 +73,19 @@ namespace LodeRunner.Core.Cache
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="key">The key.</param>
         /// <returns>the cache entry.</returns>
-        public TEntity GetEntry<TEntity>(object key)
+        public async Task<TEntity> GetEntry<TEntity>(object key)
         {
-            if (key == null)
+            return await Task.Run(() =>
             {
-                throw new ArgumentNullException(nameof(key));
-            }
+                if (key == null)
+                {
+                    throw new ArgumentNullException(nameof(key));
+                }
 
-            BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
+                BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
 
-            return entityCache.Get<TEntity>(key);
+                return entityCache.Get<TEntity>(key);
+            });
         }
 
         /// <summary>
@@ -88,11 +95,14 @@ namespace LodeRunner.Core.Cache
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        public void SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions)
+        public async void SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {
-            BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
+            await Task.Run(() =>
+            {
+                BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
 
-            entityCache.Set(key, value, memoryCacheEntryOptions);
+                entityCache.Set(key, value, memoryCacheEntryOptions);
+            });
         }
 
         /// <summary>
