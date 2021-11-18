@@ -22,9 +22,13 @@ namespace LodeRunner.API.Controllers
     {
         private readonly IMapper autoMapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoadTestConfigController"/> class.
+        /// </summary>
+        /// <param name="mapper">The mapper.</param>
         public LoadTestConfigController(IMapper mapper)
         {
-            autoMapper = mapper;
+            this.autoMapper = mapper;
         }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace LodeRunner.API.Controllers
             }
 
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
-            LoadTestConfig newloadTestConfig = autoMapper.Map<LoadTestConfig>(loadTestConfigPayload);
+            LoadTestConfig newloadTestConfig = this.autoMapper.Map<LoadTestConfig>(loadTestConfigPayload);
 
             if (newloadTestConfig.Validate(out string errorMessage))
             {

@@ -1,14 +1,19 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>aspnetapp</name>
+        <name>LodeRunner.API</name>
     </assembly>
     <members>
         <member name="T:LodeRunner.API.AutoMapperProfiles.LoadTestConfigProfile">
             <summary>
-            Represents the LoadTestConfig Auto-mapping Profile
+            Represents the LoadTestConfig Auto-mapping Profile.
             </summary>
             <seealso cref="T:AutoMapper.Profile" />
+        </member>
+        <member name="M:LodeRunner.API.AutoMapperProfiles.LoadTestConfigProfile.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.AutoMapperProfiles.LoadTestConfigProfile"/> class.
+            </summary>
         </member>
         <member name="T:LodeRunner.API.Controllers.ClientsController">
             <summary>
@@ -82,6 +87,12 @@
             <summary>
             Handle all of the /api/loadtestconfig requests.
             </summary>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.#ctor(AutoMapper.IMapper)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.LoadTestConfigController"/> class.
+            </summary>
+            <param name="mapper">The mapper.</param>
         </member>
         <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
@@ -338,7 +349,7 @@
             Gets the arguments.
             </summary>
             <param name="loadTestConfig">The load test configuration.</param>
-            <returns>the args</returns>
+            <returns>the args.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.Core.Models.LoadTestConfig,System.String)">
             <summary>
@@ -463,10 +474,10 @@
             <summary>
             Content Result from data.
             </summary>
-            <typeparam name="TEntity">the data type</typeparam>
+            <typeparam name="TEntity">the data type.</typeparam>
             <param name="data">the data.</param>
             <param name="statusCode">The http code.</param>
-            <returns>the Json Result</returns>
+            <returns>the Json Result.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateCancellationInProgressResult">
             <summary>
@@ -641,7 +652,7 @@
             <summary>
             Gets or sets error Target.
             </summary>
-            <example>clientStatusId</example>
+            <example>clientStatusId.</example>
         </member>
         <member name="P:LodeRunner.API.Middleware.Validation.ValidationError.Message">
             <summary>
@@ -731,7 +742,7 @@
         </member>
         <member name="M:LodeRunner.API.Startup.AddSwaggerServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Add Swagger Services
+            Add Swagger Services.
             </summary>
             <param name="services">Service Collection.</param>
         </member>
@@ -1088,6 +1099,11 @@
         <member name="F:LodeRunner.API.Models.HealthzCheck.TimeoutMessage">
             <summary>
             Health chec timeout message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.Models.HealthzCheck.ExceededExpectedDurationMessage">
+            <summary>
+            The exceeded expected duration message.
             </summary>
         </member>
         <member name="P:LodeRunner.API.Models.HealthzCheck.Status">

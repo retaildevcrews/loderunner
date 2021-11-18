@@ -3,12 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.Core;
+using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Models;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,7 +83,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Deserialize and examine results.
             var stringResponse = await httpResponse.Content.ReadAsStringAsync();
 
-            var clients = JsonConvert.DeserializeObject<IEnumerable<ClientStatus>>(stringResponse);
+            var clients = JsonConvert.DeserializeObject<IEnumerable<Client>>(stringResponse);
 
             Assert.True(clients.Any(), "Cannot get any Clients");
         }
@@ -92,6 +98,29 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         [InlineData("1")]
         public async Task CanGetClientsById(string clientStatusId)
         {
+            // Map CommandLine arguments.
+            var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets" };
+
+            LodeRunner.Config lrConfig = new ();
+            RootCommand root = LRCommandLine.BuildRootCommand();
+
+            // Create lrConfig from arguments
+            root.Handler = CommandHandler.Create<LodeRunner.Config>((lrConfig) =>
+            {
+                Assert.NotNull(lrConfig);
+                Assert.True(lrConfig.Server.Count > 0);
+
+                // TODO: Validate every argument not just servers
+
+                // Initialize and Start LodeRunner Service
+                Secrets.LoadSecrets(lrConfig);
+                CancellationTokenSource cancelTokenSource = new ();
+                using var l8rService = new LodeRunnerService(lrConfig, cancelTokenSource);
+                _ = l8rService.StartService();
+            });
+
+            await root.InvokeAsync(validArgs).ConfigureAwait(false);
+
             // TODO: Create a new ClientID, Get the Id and then send the request ???
             var httpClient = this.factory.CreateClient();
 

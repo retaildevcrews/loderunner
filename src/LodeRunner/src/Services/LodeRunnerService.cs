@@ -22,7 +22,7 @@ namespace LodeRunner.Services
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="LodeRunner.Interfaces.ILodeRunnerService" />
-    internal class LodeRunnerService : IDisposable, ILodeRunnerService
+    public class LodeRunnerService : IDisposable, ILodeRunnerService
     {
         private readonly Config config;
         private readonly LoadClient loadClient;

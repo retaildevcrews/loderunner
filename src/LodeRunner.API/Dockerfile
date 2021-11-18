@@ -37,4 +37,4 @@ USER ngsa
 ### copy the app
 COPY --from=build /app .
 
-ENTRYPOINT [ "dotnet",  "aspnetapp.dll" ]
+ENTRYPOINT [ "dotnet",  "LodeRunner.API.dll" ]

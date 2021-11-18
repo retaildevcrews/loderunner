@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>LodeRunner</RootNamespace>
-    <AssemblyName>aspnetapp</AssemblyName>
+    <AssemblyName>LodeRunner</AssemblyName>
     <VersionPrefix>0.4.1</VersionPrefix>
     <VersionSuffix>$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</VersionSuffix>
     <Company>Microsoft Corporation</Company>

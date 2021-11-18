@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LodeRunner.API\LodeRunner.API.csproj" />
+    <ProjectReference Include="..\LodeRunner\LodeRunner.csproj" />
   </ItemGroup>
 
 </Project>

@@ -127,7 +127,7 @@ namespace LodeRunner.API
                 });
             }
 
-            //Configure Swagger
+            // Configure Swagger
             app.UseSwagger();
 
             app.UseSwaggerUI(options =>
@@ -189,7 +189,7 @@ namespace LodeRunner.API
         }
 
         /// <summary>
-        /// Add Swagger Services
+        /// Add Swagger Services.
         /// </summary>
         /// <param name="services">Service Collection.</param>
         private static void AddSwaggerServices(IServiceCollection services)
