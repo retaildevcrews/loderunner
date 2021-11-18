@@ -17,20 +17,20 @@ namespace LodeRunner.Core.Interfaces
         string SecretsVolume { get; }
 
         /// <summary>
-        /// Gets the name of the cosmos.
+        /// Gets or sets the name of the cosmos.
         /// </summary>
         /// <value>
         /// The name of the cosmos.
         /// </value>
-        string CosmosName { get; }
+        string CosmosName { get; set; }
 
         /// <summary>
-        /// Gets the secrets.
+        /// Gets or sets the secrets.
         /// </summary>
         /// <value>
         /// The secrets.
         /// </value>
-        ISecrets Secrets { get;  }
+        ISecrets Secrets { get; set; }
 
         /// <summary>
         /// Gets the retries.

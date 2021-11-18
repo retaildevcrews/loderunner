@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -14,8 +14,11 @@ namespace LodeRunner.API
     /// <summary>
     /// Main application class.
     /// </summary>
-    public sealed partial class App
+    public sealed class LRAPICommandLine
     {
+        // capture parse errors from env vars
+        private static readonly List<string> EnvVarErrors = new ();
+
         /// <summary>
         /// Build the RootCommand for parsing.
         /// </summary>

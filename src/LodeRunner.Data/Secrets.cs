@@ -54,11 +54,28 @@ namespace LodeRunner.Core
         public string CosmosCollection { get; private set; }
 
         /// <summary>
+        /// Loads the secrets.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        public static void LoadSecrets(ICosmosConfig config)
+        {
+            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
+
+            // set the Cosmos server name for logging
+            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
+            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
+            if (ndx > 0)
+            {
+                config.CosmosName = config.CosmosName.Remove(ndx);
+            }
+        }
+
+        /// <summary>
         /// Get the secrets from the k8s volume.
         /// </summary>
         /// <param name="volume">k8s volume name.</param>
         /// <returns>Secrets or null.</returns>
-        public static Secrets GetSecretsFromVolume(string volume)
+        private static Secrets GetSecretsFromVolume(string volume)
         {
             if (string.IsNullOrWhiteSpace(volume))
             {

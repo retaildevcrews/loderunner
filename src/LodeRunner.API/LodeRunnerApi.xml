@@ -92,124 +92,6 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="T:LodeRunner.API.App">
-            <summary>
-            Main application class.
-            </summary>
-            <summary>
-            Main application class.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.BuildRootCommand">
-            <summary>
-            Build the RootCommand for parsing.
-            </summary>
-            <returns>RootCommand.</returns>
-        </member>
-        <member name="F:LodeRunner.API.App.AsciiFile">
-            <summary>
-            File containing ASCII art.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.App.cancelTokenSource">
-            <summary>
-            Gets cancellation token.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.App.host">
-            <summary>
-            The Web Host.
-            </summary>
-        </member>
-        <member name="P:LodeRunner.API.App.JsonSerializerOptions">
-            <summary>
-            Gets or sets json serialization options.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.Main(System.String[])">
-            <summary>
-            Main entry point.
-            </summary>
-            <param name="args">command line args.</param>
-            <returns>0 == success.</returns>
-        </member>
-        <member name="M:LodeRunner.API.App.RunApp(LodeRunner.API.Config)">
-            <summary>
-            Run the app.
-            </summary>
-            <param name="config">command line config.</param>
-            <returns>status.</returns>
-        </member>
-        <member name="M:LodeRunner.API.App.InitializeSystemComponents">
-            <summary>
-            Initializes the system components.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.RegisterCancellationTokensForServices">
-            <summary>
-            Registers the cancellation tokens for services.
-            This method will allows to register multiple Cancellation tokens with different purposes for different Services.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.ForceToCreateRequiredSystemObjects">
-            <summary>
-            Forces to create required system objects.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.EventsSubscription">
-            <summary>
-            Registers the events.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.App.ProcessClientStatusChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the client status change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.App.ProcessLoadClientChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the load client change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.App.ProcessLoadTestConfigChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the load test configuration change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.App.ProcessTestRunChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the test run change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.App.GetLRAPIChangeFeedService">
-            <summary>
-            Gets the change feed service.
-            </summary>
-            <returns>The ChangeFeed Service.</returns>
-        </member>
-        <member name="M:LodeRunner.API.App.GetLRAPICache">
-            <summary>
-            Gets the cache service.
-            </summary>
-            <returns>The Cache Service.</returns>
-        </member>
-        <member name="M:LodeRunner.API.App.Init(LodeRunner.API.Config,LodeRunner.API.Middleware.NgsaLog)">
-            <summary>
-            Initializes the specified configuration.
-            </summary>
-            <param name="config">The configuration.</param>
-            <param name="logger">The logger.</param>
-        </member>
-        <member name="M:LodeRunner.API.App.DisplayAsciiArt(System.String[])">
-            <summary>
-            Displays ASCII art for help and dry run executions.
-            </summary>
-            <param name="args">CLI arguments.</param>
-        </member>
         <member name="T:LodeRunner.API.Config">
             <summary>
             Configurations for App.
@@ -1530,6 +1412,115 @@
             Subscribes to process client status change.
             </summary>
             <param name="eventHandler">The event handler.</param>
+        </member>
+        <member name="T:LodeRunner.API.App">
+            <summary>
+            Main application class.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.App.AsciiFile">
+            <summary>
+            File containing ASCII art.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.App.cancelTokenSource">
+            <summary>
+            Gets cancellation token.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.App.host">
+            <summary>
+            The Web Host.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.API.App.JsonSerializerOptions">
+            <summary>
+            Gets or sets json serialization options.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.App.Main(System.String[])">
+            <summary>
+            Main entry point.
+            </summary>
+            <param name="args">command line args.</param>
+            <returns>0 == success.</returns>
+        </member>
+        <member name="M:LodeRunner.API.App.RunApp(LodeRunner.API.Config)">
+            <summary>
+            Run the app.
+            </summary>
+            <param name="config">command line config.</param>
+            <returns>status.</returns>
+        </member>
+        <member name="M:LodeRunner.API.App.InitializeSystemComponents">
+            <summary>
+            Initializes the system components.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.App.RegisterCancellationTokensForServices">
+            <summary>
+            Registers the cancellation tokens for services.
+            This method will allows to register multiple Cancellation tokens with different purposes for different Services.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.App.ForceToCreateRequiredSystemObjects">
+            <summary>
+            Forces to create required system objects.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.App.EventsSubscription">
+            <summary>
+            Registers the events.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.App.ProcessClientStatusChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
+            <summary>
+            Processes the client status change.
+            </summary>
+            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:LodeRunner.API.App.ProcessLoadClientChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
+            <summary>
+            Processes the load client change.
+            </summary>
+            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:LodeRunner.API.App.ProcessLoadTestConfigChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
+            <summary>
+            Processes the load test configuration change.
+            </summary>
+            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:LodeRunner.API.App.ProcessTestRunChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
+            <summary>
+            Processes the test run change.
+            </summary>
+            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:LodeRunner.API.App.GetLRAPIChangeFeedService">
+            <summary>
+            Gets the change feed service.
+            </summary>
+            <returns>The ChangeFeed Service.</returns>
+        </member>
+        <member name="M:LodeRunner.API.App.GetLRAPICache">
+            <summary>
+            Gets the cache service.
+            </summary>
+            <returns>The Cache Service.</returns>
+        </member>
+        <member name="M:LodeRunner.API.App.Init(LodeRunner.API.Config,LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Initializes the specified configuration.
+            </summary>
+            <param name="config">The configuration.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:LodeRunner.API.App.DisplayAsciiArt(System.String[])">
+            <summary>
+            Displays ASCII art for help and dry run executions.
+            </summary>
+            <param name="args">CLI arguments.</param>
         </member>
         <member name="T:LodeRunner.API.Services.LRAPIChangeFeedService">
             <summary>

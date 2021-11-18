@@ -35,9 +35,6 @@ namespace LodeRunner.API
         /// </summary>
         public const string AsciiFile = "ascii-art.txt";
 
-        // capture parse errors from env vars
-        private static readonly List<string> EnvVarErrors = new ();
-
         /// <summary>
         /// Gets cancellation token.
         /// </summary>
@@ -73,7 +70,7 @@ namespace LodeRunner.API
             }
 
             // build the System.CommandLine.RootCommand
-            RootCommand root = BuildRootCommand();
+            RootCommand root = LRAPICommandLine.BuildRootCommand();
             root.Handler = CommandHandler.Create((Config cfg) => App.RunApp(cfg));
 
             // run the app
@@ -239,7 +236,7 @@ namespace LodeRunner.API
         private static void Init(Config config, NgsaLog logger)
         {
             // load secrets from volume
-            LoadSecrets(config);
+            Secrets.LoadSecrets(config);
 
             // set the logger config
             RequestLogger.CosmosName = config.CosmosName;
@@ -247,20 +244,6 @@ namespace LodeRunner.API
 
             // build the host will register Data Access Services in Startup.
             host = BuildHost(config, logger);
-        }
-
-        // load secrets from volume
-        private static void LoadSecrets(Config config)
-        {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
-
-            // set the Cosmos server name for logging
-            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
-            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
-            if (ndx > 0)
-            {
-                config.CosmosName = config.CosmosName.Remove(ndx);
-            }
         }
 
         // Build the web host

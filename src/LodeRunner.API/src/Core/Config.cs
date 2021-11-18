@@ -12,7 +12,7 @@ namespace LodeRunner.API
     /// </summary>
     public class Config : ICosmosConfig, ICommonConfig
     {
-        private string urlPrefix;
+        private string urlPrefix = string.Empty;
         private LogLevel logLevel = LogLevel.Warning;
         private LogLevel requestLogLevel = LogLevel.Information;
         private string secretsVolume = "secrets";
