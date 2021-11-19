@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Builder;
 namespace LodeRunner
 {
     /// <summary>
-    /// Registers aspnet middleware handler that handles /version
+    /// Registers aspnet middleware handler that handles /version.
     /// </summary>
     public static class VersionExtension
     {
@@ -16,10 +16,10 @@ namespace LodeRunner
         private static byte[] responseBytes;
 
         /// <summary>
-        /// Middleware extension method to handle /version request
+        /// Middleware extension method to handle /version request.
         /// </summary>
-        /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns>IApplicationBuilder</returns>
+        /// <param name="builder">this IApplicationBuilder.</param>
+        /// <returns>IApplicationBuilder.</returns>
         public static IApplicationBuilder UseVersion(this IApplicationBuilder builder)
         {
             // implement the middleware

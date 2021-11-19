@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="src\stylecop.json" />
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
    <ItemGroup>

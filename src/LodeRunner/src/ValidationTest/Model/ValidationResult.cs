@@ -7,36 +7,36 @@ namespace LodeRunner.Model
 {
     /// <summary>
     /// Validation Result class
-    /// Contains the results of a validation
+    /// Contains the results of a validation.
     /// </summary>
     public class ValidationResult
     {
         /// <summary>
-        /// gets or sets a value indicating whether the validation failed
+        /// gets or sets a value indicating whether the validation failed.
         /// </summary>
         public bool Failed { get; set; }
 
         /// <summary>
-        /// gets a list of validation errors
+        /// gets a list of validation errors.
         /// </summary>
         public List<string> ValidationErrors { get; } = new List<string>();
 
         /// <summary>
-        /// adds a validation result to the collection
+        /// adds a validation result to the collection.
         /// </summary>
-        /// <param name="result">validation result</param>
+        /// <param name="result">validation result.</param>
         public void Add(ValidationResult result)
         {
             if (result != null)
             {
                 if (result.ValidationErrors != null && result.ValidationErrors.Count > 0)
                 {
-                    ValidationErrors.AddRange(result.ValidationErrors);
+                    this.ValidationErrors.AddRange(result.ValidationErrors);
                 }
 
                 if (result.Failed)
                 {
-                    Failed = true;
+                    this.Failed = true;
                 }
             }
         }
