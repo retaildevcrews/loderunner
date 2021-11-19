@@ -17,6 +17,9 @@ namespace LodeRunner.API.Models
         /// </summary>
         public const string TimeoutMessage = "Request exceeded the configured CosmosDB timeout";
 
+        /// <summary>
+        /// The exceeded expected duration message.
+        /// </summary>
         public const string ExceededExpectedDurationMessage = "Request exceeded expected duration";
 
         /// <summary>

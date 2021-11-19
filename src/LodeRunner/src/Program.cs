@@ -21,7 +21,7 @@ using Microsoft.Extensions.Hosting;
 namespace LodeRunner
 {
     /// <summary>
-    /// Main application class
+    /// Main application class.
     /// </summary>
     public sealed partial class App
     {
@@ -31,12 +31,12 @@ namespace LodeRunner
         public const string AsciiFile = "src/Core/ascii-art.txt";
 
         /// <summary>
-        /// Gets cancellation token
+        /// Gets cancellation token.
         /// </summary>
         private static CancellationTokenSource cancelTokenSource;
 
         /// <summary>
-        /// Gets or sets json serialization options
+        /// Gets or sets json serialization options.
         /// </summary>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
@@ -44,10 +44,10 @@ namespace LodeRunner
         };
 
         /// <summary>
-        /// Main entry point
+        /// Main entry point.
         /// </summary>
-        /// <param name="args">Command Line Parameters</param>
-        /// <returns>0 on success</returns>
+        /// <param name="args">Command Line Parameters.</param>
+        /// <returns>0 on success.</returns>
         public static async Task<int> Main(string[] args)
         {
             cancelTokenSource = new CancellationTokenSource();
@@ -68,10 +68,10 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// System.CommandLine.CommandHandler implementation
+        /// System.CommandLine.CommandHandler implementation.
         /// </summary>
-        /// <param name="config">configuration</param>
-        /// <returns>non-zero on failure</returns>
+        /// <param name="config">configuration.</param>
+        /// <returns>non-zero on failure.</returns>
         public static async Task<int> Run(Config config)
         {
             if (config == null)
@@ -85,16 +85,20 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Check to see if the file exists in the current directory
+        /// Check to see if the file exists in the current directory.
         /// </summary>
-        /// <param name="name">file name</param>
-        /// <returns>bool</returns>
+        /// <param name="name">file name.</param>
+        /// <returns>bool.</returns>
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
         }
 
-        // build the web host
+        /// <summary>
+        /// Builds the web host.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns>The Host.</returns>
         internal static IHost BuildWebHost(Config config)
         {
             int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);

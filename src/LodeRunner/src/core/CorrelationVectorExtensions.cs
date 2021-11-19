@@ -9,15 +9,15 @@ using Microsoft.CorrelationVector;
 namespace Ngsa.Middleware
 {
     /// <summary>
-    /// Correlation Vector extensions
+    /// Correlation Vector extensions.
     /// </summary>
     public static class CorrelationVectorExtensions
     {
         /// <summary>
-        /// Get the Correlation Vector base
+        /// Get the Correlation Vector base.
         /// </summary>
-        /// <param name="correlationVector">Correlation Vector</param>
-        /// <returns>string</returns>
+        /// <param name="correlationVector">Correlation Vector.</param>
+        /// <returns>string.</returns>
         public static string GetBase(this CorrelationVector correlationVector)
         {
             if (correlationVector == null)
@@ -33,10 +33,10 @@ namespace Ngsa.Middleware
         }
 
         /// <summary>
-        /// Extend correlation vector
+        /// Extend correlation vector.
         /// </summary>
-        /// <param name="context">http context</param>
-        /// <returns>extended CV</returns>
+        /// <param name="context">http context.</param>
+        /// <returns>extended CV.</returns>
         public static CorrelationVector Extend(HttpContext context)
         {
             if (context == null)
@@ -72,6 +72,11 @@ namespace Ngsa.Middleware
             return cv;
         }
 
+        /// <summary>
+        /// Gets the correlation vector from context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>CorrelationVector.</returns>
         public static CorrelationVector GetCorrelationVectorFromContext(HttpContext context)
         {
             if (context != null &&
@@ -84,6 +89,11 @@ namespace Ngsa.Middleware
             return null;
         }
 
+        /// <summary>
+        /// Puts the correlation vector into context.
+        /// </summary>
+        /// <param name="cvector">The cvector.</param>
+        /// <param name="context">The context.</param>
         public static void PutCorrelationVectorIntoContext(this CorrelationVector cvector, HttpContext context)
         {
             if (cvector == null)

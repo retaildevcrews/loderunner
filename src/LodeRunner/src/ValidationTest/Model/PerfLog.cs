@@ -7,96 +7,96 @@ using System.Collections.Generic;
 namespace LodeRunner.Model
 {
     /// <summary>
-    /// Performance Log class
+    /// Performance Log class.
     /// </summary>
     public class PerfLog
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PerfLog"/> class.
         /// </summary>
-        /// <param name="validationErrors">list of validation errors</param>
+        /// <param name="validationErrors">list of validation errors.</param>
         public PerfLog(List<string> validationErrors)
         {
-            Errors = validationErrors;
+            this.Errors = validationErrors;
         }
 
         /// <summary>
-        /// Gets the Type (defaults to request)
+        /// Gets the Type (defaults to request).
         /// </summary>
         public static string Type => "request";
 
         /// <summary>
-        /// Gets or sets the DateTime
+        /// Gets or sets the DateTime.
         /// </summary>
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// gets or sets the server URL
+        /// gets or sets the server URL.
         /// </summary>
         public string Server { get; set; }
 
         /// <summary>
-        /// Gets or sets the HTTP Status Code
+        /// Gets or sets the HTTP Status Code.
         /// </summary>
         public int StatusCode { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the failed flag
+        /// Gets or sets a value indicating whether the failed flag.
         /// </summary>
         public bool Failed { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the validated flag
+        /// Gets or sets a value indicating whether the validated flag.
         /// </summary>
         public bool Validated { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the correlation vector for distributed tracing
+        /// Gets or sets the correlation vector for distributed tracing.
         /// </summary>
         public string CorrelationVector { get; set; }
 
         /// <summary>
-        /// Gets or sets the correlation vector base for distributed tracing
+        /// Gets or sets the correlation vector base for distributed tracing.
         /// </summary>
         public string CorrelationVectorBase { get; set; }
 
         /// <summary>
-        /// Gets the error count
+        /// Gets the error count.
         /// </summary>
-        public int ErrorCount => Errors == null ? 0 : Errors.Count;
+        public int ErrorCount => this.Errors == null ? 0 : this.Errors.Count;
 
         /// <summary>
-        /// Gets or sets the duration
+        /// Gets or sets the duration.
         /// </summary>
         public double Duration { get; set; }
 
         /// <summary>
-        /// Gets or sets the content length
+        /// Gets or sets the content length.
         /// </summary>
         public long ContentLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the Category
+        /// Gets or sets the Category.
         /// </summary>
         public string Category { get; set; }
 
         /// <summary>
-        /// Gets or sets the performance quartile
+        /// Gets or sets the performance quartile.
         /// </summary>
         public int? Quartile { get; set; }
 
         /// <summary>
-        /// Gets or sets the tag
+        /// Gets or sets the tag.
         /// </summary>
         public string Tag { get; set; }
 
         /// <summary>
-        /// Gets or sets the request path
+        /// Gets or sets the request path.
         /// </summary>
         public string Path { get; set; }
 
         /// <summary>
-        /// Gets the validation errors
+        /// Gets the validation errors.
         /// </summary>
         public List<string> Errors { get; }
     }

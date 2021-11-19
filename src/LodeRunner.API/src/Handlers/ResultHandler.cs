@@ -18,7 +18,7 @@ namespace LodeRunner.API.Middleware
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
 
         /// <summary>
-        /// Creates an Error JsonResult
+        /// Creates an Error JsonResult.
         /// </summary>
         /// <param name="message">The Message.</param>
         /// <param name="statusCode">The Message StatusCode.</param>
@@ -31,11 +31,11 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Content Result from data.
         /// </summary>
-        /// <typeparam name="TEntity">the data type</typeparam>
+        /// <typeparam name="TEntity">the data type.</typeparam>
         /// <param name="data">the data.</param>
         /// <param name="statusCode">The http code.</param>
-        /// <param name="contentType">Json Content Type</param>
-        /// <returns>the Json Result</returns>
+        /// <param name="contentType">Json Content Type.</param>
+        /// <returns>the Json Result.</returns>
         public static async Task<JsonResult> CreateResult<TEntity>(TEntity data, HttpStatusCode statusCode, string contentType = JsonContentTypeApplicationJson)
         {
             return await Task.Run(() =>

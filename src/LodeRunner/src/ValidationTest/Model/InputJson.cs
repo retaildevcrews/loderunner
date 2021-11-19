@@ -6,17 +6,17 @@ using System.Collections.Generic;
 namespace LodeRunner.Model
 {
     /// <summary>
-    /// InputJson object
+    /// InputJson object.
     /// </summary>
     public class InputJson
     {
         /// <summary>
-        /// Gets or sets list of variables
+        /// Gets or sets list of variables.
         /// </summary>
         public List<string> Variables { get; set; }
 
         /// <summary>
-        /// Gets or sets list of Requests
+        /// Gets or sets list of Requests.
         /// </summary>
         public List<Request> Requests { get; set; }
     }
