@@ -6,18 +6,18 @@ using System.Collections.Generic;
 namespace LodeRunner.Model
 {
     /// <summary>
-    /// Performance target class
+    /// Performance target class.
     /// </summary>
     public class PerfTarget
     {
         /// <summary>
-        /// gets or sets the category name
+        /// gets or sets the category name.
         /// </summary>
         public string Category { get; set; }
 
         /// <summary>
         /// gets or sets a list of ms to determine quartile
-        /// list should contain exactly 3 values
+        /// list should contain exactly 3 values.
         /// </summary>
         public List<double> Quartiles { get; set; }
     }

@@ -14,30 +14,30 @@ using Prometheus;
 namespace LodeRunner
 {
     /// <summary>
-    /// WebHostBuilder Startup
+    /// WebHostBuilder Startup.
     /// </summary>
     public class Startup
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
-        /// <param name="configuration">the configuration for WebHost</param>
+        /// <param name="configuration">the configuration for WebHost.</param>
         public Startup(IConfiguration configuration)
         {
             // keep a local reference
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         /// <summary>
-        /// Gets IConfiguration
+        /// Gets IConfiguration.
         /// </summary>
         public IConfiguration Configuration { get; }
 
         /// <summary>
-        /// Configure the application builder
+        /// Configure the application builder.
         /// </summary>
-        /// <param name="app">IApplicationBuilder</param>
-        /// <param name="life">IHostApplicationLifetime</param>
+        /// <param name="app">IApplicationBuilder.</param>
+        /// <param name="life">IHostApplicationLifetime.</param>
         public static void Configure(IApplicationBuilder app, IHostApplicationLifetime life)
         {
             if (app == null)

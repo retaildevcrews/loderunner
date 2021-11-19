@@ -4,22 +4,22 @@
 namespace LodeRunner.Model
 {
     /// <summary>
-    /// Represents a json item
+    /// Represents a json item.
     /// </summary>
     public class JsonItem
     {
         /// <summary>
-        /// Gets or sets the name of the field
+        /// Gets or sets the name of the field.
         /// </summary>
         public string Field { get; set; }
 
         /// <summary>
-        /// Gets or sets the value to check
+        /// Gets or sets the value to check.
         /// </summary>
         public object Value { get; set; }
 
         /// <summary>
-        /// Gets or sets a recursive validation object
+        /// Gets or sets a recursive validation object.
         /// </summary>
         public Validation Validation { get; set; }
     }

@@ -9,15 +9,15 @@ using LodeRunner.Model;
 namespace LodeRunner.Validators
 {
     /// <summary>
-    /// Validate parameters
+    /// Validate parameters.
     /// </summary>
     public static class ParameterValidator
     {
         /// <summary>
-        /// validate Request
+        /// validate Request.
         /// </summary>
-        /// <param name="r">Request</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="r">Request.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(Request r)
         {
             ValidationResult result = new ();
@@ -42,10 +42,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate Validation
+        /// validate Validation.
         /// </summary>
-        /// <param name="v">Validation</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="v">Validation.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(Validation v)
         {
             ValidationResult res = new ();
@@ -103,10 +103,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate PerfTarget
+        /// validate PerfTarget.
         /// </summary>
-        /// <param name="target">PerfTarget</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="target">PerfTarget.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(PerfTarget target)
         {
             ValidationResult res = new ();
@@ -137,10 +137,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate JsonArray
+        /// validate JsonArray.
         /// </summary>
-        /// <param name="a">JsonArray</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="a">JsonArray.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(JsonArray a)
         {
             ValidationResult res = new ();
@@ -184,10 +184,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate JsonObject
+        /// validate JsonObject.
         /// </summary>
-        /// <param name="jsonobject">list of JsonProperty</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="jsonobject">list of JsonProperty.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(List<JsonItem> jsonobject)
         {
             ValidationResult res = new ();
@@ -214,10 +214,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate JsonArray.ByIndex
+        /// validate JsonArray.ByIndex.
         /// </summary>
-        /// <param name="byIndexList">list of JsonPropertyByIndex</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="byIndexList">list of JsonPropertyByIndex.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(List<JsonPropertyByIndex> byIndexList)
         {
             ValidationResult res = new ();
@@ -253,10 +253,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate JsonArray.ForEach
+        /// Validate JsonArray.ForEach.
         /// </summary>
-        /// <param name="list">list of Validation objects</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="list">list of Validation objects.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(List<Validation> list)
         {
             ValidationResult res = new ();
@@ -276,10 +276,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate Length, MinLength and MaxLength
+        /// validate Length, MinLength and MaxLength.
         /// </summary>
-        /// <param name="v">Validation</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="v">Validation.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateLength(Validation v)
         {
             ValidationResult res = new ();
@@ -320,10 +320,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate Verb
+        /// validate Verb.
         /// </summary>
-        /// <param name="verb">string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="verb">string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateVerb(string verb)
         {
             ValidationResult res = new ();
@@ -343,10 +343,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate Contains
+        /// validate Contains.
         /// </summary>
-        /// <param name="contains">list of string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="contains">list of string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateContains(List<string> contains)
         {
             ValidationResult res = new ();
@@ -370,10 +370,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate Path
+        /// validate Path.
         /// </summary>
-        /// <param name="path">string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="path">string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidatePath(string path)
         {
             ValidationResult res = new ();
@@ -396,10 +396,10 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// validate NotContains
+        /// validate NotContains.
         /// </summary>
-        /// <param name="notcontains">list of string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="notcontains">list of string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateNotContains(List<string> notcontains)
         {
             ValidationResult res = new ();

@@ -18,12 +18,12 @@ using Prometheus;
 namespace LodeRunner
 {
     /// <summary>
-    /// LodeRunner Test
+    /// LodeRunner Test.
     /// </summary>
     public partial class ValidationTest
     {
         /// <summary>
-        /// Correlation Vector http header name
+        /// Correlation Vector http header name.
         /// </summary>
         private static readonly JsonSerializerOptions JsonOptions = new ()
         {
@@ -39,9 +39,10 @@ namespace LodeRunner
         private Config config;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ValidationTest"/> class
+        /// Initializes a new instance of the <see cref="ValidationTest"/> class.
+        /// Constructor for ValidationTest.
         /// </summary>
-        /// <param name="config">Config</param>
+        /// <param name="config">app config.</param>
         public ValidationTest(Config config)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
@@ -52,10 +53,10 @@ namespace LodeRunner
             this.config = config;
 
             // load the performance targets
-            targets = LoadPerfTargets();
+            this.targets = this.LoadPerfTargets();
 
             // load the requests from json files
-            requestList = LoadValidateRequests(config.Files);
+            requestList = this.LoadValidateRequests(config.Files);
 
             if (requestList == null || requestList.Count == 0)
             {
@@ -75,15 +76,18 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Gets UtcNow as an ISO formatted date string
+        /// Gets UtcNow as an ISO formatted date string.
         /// </summary>
         public static string Now => DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
 
+        /// <summary>
+        /// Gets Histogram.
+        /// </summary>
         public Histogram RequestDuration
         {
             get
             {
-                if (config.Prometheus && requestDuration == null)
+                if (this.config.Prometheus && requestDuration == null)
                 {
                     requestDuration = Metrics.CreateHistogram(
                     "LodeRunnerDuration",
@@ -99,11 +103,14 @@ namespace LodeRunner
             }
         }
 
+        /// <summary>
+        /// Gets Summary.
+        /// </summary>
         public Summary RequestSummary
         {
             get
             {
-                if (config.Prometheus && requestSummary == null)
+                if (this.config.Prometheus && requestSummary == null)
                 {
                     requestSummary = Metrics.CreateSummary(
                         "LodeRunnerSummary",
@@ -122,11 +129,11 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Run the validation test one time
+        /// Run the validation test one time.
         /// </summary>
-        /// <param name="config">configuration</param>
-        /// <param name="token">cancellation token</param>
-        /// <returns>bool</returns>
+        /// <param name="config">configuration.</param>
+        /// <param name="token">cancellation token.</param>
+        /// <returns>bool.</returns>
         public async Task<int> RunOnce(Config config, CancellationToken token)
         {
             if (config == null)
@@ -134,8 +141,6 @@ namespace LodeRunner
                 Console.WriteLine("RunOnce:Config is null");
                 return Core.SystemConstants.ExitFail;
             }
-
-            //DisplayStartupMessage(config);
 
             int duration;
             PerfLog pl;
@@ -156,7 +161,7 @@ namespace LodeRunner
                     }
                 }
 
-                using HttpClient client = OpenClient(ndx);
+                using HttpClient client = this.OpenClient(ndx);
 
                 // send each request
                 foreach (Request r in requestList)
@@ -175,7 +180,7 @@ namespace LodeRunner
                         }
 
                         // execute the request
-                        pl = await ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
+                        pl = await this.ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
 
                         if (pl.Failed)
                         {
@@ -236,12 +241,12 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Run the validation tests in a loop
+        /// Run the validation tests in a loop.
         /// </summary>
-        /// <param name="config">Config</param>
-        /// <param name="token">CancellationToken</param>
-        /// <returns>0 on success</returns>
-        /// <returns>1 on failure</returns>
+        /// <param name="config">Config.</param>
+        /// <param name="token">CancellationToken.</param>
+        /// <returns>0 on success.</returns>
+        /// <returns>1 on failure.</returns>
         public int RunLoop(Config config, CancellationToken token)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
@@ -269,7 +274,7 @@ namespace LodeRunner
                 TimerRequestState state = new ()
                 {
                     Server = svr,
-                    Client = OpenHttpClient(svr),
+                    Client = this.OpenHttpClient(svr),
                     MaxIndex = requestList.Count,
                     Test = this,
                     RequestList = requestList,
@@ -345,12 +350,12 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Execute a single validation test
+        /// Execute a single validation test.
         /// </summary>
-        /// <param name="client">http client</param>
-        /// <param name="server">server URL</param>
-        /// <param name="request">Request</param>
-        /// <returns>PerfLog</returns>
+        /// <param name="client">http client.</param>
+        /// <param name="server">server URL.</param>
+        /// <param name="request">Request.</param>
+        /// <returns>PerfLog.</returns>
         public async Task<PerfLog> ExecuteRequest(HttpClient client, string server, Request request)
         {
             if (request == null)
@@ -409,7 +414,7 @@ namespace LodeRunner
                     valid = ResponseValidator.Validate(request, resp, body);
 
                     // check the performance
-                    perfLog = CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
+                    perfLog = this.CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
 
                     // add correlation vector to perf log
                     perfLog.CorrelationVector = cv.Value;
@@ -420,36 +425,36 @@ namespace LodeRunner
                     double duration = Math.Round(DateTime.UtcNow.Subtract(dt).TotalMilliseconds, 0);
                     valid = new ValidationResult { Failed = true };
                     valid.ValidationErrors.Add($"Exception: {ex.Message}");
-                    perfLog = CreatePerfLog(server, request, valid, duration, 0, 500);
+                    perfLog = this.CreatePerfLog(server, request, valid, duration, 0, 500);
                 }
             }
 
             // log the test
-            LogToConsole(request, valid, perfLog);
+            this.LogToConsole(request, valid, perfLog);
 
-            if (config.Prometheus)
+            if (this.config.Prometheus)
             {
                 // map category and mode to app values
                 string mode = GetMode(perfLog);
                 string status = GetPrometheusCode(perfLog.StatusCode);
 
-                RequestDuration.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
-                RequestSummary.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), config.Zone, config.Region).Observe(perfLog.Duration);
+                this.RequestDuration.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), this.config.Zone, this.config.Region).Observe(perfLog.Duration);
+                this.RequestSummary.WithLabels(status, mode, perfLog.Server, perfLog.Failed.ToString(), this.config.Zone, this.config.Region).Observe(perfLog.Duration);
             }
 
             return perfLog;
         }
 
         /// <summary>
-        /// Create a PerfLog
+        /// Create a PerfLog.
         /// </summary>
-        /// <param name="server">server URL</param>
-        /// <param name="request">Request</param>
-        /// <param name="validationResult">validation errors</param>
-        /// <param name="duration">duration</param>
-        /// <param name="contentLength">content length</param>
-        /// <param name="statusCode">status code</param>
-        /// <returns>PerfLog</returns>
+        /// <param name="server">server URL.</param>
+        /// <param name="request">Request.</param>
+        /// <param name="validationResult">validation errors.</param>
+        /// <param name="duration">duration.</param>
+        /// <param name="contentLength">content length.</param>
+        /// <param name="statusCode">status code.</param>
+        /// <returns>PerfLog.</returns>
         public PerfLog CreatePerfLog(string server, Request request, ValidationResult validationResult, double duration, long contentLength, int statusCode)
         {
             if (validationResult == null)
@@ -461,7 +466,7 @@ namespace LodeRunner
             PerfLog log = new (validationResult.ValidationErrors)
             {
                 Server = server,
-                Tag = config.Tag,
+                Tag = this.config.Tag,
                 Path = request?.Path ?? string.Empty,
                 StatusCode = statusCode,
                 Category = request?.PerfTarget?.Category ?? string.Empty,
@@ -472,10 +477,10 @@ namespace LodeRunner
             };
 
             // determine the Performance Level based on category
-            if (targets.ContainsKey(log.Category))
+            if (this.targets.ContainsKey(log.Category))
             {
                 // lookup the target
-                PerfTarget target = targets[log.Category];
+                PerfTarget target = this.targets[log.Category];
 
                 if (target != null &&
                     !string.IsNullOrWhiteSpace(target.Category) &&
@@ -543,7 +548,7 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Display the startup message for RunLoop
+        /// Display the startup message for RunLoop.
         /// </summary>
         private static void DisplayStartupMessage(Config config)
         {
@@ -569,30 +574,30 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Open an http client
+        /// Open an http client.
         /// </summary>
-        /// <param name="index">index of base URL</param>
+        /// <param name="index">index of base URL.</param>
         private HttpClient OpenClient(int index)
         {
-            if (index < 0 || index >= config.Server.Count)
+            if (index < 0 || index >= this.config.Server.Count)
             {
                 throw new ArgumentException($"Index out of range: {index}", nameof(index));
             }
 
-            return OpenHttpClient(config.Server[index]);
+            return this.OpenHttpClient(this.config.Server[index]);
         }
 
         /// <summary>
         /// Opens and configures the shared HttpClient
         ///
-        /// Disposed in IDispose
+        /// Disposed in IDispose.
         /// </summary>
-        /// <returns>HttpClient</returns>
+        /// <returns>HttpClient.</returns>
         private HttpClient OpenHttpClient(string host)
         {
             HttpClient client = new (httpSocketHandler)
             {
-                Timeout = new TimeSpan(0, 0, config.Timeout),
+                Timeout = new TimeSpan(0, 0, this.config.Timeout),
                 BaseAddress = new Uri(host),
             };
             client.DefaultRequestHeaders.Add("User-Agent", $"l8r/{Core.Version.ShortVersion}");
@@ -601,10 +606,10 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Log the test
+        /// Log the test.
         /// </summary>
-        /// <param name="request">Request</param>
-        /// <param name="perfLog">PerfLog</param>
+        /// <param name="request">Request.</param>
+        /// <param name="perfLog">PerfLog.</param>
         private void LogToConsole(Request request, ValidationResult valid, PerfLog perfLog)
         {
             if (request == null)
@@ -642,23 +647,23 @@ namespace LodeRunner
                 };
 
                 // add zone, region tag
-                if (!string.IsNullOrWhiteSpace(config.Zone))
+                if (!string.IsNullOrWhiteSpace(this.config.Zone))
                 {
-                    logDict.Add("Zone", config.Zone);
+                    logDict.Add("Zone", this.config.Zone);
                 }
 
-                if (!string.IsNullOrWhiteSpace(config.Region))
+                if (!string.IsNullOrWhiteSpace(this.config.Region))
                 {
-                    logDict.Add("Region", config.Region);
+                    logDict.Add("Region", this.config.Region);
                 }
 
-                if (!string.IsNullOrWhiteSpace(config.Tag))
+                if (!string.IsNullOrWhiteSpace(this.config.Tag))
                 {
-                    logDict.Add("Tag", config.Tag);
+                    logDict.Add("Tag", this.config.Tag);
                 }
 
                 // log error details
-                if (config.VerboseErrors && valid.ValidationErrors.Count > 0)
+                if (this.config.VerboseErrors && valid.ValidationErrors.Count > 0)
                 {
                     string errors = string.Empty;
 
@@ -673,8 +678,7 @@ namespace LodeRunner
                     logDict.Add("ErrorDetails", errors.Trim());
                 }
 
-                //Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
-
+                // Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
         }

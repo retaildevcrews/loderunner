@@ -29,6 +29,11 @@ namespace LodeRunner.Services
         private readonly CancellationTokenSource cancellationTokenSource;
         private ClientStatus clientStatus;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
         public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
         {
             this.config = config ?? throw new Exception("CommandOptions is null");
@@ -52,6 +57,9 @@ namespace LodeRunner.Services
         /// </value>
         public ServiceProvider ServiceProvider { get; private set; }
 
+        /// <summary>
+        /// Dispose.
+        /// </summary>
         public void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -64,23 +72,23 @@ namespace LodeRunner.Services
         public async Task<int> StartService()
         {
             // set any missing values
-            config.SetDefaultValues();
+            this.config.SetDefaultValues();
 
             // don't run the test on a dry run
-            if (config.DryRun)
+            if (this.config.DryRun)
             {
-                return await StartDryRun();
+                return await this.StartDryRun();
             }
 
             try
             {
-                if (config.DelayStart == -1)
+                if (this.config.DelayStart == -1)
                 {
-                    return await StartAndWait();
+                    return await this.StartAndWait();
                 }
                 else
                 {
-                    return await Start();
+                    return await this.Start();
                 }
             }
             catch (TaskCanceledException tce)
@@ -102,40 +110,58 @@ namespace LodeRunner.Services
             }
         }
 
+        /// <summary>
+        /// Gets the client status service.
+        /// </summary>
+        /// <returns>IClientStatusService.</returns>
         public IClientStatusService GetClientStatusService()
         {
-            return ServiceProvider.GetService<IClientStatusService>();
+            return this.ServiceProvider.GetService<IClientStatusService>();
         }
 
+        /// <summary>
+        /// Gets the load test configuration service.
+        /// </summary>
+        /// <returns>ILoadTestConfigService.</returns>
         public ILoadTestConfigService GetLoadTestConfigService()
         {
-            return ServiceProvider.GetService<ILoadTestConfigService>();
+            return this.ServiceProvider.GetService<ILoadTestConfigService>();
         }
 
-        //TODO Move to proper location when merging with DAL
+        /// <summary>
+        /// Logs the status change.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
-            Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); //TODO fix LogStatusChange implementation
+            // TODO Move to proper location when merging with DAL
+            Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
         }
 
-        // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
+        /// <summary>
+        /// Updates the cosmos status.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
+            // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
+
             // Update Entity, TODO: do we need a lock here?
+            this.clientStatus.Message = args.Message;
+            this.clientStatus.Status = args.Status;
 
-            clientStatus.Message = args.Message;
-            clientStatus.Status = args.Status;
+            this.clientStatus = await this.GetClientStatusService().PostUpdate(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
 
-            this.clientStatus = await GetClientStatusService().PostUpdate(this.clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
-
-            //TODO : Add try catch and write log , then exit App?
+            // TODO : Add try catch and write log , then exit App?
         }
 
         /// <summary>
         /// Validates the settings.
         /// </summary>
         /// <param name="provider">The provider.</param>
-        /// <exception cref="System.ApplicationException">Failed to validate application configuration</exception>
+        /// <exception cref="System.ApplicationException">Failed to validate application configuration.</exception>
         private static void ValidateSettings(ServiceProvider provider)
         {
             var settings = provider.GetServices<ISettingsValidator>();
@@ -158,37 +184,35 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> Start()
         {
-            if (config.DelayStart > 0)
+            if (this.config.DelayStart > 0)
             {
-                Console.WriteLine($"Waiting {config.DelayStart} seconds to start test ...\n");
+                Console.WriteLine($"Waiting {this.config.DelayStart} seconds to start test ...\n");
 
                 // wait to start the test run
-                await Task.Delay(config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(this.config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
 
-            ValidationTest lrt = new (config);
+            ValidationTest lrt = new (this.config);
 
-            if (config.RunLoop)
+            if (this.config.RunLoop)
             {
                 // build and run the web host
-                IHost host = App.BuildWebHost(config);
+                IHost host = App.BuildWebHost(this.config);
                 _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
-                int res = lrt.RunLoop(config, this.cancellationTokenSource.Token);
+                int res = lrt.RunLoop(this.config, this.cancellationTokenSource.Token);
 
                 // stop and dispose the web host
                 await host.StopAsync(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
                 host.Dispose();
-
-                //host = null; Remove unnecessary value assignment (IDE0059)
 
                 return res;
             }
             else
             {
                 // run one iteration
-                return await lrt.RunOnce(config, this.cancellationTokenSource.Token).ConfigureAwait(false);
+                return await lrt.RunOnce(this.config, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
         }
 
@@ -198,7 +222,7 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private Task<int> StartDryRun()
         {
-            return Task.Run(() => LRCommandLine.DoDryRun(config));
+            return Task.Run(() => LRCommandLine.DoDryRun(this.config));
         }
 
         /// <summary>
@@ -207,10 +231,10 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
-            InitAndRegister();
+            this.InitAndRegister();
 
-            ProcessingEventBus.StatusUpdate += UpdateCosmosStatus;
-            ProcessingEventBus.StatusUpdate += LogStatusChange;
+            ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
+            ProcessingEventBus.StatusUpdate += this.LogStatusChange;
 
             ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
 
@@ -218,7 +242,7 @@ namespace LodeRunner.Services
             try
             {
                 // wait indefinitely
-                await Task.Delay(config.DelayStart, this.cancellationTokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(this.config.DelayStart, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException tce)
             {
@@ -243,25 +267,25 @@ namespace LodeRunner.Services
         {
             Secrets.LoadSecrets(config);
 
-            var serviceBuilder = RegisterSystemObjects();
+            var serviceBuilder = this.RegisterSystemObjects();
 
             ValidateSettings(this.ServiceProvider);
 
-            RegisterServices(serviceBuilder);
+            this.RegisterServices(serviceBuilder);
 
-            RegisterCancellationTokensForServices();
+            this.RegisterCancellationTokensForServices();
         }
 
         /// <summary>
         /// Registers system objects.
         /// </summary>
-        /// <returns>The Service Collection</returns>
+        /// <returns>The Service Collection.</returns>
         private ServiceCollection RegisterSystemObjects()
         {
             var serviceBuilder = new ServiceCollection();
 
             serviceBuilder
-                .AddSingleton<Config>(config)
+                .AddSingleton<Config>(this.config)
                 .AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>())
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
@@ -270,7 +294,7 @@ namespace LodeRunner.Services
                 // Add other System objects required during Constructor
 
             // We need to create service provider here since it utilized when Validating Settings
-            ServiceProvider = serviceBuilder.BuildServiceProvider();
+            this.ServiceProvider = serviceBuilder.BuildServiceProvider();
             return serviceBuilder;
         }
 
@@ -278,8 +302,8 @@ namespace LodeRunner.Services
         /// Registers the services.
         /// </summary>
         /// <param name="serviceBuilder">The service builder.</param>
-        /// <returns>The Service Collection</returns>
-        /// <exception cref="System.Exception">serviceBuilder is null</exception>
+        /// <returns>The Service Collection.</returns>
+        /// <exception cref="System.Exception">serviceBuilder is null.</exception>
         private ServiceCollection RegisterServices(ServiceCollection serviceBuilder)
         {
             if (serviceBuilder == null)
@@ -301,7 +325,7 @@ namespace LodeRunner.Services
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
 
             // We build service provider here since new objects were added to the collection
-            ServiceProvider = serviceBuilder.BuildServiceProvider();
+            this.ServiceProvider = serviceBuilder.BuildServiceProvider();
 
             return serviceBuilder;
         }
@@ -314,7 +338,7 @@ namespace LodeRunner.Services
         {
             this.cancellationTokenSource.Token.Register(() =>
             {
-                GetClientStatusService().TerminateService(this.clientStatus);
+                this.GetClientStatusService().TerminateService(this.clientStatus);
             });
         }
     }
