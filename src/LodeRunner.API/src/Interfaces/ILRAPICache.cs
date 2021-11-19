@@ -24,25 +24,32 @@ namespace LodeRunner.API.Interfaces
         void ProcessClientStatusChange(Document doc);
 
         /// <summary>
-        /// Gets client by clientStatusId from cache.
-        /// </summary>
-        /// <param name="clientStatusId">Client status ID.</param>
-        /// <returns>Client.</returns>
-        Client GetClientByClientStatusId(string clientStatusId);
-
-        /// <summary>
         /// Handles cache results.
         /// </summary>
         /// <typeparam name="TEntity">Entity type.</typeparam>
         /// <param name="results">Results from the cache.</param>
-        /// <param name="logger">Logger.</param>
         /// <returns>Action result.</returns>
-        IActionResult HandleCacheResult<TEntity>(TEntity results, NgsaLog logger);
+        Task<ActionResult> HandleCacheResult<TEntity>(TEntity results);
+
+        /// <summary>
+        /// Handles the cache result.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="results">The results.</param>
+        /// <returns>Action result.</returns>
+        Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results);
 
         /// <summary>
         /// Gets clients from cache.
         /// </summary>
         /// <returns>Enumerable of clients.</returns>
-        IEnumerable<Client> GetClients();
+        Task<ActionResult> GetClients();
+
+        /// <summary>
+        /// Gets client by clientStatusId from cache.
+        /// </summary>
+        /// <param name="clientStatusId">Client status ID.</param>
+        /// <returns>Client.</returns>
+        Task<ActionResult> GetClientByClientStatusId(string clientStatusId);
     }
 }

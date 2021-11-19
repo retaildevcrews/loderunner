@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
@@ -45,11 +46,11 @@ namespace LodeRunner.API.Controllers
             Summary = "Creates a new LoadTestConfig item",
             Description = "Requires Load Test Config payload",
             OperationId = "CreateLoadTestConfig")]
-        public IActionResult CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return ResultHandler.CreateCancellationInProgressResult();
+                return await ResultHandler.CreateCancellationInProgressResult();
             }
 
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
@@ -57,20 +58,20 @@ namespace LodeRunner.API.Controllers
 
             if (newloadTestConfig.Validate(out string errorMessage))
             {
-                var insertedLoadTestConfig = loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token).Result;
+                var insertedLoadTestConfig = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
 
                 if (insertedLoadTestConfig != null)
                 {
-                    return ResultHandler.CreateResult(insertedLoadTestConfig, HttpStatusCode.OK);
+                    return await ResultHandler.CreateResult(insertedLoadTestConfig, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return ResultHandler.CreateResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
+                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
                 }
             }
             else
             {
-                return ResultHandler.CreateResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
+                return await ResultHandler.CreateErrorResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
             }
         }
     }
