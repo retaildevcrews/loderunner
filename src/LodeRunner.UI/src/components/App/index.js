@@ -4,6 +4,7 @@ import ContentPage from "../ContentPage";
 import PendingFeature from "../PendingFeature";
 import Modal from "../Modal";
 import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import { fetchClients } from "../../services/api-service";
 import "./styles.css";
 
 function App() {
@@ -17,31 +18,11 @@ function App() {
   const fetchClientsIntervalId = useRef();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_SERVER}/api/clients`)
-      .then((res) => res.json())
-      .then((body) => {
-        if (Array.isArray(body)) {
-          setClients(body.filter((c) => c));
-        }
-      })
-      .catch((err) => {
-        // eslint-disable-next-line
-        console.error("Issue fetching Clients", err);
-      });
+    fetchClients().then((c) => setClients(c));
   }, [fetchClientsCount]);
 
   useEffect(() => {
-    // fetch(`${process.env.REACT_APP_SERVER}/api/configs`)
-    //   .then((res) => res.json())
-    //   .then((body) => {
-    //     if (Array.isArray(body)) {
-    //       setConfigs(body.filter((c) => c));
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     // eslint-disable-next-line
-    //     console.error("Issue fetching Configs", err);
-    //   });
+    // fetchConfigs().then((c) => setConfigs(c));
     setConfigs([
       {
         entityType: "LoadTestConfig",
