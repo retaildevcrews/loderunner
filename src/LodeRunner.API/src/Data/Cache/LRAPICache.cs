@@ -71,7 +71,7 @@ namespace LodeRunner.API.Data
             {
                 await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
-                return await ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
+                return new NoContentResult();
             }
 
             return await this.InternalReturnOKResult(results);
