@@ -44,7 +44,7 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "Array of `Client` documents or empty array if not found.", typeof(Client[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of Client objects",
@@ -57,7 +57,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            return await appCache.GetClients(Logger);
+            return await appCache.GetClients();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, "Single `Client` document by clientStatusId.", typeof(Client), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Middleware.Validation.ValidationError), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
@@ -89,10 +89,10 @@ namespace LodeRunner.API.Controllers
             {
                 await Logger.LogWarning(nameof(this.GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
 
-                return await ResultHandler.CreateResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            return await appCache.GetClientByClientStatusId(clientStatusId, Logger);
+            return await appCache.GetClientByClientStatusId(clientStatusId);
         }
     }
  }

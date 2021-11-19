@@ -77,13 +77,10 @@ namespace LodeRunner.API.Middleware
         /// <returns>The Task.</returns>
         public async Task LogInformation(string method, string message, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
-            await Task.Run(() =>
+            if (LogLevel <= LogLevel.Information)
             {
-                if (LogLevel <= LogLevel.Information)
-                {
-                    WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
-                }
-            });
+                await WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
+            }
         }
 
         /// <summary>
@@ -97,13 +94,10 @@ namespace LodeRunner.API.Middleware
         /// <returns>The Task.</returns>
         public async Task LogWarning(string method, string message, LogEventId eventId = null, HttpContext context = null, Dictionary<string, object> dictionary = null)
         {
-            await Task.Run(() =>
+            if (LogLevel <= LogLevel.Warning)
             {
-                if (LogLevel <= LogLevel.Warning)
-                {
-                    WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
-                }
-            });
+                await WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
+            }
         }
 
         /// <summary>
@@ -118,54 +112,54 @@ namespace LodeRunner.API.Middleware
         /// <returns>The Task.</returns>
         public async Task LogError(string method, string message, LogEventId eventId = null, HttpContext context = null, Exception ex = null, Dictionary<string, object> dictionary = null)
         {
-            await Task.Run(() =>
+            if (LogLevel <= LogLevel.Error)
             {
-                if (LogLevel <= LogLevel.Error)
+                Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
+
+                // add exception
+                if (ex != null)
                 {
-                    Dictionary<string, object> d = this.GetDictionary(method, message, LogLevel.Error, eventId, context);
-
-                    // add exception
-                    if (ex != null)
-                    {
-                        d.Add("ExceptionType", ex.GetType().FullName);
-                        d.Add("ExceptionMessage", ex.Message);
-                    }
-
-                    // add dictionary
-                    if (dictionary != null && dictionary.Count > 0)
-                    {
-                        foreach (KeyValuePair<string, object> kv in dictionary)
-                        {
-                            d.Add(kv.Key, kv.Value);
-                        }
-                    }
-
-                    // log the error
-                    WriteLog(LogLevel.Error, d);
+                    d.Add("ExceptionType", ex.GetType().FullName);
+                    d.Add("ExceptionMessage", ex.Message);
                 }
-            });
+
+                // add dictionary
+                if (dictionary != null && dictionary.Count > 0)
+                {
+                    foreach (KeyValuePair<string, object> kv in dictionary)
+                    {
+                        d.Add(kv.Key, kv.Value);
+                    }
+                }
+
+                // log the error
+                await WriteLog(LogLevel.Error, d);
+            }
         }
 
         // write the log to console or console.error
-        private static void WriteLog(LogLevel logLevel, Dictionary<string, object> data)
+        private static async Task WriteLog(LogLevel logLevel, Dictionary<string, object> data)
         {
-            Console.ForegroundColor = logLevel switch
+            await Task.Run(() =>
             {
-                LogLevel.Error => ConsoleColor.Red,
-                LogLevel.Warning => ConsoleColor.Yellow,
-                _ => ConsoleColor.Green,
-            };
+                Console.ForegroundColor = logLevel switch
+                {
+                    LogLevel.Error => ConsoleColor.Red,
+                    LogLevel.Warning => ConsoleColor.Yellow,
+                    _ => ConsoleColor.Green,
+                };
 
-            if (logLevel == LogLevel.Error)
-            {
-                Console.Error.WriteLine(JsonSerializer.Serialize(data, Options));
-            }
-            else
-            {
-                Console.WriteLine(JsonSerializer.Serialize(data, Options));
-            }
+                if (logLevel == LogLevel.Error)
+                {
+                    Console.Error.WriteLine(JsonSerializer.Serialize(data, Options));
+                }
+                else
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(data, Options));
+                }
 
-            Console.ResetColor();
+                Console.ResetColor();
+            });
         }
 
         // convert log to dictionary

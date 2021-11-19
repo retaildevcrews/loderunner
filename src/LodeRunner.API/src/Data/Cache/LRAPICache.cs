@@ -60,9 +60,8 @@ namespace LodeRunner.API.Data
         /// </summary>
         /// <typeparam name="TEntity">Entity type of results.</typeparam>
         /// <param name="results">Results from cache get.</param>
-        /// <param name="logger">Logger.</param>
         /// <returns>IActionResult.</returns>
-        public async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
+        public async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results)
         {
             // log the request
             await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
@@ -86,7 +85,7 @@ namespace LodeRunner.API.Data
         ///// <returns>
         ///// Action result.
         ///// </returns>
-        public async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
+        public async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results)
         {
             // log the request
             await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
@@ -95,7 +94,7 @@ namespace LodeRunner.API.Data
             {
                 await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
-                return await ResultHandler.CreateResult(DataNotFound, HttpStatusCode.NotFound);
+                return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
             return await this.InternalReturnOKResult(results);
@@ -105,29 +104,27 @@ namespace LodeRunner.API.Data
         /// Gets client from cache by clientStatusId.
         /// </summary>
         /// <param name="clientStatusId">Client status ID.</param>
-        /// <param name="logger">The logger.</param>
         /// <returns>Client.</returns>
-        public async Task<ActionResult> GetClientByClientStatusId(string clientStatusId, NgsaLog logger)
+        public async Task<ActionResult> GetClientByClientStatusId(string clientStatusId)
         {
             this.ValidateEntityId(clientStatusId);
 
             Client result = await this.GetEntry<Client>(clientStatusId);
 
-            return await HandleCacheResult(result, logger);
+            return await HandleCacheResult(result);
         }
 
         /// <summary>
         /// Gets clients from cache.
         /// </summary>
-        /// <param name="logger">The logger.</param>
         /// <returns>
         /// Enumerable of clients.
         /// </returns>
-        public async Task<ActionResult> GetClients(NgsaLog logger)
+        public async Task<ActionResult> GetClients()
         {
             IEnumerable<Client> result = await this.GetEntries<Client>().ConfigureAwait(false);
 
-            return await HandleCacheResult(result, logger);
+            return await HandleCacheResult(result);
         }
 
         /// <summary>
@@ -162,7 +159,7 @@ namespace LodeRunner.API.Data
                 await this.logger.LogError(nameof(this.HandleCacheResult), "Exception", NgsaLog.LogEvent500, ex: ex);
 
                 // return 500 error
-                return await ResultHandler.CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
+                return await ResultHandler.CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
             }
         }
 

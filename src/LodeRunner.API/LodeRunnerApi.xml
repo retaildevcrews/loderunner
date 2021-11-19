@@ -572,21 +572,22 @@
             Handles query requests from the controllers.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult(System.String,System.Net.HttpStatusCode)">
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateErrorResult(System.String,System.Net.HttpStatusCode)">
             <summary>
-            ContentResult factory.
+            Creates an Error JsonResult
             </summary>
             <param name="message">The Message.</param>
             <param name="statusCode">The Message StatusCode.</param>
             <returns>JsonResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult``1(``0,System.Net.HttpStatusCode)">
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult``1(``0,System.Net.HttpStatusCode,System.String)">
             <summary>
             Content Result from data.
             </summary>
             <typeparam name="TEntity">the data type</typeparam>
             <param name="data">the data.</param>
             <param name="statusCode">The http code.</param>
+            <param name="contentType">Json Content Type</param>
             <returns>the Json Result</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateCancellationInProgressResult">
@@ -596,9 +597,9 @@
             </summary>
             <returns>JsonResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateResult(System.Collections.Generic.List{LodeRunner.API.Middleware.Validation.ValidationError},System.String)">
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateBadRequestResult(System.Collections.Generic.List{LodeRunner.API.Middleware.Validation.ValidationError},System.String)">
             <summary>
-            ContentResult factory.
+            Create a BadRequest Result.
             </summary>
             <param name="errorList">list of validation errors.</param>
             <param name="path">string.</param>
@@ -1049,28 +1050,25 @@
             <param name="loadTestConfigService">injection of load test config service.</param>
             <param name="cancellationTokenSource">Cancellation token source.</param>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0},LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Handles cache results.
             </summary>
             <typeparam name="TEntity">Entity type of results.</typeparam>
             <param name="results">Results from cache get.</param>
-            <param name="logger">Logger.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String,LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String)">
             <summary>
             Gets client from cache by clientStatusId.
             </summary>
             <param name="clientStatusId">Client status ID.</param>
-            <param name="logger">The logger.</param>
             <returns>Client.</returns>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClients(LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Data.LRAPICache.GetClients">
             <summary>
             Gets clients from cache.
             </summary>
-            <param name="logger">The logger.</param>
             <returns>
             Enumerable of clients.
             </returns>
@@ -1484,37 +1482,33 @@
             </summary>
             <param name="doc">Changefeed item.</param>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(``0,LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(``0)">
             <summary>
             Handles cache results.
             </summary>
             <typeparam name="TEntity">Entity type.</typeparam>
             <param name="results">Results from the cache.</param>
-            <param name="logger">Logger.</param>
             <returns>Action result.</returns>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0},LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Handles the cache result.
             </summary>
             <typeparam name="TEntity">The type of the entity.</typeparam>
             <param name="results">The results.</param>
-            <param name="logger">The logger.</param>
             <returns>Action result.</returns>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClients(LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClients">
             <summary>
             Gets clients from cache.
             </summary>
-            <param name="logger">The logger.</param>
             <returns>Enumerable of clients.</returns>
         </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClientByClientStatusId(System.String,LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClientByClientStatusId(System.String)">
             <summary>
             Gets client by clientStatusId from cache.
             </summary>
             <param name="clientStatusId">Client status ID.</param>
-            <param name="logger">The logger.</param>
             <returns>Client.</returns>
         </member>
         <member name="T:LodeRunner.API.Interfaces.ILRAPIChangeFeedService">

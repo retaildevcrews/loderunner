@@ -62,12 +62,12 @@ namespace LodeRunner.API.Controllers
                 }
                 else
                 {
-                    return await ResultHandler.CreateResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
+                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
                 }
             }
             else
             {
-                return await ResultHandler.CreateResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
+                return await ResultHandler.CreateErrorResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
             }
         }
     }

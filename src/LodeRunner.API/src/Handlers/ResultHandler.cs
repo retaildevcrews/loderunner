@@ -14,23 +14,18 @@ namespace LodeRunner.API.Middleware
     /// </summary>
     public static class ResultHandler
     {
+        private const string JsonContentTypeApplicationJson = "application/json";
+        private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
+
         /// <summary>
-        /// ContentResult factory.
+        /// Creates an Error JsonResult
         /// </summary>
         /// <param name="message">The Message.</param>
         /// <param name="statusCode">The Message StatusCode.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateResult(string message, HttpStatusCode statusCode)
+        public static async Task<JsonResult> CreateErrorResult(string message, HttpStatusCode statusCode)
         {
-           return await Task.Run(() =>
-           {
-               JsonResult res = new (new ErrorResult { Error = statusCode, Message = message })
-               {
-                   StatusCode = (int)statusCode,
-               };
-
-               return res;
-           });
+            return await CreateResult(new ErrorResult { Error = statusCode, Message = message }, statusCode);
         }
 
         /// <summary>
@@ -39,14 +34,16 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntity">the data type</typeparam>
         /// <param name="data">the data.</param>
         /// <param name="statusCode">The http code.</param>
+        /// <param name="contentType">Json Content Type</param>
         /// <returns>the Json Result</returns>
-        public static async Task<JsonResult> CreateResult<TEntity>(TEntity data, HttpStatusCode statusCode)
+        public static async Task<JsonResult> CreateResult<TEntity>(TEntity data, HttpStatusCode statusCode, string contentType = JsonContentTypeApplicationJson)
         {
             return await Task.Run(() =>
             {
                 JsonResult res = new (data)
                 {
                     StatusCode = (int)statusCode,
+                    ContentType = contentType,
                 };
 
                 return res;
@@ -60,37 +57,28 @@ namespace LodeRunner.API.Middleware
         /// <returns>JsonResult.</returns>
         public static async Task<JsonResult> CreateCancellationInProgressResult()
         {
-            return await CreateResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
+            return await CreateErrorResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
         }
 
         /// <summary>
-        /// ContentResult factory.
+        /// Create a BadRequest Result.
         /// </summary>
         /// <param name="errorList">list of validation errors.</param>
         /// <param name="path">string.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateResult(List<ValidationError> errorList, string path)
+        public static async Task<JsonResult> CreateBadRequestResult(List<ValidationError> errorList, string path)
         {
-            return await Task.Run(() =>
-                {
-                    Dictionary<string, object> data = new ()
-                    {
-                        { "type", ValidationError.GetErrorLink(path) },
-                        { "title", "Parameter validation error" },
-                        { "detail", "One or more invalid parameters were specified." },
-                        { "status", (int)HttpStatusCode.BadRequest },
-                        { "instance", path },
-                        { "validationErrors", errorList },
-                    };
+            Dictionary<string, object> data = new ()
+            {
+                { "type", ValidationError.GetErrorLink(path) },
+                { "title", "Parameter validation error" },
+                { "detail", "One or more invalid parameters were specified." },
+                { "status", (int)HttpStatusCode.BadRequest },
+                { "instance", path },
+                { "validationErrors", errorList },
+            };
 
-                    JsonResult res = new (data)
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ContentType = "application/problem+json",
-                    };
-
-                    return res;
-                });
+            return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);
         }
     }
 }
