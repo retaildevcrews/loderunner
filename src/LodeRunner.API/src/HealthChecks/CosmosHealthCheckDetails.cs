@@ -48,10 +48,10 @@ namespace LodeRunner.API
             };
 
             // check duration
-            if (result.Duration.TotalMilliseconds >= CosmosTimeoutMs)
+            if (result.Duration.TotalMilliseconds >= this.CosmosTimeoutMs)
             {
                 result.Status = HealthStatus.Unhealthy;
-                result.Message = $"{HealthzCheck.TimeoutMessage} of {CosmosTimeoutMs} milliseconds";
+                result.Message = $"{HealthzCheck.TimeoutMessage} of {this.CosmosTimeoutMs} milliseconds";
             }
             else if (result.Duration.TotalMilliseconds > targetDurationMs)
             {

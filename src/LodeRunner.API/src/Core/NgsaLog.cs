@@ -79,7 +79,7 @@ namespace LodeRunner.API.Middleware
         {
             if (LogLevel <= LogLevel.Information)
             {
-                await WriteLog(LogLevel.Information, GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
+                await WriteLog(LogLevel.Information, this.GetDictionary(method, message, LogLevel.Information, null, context, dictionary));
             }
         }
 
@@ -96,7 +96,7 @@ namespace LodeRunner.API.Middleware
         {
             if (LogLevel <= LogLevel.Warning)
             {
-                await WriteLog(LogLevel.Warning, GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
+                await WriteLog(LogLevel.Warning, this.GetDictionary(method, message, LogLevel.Warning, eventId, context, dictionary));
             }
         }
 

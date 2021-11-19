@@ -64,11 +64,11 @@ namespace LodeRunner.API.Data
         public async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results)
         {
             // log the request
-            await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
+            await this.logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (!results.Any())
             {
-                await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
+                await this.logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
                 return new NoContentResult();
             }
@@ -76,23 +76,22 @@ namespace LodeRunner.API.Data
             return await this.InternalReturnOKResult(results);
         }
 
-        ///// <summary>
-        ///// Handles cache results.
-        ///// </summary>
-        ///// <typeparam name="TEntity">Entity type.</typeparam>
-        ///// <param name="results">Results from the cache.</param>
-        ///// <param name="logger">Logger.</param>
-        ///// <returns>
-        ///// Action result.
-        ///// </returns>
+        /// <summary>
+        /// Handles cache results.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type.</typeparam>
+        /// <param name="results">Results from the cache.</param>
+        /// <returns>
+        /// Action result.
+        /// </returns>
         public async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results)
         {
             // log the request
-            await logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
+            await this.logger.LogInformation(nameof(this.HandleCacheResult), CacheDataRequest);
 
             if (results == null)
             {
-                await logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
+                await this.logger.LogInformation(nameof(this.HandleCacheResult), DataNotFound);
 
                 return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
             }
@@ -111,7 +110,7 @@ namespace LodeRunner.API.Data
 
             Client result = await this.GetEntry<Client>(clientStatusId);
 
-            return await HandleCacheResult(result);
+            return await this.HandleCacheResult(result);
         }
 
         /// <summary>
@@ -124,7 +123,7 @@ namespace LodeRunner.API.Data
         {
             IEnumerable<Client> result = await this.GetEntries<Client>().ConfigureAwait(false);
 
-            return await HandleCacheResult(result);
+            return await this.HandleCacheResult(result);
         }
 
         /// <summary>
