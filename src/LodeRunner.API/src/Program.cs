@@ -105,7 +105,7 @@ namespace LodeRunner.API
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                logger.LogInformation($"LodeRunner.API Backend Started", LodeRunner.API.Middleware.VersionExtension.Version);
+                await logger.LogInformation($"LodeRunner.API Backend Started", LodeRunner.API.Middleware.VersionExtension.Version);
 
                 // Preps the system.
                 InitializeSystemComponents();
@@ -121,7 +121,7 @@ namespace LodeRunner.API
                 // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
 
                 // end app on error
-                logger.LogError(nameof(RunApp), "Exception", ex: ex);
+                await logger.LogError(nameof(RunApp), "Exception", ex: ex);
 
                 return -1;
             }
@@ -318,7 +318,7 @@ namespace LodeRunner.API
                 e.Cancel = true;
                 cancelTokenSource.Cancel();
 
-                logger.LogInformation("Shutdown", "Shutting Down ...");
+                await logger.LogInformation("Shutdown", "Shutting Down ...");
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method
