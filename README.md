@@ -12,7 +12,7 @@ TODO: Add LodeRunner Overview and link to subfolders for project specific readme
 - .NET 5.0 ([download](https://docs.microsoft.com/en-us/dotnet/core/install/))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
-## Running the System
+## Running the System via Codespaces
 
 ```bash
 make all
@@ -30,3 +30,5 @@ This will...
 - Start fluentbit
 - Start a jumpbox
 - Check the available endpoints
+
+TODO - link to documentation for various app readmes

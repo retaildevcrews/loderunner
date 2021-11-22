@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
@@ -27,7 +28,7 @@ namespace LodeRunner.Services
         private readonly Config config;
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
-        private ClientStatus clientStatus;
+        private readonly ClientStatus clientStatus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
@@ -36,6 +37,8 @@ namespace LodeRunner.Services
         /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
         public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
         {
+            Debug.WriteLine("* LodeRunnerService Constructor *");
+
             this.config = config ?? throw new Exception("CommandOptions is null");
 
             this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow);
@@ -160,13 +163,12 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
+            // TODO: do we need a lock here?
 
-            // Update Entity, TODO: do we need a lock here?
             this.clientStatus.Message = args.Message;
-            this.clientStatus.Status = args.Status;
+            clientStatus.Status = args.Status;
 
-            this.clientStatus = await this.GetClientStatusService().PostUpdate(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
+            _ = await GetClientStatusService().PostUpdate(clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
 
             // TODO : Add try catch and write log , then exit App?
         }
