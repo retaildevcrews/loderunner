@@ -52,7 +52,9 @@ namespace LodeRunner.API.Data
         {
             this.clientStatusService = clientStatusService;
             this.loadTestConfigService = loadTestConfigService;
-            _ = this.SetClientCache();
+
+            // NOTE: We need to make sure Cache gets populated at the time Cache is created, other wise any incoming request for Client will return a false HttpStatusCode.NoContent response.
+            this.SetClientCache().Wait();
         }
 
         /// <summary>

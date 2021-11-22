@@ -467,7 +467,7 @@
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateErrorResult(System.String,System.Net.HttpStatusCode)">
             <summary>
-            Creates an Error JsonResult
+            Creates an Error JsonResult.
             </summary>
             <param name="message">The Message.</param>
             <param name="statusCode">The Message StatusCode.</param>
@@ -480,8 +480,8 @@
             <typeparam name="TEntity">the data type.</typeparam>
             <param name="data">the data.</param>
             <param name="statusCode">The http code.</param>
-            <param name="contentType">Json Content Type</param>
-            <returns>the Json Result</returns>
+            <param name="contentType">Json Content Type.</param>
+            <returns>the Json Result.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateCancellationInProgressResult">
             <summary>
@@ -951,6 +951,16 @@
             <param name="results">Results from cache get.</param>
             <returns>IActionResult.</returns>
         </member>
+        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(``0)">
+            <summary>
+            Handles cache results.
+            </summary>
+            <typeparam name="TEntity">Entity type.</typeparam>
+            <param name="results">Results from the cache.</param>
+            <returns>
+            Action result.
+            </returns>
+        </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String)">
             <summary>
             Gets client from cache by clientStatusId.
@@ -1003,11 +1013,17 @@
             Model of client.
             </summary>
         </member>
+        <member name="M:LodeRunner.API.Models.Client.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.Models.Client"/> class.
+            </summary>
+        </member>
         <member name="M:LodeRunner.API.Models.Client.#ctor(LodeRunner.Core.Models.ClientStatus)">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.API.Models.Client"/> class.
             </summary>
-            <param name="clientStatus">ClientStatus.</param>
+            <param name="clientStatus">The client status.</param>
+            <exception cref="T:System.ArgumentException">clientStatus cannot be null</exception>
         </member>
         <member name="P:LodeRunner.API.Models.Client.EntityType">
             <summary>

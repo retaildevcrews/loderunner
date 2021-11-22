@@ -58,6 +58,20 @@ namespace LodeRunner.Services
         public ServiceProvider ServiceProvider { get; private set; }
 
         /// <summary>
+        /// Gets the ClientStatusId
+        /// </summary>
+        /// <value>
+        /// The Id
+        /// </value>
+        public string ClientStatusId
+        {
+            get
+            {
+                return clientStatus.Id;
+            }
+        }
+
+        /// <summary>
         /// Dispose.
         /// </summary>
         public void Dispose()
