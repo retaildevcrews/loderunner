@@ -155,6 +155,7 @@ namespace LodeRunner.Services
             clientStatus.Status = args.Status;
 
             _ = await GetClientStatusService().PostUpdate(clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
+
             // TODO : Add try catch and write log , then exit App?
         }
 
