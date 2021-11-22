@@ -128,6 +128,14 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
+        /// Stop Service forcing a cancellation
+        /// </summary>
+        public void StopService()
+        {
+            this.cancellationTokenSource.Cancel(false);
+        }
+
+        /// <summary>
         /// Gets the client status service.
         /// </summary>
         /// <returns>IClientStatusService.</returns>
