@@ -82,7 +82,7 @@ This object is primarily for conveying the curent status, time of that status, a
 | Id              |   String   | GUID used to retrieve the object directly | Yes | |
 | LastUpdated     |   DateTime | This shows the date and time the entity was last updated | Yes | |
 | LastStatusChange   |     DateTime    | This shows the date and time the status was last change | Yes | |
-| Status          |   String   | Current status of load client      |    Yes   | [`Starting`, `Ready`, `Testing`, `Terminating`] |
+| Status          |   String   | Current status of load client      |    Yes   | [`Unknown`, `Starting`, `Ready`, `Testing`, `Terminating`] |
 | Message         |   String   | Additional information conveyed as part of the status update | No | |
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
 
