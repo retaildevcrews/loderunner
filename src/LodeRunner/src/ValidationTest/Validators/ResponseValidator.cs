@@ -12,17 +12,17 @@ using LodeRunner.Model;
 namespace LodeRunner.Validators
 {
     /// <summary>
-    /// Response Validator Class
+    /// Response Validator Class.
     /// </summary>
     public static class ResponseValidator
     {
         /// <summary>
-        /// Validate a request
+        /// Validate a request.
         /// </summary>
-        /// <param name="r">Request</param>
-        /// <param name="response">HttpResponseMessage</param>
-        /// <param name="body">response body</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="r">Request.</param>
+        /// <param name="response">HttpResponseMessage.</param>
+        /// <param name="body">response body.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(Request r, HttpResponseMessage response, string body)
         {
             ValidationResult result = new ();
@@ -92,11 +92,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate a Validation object
+        /// Validate a Validation object.
         /// </summary>
-        /// <param name="v">Validation object</param>
-        /// <param name="body">string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="v">Validation object.</param>
+        /// <param name="body">string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(Validation v, string body)
         {
             ValidationResult result = new ();
@@ -121,11 +121,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate json properties
+        /// Validate json properties.
         /// </summary>
-        /// <param name="properties">List of JsonProperty</param>
-        /// <param name="body">string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="properties">List of JsonProperty.</param>
+        /// <param name="body">string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(List<JsonItem> properties, string body)
         {
             ValidationResult result = new ();
@@ -202,11 +202,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate a json array
+        /// Validate a json array.
         /// </summary>
-        /// <param name="jArray">JsonArray</param>
-        /// <param name="body">string</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="jArray">JsonArray.</param>
+        /// <param name="body">string.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult Validate(JsonArray jArray, string body)
         {
             ValidationResult result = new ();
@@ -246,11 +246,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Status Code
+        /// Validate Status Code.
         /// </summary>
-        /// <param name="actual">actual value</param>
-        /// <param name="expected">expected value</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="actual">actual value.</param>
+        /// <param name="expected">expected value.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateStatusCode(int actual, int expected)
         {
             ValidationResult result = new ();
@@ -265,11 +265,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Content Type
+        /// Validate Content Type.
         /// </summary>
-        /// <param name="actual">actual value</param>
-        /// <param name="expected">expected value</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="actual">actual value.</param>
+        /// <param name="expected">expected value.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateContentType(string actual, string expected)
         {
             ValidationResult result = new ();
@@ -287,11 +287,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Length
+        /// Validate Length.
         /// </summary>
-        /// <param name="actual">actual value</param>
-        /// <param name="v">Validation object</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="actual">actual value.</param>
+        /// <param name="v">Validation object.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateLength(long actual, Validation v)
         {
             ValidationResult result = new ();
@@ -333,11 +333,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Exact Match
+        /// Validate Exact Match.
         /// </summary>
-        /// <param name="exactMatch">value to match</param>
-        /// <param name="body">response body</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="exactMatch">value to match.</param>
+        /// <param name="body">response body.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateExactMatch(string exactMatch, string body)
         {
             ValidationResult result = new ();
@@ -364,11 +364,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Contains
+        /// Validate Contains.
         /// </summary>
-        /// <param name="containsList">list of strings to validate</param>
-        /// <param name="body">response body</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="containsList">list of strings to validate.</param>
+        /// <param name="body">response body.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateContains(List<string> containsList, string body)
         {
             ValidationResult result = new ();
@@ -398,11 +398,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate Not Contains
+        /// Validate Not Contains.
         /// </summary>
-        /// <param name="notContainsList">list of excluded strings</param>
-        /// <param name="body">response body</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="notContainsList">list of excluded strings.</param>
+        /// <param name="body">response body.</param>
+        /// <returns>ValidationResult.</returns>
         public static ValidationResult ValidateNotContains(List<string> notContainsList, string body)
         {
             ValidationResult result = new ();
@@ -427,11 +427,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate For Each
+        /// Validate For Each.
         /// </summary>
-        /// <param name="validationList">list of Validation objects</param>
-        /// <param name="documentList">dynamic list of documents to validate</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="validationList">list of Validation objects.</param>
+        /// <param name="documentList">dynamic list of documents to validate.</param>
+        /// <returns>ValidationResult.</returns>
         private static ValidationResult ValidateForEach(List<Validation> validationList, List<dynamic> documentList)
         {
             ValidationResult result = new ();
@@ -454,11 +454,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate For Any
+        /// Validate For Any.
         /// </summary>
-        /// <param name="validationList">list of Validation objects</param>
-        /// <param name="documentList">dynamic list of documents to validate</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="validationList">list of Validation objects.</param>
+        /// <param name="documentList">dynamic list of documents to validate.</param>
+        /// <returns>ValidationResult.</returns>
         private static ValidationResult ValidateForAny(List<Validation> validationList, List<dynamic> documentList)
         {
             bool isValid;
@@ -517,11 +517,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate By Index
+        /// Validate By Index.
         /// </summary>
-        /// <param name="byIndexList">list of json properties by index</param>
-        /// <param name="documentList">dynamic list of documents to validate</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="byIndexList">list of json properties by index.</param>
+        /// <param name="documentList">dynamic list of documents to validate.</param>
+        /// <returns>ValidationResult.</returns>
         private static ValidationResult ValidateByIndex(List<JsonPropertyByIndex> byIndexList, List<dynamic> documentList)
         {
             ValidationResult result = new ();
@@ -594,11 +594,11 @@ namespace LodeRunner.Validators
         }
 
         /// <summary>
-        /// Validate json array length
+        /// Validate json array length.
         /// </summary>
-        /// <param name="jArray">json array</param>
-        /// <param name="documentList">dynamic list of documents to validate</param>
-        /// <returns>ValidationResult</returns>
+        /// <param name="jArray">json array.</param>
+        /// <param name="documentList">dynamic list of documents to validate.</param>
+        /// <returns>ValidationResult.</returns>
         private static ValidationResult ValidateJsonArrayLength(JsonArray jArray, List<dynamic> documentList)
         {
             ValidationResult result = new ();

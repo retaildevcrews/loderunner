@@ -58,7 +58,7 @@ namespace LodeRunner.API.Middleware
         /// Gets the arguments.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <returns>the args</returns>
+        /// <returns>the args.</returns>
         private static string[] GetArgs(LoadTestConfig loadTestConfig)
         {
             var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));

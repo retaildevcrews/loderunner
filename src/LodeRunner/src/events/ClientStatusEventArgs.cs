@@ -8,26 +8,45 @@ using LodeRunner.Core.Models;
 namespace LodeRunner.Events
 {
     /// <summary>
-    /// Represents the ClientStatusEventArgs and contains the main functionality of the class
+    /// Represents the ClientStatusEventArgs and contains the main functionality of the class.
     /// </summary>
     /// <seealso cref="System.EventArgs" />
-    public partial class ClientStatusEventArgs : EventArgs
+    public class ClientStatusEventArgs : EventArgs
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientStatusEventArgs"/> class.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="message">The message.</param>
         public ClientStatusEventArgs(ClientStatusType status, string message)
         {
-            LastUpdated = DateTime.UtcNow;
-            Status = status;
-            Message = message;
+            this.LastUpdated = DateTime.UtcNow;
+            this.Status = status;
+            this.Message = message;
         }
-    }
 
-    /// <summary>
-    /// Implements the ClientStatusEventArgs class, fix StyleCopAnalyzer violation #SA1201.
-    /// </summary>
-    public partial class ClientStatusEventArgs
-    {
+        /// <summary>
+        /// Gets or sets the last updated.
+        /// </summary>
+        /// <value>
+        /// The last updated.
+        /// </value>
         public DateTime LastUpdated { get; set; }
+
+        /// <summary>
+        /// Gets or sets the status.
+        /// </summary>
+        /// <value>
+        /// The status.
+        /// </value>
         public ClientStatusType Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the message.
+        /// </summary>
+        /// <value>
+        /// The message.
+        /// </value>
         public string Message { get; set; }
     }
 }

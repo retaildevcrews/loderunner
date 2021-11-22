@@ -3,6 +3,7 @@
 
 using System;
 using System.Timers;
+
 namespace LodeRunner.Events
 {
     /// <summary>
@@ -14,6 +15,9 @@ namespace LodeRunner.Events
         private static object lastStatusSender = default;
         private static ClientStatusEventArgs lastStatusArgs = default;
 
+        /// <summary>
+        /// Occurs when [status update].
+        /// </summary>
         public static event EventHandler<ClientStatusEventArgs> StatusUpdate = (sender, e) => { };
 
         // TODO: Move to LodeRunner.Core.Events namespace in a LodeRunner.Core lib
@@ -31,7 +35,7 @@ namespace LodeRunner.Events
             if (statusUpdateTimer == default(Timer))
             {
                 statusUpdateTimer = new ();
-                statusUpdateTimer.Interval = 5000; //TODO change this to App.Config.Frequency * 1000
+                statusUpdateTimer.Interval = 5000; // TODO change this to App.Config.Frequency * 1000
                 statusUpdateTimer.Elapsed += OnStatusTimerEvent;
             }
 

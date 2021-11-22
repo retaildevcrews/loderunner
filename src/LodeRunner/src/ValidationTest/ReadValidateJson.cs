@@ -12,15 +12,15 @@ using LodeRunner.Validators;
 namespace LodeRunner
 {
     /// <summary>
-    /// Test class (partial)
+    /// Test class (partial).
     /// </summary>
     public partial class ValidationTest
     {
         /// <summary>
-        /// Reads a file from local or --base-url
+        /// Reads a file from local or --base-url.
         /// </summary>
-        /// <param name="file">file name</param>
-        /// <returns>file contents</returns>
+        /// <param name="file">file name.</param>
+        /// <returns>file contents.</returns>
         public string ReadTestFile(string file)
         {
             string content = string.Empty;
@@ -30,7 +30,7 @@ namespace LodeRunner
                 throw new ArgumentNullException(nameof(file));
             }
 
-            if (string.IsNullOrWhiteSpace(config.BaseUrl))
+            if (string.IsNullOrWhiteSpace(this.config.BaseUrl))
             {
                 // check for file exists
                 if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
@@ -51,7 +51,7 @@ namespace LodeRunner
             }
             else
             {
-                string path = config.BaseUrl + file;
+                string path = this.config.BaseUrl + file;
 
                 using HttpClient client = new ();
 
@@ -82,13 +82,13 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Read a json test file
+        /// Read a json test file.
         /// </summary>
-        /// <param name="file">file path</param>
-        /// <returns>List of Request</returns>
+        /// <param name="file">file path.</param>
+        /// <returns>List of Request.</returns>
         public List<Request> ReadJson(string file)
         {
-            string json = ReadTestFile(file);
+            string json = this.ReadTestFile(file);
 
             if (string.IsNullOrWhiteSpace(json))
             {
@@ -96,14 +96,14 @@ namespace LodeRunner
                 return null;
             }
 
-            return LoadJson(json);
+            return this.LoadJson(json);
         }
 
         /// <summary>
-        /// Validate all of the requests
+        /// Validate all of the requests.
         /// </summary>
-        /// <param name="requests">list of Request</param>
-        /// <returns>boolean</returns>
+        /// <param name="requests">list of Request.</param>
+        /// <returns>boolean.</returns>
         private static bool ValidateJson(List<Request> requests)
         {
             // validate each request
@@ -122,10 +122,10 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Load the requests from json files
+        /// Load the requests from json files.
         /// </summary>
-        /// <param name="fileList">list of files to load</param>
-        /// <returns>sorted List or Requests</returns>
+        /// <param name="fileList">list of files to load.</param>
+        /// <returns>sorted List or Requests.</returns>
         private List<Request> LoadValidateRequests(List<string> fileList)
         {
             List<Request> list;
@@ -134,7 +134,7 @@ namespace LodeRunner
             // read each json file
             foreach (string inputFile in fileList)
             {
-                list = ReadJson(inputFile);
+                list = this.ReadJson(inputFile);
 
                 // add contents to full list
                 if (list != null && list.Count > 0)
@@ -154,14 +154,14 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Load performance targets from json
+        /// Load performance targets from json.
         /// </summary>
-        /// <returns>Dictionary of PerfTarget</returns>
+        /// <returns>Dictionary of PerfTarget.</returns>
         private Dictionary<string, PerfTarget> LoadPerfTargets()
         {
             const string perfFileName = "perfTargets.txt";
 
-            string content = ReadTestFile(perfFileName);
+            string content = this.ReadTestFile(perfFileName);
 
             if (!string.IsNullOrWhiteSpace(content))
             {
@@ -173,10 +173,10 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Load the json string into a List of Requests
+        /// Load the json string into a List of Requests.
         /// </summary>
-        /// <param name="json">json string</param>
-        /// <returns>List of Request or null</returns>
+        /// <param name="json">json string.</param>
+        /// <returns>List of Request or null.</returns>
         private List<Request> LoadJson(string json)
         {
             try
@@ -221,9 +221,9 @@ namespace LodeRunner
                         // Add the default perf targets if exists
                         if (r.PerfTarget != null && r.PerfTarget.Quartiles == null)
                         {
-                            if (targets.ContainsKey(r.PerfTarget.Category))
+                            if (this.targets.ContainsKey(r.PerfTarget.Category))
                             {
-                                r.PerfTarget.Quartiles = targets[r.PerfTarget.Category].Quartiles;
+                                r.PerfTarget.Quartiles = this.targets[r.PerfTarget.Category].Quartiles;
                             }
                         }
 
