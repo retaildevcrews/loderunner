@@ -6,6 +6,10 @@ Loderunner (L8r) is an internal web request validation tool that we use to run e
 
 L8r can be run as a docker container, since it is available at gitcr.io, most of its features and functionality are inherited from its parent code base [WebV](https://github.com/microsoft/webvalidate).
 
+TODO - Add descriptive text
+
+[Debugging with Visual Studio 2019](#running-and-debugging-loderunner-via-visual-studio-2019)
+
 ## Running as a docker container
 
 ```bash
@@ -184,6 +188,34 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - The port number can be updated by editing the corresponding appsettings file.
   - [`appsettings.Development.json`](../AppSettings/appsettings.Development.json).
   - [`appsettings.Production.json`](../AppSettings/appsettings.Production.json).
+
+## Running and Debugging LodeRunner via Visual Studio 2019
+
+In order to debug LodeRunner app we must first set some of the command line arguments needed in order for it to execute.  If the correct arguments aren't passed or no arguments it will only print out usage. To run LodeRunner as client awaiting commmands from the LodeRunner.API then we will need arguments such as:
+
+1. Click 'Debug'->'LodeRunner Debug Properties'
+2. In the 'Application arguments' box you may use one of these two sets of properties:
+
+<!-- markdownlint-disable MD034 MD036 -->
+**Client Mode**
+
+   >-s https://[any] -f memory-baseline.json memory-benchmark.json --delay-start -1 --secrets-volume secrets
+
+OR
+
+**Command Mode**
+
+   >-s https://[Testing Target URL] -f memory-baseline.json memory-benchmark.json --delay-start 5 --run-loop true --duration 180
+<!-- markdownlint-enable MD034 MD036 -->
+
+TODO - Describe the flags for each one, explain that -s and -f are ignored in client mode
+TODO - Create a legend for the `secrets` files
+
+The project is already configured with most of the required files and information the the /secrets folder. The existing files are the `CosmosCollection`, `CosmosDatabase`, `CosmosTestDatabase`, and `CosmosURL` files.  However, in order to access the database located at the URL in `CosmosURL` we will need the `CosmosKey` file created and populated. That is not included in the project as it is a secret.  You may simply create a file named `CosmosKey` and populate it with a Read-Write key generated from CosmosDB.
+
+The last thing you'll need to do in order to run the app against your CosmosDB instance is to allow access through the CosmosDB firewall.  Navigate to the `Settings` -> `Firewall and virtual networks` section of the Azure Portal CosmosDB Account UI.  Once there it should automatically have a link to [+ Add my current IP (your IP)](No-link).  Click that link in the portal and then click the Save button at the bottom of the screen.  Once clicked a notification should appear at the top stating "Updating Firewall configuration".  It will take a little time to update.  Once the firewall is updated you will be able to run the app.
+
+TODO - Replace the Add IP instructions with CLI command if possible
 
 ## Running as part of an CI-CD pipeline
 

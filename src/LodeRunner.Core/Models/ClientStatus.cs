@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace LodeRunner.Core.Models
@@ -12,13 +13,21 @@ namespace LodeRunner.Core.Models
     /// </summary>
     public class ClientStatus : BaseEntityModel
     {
-        private ClientStatusType status;
+        private ClientStatusType status = ClientStatusType.Unknown;
 
         private string message = string.Empty;
 
         private int ttl = SystemConstants.ClientStatusExpirationTime;
 
         private LoadClient loadClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientStatus"/> class.
+        /// </summary>
+        public ClientStatus()
+        {
+            Debug.WriteLine("Client Status Constructor");
+        }
 
         /// <summary>
         /// Gets the last updated.

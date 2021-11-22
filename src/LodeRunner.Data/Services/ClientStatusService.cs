@@ -85,7 +85,7 @@ namespace LodeRunner.Services
         ///    The Task[ClientStatus] with updated ClientStatus if CosmosDB post is ready.
         ///    Otherwise, it returns null.
         /// </returns>
-        public Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
+        public async Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
         {
             var returnValue = new Task<ClientStatus>(() => null);
 
@@ -104,7 +104,7 @@ namespace LodeRunner.Services
                 }
             }
 
-            return returnValue;
+            return await returnValue;
         }
 
         /// <summary>
@@ -114,6 +114,7 @@ namespace LodeRunner.Services
         public void TerminateService(ClientStatus clientStatus)
         {
             // Update Entity
+            // clientStatus.LastUpdated = DateTime.UtcNow;
             clientStatus.Message = "Termination requested via Cancellation Token.";
             clientStatus.Status = ClientStatusType.Terminating;
 
