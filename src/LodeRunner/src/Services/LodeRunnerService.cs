@@ -28,7 +28,7 @@ namespace LodeRunner.Services
         private readonly Config config;
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
-        private ClientStatus clientStatus;
+        private readonly ClientStatus clientStatus;
 
         public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
         {
