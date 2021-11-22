@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
@@ -31,6 +32,8 @@ namespace LodeRunner.Services
 
         public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
         {
+            Debug.WriteLine("* LodeRunnerService Constructor *");
+
             this.config = config ?? throw new Exception("CommandOptions is null");
 
             this.loadClient = LoadClient.GetNew(this.config, DateTime.UtcNow);
@@ -121,12 +124,13 @@ namespace LodeRunner.Services
         // TODO: Update PostUpdate call to pass clientStatus object from ClientStatusEventArgs
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            // Update Entity, TODO: do we need a lock here?
+            // TODO: do we need a lock here?
 
-            clientStatus.Message = args.Message;
+            this.clientStatus.Message = args.Message;
+
             clientStatus.Status = args.Status;
 
-            this.clientStatus = await GetClientStatusService().PostUpdate(this.clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
+            _ = await GetClientStatusService().PostUpdate(clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
 
             //TODO : Add try catch and write log , then exit App?
         }
