@@ -1,6 +1,8 @@
 // eslint-disable-next-line
-import { default as ClientContext } from "./clients";
+import { default as ClientsContext } from "./clients";
 // eslint-disable-next-line
-import { default as PendingFeatureContext } from "./pendingFeature";
+import { default as ConfigsContext } from "./configs";
+// eslint-disable-next-line
+import { default as DisplayContext } from "./display";
 
-export { ClientContext, PendingFeatureContext };
+export { ClientsContext, ConfigsContext, DisplayContext };

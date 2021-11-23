@@ -1,32 +1,88 @@
 import { useEffect, useState, useRef } from "react";
 import Clients from "../Clients";
-import ClientDetails from "../ClientDetails";
+import ContentPage from "../ContentPage";
 import PendingFeature from "../PendingFeature";
-import { ClientContext, PendingFeatureContext } from "../../contexts";
+import Modal from "../Modal";
+import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import { fetchClients } from "../../services/api-service";
 import "./styles.css";
 
 function App() {
-  const [isPendingFeatureOpen, setIsPendingFeatureOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(undefined);
+  const [mainContent, setMainContent] = useState("configs");
   const [fetchClientsCount, setFetchClientsCount] = useState(0);
   const [clients, setClients] = useState([]);
-  const [clientDetailsIndex, setClientDetailsIndex] = useState(-1);
-  const [isClientDetailsOpen, setIsClientDetailsOpen] = useState(false);
+  const [openedClientDetailsIndex, setOpenedClientDetailsIndex] = useState(-1);
+  const [configs, setConfigs] = useState([]);
 
   const fetchClientsIntervalId = useRef();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_SERVER}/api/clients`)
-      .then((res) => res.json())
-      .then((body) => {
-        if (Array.isArray(body)) {
-          setClients(body.filter((c) => c));
-        }
-      })
-      .catch((err) => {
-        // eslint-disable-next-line
-        console.error("Issue fetching Clients", err);
-      });
+    fetchClients().then((c) => setClients(c));
   }, [fetchClientsCount]);
+
+  useEffect(() => {
+    // fetchConfigs().then((c) => setConfigs(c));
+    setConfigs([
+      {
+        entityType: "LoadTestConfig",
+        id: "abc123",
+        name: "Configurations 1",
+        files: ["baseline.json"],
+        strictJson: false,
+        baseUrl: "",
+        verboseErrors: true,
+        randomize: false,
+        timeout: 30,
+        server: ["https://ngsa-memory.com"],
+        tag: "",
+        sleep: 0,
+        runLoop: false,
+        duration: 0,
+        maxErrors: 10,
+        delayStart: -1,
+        dryRun: false,
+      },
+      {
+        entityType: "LoadTestConfig",
+        id: "def456",
+        name: "Configurations 2",
+        files: ["baseline.json", "benchmark.json"],
+        strictJson: false,
+        baseUrl: "",
+        verboseErrors: true,
+        randomize: false,
+        timeout: 30,
+        server: ["https://ngsa-memory.com", "https://ngsa-cosmos.com"],
+        tag: "pre-deploy",
+        sleep: 0,
+        runLoop: false,
+        duration: 0,
+        maxErrors: 10,
+        delayStart: -1,
+        dryRun: false,
+      },
+      {
+        entityType: "LoadTestConfig",
+        id: "ghi789",
+        name: "Configurations 3",
+        files: ["benchmark.json"],
+        strictJson: false,
+        baseUrl: "",
+        verboseErrors: true,
+        randomize: false,
+        timeout: 30,
+        server: ["https://ngsa-cosmos.com"],
+        tag: "",
+        sleep: 0,
+        runLoop: false,
+        duration: 0,
+        maxErrors: 10,
+        delayStart: -1,
+        dryRun: false,
+      },
+    ]);
+  }, []);
 
   const setFetchClientsInterval = (interval) => {
     // Clear old interval
@@ -43,41 +99,31 @@ function App() {
     }
   };
 
-  const resetClientDetailsIndex = () => {
-    setClientDetailsIndex(-1);
-  };
-
-  const handleClientDetailsClose = () => {
-    setIsClientDetailsOpen(false);
-    resetClientDetailsIndex();
-  };
-
-  const handleClientDetailsOpen = (index) => {
-    setIsClientDetailsOpen(true);
-    setClientDetailsIndex(index);
-  };
-
   return (
     <div className="app">
-      <PendingFeatureContext.Provider value={{ setIsPendingFeatureOpen }}>
-        {isPendingFeatureOpen && <PendingFeature />}
-        <div className="app-staticposition">
-          <ClientContext.Provider value={{ clients }}>
-            <Clients
-              setFetchClientsInterval={setFetchClientsInterval}
-              openClientDetails={handleClientDetailsOpen}
-              openedClientDetailsIndex={clientDetailsIndex}
-              closeClientDetails={handleClientDetailsClose}
-            />
-            {isClientDetailsOpen && (
-              <ClientDetails
-                closeModal={handleClientDetailsClose}
-                clientDetailsIndex={clientDetailsIndex}
-              />
-            )}
-          </ClientContext.Provider>
-        </div>
-      </PendingFeatureContext.Provider>
+      <DisplayContext.Provider
+        value={{ modalContent, setModalContent, mainContent, setMainContent }}
+      >
+        <ConfigsContext.Provider value={{ configs }}>
+          {modalContent && (
+            <Modal>
+              {modalContent === "pendingFeature" && <PendingFeature />}
+            </Modal>
+          )}
+          <div className="app-content">
+            <ClientsContext.Provider
+              value={{
+                clients,
+                setOpenedClientDetailsIndex,
+                openedClientDetailsIndex,
+              }}
+            >
+              <Clients setFetchClientsInterval={setFetchClientsInterval} />
+              <ContentPage />
+            </ClientsContext.Provider>
+          </div>
+        </ConfigsContext.Provider>
+      </DisplayContext.Provider>
     </div>
   );
 }
