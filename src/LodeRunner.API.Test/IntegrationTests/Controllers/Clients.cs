@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Extensions;
@@ -123,16 +124,24 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
 
-            var httpClient = this.factory.CreateClient();
+            using var httpClient = this.CreateHttpClient();
 
-            //var httpResponse = await SendGetByIdRequest(httpClient, ClientsByIdUri, clientStatusId);
-            //this.ValidateResponse(httpResponse, clientStatusId, ClientStatusType.Ready);
-
-            await this.WaitAndValidateStatus(httpClient, ClientsByIdUri, clientStatusId, ClientStatusType.Ready);
+            await this.WaitAndValidateStatus(httpClient, ClientsByIdUri, clientStatusId, ClientStatusType.Ready, 10000);
 
             l8rService.StopService();
 
-            await this.WaitAndValidateStatus(httpClient, ClientsByIdUri, clientStatusId, ClientStatusType.Terminating);
+            await this.WaitAndValidateStatus(httpClient, ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, 10000);
+        }
+
+        /// <summary>
+        /// Initialize SystemComponents.
+        /// </summary>
+        /// <param name="serviceProvider">the ServiceProvider.</param>
+        private static void InitializeSystemComponents(IServiceProvider serviceProvider)
+        {
+            ISystemComponentsService systemComponentsService = (ISystemComponentsService)serviceProvider.GetService(typeof(SystemComponentsService));
+
+            systemComponentsService.InitializeSystemComponents();
         }
 
         /// <summary>
@@ -177,55 +186,13 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// <param name="clientsByIdUri">the clientsById Uri.</param>
         /// <param name="clientStatusId">the clientStatusId.</param>
         /// <returns>HttpResponseMessage.</returns>
-        private async Task<HttpResponseMessage> SendGetByIdRequest(HttpClient httpClient, string clientsByIdUri, string clientStatusId)
+        private static async Task<HttpResponseMessage> SendGetByIdRequest(HttpClient httpClient, string clientsByIdUri, string clientStatusId)
         {
-            HttpResponseMessage httpResponse = null;
+            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{clientsByIdUri}{clientStatusId}");
 
-            int timeout = WaitingTimeIncrementMs;
-            while (timeout <= 30000)
-            {
-                await Task.Delay(WaitingTimeIncrementMs);
-                httpResponse = await httpClient.GetAsync($"{clientsByIdUri}{clientStatusId}");
-
-                Assert.False(httpResponse.StatusCode == HttpStatusCode.NoContent, "Response Code 204 - No Content.");
-
-                if (httpResponse.StatusCode == HttpStatusCode.NotFound)
-                {
-                    await Task.Delay(WaitingTimeIncrementMs);
-                    timeout += WaitingTimeIncrementMs;
-                }
-                else if (httpResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    break;
-                }
-            }
+            Assert.False(httpResponse.StatusCode == HttpStatusCode.NoContent, "Response Code 204 - No Content.");
 
             return httpResponse;
-        }
-
-        /// <summary>
-        /// ValidateResponse based on ClientStatusType.
-        /// </summary>
-        /// <param name="httpResponse">The httpResponse.</param>
-        /// <param name="clientStatusId">The clientStatusId.</param>
-        /// <param name="clientStatusType">The clientStatusType.</param>
-        private void ValidateResponse(HttpResponseMessage httpResponse, string clientStatusId, ClientStatusType clientStatusType)
-        {
-            if (httpResponse != null && httpResponse.IsSuccessStatusCode)
-            {
-                var client = httpResponse.Content.ReadFromJsonAsync<Client>(this.jsonOptions);
-
-                Assert.True(client.Result != null);
-
-                Assert.Equal(clientStatusId, client.Result.ClientStatusId);
-                Assert.Equal(EntityType.Client, client.Result.EntityType);
-
-                Assert.Equal(clientStatusType, client.Result.Status);
-            }
-            else
-            {
-                Assert.True(false, $"Unable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{httpResponse.StatusCode}-{httpResponse.ReasonPhrase}");
-            }
         }
 
         /// <summary>
@@ -235,36 +202,66 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// <param name="clientsByIdUri">clientsById Uri.</param>
         /// <param name="clientStatusId">clientStatusId.</param>
         /// <param name="clientStatusType">The clientStatusType.</param>
-        private async Task<bool> WaitAndValidateStatus(HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType)
+        private async Task<bool> WaitAndValidateStatus(HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType, int timeoutLimitMs = 20000)
         {
             int timeout = WaitingTimeIncrementMs;
 
-            bool found = false;
+            bool foundAndValid = false;
 
-            while (timeout <= 30000)
+            HttpStatusCode lastHttpCode = HttpStatusCode.Unused;
+
+            while (timeout <= timeoutLimitMs)
             {
                 await Task.Delay(WaitingTimeIncrementMs);
 
-                var httpResponse = await this.SendGetByIdRequest(httpClient, clientsByIdUri, clientStatusId);
+                // Cache
+                var httpResponse = await SendGetByIdRequest(httpClient, clientsByIdUri, clientStatusId);
 
-                if (httpResponse != null && httpResponse.IsSuccessStatusCode)
+                lastHttpCode = httpResponse.StatusCode;
+
+                if (httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
-                    var client = httpResponse.Content.ReadFromJsonAsync<Client>(this.jsonOptions);
-
-                    found = client.Result != null && client.Result.Status == clientStatusType;
-
-                    if (found)
-                    {
-                        break;
-                    }
-
                     await Task.Delay(WaitingTimeIncrementMs);
                     timeout += WaitingTimeIncrementMs;
                 }
-            }
+                else if (httpResponse.IsSuccessStatusCode)
+                {
+                    var client = await httpResponse.Content.ReadFromJsonAsync<Client>(this.jsonOptions);
 
-            return found;
+                    foundAndValid = client != null && client.Status == clientStatusType;
+
+                    if (foundAndValid)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        await Task.Delay(WaitingTimeIncrementMs);
+                        timeout += WaitingTimeIncrementMs;
+                    }
+                }
+                else
+                {
+                    // break while loop response was not successful.
+                    break;
+                }
+           }
+
+            Assert.True(foundAndValid, $"Unable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{lastHttpCode}");
+
+            return foundAndValid;
         }
 
+        /// <summary>
+        /// Creates a new HttpClient using the WebApp factory.
+        /// </summary>
+        /// <returns>the HttpClient.</returns>
+        private HttpClient CreateHttpClient()
+        {
+            var httpClient = this.factory.CreateClient();
+            InitializeSystemComponents(this.factory.Services);
+
+            return httpClient;
+        }
     }
 }

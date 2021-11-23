@@ -185,7 +185,10 @@ namespace LodeRunner.API
                 .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
 
                 .AddSingleton<LRAPICache>()
-                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>());
+                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>())
+
+                .AddSingleton<SystemComponentsService>()
+                .AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
         }
 
         /// <summary>

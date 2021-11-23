@@ -128,11 +128,11 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Stop Service forcing a cancellation
+        /// Stop Service forcing cancellation and throw On First Exception equals to True.
         /// </summary>
         public void StopService()
         {
-            this.cancellationTokenSource.Cancel(false);
+            this.cancellationTokenSource.Cancel(true);
         }
 
         /// <summary>
