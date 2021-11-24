@@ -86,7 +86,7 @@
 
   <ItemGroup>
     <None Update="LodeRunnerApi.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
