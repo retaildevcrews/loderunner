@@ -1,0 +1,9 @@
+.arrayofstringinput-input {
+  height: 2em;
+  display: flex;
+  align-items: center;
+}
+.arrayofstringinput button {
+  height: 2em;
+  width: 2em;
+}

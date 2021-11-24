@@ -11,7 +11,7 @@ const Modal = ({ children }) => {
     <div role="presentation" className="modal-wrapper" onClick={closeModal}>
       <div
         role="presentation"
-        className={`modal ${modalContent}`}
+        className={`modal modal-${modalContent.toLowerCase()}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">

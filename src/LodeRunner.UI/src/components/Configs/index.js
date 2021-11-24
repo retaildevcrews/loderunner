@@ -9,6 +9,7 @@ const Configs = () => {
   const { setModalContent } = useContext(DisplayContext);
   const { configs } = useContext(ConfigsContext);
 
+  const openConfigForm = () => setModalContent("configForm");
   const openPendingFeatureModal = () => setModalContent("pendingFeature");
 
   return (
@@ -19,8 +20,8 @@ const Configs = () => {
           <button
             className="unset"
             type="button"
-            onClick={openPendingFeatureModal}
-            onKeyDown={openPendingFeatureModal}
+            onClick={openConfigForm}
+            onKeyDown={openConfigForm}
           >
             <Pencil fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
           </button>

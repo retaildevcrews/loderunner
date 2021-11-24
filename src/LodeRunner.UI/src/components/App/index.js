@@ -1,28 +1,30 @@
 import { useEffect, useState, useRef } from "react";
 import Clients from "../Clients";
+import ConfigForm from "../ConfigForm";
 import ContentPage from "../ContentPage";
 import PendingFeature from "../PendingFeature";
 import Modal from "../Modal";
 import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
-import { fetchClients } from "../../services/api-service";
+import { getClients } from "../../services/clients";
 import "./styles.css";
 
 function App() {
   const [modalContent, setModalContent] = useState(undefined);
   const [mainContent, setMainContent] = useState("configs");
-  const [fetchClientsCount, setFetchClientsCount] = useState(0);
+  const [fetchClientsTrigger, setFetchClientsTrigger] = useState(0);
   const [clients, setClients] = useState([]);
   const [openedClientDetailsIndex, setOpenedClientDetailsIndex] = useState(-1);
+  const [fetchConfigsTrigger, setFetchConfigsTrigger] = useState(0);
   const [configs, setConfigs] = useState([]);
 
   const fetchClientsIntervalId = useRef();
 
   useEffect(() => {
-    fetchClients().then((c) => setClients(c));
-  }, [fetchClientsCount]);
+    getClients().then((c) => setClients(c));
+  }, [fetchClientsTrigger]);
 
   useEffect(() => {
-    // fetchConfigs().then((c) => setConfigs(c));
+    // getConfigs().then((c) => setConfigs(c));
     setConfigs([
       {
         entityType: "LoadTestConfig",
@@ -82,7 +84,7 @@ function App() {
         dryRun: false,
       },
     ]);
-  }, []);
+  }, [fetchConfigsTrigger]);
 
   const setFetchClientsInterval = (interval) => {
     // Clear old interval
@@ -94,7 +96,7 @@ function App() {
     // Set new interval
     if (interval > 0) {
       fetchClientsIntervalId.current = setInterval(() => {
-        setFetchClientsCount(Date.now());
+        setFetchClientsTrigger(Date.now());
       }, interval);
     }
   };
@@ -104,10 +106,11 @@ function App() {
       <DisplayContext.Provider
         value={{ modalContent, setModalContent, mainContent, setMainContent }}
       >
-        <ConfigsContext.Provider value={{ configs }}>
+        <ConfigsContext.Provider value={{ configs, setFetchConfigsTrigger }}>
           {modalContent && (
             <Modal>
               {modalContent === "pendingFeature" && <PendingFeature />}
+              {modalContent === "configForm" && <ConfigForm />}
             </Modal>
           )}
           <div className="app-content">
