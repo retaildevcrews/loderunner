@@ -98,7 +98,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
             }
 
-            Assert.True(foundAndValid, $"Unable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{lastHttpCode} - Timeout:{timeout}");
+            Assert.True(foundAndValid, $"Unable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
 
             return foundAndValid;
         }
@@ -159,7 +159,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
             }
 
-            Assert.True(found, $"Unable to process GetClients request, it could not verify ClientStatusId: {clientStatusId}\t- HttpStatusCode:{lastHttpCode} - Timeout:{timeout}");
+            Assert.True(found, $"Unable to process GetClients request, it could not verify ClientStatusId: {clientStatusId}\t- HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
 
             return found;
         }

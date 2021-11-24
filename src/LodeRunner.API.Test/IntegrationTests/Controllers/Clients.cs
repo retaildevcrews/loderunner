@@ -71,16 +71,21 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         [Trait("Category", "Integration")]
         [InlineData("/", "text/html; charset=utf-8")]
         [InlineData("/version", "text/plain")]
-        public async Task GetEndpointsReturnSuccessAndCorrectContentType(string url, string expectedValue)
+        public async Task CanGetEndpointsReturnSuccessAndCorrectContentType(string url, string expectedValue)
         {
-            var httpClient = this.factory.CreateClient();
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            // The endpoint or route of the controller action.
-            var response = await httpClient.GetAsync(url);
+            var httpResponse = await httpClient.GetAsync(url);
 
-            // Must be successful.
-            response.EnsureSuccessStatusCode(); // Status Code 200-299
-            Assert.Equal(expectedValue, response.Content.Headers.ContentType.ToString());
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                Assert.Equal(expectedValue, httpResponse.Content.Headers.ContentType.ToString());
+            }
+            else
+            {
+                Assert.True(false, $"Unable to process {nameof(this.CanGetEndpointsReturnSuccessAndCorrectContentType)} request.");
+            }
+
         }
 
         /// <summary>
