@@ -82,7 +82,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                     if (foundAndValid)
                     {
-                        output.WriteLine($"ClientStatusType: '{clientStatusType}' ClientStatusId: '{clientStatusId}' \tfound within: {timeout} ms");
+                        output.WriteLine($"Local Time:{DateTime.Now}\tClientStatusType: '{clientStatusType}' ClientStatusId: '{clientStatusId}' \tfound within: {timeout} ms");
                         break;
                     }
                     else
@@ -142,7 +142,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                     if (found)
                     {
-                        output.WriteLine($"ClientStatusId: '{clientStatusId}' found within {timeout} ms");
+                        output.WriteLine($"Local Time:{DateTime.Now}\tClientStatusId: '{clientStatusId}' found within {timeout} ms");
 
                         break;
                     }

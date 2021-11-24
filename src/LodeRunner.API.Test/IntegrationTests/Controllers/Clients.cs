@@ -118,11 +118,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
+            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 15000);
 
             l8rService.StopService();
 
-            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output, 45000);
+            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output, 15000);
         }
     }
 }
