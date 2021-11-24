@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace LodeRunner.API.Test.IntegrationTests
 {
@@ -47,9 +49,10 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="clientStatusId">The client status identifier.</param>
         /// <param name="clientStatusType">Type of the client status.</param>
         /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
         /// <param name="timeoutLimitMs">The timeout limit ms.</param>
         /// <returns>The task.</returns>
-        public static async Task<bool> WaitAndValidateGetByIdForStatus(this HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, int timeoutLimitMs = 10000)
+        public static async Task<bool> WaitAndValidateGetByIdForStatus(this HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 10000)
         {
             int timeout = WaitingTimeIncrementMs;
 
@@ -79,7 +82,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                     if (foundAndValid)
                     {
-                        Console.WriteLine($"Timeout:{timeout}");
+                        output.WriteLine($"ClientStatusType: '{clientStatusType}' ClientStatusId: '{clientStatusId}' \tfound within: {timeout} ms");
                         break;
                     }
                     else
@@ -107,9 +110,10 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="clientsUri">clientsById Uri.</param>
         /// <param name="clientStatusId">The client status identifier.</param>
         /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
         /// <param name="timeoutLimitMs">The timeout limit ms.</param>
         /// <returns>the task.</returns>
-        public static async Task<bool> WaitAndValidateGetClientsForId(this HttpClient httpClient, string clientsUri, string clientStatusId, JsonSerializerOptions jsonOptions, int timeoutLimitMs = 10000)
+        public static async Task<bool> WaitAndValidateGetClientsForId(this HttpClient httpClient, string clientsUri, string clientStatusId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 10000)
         {
             int timeout = WaitingTimeIncrementMs;
 
@@ -138,6 +142,8 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                     if (found)
                     {
+                        output.WriteLine($"ClientStatusId: '{clientStatusId}' found within {timeout} ms");
+
                         break;
                     }
                     else

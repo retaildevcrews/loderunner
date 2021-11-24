@@ -22,6 +22,7 @@ using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
 using LodeRunner.Services;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace LodeRunner.API.Test.IntegrationTests.Controllers
 {
@@ -37,13 +38,18 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
         private readonly JsonSerializerOptions jsonOptions;
 
+        private readonly ITestOutputHelper output;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Clients"/> class.
         /// </summary>
         /// <param name="factory">The factory.</param>
-        public Clients(ApiWebApplicationFactory<Startup> factory)
+        /// <param name="output">The output.</param>
+        public Clients(ApiWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.factory = factory;
+
+            this.output = output;
 
             this.jsonOptions = new ()
             {
@@ -93,7 +99,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            await httpClient.WaitAndValidateGetClientsForId(ClientsUri, clientStatusId, this.jsonOptions);
+            await httpClient.WaitAndValidateGetClientsForId(ClientsUri, clientStatusId, this.jsonOptions, this.output);
         }
 
         /// <summary>
@@ -112,11 +118,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions);
+            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
             l8rService.StopService();
 
-            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, 30000);
+            await httpClient.WaitAndValidateGetByIdForStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output, 45000);
         }
     }
 }

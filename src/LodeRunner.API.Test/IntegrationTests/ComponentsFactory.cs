@@ -45,7 +45,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         public static async Task<LodeRunnerService> CreateAndStartLodeRunnerServiceInstance(string callerName)
         {
             string dateTimeUnique = $"{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
-            var validArgs = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets", "--region", $"IntegrationTesting-{callerName}-{dateTimeUnique}" };
+            var args = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets", "--region", $"IntegrationTesting-{callerName}-{dateTimeUnique}" };
 
             LodeRunner.Config lrConfig = new ();
             RootCommand root = LRCommandLine.BuildRootCommand();

@@ -132,7 +132,7 @@ namespace LodeRunner.Services
         /// </summary>
         public void StopService()
         {
-            this.cancellationTokenSource.Cancel(true);
+            this.cancellationTokenSource.Cancel(false);
         }
 
         /// <summary>

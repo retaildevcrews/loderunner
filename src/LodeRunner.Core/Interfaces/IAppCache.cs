@@ -35,6 +35,7 @@ namespace LodeRunner.Core.Interfaces
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        void SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions);
+        /// <returns>The Task.</returns>
+        Task SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions);
     }
 }
