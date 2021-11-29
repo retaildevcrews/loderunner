@@ -2,6 +2,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 
 ### copy the source and tests
+COPY ./LodeRunner.sln /src/
+COPY ./LodeRunner /src/LodeRunner
 COPY ./LodeRunner.API.sln /src/
 COPY ./LodeRunner.API /src/LodeRunner.API
 COPY ./LodeRunner.Data /src/LodeRunner.Data
@@ -13,7 +15,7 @@ WORKDIR /src
 
 # build the app and test
 RUN dotnet test ./LodeRunner.API.Test/ --collect:"XPlat Code Coverage" --logger "console;verbosity=minimal" --filter "Category=Unit" && \
-    dotnet publish -c Release -o /app
+    dotnet publish LodeRunner.API.sln -c Release -o /app
 
 ###########################################################
 
