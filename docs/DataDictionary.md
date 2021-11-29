@@ -124,7 +124,7 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
 | EntityType      |     String     | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
-| Id              |   String   | GUID used to retrieve the object directly. | Yes | |
+| Id              |   String   | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
 | Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
 | LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
 | LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
@@ -141,5 +141,15 @@ This entity is still TBD
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
+| PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
+| TestRunId              |   String   | GUID used to retrieve the object directly. | Yes | |
+| LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
+| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
+| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| TotalRequests   |     Int        |                         | Yes | |
+| SuccessfulRequests   |     Int        |                         | Yes | |
+| FailedRequests  |     Int        |                         | Yes | |
+
 
 `Table 07: LoadResult Properties`
