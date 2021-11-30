@@ -17,7 +17,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD | xRxx |
 | LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
-| LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || CRUD | CRUx | CRUD |
+| LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || xRxD | CRUx | xRxD |
 
 `Table 01: Primary LodeRunner Entities`
 
