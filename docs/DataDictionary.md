@@ -1,25 +1,25 @@
-# Data Dictionary for RelayRunner API
+# Data Dictionary for LodeRunner.API
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 1. Introduction
 
-This document is meant to list and define the entities in use in RelayRunner.
+This document is meant to list and define the entities in use in LodeRunner, LodeRunner.API, and LodeRunner.UI.
 
 ### 1.1 Primary Entities Used
 
-Below are the primary types of data for the RelayRunner API (RRAPI).  Those are as follows:
+Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are as follows:
 
-| Type Name       |  Description    |  Notes                             |     RRAPI  | LodeRunner |
-| :-------------- | :-------------- | :--------------------------------- | :----------| :----------|
-| BaseEntity      | Used as the parent for the data classes  | | xxxx | xxxx |
-| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the RelayRunner UI (RRUI). | xRxx | CRUD |
-| LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD |
-| LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xRUx |
-| TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx |
-| LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || CRUD | CRUx |
+| Type Name       |  Description    |  Notes                             |     LodeRunner.API  | LodeRunner | LodeRunner.UI |
+| :-------------- | :-------------- | :--------------------------------- | :----------| :----------| :----------|
+| BaseEntity      | Used as the parent for the data classes  | | xxxx | xxxx | xxxx |
+| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx | 
+| LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD | xRxx |
+| LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
+| TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
+| LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || xRxD | CRUx | xRxD |
 
-`Table 01: Primary Relay Runner Entities`
+`Table 01: Primary LodeRunner Entities`
 
 ## 2. Entity Definitions
 
@@ -112,7 +112,7 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | RunLoop         |   Boolean  | Run test in an infinite loop (default: False) | No | match to `--run-loop` CLI flag |
 | Duration        |    Int     | Test duration (seconds) requires `RunLoop=True` (default: 0) | No | match to `--duration` CLI flag |
 | MaxErrors       |    Int     | Max validation errors (default: 10) | No | match to `--max-errors` CLI flag |
-| DelayStart      |    Int     | Delay test start.  Must be `-1` for RelayRunner as that sets LodeRunner into a wait mode | Yes | match to `--delay-start` CLI flag |
+| DelayStart      |    Int     | Delay test start.  Must be `-1` for LodeRunner as that sets LodeRunner into a wait mode | Yes | match to `--delay-start` CLI flag |
 | DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
 
 `Table 05: LoadTestConfig Properties`
@@ -124,7 +124,7 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
 | EntityType      |     String     | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
-| Id              |   String   | GUID used to retrieve the object directly. | Yes | |
+| Id              |   String   | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
 | Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
 | LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
 | LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
@@ -141,5 +141,15 @@ This entity is still TBD
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
+| PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
+| TestRunId              |   String   | GUID used to retrieve the object directly. | Yes | |
+| LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
+| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
+| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| TotalRequests   |     Int        |                         | Yes | |
+| SuccessfulRequests   |     Int        |                         | Yes | |
+| FailedRequests  |     Int        |                         | Yes | |
+
 
 `Table 07: LoadResult Properties`
