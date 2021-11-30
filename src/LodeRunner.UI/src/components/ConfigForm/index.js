@@ -1,37 +1,99 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ArrayOfStringInput from "./ArrayOfStringInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
-import RadioInput from "./RadioInput";
-import { postConfig } from "../../services/configs";
+import BooleanInput from "./BooleanInput";
+import { writeConfig } from "../../services/configs";
 import { ConfigsContext, DisplayContext } from "../../contexts";
 import { CONFIG } from "../../models";
+import { MODAL_CONTENT } from "../../utilities/constants";
 import spinner from "../../images/spinner.svg";
 import "./styles.css";
 
 const ConfigForm = () => {
+  // context props
   const { setModalContent } = useContext(DisplayContext);
-  const { setFetchConfigsTrigger } = useContext(ConfigsContext);
+  const { configs, openedConfigIndex, setFetchConfigsTrigger } =
+    useContext(ConfigsContext);
 
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState({});
-  const [postData, setPostData] = useState();
+  const [formData, setFormData] = useState();
 
-  const configNameRef = useRef();
-  const [serverFlagRefs, setServerFlagRefs] = useState([]);
-  const [fileFlagRefs, setFileFlagRefs] = useState([]);
+  const openedConfig = configs[openedConfigIndex];
+
+  // initial boolean form values
+  const dryRunFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.dryRun] : false
+  );
+  const randomizeFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.randomize] : false
+  );
+  const runLoopFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.runLoop] : false
+  );
+  const [runLoopFlagState, setRunLoopFlagState] = useState(
+    openedConfig ? openedConfig[CONFIG.runLoop] : false
+  );
+  const strictJsonFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.strictJson] : false
+  );
+  const verboseErrorsFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.verboseErrors] : false
+  );
+
+  // declare string array form refs
+  const getArrayOfStringInputRefs = (values = [0]) =>
+    values.map((_, index) => ({
+      id: index,
+      ref: React.createRef(),
+    }));
+  const [fileFlagRefs, setFileFlagRefs] = useState(
+    openedConfig
+      ? getArrayOfStringInputRefs(openedConfig[CONFIG.files])
+      : getArrayOfStringInputRefs()
+  );
+  const [serverFlagRefs, setServerFlagRefs] = useState(
+    openedConfig
+      ? getArrayOfStringInputRefs(openedConfig[CONFIG.servers])
+      : getArrayOfStringInputRefs()
+  );
+
+  // declare string form refs
   const baseUrlFlagRef = useRef();
-  const strictJsonFlagRef = useRef(false);
-  const dryRunFlagRef = useRef(false);
-  const tagFlagRef = useRef();
-  const runLoopFlagRef = useRef(false);
-  const [runLoopFlagState, setRunLoopFlagState] = useState(false);
+  const configNameRef = useRef();
   const durationFlagRef = useRef();
-  const randomizeFlagRef = useRef(false);
-  const sleepFlagRef = useRef();
-  const verboseErrorsFlagRef = useRef(false);
   const maxErrorsFlagRef = useRef();
+  const sleepFlagRef = useRef();
+  const tagFlagRef = useRef();
   const timeoutFlagRef = useRef();
+
+  useEffect(() => {
+    // do not set initial values if new config
+    if (!openedConfig) {
+      return;
+    }
+    // initial string form values
+    baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl];
+    configNameRef.current.value = openedConfig[CONFIG.name];
+    if (durationFlagRef.current) {
+      durationFlagRef.current.value = openedConfig[CONFIG.duration];
+    }
+    maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
+    sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
+    tagFlagRef.current.value = openedConfig[CONFIG.tag];
+    timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
+
+    // initial string array form values
+    fileFlagRefs.forEach(({ id: index, ref }) => {
+      // eslint-disable-next-line no-param-reassign
+      ref.current.value = openedConfig[CONFIG.files][index];
+    });
+    serverFlagRefs.forEach(({ id: index, ref }) => {
+      // eslint-disable-next-line no-param-reassign
+      ref.current.value = openedConfig[CONFIG.servers][index];
+    });
+  }, []);
 
   const onRefCurrentChange =
     (ref) =>
@@ -49,25 +111,34 @@ const ConfigForm = () => {
     setRunLoopFlagState(target.value === "true");
   };
 
-  const booleanOptions = [
-    { label: "True", value: true },
-    { label: "False", value: false },
-  ];
-
+  // POST or PUT config
   useEffect(() => {
-    if (!postData) {
+    if (!formData) {
       return;
     }
-    postConfig(postData).then((erred) => {
-      if (Object.keys(erred).length > 0) {
-        setErrors(erred);
-        setIsPending(false);
-      } else {
-        setModalContent();
+
+    const configWriteMethod = openedConfig ? "PUT" : "POST";
+
+    // Create new or update existing config
+    writeConfig(configWriteMethod, formData)
+      .then(() => {
+        setModalContent(MODAL_CONTENT.closed);
         setFetchConfigsTrigger(Date.now());
-      }
-    });
-  }, [postData]);
+      })
+      .catch((err) => {
+        // UI display object error(s), otherwise, just log
+        if (typeof err !== "object") {
+          setErrors({ response: err });
+        } else if (err.message) {
+          // Handle thrown error
+          setErrors({ response: err.message });
+        } else {
+          // Handle custom input error(s)
+          setErrors(err);
+        }
+        setIsPending(false);
+      });
+  }, [formData]);
 
   const saveConfig = () => {
     setIsPending(true);
@@ -90,7 +161,12 @@ const ConfigForm = () => {
       [CONFIG.timeout]: timeoutFlagRef.current.value,
     };
 
-    setPostData(inputs);
+    // include config ID if updating existing config
+    if (openedConfig) {
+      inputs.id = openedConfig.id;
+    }
+
+    setFormData(inputs);
   };
 
   return (
@@ -100,6 +176,9 @@ const ConfigForm = () => {
           <img src={spinner} alt="loading" />
         </div>
       )}
+      <h2>
+        {openedConfigIndex === -1 ? "New Config" : openedConfig[CONFIG.name]}
+      </h2>
       <StringInput
         label="Name"
         description="User friendly name for config settings"
@@ -136,21 +215,19 @@ const ConfigForm = () => {
         inputName="baseUrlFlag"
       />
       <br />
-      <RadioInput
+      <BooleanInput
         label="Strict JSON"
         description="Use strict RFC rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON."
         elRef={strictJsonFlagRef}
         inputName="strictJsonFlag"
-        options={booleanOptions}
         onChange={onRefCurrentChange(strictJsonFlagRef)}
       />
       <br />
-      <RadioInput
+      <BooleanInput
         label="Dry Run"
         description="Validate the settings with the target clients"
         elRef={dryRunFlagRef}
         inputName="dryRunFlag"
-        options={booleanOptions}
         onChange={onRefCurrentChange(dryRunFlagRef)}
       />
       <br />
@@ -162,12 +239,11 @@ const ConfigForm = () => {
       />
       <br />
       <div className="configform-runloop">
-        <RadioInput
+        <BooleanInput
           label="Run Loop"
           description="Run test in an infinite loop"
           elRef={runLoopFlagRef}
           inputName="runLoopFlag"
-          options={booleanOptions}
           onChange={onRunLoopFlagRefChange}
         />
         {runLoopFlagState && (
@@ -187,12 +263,11 @@ const ConfigForm = () => {
                 </div>
               )}
               <br />
-              <RadioInput
+              <BooleanInput
                 label="Randomize"
                 description="Processes load file randomly instead of from top to bottom"
                 elRef={randomizeFlagRef}
                 inputName="randomizeFlag"
-                options={booleanOptions}
                 onChange={onRefCurrentChange(randomizeFlagRef)}
               />
             </div>
@@ -211,12 +286,11 @@ const ConfigForm = () => {
         <div className="configform-error">ERROR: {errors[CONFIG.sleep]}</div>
       )}
       <br />
-      <RadioInput
+      <BooleanInput
         label="Verbose Errors"
         description="Display validation error messages"
         elRef={verboseErrorsFlagRef}
         inputName="verboseErrorsFlag"
-        options={booleanOptions}
         onChange={onRefCurrentChange(verboseErrorsFlagRef)}
       />
       <br />
@@ -244,19 +318,19 @@ const ConfigForm = () => {
       {errors[CONFIG.timeout] && (
         <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
       )}
-      {!errors.postConfig && Object.keys(errors).length > 0 && (
-        <div className="configform-save-error configform-error">
-          Invalid config value(s)
-        </div>
-      )}
-      {errors.postConfig && (
-        <div className="configform-save-error configform-error">
-          Unable to save config:
-          <br />
-          {errors.postConfig}
-        </div>
-      )}
       <div className="configform-save">
+        {!errors.response && Object.keys(errors).length > 0 && (
+          <div className="configform-save-error configform-error">
+            Invalid config value(s)
+          </div>
+        )}
+        {errors.response && (
+          <div className="configform-save-error configform-error">
+            Unable to save config:
+            <br />
+            {errors.response}
+          </div>
+        )}
         <button type="button" onClick={saveConfig}>
           SAVE
         </button>

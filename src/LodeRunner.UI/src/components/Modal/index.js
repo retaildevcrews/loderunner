@@ -1,11 +1,12 @@
 import { useContext } from "react";
 import PropTypes from "prop-types";
 import { DisplayContext } from "../../contexts";
+import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Modal = ({ children }) => {
   const { modalContent, setModalContent } = useContext(DisplayContext);
-  const closeModal = () => setModalContent(undefined);
+  const closeModal = () => setModalContent(MODAL_CONTENT.closed);
 
   return (
     <div role="presentation" className="modal-wrapper" onClick={closeModal}>

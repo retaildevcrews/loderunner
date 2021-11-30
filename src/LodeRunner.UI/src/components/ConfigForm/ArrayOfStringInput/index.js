@@ -9,10 +9,18 @@ const ArrayOfStringInput = ({
   setFlagRefs,
   inputName,
 }) => {
-  const [editedFlag, setEditedFlag] = useState({ id: 0, index: -1 });
+  const [editedFlag, setEditedFlag] = useState({
+    id: flagRefs.length,
+    index: undefined,
+  });
 
   useEffect(() => {
+    if (editedFlag.index === undefined) {
+      return;
+    }
+
     const newFlags =
+      // Add new input or remove input
       editedFlag.index === -1
         ? [...flagRefs, { id: editedFlag.id, ref: React.createRef("") }]
         : [

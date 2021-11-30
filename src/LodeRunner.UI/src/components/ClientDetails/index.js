@@ -2,18 +2,21 @@ import React, { useContext } from "react";
 import Pencil from "../Pencil";
 import { ClientsContext, DisplayContext } from "../../contexts";
 import { CLIENT } from "../../models";
+import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const ClientDetails = () => {
+  const { setMainContent, setModalContent } = useContext(DisplayContext);
   const { clients, setOpenedClientDetailsIndex, openedClientDetailsIndex } =
     useContext(ClientsContext);
-  const { setMainContent, setModalContent } = useContext(DisplayContext);
 
-  const openPendingFeatureModal = () => setModalContent("pendingFeature");
+  const openPendingFeatureModal = () =>
+    setModalContent(MODAL_CONTENT.pendingFeature);
 
   const closeClientDetails = () => {
-    setMainContent("configs");
+    setMainContent(MAIN_CONTENT.configs);
+
     setOpenedClientDetailsIndex(-1);
   };
 

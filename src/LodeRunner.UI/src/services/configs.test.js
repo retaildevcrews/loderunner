@@ -1,7 +1,7 @@
-import { checkPostConfigInputs, getPostConfigBody } from "./configs";
+import { checkConfigInputs, getConfigData } from "./configs";
 import { CONFIG } from "../models";
 
-describe("checkPostConfigInputs", () => {
+describe("checkConfigInputs", () => {
   it("should return no errors", () => {
     const inputs = {
       [CONFIG.servers]: ["", undefined, "server-1"],
@@ -11,8 +11,7 @@ describe("checkPostConfigInputs", () => {
       [CONFIG.maxErrors]: 10,
       [CONFIG.timeout]: 30,
     };
-    const expectedErrors = {};
-    expect(checkPostConfigInputs(inputs)).toEqual(expectedErrors);
+    expect(() => checkConfigInputs(inputs)).not.toThrow();
   });
 
   it("should err on all checked inputs", () => {
@@ -21,18 +20,29 @@ describe("checkPostConfigInputs", () => {
       [CONFIG.files]: [undefined, ""],
       [CONFIG.runLoop]: true,
       [CONFIG.sleep]: -10,
-      [CONFIG.maxErrors]: "3-0",
+      [CONFIG.maxErrors]: "-",
       [CONFIG.timeout]: -30,
     };
-    const returnedNumberOfErrors = Object.keys(
-      checkPostConfigInputs(inputs)
-    ).length;
-    const expectedNumberOfErrors = 5;
-    expect(returnedNumberOfErrors).toEqual(expectedNumberOfErrors);
+
+    const errors = {
+      [CONFIG.servers]: `Missing ${CONFIG.servers} flag`,
+      [CONFIG.files]: `Missing ${CONFIG.files} flag`,
+      [CONFIG.duration]: "Must be a positive integer or zero",
+      [CONFIG.sleep]: "Must be a positive integer or zero",
+      [CONFIG.maxErrors]: "Must be a positive integer or zero",
+      [CONFIG.timeout]: "Must be a positive integer or zero",
+    };
+
+    try {
+      checkConfigInputs(inputs);
+      expect("Did not throw").toEqual();
+    } catch (err) {
+      expect(err).toEqual(errors);
+    }
   });
 });
 
-describe("getPostConfigBody", () => {
+describe("getConfigData", () => {
   it("should set all inputs", () => {
     const inputs = {
       [CONFIG.baseUrl]: "test",
@@ -52,7 +62,7 @@ describe("getPostConfigBody", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    const expectedBody = {
+    const expectedData = {
       [CONFIG.baseUrl]: "test",
       [CONFIG.name]: "test",
       [CONFIG.tag]: "test",
@@ -70,7 +80,7 @@ describe("getPostConfigBody", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    expect(getPostConfigBody(inputs)).toEqual(expectedBody);
+    expect(getConfigData(inputs)).toEqual(expectedData);
   });
 
   it("should set default inputs", () => {
@@ -92,7 +102,7 @@ describe("getPostConfigBody", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    const expectedBody = {
+    const expectedData = {
       // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: false,
       [CONFIG.files]: [],
@@ -105,6 +115,6 @@ describe("getPostConfigBody", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    expect(getPostConfigBody(inputs)).toEqual(expectedBody);
+    expect(getConfigData(inputs)).toEqual(expectedData);
   });
 });

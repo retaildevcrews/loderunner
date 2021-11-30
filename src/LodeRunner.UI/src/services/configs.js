@@ -1,9 +1,9 @@
-import { getApi, postApi } from "./utilities";
+import { getApi, writeApi } from "./utilities";
 import { CONFIG } from "../models";
 
 const getConfigs = getApi("LoadTestConfig");
 
-const checkPostConfigInputs = (inputs) => {
+const checkConfigInputs = (inputs) => {
   const checkedConfigs = [
     CONFIG.servers,
     CONFIG.files,
@@ -13,22 +13,22 @@ const checkPostConfigInputs = (inputs) => {
     CONFIG.timeout,
   ];
 
-  return checkedConfigs.reduce((errors, config) => {
+  const errors = checkedConfigs.reduce((errs, config) => {
     switch (config) {
       case CONFIG.servers:
       case CONFIG.files:
         // REQUIRED: flags
         return inputs[config].some((i) => i && i.length > 0)
-          ? errors
-          : { ...errors, [config]: `Missing ${config} flag` };
+          ? errs
+          : { ...errs, [config]: `Missing ${config} flag` };
       case CONFIG.sleep:
       case CONFIG.maxErrors:
       case CONFIG.timeout:
         // Positive integer value or zero
         return Number.parseInt(inputs[config], 10) >= 0
-          ? errors
+          ? errs
           : {
-              ...errors,
+              ...errs,
               [config]: "Must be a positive integer or zero",
             };
       case CONFIG.duration:
@@ -38,50 +38,54 @@ const checkPostConfigInputs = (inputs) => {
           !(Number.parseInt(inputs[config], 10) >= 0)
         ) {
           return {
-            ...errors,
+            ...errs,
             [config]: "Must be a positive integer or zero",
           };
         }
-        return errors;
+        return errs;
       default:
-        return errors;
+        return errs;
     }
   }, {});
+
+  if (Object.keys(errors).length > 0) {
+    throw errors;
+  }
 };
 
-const getPostConfigBody = (inputs) =>
-  Object.values(CONFIG).reduce((body, config) => {
+const getConfigData = (inputs) =>
+  Object.values(CONFIG).reduce((data, config) => {
     switch (config) {
       case CONFIG.baseUrl:
       case CONFIG.name:
       case CONFIG.tag:
         // don't send if no input
         return inputs[config].length > 0
-          ? { ...body, [config]: inputs[config] }
-          : body;
+          ? { ...data, [config]: inputs[config] }
+          : data;
 
       // case CONFIG.delayStart:
       //   // set constant value
-      //   return { ...body, [config]: -1 };
+      //   return { ...data, [config]: -1 };
 
       case CONFIG.duration:
       case CONFIG.randomize:
         // send only if runLoop is set
         if (!inputs[CONFIG.runLoop]) {
-          return body;
+          return data;
         }
 
         return {
-          ...body,
+          ...data,
           [CONFIG.duration]: Number.parseInt(inputs[CONFIG.duration], 10),
           [CONFIG.randomize]: inputs[CONFIG.randomize],
         };
 
       case CONFIG.files:
       case CONFIG.servers:
-        // format input
+        // array of non-empty strings
         return {
-          ...body,
+          ...data,
           [config]: inputs[config].filter((c) => c),
         };
 
@@ -89,30 +93,25 @@ const getPostConfigBody = (inputs) =>
       case CONFIG.sleep:
       case CONFIG.timeout:
         // convert input to type integer
-        return { ...body, [config]: Number.parseInt(inputs[config], 10) };
+        return { ...data, [config]: Number.parseInt(inputs[config], 10) };
 
       case CONFIG.dryRun:
       case CONFIG.strictJson:
       case CONFIG.runLoop:
       case CONFIG.verboseErrors:
         // always send boolean input
-        return { ...body, [config]: inputs[config] };
+        return { ...data, [config]: inputs[config] };
       default:
-        return body;
+        return data;
     }
   }, {});
 
-const postConfig = async (inputs) => {
-  const errors = checkPostConfigInputs(inputs);
-  if (Object.keys(errors).length > 0) {
-    return errors;
-  }
-
-  const body = getPostConfigBody(inputs);
-
-  return postApi("LoadTestConfig")(body).catch((err) => ({
-    postConfig: err.message,
-  }));
+const writeConfig = async (method, inputs) => {
+  checkConfigInputs(inputs);
+  const data = getConfigData(inputs);
+  const endpoint =
+    method === "PUT" ? `LoadTestConfig/${inputs[CONFIG.id]}` : "LoadTestConfig";
+  return writeApi(method, endpoint)(data);
 };
 
-export { getConfigs, checkPostConfigInputs, getPostConfigBody, postConfig };
+export { getConfigs, checkConfigInputs, getConfigData, writeConfig };
