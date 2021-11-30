@@ -104,7 +104,8 @@ namespace LodeRunner.API.Middleware
                 }
                 else
                 {
-                    result = propFound.GetValue(loadTestConfigDto).ToString();
+                    object propValue = propFound.GetValue(loadTestConfigDto);
+                    result = propValue == null ? string.Empty : propValue.ToString();
                 }
             }
 

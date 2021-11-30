@@ -13,7 +13,7 @@ namespace LodeRunner.API.Interfaces
     /// <summary>
     /// Interface for the LodeRunner.API changefeed service.
     /// </summary>
-    internal interface ILRAPIChangeFeedService : IChangeFeedService
+    public interface ILRAPIChangeFeedService : IChangeFeedService
     {
         /// <summary>
         /// Subscribes to process test run change.

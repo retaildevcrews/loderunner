@@ -52,7 +52,9 @@ namespace LodeRunner.API.Data
         {
             this.clientStatusService = clientStatusService;
             this.loadTestConfigService = loadTestConfigService;
-            _ = this.SetClientCache();
+
+            // NOTE: We need to make sure Cache gets populated at the time Cache is created, other wise any incoming request for Client will return a false HttpStatusCode.NoContent response.
+            this.SetClientCache().Wait();
         }
 
         /// <summary>
@@ -218,7 +220,7 @@ namespace LodeRunner.API.Data
                      ClientStatus clientStatus = await this.clientStatusService.Get(clientStatusId);
 
                      // if still exists, update
-                     this.SetEntry(key, new Client(clientStatus), this.GetMemoryCacheEntryOptions());
+                     await SetEntry(key, new Client(clientStatus), this.GetMemoryCacheEntryOptions());
                  }
                  catch (CosmosException ce)
                  {
@@ -256,7 +258,7 @@ namespace LodeRunner.API.Data
                 {
                     var client = new Client(item);
 
-                    this.SetEntry<Client>(client.ClientStatusId, client, this.GetMemoryCacheEntryOptions());
+                    await this.SetEntry<Client>(client.ClientStatusId, client, this.GetMemoryCacheEntryOptions());
                 }
             }
             catch (CosmosException ce)

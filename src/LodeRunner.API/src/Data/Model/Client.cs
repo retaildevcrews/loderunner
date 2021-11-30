@@ -2,7 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Text.Json.Serialization;
 using LodeRunner.Core.Models;
+using Newtonsoft.Json.Converters;
 
 namespace LodeRunner.API.Models
 {
@@ -14,22 +16,39 @@ namespace LodeRunner.API.Models
         /// <summary>
         /// Initializes a new instance of the <see cref="Client"/> class.
         /// </summary>
-        /// <param name="clientStatus">ClientStatus.</param>
+        [JsonConstructor]
+        public Client()
+        {
+            // This constructor is use for deserialization.
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Client"/> class.
+        /// </summary>
+        /// <param name="clientStatus">The client status.</param>
+        /// <exception cref="System.ArgumentException">clientStatus cannot be null</exception>
         public Client(ClientStatus clientStatus)
         {
-            this.LoadClientId = clientStatus.LoadClient?.Id;
-            this.Name = clientStatus.LoadClient?.Name;
-            this.Version = clientStatus.LoadClient?.Version;
-            this.Region = clientStatus.LoadClient?.Region;
-            this.Zone = clientStatus.LoadClient?.Zone;
-            this.Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
-            this.StartupArgs = clientStatus.LoadClient?.StartupArgs;
-            this.StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
-            this.ClientStatusId = clientStatus.Id;
-            this.LastUpdated = clientStatus.LastUpdated;
-            this.LastStatusChange = clientStatus.LastStatusChange;
-            this.Status = clientStatus.Status;
-            this.Message = clientStatus.Message;
+            if (clientStatus != null)
+            {
+                this.LoadClientId = clientStatus.LoadClient?.Id;
+                this.Name = clientStatus.LoadClient?.Name;
+                this.Version = clientStatus.LoadClient?.Version;
+                this.Region = clientStatus.LoadClient?.Region;
+                this.Zone = clientStatus.LoadClient?.Zone;
+                this.Prometheus = clientStatus.LoadClient != null && clientStatus.LoadClient.Prometheus;
+                this.StartupArgs = clientStatus.LoadClient?.StartupArgs;
+                this.StartTime = clientStatus.LoadClient != null ? clientStatus.LoadClient.StartTime : DateTime.MinValue;
+                this.ClientStatusId = clientStatus.Id;
+                this.LastUpdated = clientStatus.LastUpdated;
+                this.LastStatusChange = clientStatus.LastStatusChange;
+                this.Status = clientStatus.Status;
+                this.Message = clientStatus.Message;
+            }
+            else
+            {
+                throw new ArgumentException("The clientStatus cannot be null");
+            }
         }
 
         /// <summary>

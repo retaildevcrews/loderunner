@@ -41,4 +41,4 @@ EXPOSE 8080
 # run as the ngsa user
 USER ngsa
 
-ENTRYPOINT [ "dotnet",  "../aspnetapp.dll" ]
+ENTRYPOINT [ "dotnet",  "../LodeRunner.dll" ]

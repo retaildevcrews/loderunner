@@ -178,8 +178,9 @@ namespace LodeRunner.API.Middleware
         // get the client IP address from the request / headers
         private static string GetClientIp(HttpContext context, out string xff)
         {
+            // Note: context.Connection.RemoteIpAddress will be null when running Test Project
             xff = string.Empty;
-            string clientIp = context.Connection.RemoteIpAddress.ToString();
+            string clientIp = context.Connection.RemoteIpAddress?.ToString();
 
             // check for the forwarded headers
             if (context.Request.Headers.ContainsKey(SystemConstants.XffHeader))
@@ -204,8 +205,9 @@ namespace LodeRunner.API.Middleware
                 clientIp = xff;
             }
 
+            // Note: clientIp will be null when running Test Project
             // remove IP6 local address
-            return clientIp.Replace("::ffff:", string.Empty);
+            return clientIp?.Replace("::ffff:", string.Empty);
         }
 
         // log the request

@@ -23,7 +23,7 @@ namespace LodeRunner.Services
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="LodeRunner.Interfaces.ILodeRunnerService" />
-    internal class LodeRunnerService : IDisposable, ILodeRunnerService
+    public class LodeRunnerService : IDisposable, ILodeRunnerService
     {
         private readonly Config config;
         private readonly LoadClient loadClient;
@@ -59,6 +59,20 @@ namespace LodeRunner.Services
         /// The service provider.
         /// </value>
         public ServiceProvider ServiceProvider { get; private set; }
+
+        /// <summary>
+        /// Gets the ClientStatusId
+        /// </summary>
+        /// <value>
+        /// The Id
+        /// </value>
+        public string ClientStatusId
+        {
+            get
+            {
+                return clientStatus.Id;
+            }
+        }
 
         /// <summary>
         /// Dispose.
@@ -111,6 +125,14 @@ namespace LodeRunner.Services
                 Console.WriteLine($"\nException:{ex.Message}");
                 return Core.SystemConstants.ExitFail;
             }
+        }
+
+        /// <summary>
+        /// Stop Service forcing cancellation and throw On First Exception equals to True.
+        /// </summary>
+        public void StopService()
+        {
+            this.cancellationTokenSource.Cancel(false);
         }
 
         /// <summary>
@@ -177,25 +199,6 @@ namespace LodeRunner.Services
                 {
                     throw new ApplicationException($"Failed to validate application configuration", ex);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Loads the secrets.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        private static void LoadSecrets(Config config)
-        {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
-
-            // set the Cosmos server name for logging
-            config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
-
-            int ndx = config.CosmosName.IndexOf('.', StringComparison.OrdinalIgnoreCase);
-
-            if (ndx > 0)
-            {
-                config.CosmosName = config.CosmosName.Remove(ndx);
             }
         }
 
@@ -286,7 +289,7 @@ namespace LodeRunner.Services
         /// </summary>
         private void InitAndRegister()
         {
-            LoadSecrets(this.config);
+            Secrets.LoadSecrets(config);
 
             var serviceBuilder = this.RegisterSystemObjects();
 

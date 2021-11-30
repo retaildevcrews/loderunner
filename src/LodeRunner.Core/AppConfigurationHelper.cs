@@ -42,12 +42,32 @@ namespace LodeRunner.Core
         }
 
         /// <summary>
-        /// Gets the app port.
+        /// Determines whether [is development environment].
         /// </summary>
-        /// <param name="defaultPort">The default port.</param>
-        /// <param name="appName">The name of the application as defined in the configuration json files.</param>
-        /// <returns>The port number for LodeRunner to run on.</returns>
-        private static int GetPort(int defaultPort, string appName)
+        /// <returns>
+        ///   <c>true</c> if [is development environment]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsDevelopmentEnvironment()
+        {
+            return GetEnvironmentName() == SystemConstants.DevelopmentEnvironment;
+        }
+
+        /// <summary>
+        /// Determines whether [is production environment].
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if [is production environment]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsProductionEnvironment()
+        {
+            return GetEnvironmentName() == SystemConstants.DevelopmentEnvironment;
+        }
+
+        /// <summary>
+        /// Gets the name of the environment.
+        /// </summary>
+        /// <returns>the Environment Name.</returns>
+        private static string GetEnvironmentName()
         {
             string envName = Environment.GetEnvironmentVariable(SystemConstants.AspNetCoreEnviroment);
 
@@ -55,6 +75,19 @@ namespace LodeRunner.Core
             {
                 envName = SystemConstants.ProductionEnvironment;
             }
+
+            return envName;
+        }
+
+        /// <summary>
+        /// Gets the app port.
+        /// </summary>
+        /// <param name="defaultPort">The default port.</param>
+        /// <param name="appName">The name of the application as defined in the configuration json files.</param>
+        /// <returns>The port number for LodeRunner to run on.</returns>
+        private static int GetPort(int defaultPort, string appName)
+        {
+            string envName = GetEnvironmentName();
 
             // NOTE: the Option parameter is false, meaning that the file must exist.
             var configBuilder = new ConfigurationBuilder()

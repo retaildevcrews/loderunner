@@ -185,7 +185,10 @@ namespace LodeRunner.API
                 .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
 
                 .AddSingleton<LRAPICache>()
-                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>());
+                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>())
+
+                .AddSingleton<SystemComponentsService>()
+                .AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
         }
 
         /// <summary>
@@ -207,12 +210,15 @@ namespace LodeRunner.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = SwaggerTitle, Version = "v1" });
 
-                // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
-                var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
-                c.IncludeXmlComments(filePath);
+                if (AppConfigurationHelper.IsProductionEnvironment())
+                {
+                    // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
+                    var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
+                    c.IncludeXmlComments(filePath);
 
-                filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunner.Core.xml");
-                c.IncludeXmlComments(filePath);
+                    filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunner.Core.xml");
+                    c.IncludeXmlComments(filePath);
+                }
 
                 c.EnableAnnotations();
 

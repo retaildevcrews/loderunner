@@ -30,6 +30,28 @@
             <param name="defaultPort">The default port.</param>
             <returns>>The port number for LodeRunner.UI to run on.</returns>
         </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.IsDevelopmentEnvironment">
+            <summary>
+            Determines whether [is development environment].
+            </summary>
+            <returns>
+              <c>true</c> if [is development environment]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.IsProductionEnvironment">
+            <summary>
+            Determines whether [is production environment].
+            </summary>
+            <returns>
+              <c>true</c> if [is production environment]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:LodeRunner.Core.AppConfigurationHelper.GetEnvironmentName">
+            <summary>
+            Gets the name of the environment.
+            </summary>
+            <returns>the Environment Name.</returns>
+        </member>
         <member name="M:LodeRunner.Core.AppConfigurationHelper.GetPort(System.Int32,System.String)">
             <summary>
             Gets the app port.
@@ -82,6 +104,7 @@
             <param name="key">The key.</param>
             <param name="value">The value.</param>
             <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+            <returns>The Task.</returns>
         </member>
         <member name="M:LodeRunner.Core.Cache.BaseAppCache.GetMemCache``1">
             <summary>
@@ -262,6 +285,7 @@
             <param name="key">The key.</param>
             <param name="value">The value.</param>
             <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
+            <returns>The Task.</returns>
         </member>
         <member name="T:LodeRunner.Core.Interfaces.IBaseEntityModel">
             <summary>
@@ -360,7 +384,7 @@
         </member>
         <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.CosmosName">
             <summary>
-            Gets the name of the cosmos.
+            Gets or sets the name of the cosmos.
             </summary>
             <value>
             The name of the cosmos.
@@ -368,7 +392,7 @@
         </member>
         <member name="P:LodeRunner.Core.Interfaces.ICosmosConfig.Secrets">
             <summary>
-            Gets the secrets.
+            Gets or sets the secrets.
             </summary>
             <value>
             The secrets.
@@ -1234,6 +1258,17 @@
             <summary>
             Gets assembly version.
             </summary>
+        </member>
+        <member name="T:LodeRunner.API.LRAPICommandLine">
+            <summary>
+            Main application class.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.LRAPICommandLine.BuildRootCommand">
+            <summary>
+            Build the RootCommand for parsing.
+            </summary>
+            <returns>RootCommand.</returns>
         </member>
     </members>
 </doc>

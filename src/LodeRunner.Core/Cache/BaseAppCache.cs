@@ -95,9 +95,10 @@ namespace LodeRunner.Core.Cache
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <param name="memoryCacheEntryOptions">The memory cache entry options.</param>
-        public async void SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions)
+        /// <returns>The Task.</returns>
+        public Task SetEntry<TEntity>(object key, TEntity value, MemoryCacheEntryOptions memoryCacheEntryOptions)
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 BaseMemoryCache entityCache = this.GetMemCache<TEntity>();
 
