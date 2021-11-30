@@ -3,13 +3,21 @@ import Pencil from "../Pencil";
 import Trash from "../Trash";
 import { ConfigsContext, DisplayContext } from "../../contexts";
 import { CONFIG } from "../../models";
+import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Configs = () => {
   const { setModalContent } = useContext(DisplayContext);
-  const { configs } = useContext(ConfigsContext);
+  const { configs, setOpenedConfigIndex } = useContext(ConfigsContext);
 
-  const openPendingFeatureModal = () => setModalContent("pendingFeature");
+  const openConfigFormModal = (index) => (e) => {
+    e.stopPropagation();
+    setOpenedConfigIndex(index);
+    setModalContent(MODAL_CONTENT.configForm);
+  };
+
+  const openPendingFeatureModal = () =>
+    setModalContent(MODAL_CONTENT.pendingFeature);
 
   return (
     <div className="configs">
@@ -19,15 +27,15 @@ const Configs = () => {
           <button
             className="unset"
             type="button"
-            onClick={openPendingFeatureModal}
-            onKeyDown={openPendingFeatureModal}
+            onClick={openConfigFormModal(-1)}
+            onKeyDown={openConfigFormModal(-1)}
           >
             <Pencil fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
           </button>
         </h1>
       </div>
       <div>
-        {configs.map((c) => {
+        {configs.map((c, index) => {
           const {
             [CONFIG.id]: configId,
             [CONFIG.name]: name,
@@ -64,8 +72,8 @@ const Configs = () => {
                 <button
                   className="unset"
                   type="button"
-                  onClick={openPendingFeatureModal}
-                  onKeyDown={openPendingFeatureModal}
+                  onClick={openConfigFormModal(index)}
+                  onKeyDown={openConfigFormModal(index)}
                 >
                   <Pencil
                     width="3em"

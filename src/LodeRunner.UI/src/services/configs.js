@@ -1,0 +1,117 @@
+import { getApi, writeApi } from "./utilities";
+import { CONFIG } from "../models";
+
+const getConfigs = getApi("LoadTestConfig");
+
+const checkConfigInputs = (inputs) => {
+  const checkedConfigs = [
+    CONFIG.servers,
+    CONFIG.files,
+    CONFIG.duration,
+    CONFIG.sleep,
+    CONFIG.maxErrors,
+    CONFIG.timeout,
+  ];
+
+  const errors = checkedConfigs.reduce((errs, config) => {
+    switch (config) {
+      case CONFIG.servers:
+      case CONFIG.files:
+        // REQUIRED: flags
+        return inputs[config].some((i) => i && i.length > 0)
+          ? errs
+          : { ...errs, [config]: `Missing ${config} flag` };
+      case CONFIG.sleep:
+      case CONFIG.maxErrors:
+      case CONFIG.timeout:
+        // Positive integer value or zero
+        return Number.parseInt(inputs[config], 10) >= 0
+          ? errs
+          : {
+              ...errs,
+              [config]: "Must be a positive integer or zero",
+            };
+      case CONFIG.duration:
+        // Dependent positive integer value or zero
+        if (
+          inputs[CONFIG.runLoop] &&
+          !(Number.parseInt(inputs[config], 10) >= 0)
+        ) {
+          return {
+            ...errs,
+            [config]: "Must be a positive integer or zero",
+          };
+        }
+        return errs;
+      default:
+        return errs;
+    }
+  }, {});
+
+  if (Object.keys(errors).length > 0) {
+    throw errors;
+  }
+};
+
+const getConfigData = (inputs) =>
+  Object.values(CONFIG).reduce((data, config) => {
+    switch (config) {
+      case CONFIG.baseUrl:
+      case CONFIG.name:
+      case CONFIG.tag:
+        // don't send if no input
+        return inputs[config].length > 0
+          ? { ...data, [config]: inputs[config] }
+          : data;
+
+      // case CONFIG.delayStart:
+      //   // set constant value
+      //   return { ...data, [config]: -1 };
+
+      case CONFIG.duration:
+      case CONFIG.randomize:
+        // send only if runLoop is set
+        if (!inputs[CONFIG.runLoop]) {
+          return data;
+        }
+
+        return {
+          ...data,
+          [CONFIG.duration]: Number.parseInt(inputs[CONFIG.duration], 10),
+          [CONFIG.randomize]: inputs[CONFIG.randomize],
+        };
+
+      case CONFIG.files:
+      case CONFIG.servers:
+        // array of non-empty strings
+        return {
+          ...data,
+          [config]: inputs[config].filter((c) => c),
+        };
+
+      case CONFIG.maxErrors:
+      case CONFIG.sleep:
+      case CONFIG.timeout:
+        // convert input to type integer
+        return { ...data, [config]: Number.parseInt(inputs[config], 10) };
+
+      case CONFIG.dryRun:
+      case CONFIG.strictJson:
+      case CONFIG.runLoop:
+      case CONFIG.verboseErrors:
+        // always send boolean input
+        return { ...data, [config]: inputs[config] };
+      default:
+        return data;
+    }
+  }, {});
+
+const writeConfig = async (method, inputs) => {
+  checkConfigInputs(inputs);
+  const data = getConfigData(inputs);
+  const endpoint =
+    method === "PUT" ? `LoadTestConfig/${inputs[CONFIG.id]}` : "LoadTestConfig";
+  return writeApi(method, endpoint)(data);
+};
+
+export { getConfigs, checkConfigInputs, getConfigData, writeConfig };
