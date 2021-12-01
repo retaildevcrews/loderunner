@@ -37,17 +37,3 @@
   margin-left: 1em;
   padding-left: 1em;
 }
-.configform-pending {
-  position: absolute;
-  background-color: #8080808a;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.configform-pending > img {
-  height: 5em;
-}

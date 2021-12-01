@@ -1,4 +1,4 @@
-import { getApi, writeApi } from "./utilities";
+import { getApi, writeApi, deleteApi } from "./utilities";
 import { CONFIG } from "../models";
 
 const getConfigs = getApi("LoadTestConfig");
@@ -53,7 +53,7 @@ const checkConfigInputs = (inputs) => {
   }
 };
 
-const getConfigData = (inputs) =>
+const getConfigPayload = (inputs) =>
   Object.values(CONFIG).reduce((data, config) => {
     switch (config) {
       case CONFIG.baseUrl:
@@ -108,10 +108,18 @@ const getConfigData = (inputs) =>
 
 const writeConfig = async (method, inputs) => {
   checkConfigInputs(inputs);
-  const data = getConfigData(inputs);
+  const payload = getConfigPayload(inputs);
   const endpoint =
     method === "PUT" ? `LoadTestConfig/${inputs[CONFIG.id]}` : "LoadTestConfig";
-  return writeApi(method, endpoint)(data);
+  return writeApi(method, endpoint)(payload);
 };
 
-export { getConfigs, checkConfigInputs, getConfigData, writeConfig };
+const deleteConfig = deleteApi("LoadTestConfig");
+
+export {
+  getConfigs,
+  checkConfigInputs,
+  getConfigPayload,
+  writeConfig,
+  deleteConfig,
+};

@@ -7,16 +7,14 @@ import { writeConfig } from "../../services/configs";
 import { ConfigsContext, DisplayContext } from "../../contexts";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
-import spinner from "../../images/spinner.svg";
 import "./styles.css";
 
 const ConfigForm = () => {
   // context props
-  const { setModalContent } = useContext(DisplayContext);
+  const { setModalContent, setIsPending } = useContext(DisplayContext);
   const { configs, openedConfigIndex, setFetchConfigsTrigger } =
     useContext(ConfigsContext);
 
-  const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
 
@@ -126,18 +124,18 @@ const ConfigForm = () => {
         setFetchConfigsTrigger(Date.now());
       })
       .catch((err) => {
-        // UI display object error(s), otherwise, just log
         if (typeof err !== "object") {
+          // Display non-object errors
           setErrors({ response: err });
         } else if (err.message) {
-          // Handle thrown error
+          // Display thrown error
           setErrors({ response: err.message });
         } else {
-          // Handle custom input error(s)
+          // Display custom input error(s)
           setErrors(err);
         }
-        setIsPending(false);
-      });
+      })
+      .finally(() => setIsPending(false));
   }, [formData]);
 
   const saveConfig = () => {
@@ -163,7 +161,7 @@ const ConfigForm = () => {
 
     // include config ID if updating existing config
     if (openedConfig) {
-      inputs.id = openedConfig.id;
+      inputs[CONFIG.id] = openedConfig[CONFIG.id];
     }
 
     setFormData(inputs);
@@ -171,11 +169,6 @@ const ConfigForm = () => {
 
   return (
     <div className="configform">
-      {isPending && (
-        <div className="configform-pending">
-          <img src={spinner} alt="loading" />
-        </div>
-      )}
       <h2>
         {openedConfigIndex === -1 ? "New Config" : openedConfig[CONFIG.name]}
       </h2>

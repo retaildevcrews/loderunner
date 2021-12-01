@@ -2,13 +2,15 @@ import { useContext } from "react";
 import Pencil from "../Pencil";
 import Trash from "../Trash";
 import { ConfigsContext, DisplayContext } from "../../contexts";
+import { deleteConfig } from "../../services/configs";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Configs = () => {
-  const { setModalContent } = useContext(DisplayContext);
-  const { configs, setOpenedConfigIndex } = useContext(ConfigsContext);
+  const { setModalContent, setIsPending } = useContext(DisplayContext);
+  const { setFetchConfigsTrigger, configs, setOpenedConfigIndex } =
+    useContext(ConfigsContext);
 
   const openConfigFormModal = (index) => (e) => {
     e.stopPropagation();
@@ -18,6 +20,27 @@ const Configs = () => {
 
   const openPendingFeatureModal = () =>
     setModalContent(MODAL_CONTENT.pendingFeature);
+
+  const handleDeleteConfig = (id, name) => (e) => {
+    e.stopPropagation();
+
+    // eslint-disable-next-line no-alert
+    const isDeleteConfig = window.confirm(`Delete ${name} (${id})?`);
+
+    if (isDeleteConfig) {
+      setIsPending(true);
+
+      deleteConfig(id)
+        .catch(() => {
+          // eslint-disable-next-line no-alert
+          alert(`Unable to delete ${name} (${id})`);
+        })
+        .finally(() => {
+          setFetchConfigsTrigger(Date.now());
+          setIsPending(false);
+        });
+    }
+  };
 
   return (
     <div className="configs">
@@ -60,11 +83,11 @@ const Configs = () => {
                 </div>
                 <br />
                 <div>
-                  <span className="configs-key">Servers:</span>
+                  <span className="configs-key">Servers: </span>
                   {servers.join(", ")}
                 </div>
                 <div>
-                  <span className="configs-key">Files:</span>
+                  <span className="configs-key">Files: </span>
                   {files.join(", ")}
                 </div>
               </div>
@@ -84,8 +107,8 @@ const Configs = () => {
                 <button
                   className="unset"
                   type="button"
-                  onClick={openPendingFeatureModal}
-                  onKeyDown={openPendingFeatureModal}
+                  onClick={handleDeleteConfig(configId, name)}
+                  onKeyDown={handleDeleteConfig(configId, name)}
                 >
                   <Trash
                     width="2em"
