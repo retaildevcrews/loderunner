@@ -112,7 +112,7 @@ Table legend:
 | --random          | O       | N      | Requires --run-loop.                                           |
 | --sleep           | O       | N      | Requires --run-loop.                                           |
 
-## Command Line Parameters
+## Command Line Parameter Descriptions
 
 > Includes short flags and environment variable names where applicable.
 >
@@ -128,6 +128,10 @@ Table legend:
 - --dry-run bool
   - -d
     - validate parameters but do not execute tests
+- --mode [**command** || client]
+  - command - execute a load test based on the arguments passed on the command line
+  - client - execute as a daemon awaiting jobs that are scheduled through a configured CosmosDB
+  - default: `command`
 - --server string1 [string2 string3]
   - -s
   - SERVER
@@ -144,7 +148,7 @@ Table legend:
 - --delay-start int
   - DELAY_START
     - delay starting the validation test for int seconds
-    - default `0`
+    - default 0
 - --secrets-volume string
   - SECRETS_VOLUME
     - secrets location
