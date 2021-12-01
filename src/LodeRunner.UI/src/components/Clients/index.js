@@ -3,13 +3,14 @@ import PropTypes from "prop-types";
 import CheckMark from "../CheckMark";
 import { ClientsContext, DisplayContext } from "../../contexts";
 import { CLIENT, CLIENT_STATUSES } from "../../models";
+import { MAIN_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Clients = ({ setFetchClientsInterval }) => {
   const [selectedClients, setSelectedClients] = useState({});
+  const { setMainContent } = useContext(DisplayContext);
   const { clients, setOpenedClientDetailsIndex, openedClientDetailsIndex } =
     useContext(ClientsContext);
-  const { setMainContent } = useContext(DisplayContext);
 
   function toggleClient(loadClientId) {
     setSelectedClients({
@@ -20,10 +21,10 @@ const Clients = ({ setFetchClientsInterval }) => {
 
   const toggleClientDetails = (index) => {
     if (index === openedClientDetailsIndex) {
-      setMainContent("configs");
+      setMainContent(MAIN_CONTENT.configs);
       setOpenedClientDetailsIndex(-1);
     } else {
-      setMainContent("clientDetails");
+      setMainContent(MAIN_CONTENT.clientDetails);
       setOpenedClientDetailsIndex(index);
     }
   };

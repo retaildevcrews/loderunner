@@ -11,6 +11,9 @@
   border: solid 2px #2c7f84;
   border-radius: 4px;
   padding: 1em;
+  max-width: calc(100vw - 4em);
+  max-height: calc(100vh - 4em);
+  overflow: auto;
 }
 .modal-header {
   display: flex;
