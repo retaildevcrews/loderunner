@@ -23,11 +23,18 @@ In the project directory, you can run:
 
 1. Clone the Repo `git clone https://github.com/retaildevcrews/loderunner.git`
 2. Change into the loderunner directory `cd loderunner`
-3. Start the k3d cluster `make create`
-4. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
-5. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
-6. Install node dependencies `npm clean-install`
-7. Start the client `npm start`
+3. Set `src/LodeRunner.UI/.env.development` REACT_APP_SERVER to LodeRunner.API URL
+4. Set environmental variables for LodeRunner.API
+    - Initial setup
+      - Set `LR_COL`, `LR_DB`, `LR_KEY`, and `LR_URL` with CosmosDB values
+      - Save environmental variables `./deploy/loderunner/local/saveenv.sh`
+    - Reset
+      - `source ~/.lr.env`
+5. Start the k3d cluster `make create`
+6. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
+7. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
+8. Install node dependencies `npm clean-install`
+9. Start the client `npm start`
 
 ## Testing the Client Application
 

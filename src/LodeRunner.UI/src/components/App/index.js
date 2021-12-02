@@ -8,11 +8,13 @@ import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
 import { getClients } from "../../services/clients";
 import { getConfigs } from "../../services/configs";
 import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
+import { ReactComponent as Spinner } from "../../images/spinner.svg";
 import "./styles.css";
 
 function App() {
-  const [modalContent, setModalContent] = useState(MODAL_CONTENT.closed);
   const [mainContent, setMainContent] = useState(MAIN_CONTENT.configs);
+  const [modalContent, setModalContent] = useState(MODAL_CONTENT.closed);
+  const [isPending, setIsPending] = useState(false);
 
   const fetchClientsIntervalId = useRef();
   const [fetchClientsTrigger, setFetchClientsTrigger] = useState(0);
@@ -33,6 +35,7 @@ function App() {
     getConfigs()
       .then((c) => setConfigs(c))
       .catch(() =>
+        // TODO: Remove mocked data
         setConfigs([
           {
             entityType: "LoadTestConfig",
@@ -113,7 +116,13 @@ function App() {
   return (
     <div className="app">
       <DisplayContext.Provider
-        value={{ modalContent, setModalContent, mainContent, setMainContent }}
+        value={{
+          mainContent,
+          setMainContent,
+          modalContent,
+          setModalContent,
+          setIsPending,
+        }}
       >
         <ConfigsContext.Provider
           value={{
@@ -123,6 +132,11 @@ function App() {
             setOpenedConfigIndex,
           }}
         >
+          {isPending && (
+            <div className="pending-overlay">
+              <Spinner />
+            </div>
+          )}
           {modalContent && (
             <Modal>
               {modalContent === MODAL_CONTENT.pendingFeature && (

@@ -34,7 +34,7 @@ const getApi = (endpoint) => async () => {
   }
 };
 
-const writeApi = (method, endpoint) => async (data) => {
+const writeApi = (method, endpoint) => async (payload) => {
   try {
     const res = await fetch(`${process.env.REACT_APP_SERVER}/api/${endpoint}`, {
       method,
@@ -42,7 +42,7 @@ const writeApi = (method, endpoint) => async (data) => {
         accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     return await getResponseBody(res);
   } catch (err) {
@@ -52,4 +52,25 @@ const writeApi = (method, endpoint) => async (data) => {
   }
 };
 
-export { getApi, writeApi };
+const deleteApi = (endpoint) => async (id) => {
+  try {
+    if (!id) {
+      throw new Error("Missing ID");
+    }
+
+    const res = await fetch(
+      `${process.env.REACT_APP_SERVER}/api/${endpoint}/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const body = await getResponseBody(res);
+    return body;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(`Issue with DELETE request at ${endpoint}`, err);
+    throw err;
+  }
+};
+
+export { getApi, writeApi, deleteApi };

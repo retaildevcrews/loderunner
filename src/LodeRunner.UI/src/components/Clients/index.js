@@ -37,7 +37,7 @@ const Clients = ({ setFetchClientsInterval }) => {
         defaultValue="0"
         onChange={({ target }) => setFetchClientsInterval(target.value)}
       >
-        <option value="0">Auto Refresh</option>
+        <option value="0">Auto Refresh: OFF</option>
         <option value="5000">5 seconds</option>
         <option value="15000">15 seconds</option>
         <option value="30000">30 seconds</option>

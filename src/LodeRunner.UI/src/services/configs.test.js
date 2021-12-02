@@ -1,4 +1,4 @@
-import { checkConfigInputs, getConfigData } from "./configs";
+import { checkConfigInputs, getConfigPayload } from "./configs";
 import { CONFIG } from "../models";
 
 describe("checkConfigInputs", () => {
@@ -42,7 +42,7 @@ describe("checkConfigInputs", () => {
   });
 });
 
-describe("getConfigData", () => {
+describe("getConfigPayload", () => {
   it("should set all inputs", () => {
     const inputs = {
       [CONFIG.baseUrl]: "test",
@@ -62,7 +62,7 @@ describe("getConfigData", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    const expectedData = {
+    const expectedPayload = {
       [CONFIG.baseUrl]: "test",
       [CONFIG.name]: "test",
       [CONFIG.tag]: "test",
@@ -80,7 +80,7 @@ describe("getConfigData", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    expect(getConfigData(inputs)).toEqual(expectedData);
+    expect(getConfigPayload(inputs)).toEqual(expectedPayload);
   });
 
   it("should set default inputs", () => {
@@ -102,7 +102,7 @@ describe("getConfigData", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    const expectedData = {
+    const expectedPayload = {
       // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: false,
       [CONFIG.files]: [],
@@ -115,6 +115,6 @@ describe("getConfigData", () => {
       [CONFIG.verboseErrors]: true,
     };
 
-    expect(getConfigData(inputs)).toEqual(expectedData);
+    expect(getConfigPayload(inputs)).toEqual(expectedPayload);
   });
 });
