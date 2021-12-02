@@ -44,21 +44,23 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>LodeRunnerService.</returns>
         public static async Task<LodeRunnerService> CreateAndStartLodeRunnerServiceInstance(string callerName)
         {
-            string dateTimeUnique = $"{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
-            var args = new string[] { "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1", "--secrets-volume", "secrets", "--region", $"IntegrationTesting-{callerName}-{dateTimeUnique}" };
+            string uniqueRegion = $"IntegrationTesting-{callerName}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+
+            var args = new string[] { "--mode", "Client", "--secrets-volume", "secrets", "--region", uniqueRegion };
 
             LodeRunner.Config lrConfig = new ();
-            RootCommand root = LRCommandLine.BuildRootCommand();
+            RootCommand rootClient = LRCommandLine.BuildRootClientMode();
 
             LodeRunnerService l8rService = null;
 
             // Create lrConfig from arguments
-            root.Handler = CommandHandler.Create<LodeRunner.Config>((lrConfig) =>
+            rootClient.Handler = CommandHandler.Create<LodeRunner.Config>((lrConfig) =>
             {
                 Assert.NotNull(lrConfig);
-                Assert.True(lrConfig.Server.Count > 0);
+                lrConfig.IsClientMode = rootClient.Name == LodeRunner.Core.SystemConstants.LodeRunnerClientMode;
 
-                // TODO: Validate every argument not just servers ??
+                Assert.True(lrConfig.IsClientMode, "Incorrect LodeRunner Root Command was created.");
+                Assert.StartsWith(uniqueRegion, lrConfig.Region);
 
                 // Initialize and Start LodeRunner Service
                 Secrets.LoadSecrets(lrConfig);
@@ -70,7 +72,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 _ = l8rService.StartService();
             });
 
-            await root.InvokeAsync(args).ConfigureAwait(true);
+            await rootClient.InvokeAsync(args).ConfigureAwait(true);
 
             return l8rService;
         }

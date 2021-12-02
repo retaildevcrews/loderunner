@@ -85,7 +85,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             {
                 Assert.True(false, $"Unable to process {nameof(this.CanGetEndpointsReturnSuccessAndCorrectContentType)} request.");
             }
-
         }
 
         /// <summary>

@@ -157,23 +157,64 @@
             Main application class.
             </summary>
         </member>
-        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.BuildRootCommand">
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.GetRootCommand(System.String[])">
             <summary>
-            Build the RootCommand for parsing.
+            Gets the correct root command by parsing --mode.
+            </summary>
+            <param name="args">The arguments.</param>
+            <returns>RootCommand based on --mode.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.BuildRootCommandMode">
+            <summary>
+            Build the RootCommandLine Mode for parsing.
+            </summary>
+            <returns>RootCommand.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.BuildRootClientMode">
+            <summary>
+            Build the RootClient Mode for parsing.
             </summary>
             <returns>RootCommand.</returns>
         </member>
         <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.DoDryRun(LodeRunner.Core.Interfaces.ILRConfig)">
             <summary>
-            handle --dry-run.
+            Does the dry run.
             </summary>
             <param name="config">The configuration.</param>
             <returns>Success or Failure code.</returns>
         </member>
-        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.ValidateDependencies(System.CommandLine.Parsing.CommandResult)">
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.DoDryRunCommandMode(LodeRunner.Core.Interfaces.ILRConfig)">
+            <summary>
+            handle --dry-run. for Command Mode.
+            </summary>
+            <param name="config">The configuration.</param>
+            <returns>Success or Failure code.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.DoDryRunClientMode(LodeRunner.Core.Interfaces.ILRConfig)">
+            <summary>
+            handle --dry-run for Client Mode.
+            </summary>
+            <param name="config">The configuration.</param>
+            <returns>Success or Failure code.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.ValidateCommandModeDependencies(System.CommandLine.Parsing.CommandResult)">
             <summary>Validates combinations of parameters and dependencies.</summary>
             <param name="result">The ComandResult object.</param>
             <returns> empty string if no issues found.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.ValidateClientModeDependencies(System.CommandLine.Parsing.CommandResult)">
+            <summary>Validates combinations of parameters and dependencies.</summary>
+            <param name="result">The ComandResult object.</param>
+            <returns> empty string if no issues found.</returns>
+        </member>
+        <member name="M:LodeRunner.Core.CommandLine.LRCommandLine.IsClientMode(System.String[])">
+            <summary>
+            Determines whether [is client mode] [the specified arguments].
+            </summary>
+            <param name="args">The arguments.</param>
+            <returns>
+              <c>true</c> if [is client mode] [the specified arguments]; otherwise, <c>false</c>.
+            </returns>
         </member>
         <member name="T:LodeRunner.Core.CommandLine.Parsers">
             <summary>
@@ -529,6 +570,14 @@
             </summary>
             <value>
             The client refresh.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.IsClientMode">
+            <summary>
+            Gets or sets a value indicating whether this instance is client mode.
+            </summary>
+            <value>
+              <c>true</c> if this instance is client mode; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="T:LodeRunner.Core.Interfaces.IModelValidator`1">
@@ -1209,14 +1258,9 @@
             The command line validation random and loop message.
             </summary>
         </member>
-        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationDelayStartAndEmptySecretsMessage">
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationClientModeAndEmptySecretsMessage">
             <summary>
             The command line validation delay start and empty secrets message.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsAndInvalidDelayStartMessage">
-            <summary>
-            The command line validation secrets and invalid delay start message.
             </summary>
         </member>
         <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsVolumeBeginningMessage">
@@ -1237,6 +1281,16 @@
         <member name="F:LodeRunner.Core.SystemConstants.ExitFail">
             <summary>
             The exit fail.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.LodeRunnerClientMode">
+            <summary>
+            The LodeRunner Client mode.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.LodeRunnerCommandMode">
+            <summary>
+            The LodeRunner Command mode.
             </summary>
         </member>
         <member name="T:LodeRunner.Core.Version">

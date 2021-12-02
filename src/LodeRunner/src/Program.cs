@@ -60,8 +60,9 @@ namespace LodeRunner
             }
 
             // build the System.CommandLine.RootCommand
-            RootCommand root = LRCommandLine.BuildRootCommand();
-            root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg));
+            RootCommand root = LRCommandLine.GetRootCommand(args);
+
+            root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg, root.Name == SystemConstants.LodeRunnerClientMode));
 
             // run the command handler
             return await root.InvokeAsync(args).ConfigureAwait(false);
@@ -71,14 +72,18 @@ namespace LodeRunner
         /// System.CommandLine.CommandHandler implementation.
         /// </summary>
         /// <param name="config">configuration.</param>
+        /// <param name="isClientMode">determines if is ClientMode.</param>
         /// <returns>non-zero on failure.</returns>
-        public static async Task<int> Run(Config config)
+        public static async Task<int> Run(Config config, bool isClientMode)
         {
             if (config == null)
             {
                 Console.WriteLine("CommandOptions is null");
                 return Core.SystemConstants.ExitFail;
             }
+
+            //Note: config.IsClientMode does not get auto-populated by RootCommand since it does not get parsed, so we need to set it manually.
+            config.IsClientMode = isClientMode;
 
             using var l8rService = new LodeRunnerService(config, cancelTokenSource);
             return await l8rService.StartService();
