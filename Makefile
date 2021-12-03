@@ -110,9 +110,6 @@ clean :
 	@kubectl get po -A
 
 lr-local:
-	# Delete LodeRunner.UI node_modules for docker context
-	@rm -rf ./src/LodeRunner.UI/node_modules
-
 	# Create LodeRunner image from codebase
 	@docker build ./src -t k3d-registry.localhost:5000/ngsa-lr:local -f ./src/LodeRunner/Dockerfile
 	# Load new LodeRunner image to k3d registry

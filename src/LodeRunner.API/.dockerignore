@@ -22,9 +22,6 @@ bld/
 # Visual Studio cache/options directory
 .vs/
 
-# Node.js
-**/node_modules
-
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
