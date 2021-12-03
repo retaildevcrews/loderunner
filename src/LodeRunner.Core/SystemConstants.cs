@@ -67,12 +67,7 @@ namespace LodeRunner.Core
         /// <summary>
         /// The command line validation delay start and empty secrets message.
         /// </summary>
-        public const string CmdLineValidationDelayStartAndEmptySecretsMessage = "--secrets-volume cannot be empty when --delay-start is equals to -1";
-
-        /// <summary>
-        /// The command line validation secrets and invalid delay start message.
-        /// </summary>
-        public const string CmdLineValidationSecretsAndInvalidDelayStartMessage = "--secrets-volume requires --delay-start to be equals to negative one (-1)";
+        public const string CmdLineValidationClientModeAndEmptySecretsMessage = "--secrets-volume cannot be empty when --mode is equals to Client";
 
         /// <summary>
         /// The command line validation secrets volume beginning message.
@@ -93,5 +88,15 @@ namespace LodeRunner.Core
         /// The exit fail.
         /// </summary>
         public const int ExitFail = 1;
+
+        /// <summary>
+        /// The LodeRunner Client mode.
+        /// </summary>
+        public const string LodeRunnerClientMode = "Client";
+
+        /// <summary>
+        /// The LodeRunner Command mode.
+        /// </summary>
+        public const string LodeRunnerCommandMode = "Command";
     }
 }

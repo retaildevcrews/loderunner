@@ -26,7 +26,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>Whether or not  the DTO passes validation.</returns>
         public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage)
         {
-            RootCommand root = LRCommandLine.BuildRootCommand();
+            RootCommand root = LRCommandLine.BuildRootCommandMode();
 
             string[] args = GetArgs(loadTestConfig);
 

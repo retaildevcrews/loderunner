@@ -78,7 +78,7 @@ jobs:
 
         echo "PR Number: ${{ github.event.pull_request.number }}"
         
-        docker run -d --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --delay-start -1 --secrets-volume /app/secrets -s http://localhost:80 -f benchmark.json --region IntegrationTesting-PR${{ github.event.pull_request.number }}
+        docker run -d --rm --name l8rAwait --net=host -v /tmp/secrets:/app/secrets image --mode Client --secrets-volume /app/secrets --region IntegrationTesting-PR${{ github.event.pull_request.number }}
 
         echo "Waiting for LodeRunner to start on Client mode..."
 

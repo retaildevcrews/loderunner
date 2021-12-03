@@ -74,7 +74,7 @@ namespace LodeRunner.Core.Models
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? SystemConstants.Unknown : config.Region,
                 Zone = string.IsNullOrWhiteSpace(config.Zone) == true ? SystemConstants.Unknown : config.Zone,
                 Prometheus = config.Prometheus,
-                StartupArgs = $"--delay-start {config.DelayStart} --secrets-volume {config.SecretsVolume}",
+                StartupArgs = $"--secrets-volume {config.SecretsVolume}",
                 StartTime = lastUpdated,
             };
         }

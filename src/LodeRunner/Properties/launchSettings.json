@@ -2,7 +2,7 @@
   "profiles": {
     "Dev - Client Mode": {
       "commandName": "Project",
-      "commandLineArgs": "-s https://worka.aks-sb.com -f memory-baseline.json memory-benchmark.json --delay-start -1 --secrets-volume secrets",
+      "commandLineArgs": "--mode Client --secrets-volume secrets",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -10,7 +10,7 @@
     },
     "Dev - Command Mode": {
       "commandName": "Project",
-      "commandLineArgs": "-s https://worka.aks-sb.com -f memory-baseline.json memory-benchmark.json --delay-start 5 --run-loop true --duration 180",
+      "commandLineArgs": "--mode Command -s https://ngsa-pre-central-dev.cse.ms -f memory-baseline.json memory-benchmark.json --delay-start 5 --run-loop true --duration 180",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

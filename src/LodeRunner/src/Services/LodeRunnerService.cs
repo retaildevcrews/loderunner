@@ -99,7 +99,7 @@ namespace LodeRunner.Services
 
             try
             {
-                if (this.config.DelayStart == -1)
+                if (this.config.IsClientMode)
                 {
                     return await this.StartAndWait();
                 }

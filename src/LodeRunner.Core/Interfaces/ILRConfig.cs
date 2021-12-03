@@ -125,5 +125,13 @@ namespace LodeRunner.Core.Interfaces
         /// The client refresh.
         /// </value>
         int ClientRefresh { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is client mode.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is client mode; otherwise, <c>false</c>.
+        /// </value>
+        bool IsClientMode { get; set; }
     }
 }

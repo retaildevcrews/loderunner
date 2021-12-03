@@ -62,8 +62,57 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 --run-loop --verbose --duration 60 --sleep 500
 
 ```
+## LodeRunner Modes
 
-## Command Line Parameters
+LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` argument is passed then LodeRunner will default to **Command** mode. The argument looks as follows with the default value in bold if unspecified:
+
+--mode=[**Command**|Client]
+
+### Mode Definitions
+
+- **Command** mode is the traditional mode for LodeRunner and will execute based on the arguments passed to via the command line.
+- **Client** mode is a newly added mode in which LodeRunner will start and await for a [TestRun](https://github.com/retaildevcrews/loderunner/blob/main/docs/DataDictionary.md#232-testrun) to be assigned for it to execute.  A **TestRun** will contain setting including arguments normally passed to LodeRunner in **Command** mode which will be used to internally start a LodeRunner service to execute the test based on those arguments.
+
+### Mode and Argument Compatibility Table
+
+The following table helps identify which flags are neeed for starting the initial process in each mode.  
+
+**Note:** Many flags are not supported for **client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
+
+Table legend:
+
+- **O** - Optional parameter for the given mode
+- **N** - Not supported for a given mode flag
+- **R** - Required for for a given mode flga
+
+|                   | Mode    |        |                                                                |
+|-------------------|---------|--------|----------------------------------------------------------------|
+| **Argument**      | **Command** | **Client** | **Notes**                                                          |
+| --version         | O           | O          | If passed all other parameters are ignored.            |
+| --help            | O       | O      | If passed all other parameters are ignored.                    |
+| --dry-run         | O       | O      | Runs arguments through validation, but does not start the app. |
+| --server          | R       | N      |                                                                |
+| --files           | R       | N      |                                                                |
+| --base-url        | O       | N      |                                                                |
+| --delay-start     | O       | N      |                                                                |
+| --secrets-volume  | N       | R      |                                                                |
+| --max-errors      | O       | N      |                                                                |
+| --sleep           | O       | N      |                                                                |
+| --stric-json      | O       | N      |                                                                |
+| --summary-minutes | O       | N      |                                                                |
+| --tag             | O       | O      |                                                                |
+| --timeout         | O       | N      |                                                                |
+| --verbose         | O       | N      |                                                                |
+| --verbose-errors  | O       | N      |                                                                |
+| --zone            | O       | R      | New default is "Unknown".                                      |
+| --region          | O       | R      | New default is "Unknown".                                      |
+| --run-loop        | O       | N      |                                                                |
+| --prometheus      | O       | O      | Requires --run-loop in Command mode, but not in Client mode.   |
+| --duration        | O       | N      | Requires --run-loop.                                           |
+| --random          | O       | N      | Requires --run-loop.                                           |
+| --sleep           | O       | N      | Requires --run-loop.                                           |
+
+## Command Line Parameter Descriptions
 
 > Includes short flags and environment variable names where applicable.
 >
@@ -79,17 +128,19 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --dry-run bool
   - -d
     - validate parameters but do not execute tests
+- --mode [**command** || client]
+  - command - execute a load test based on the arguments passed on the command line
+  - client - execute as a daemon awaiting jobs that are scheduled through a configured CosmosDB
+  - default: `command`
 - --server string1 [string2 string3]
   - -s
   - SERVER
     - server Url (i.e. `https://MyServerDomainName.com`)
-    - `required`
 - --files file1 [file2 file3 ...]
   - -f
   - FILES
     - one or more json test files
     - default location current directory
-    - `required`
 - --base-url string
   - -u
   - BASE_URL
@@ -97,14 +148,10 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --delay-start int
   - DELAY_START
     - delay starting the validation test for int seconds
-    - if --delay-start is equals to `-1` then --secrets-volume must be present and exist
-    - if --delay-start is anything other than `-1` then secrets are ignored
-    - if --delay-start is set to `-1` and --secrets-volume exists, Loderunner will start and await indefinitely to start test
-    - default `0`
+    - default 0
 - --secrets-volume string
   - SECRETS_VOLUME
     - secrets location
-    - if --secrets-volume is present then --delay-start must be equals to `-1`
     - if --secrets-volume is present then secrets directory must exist.
     - default `secrets`
 - --max-errors int
@@ -115,7 +162,7 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --region string
   - REGION
     - deployment Region for logging (user defined)
-    - default: `null`
+    - default: `unknown`
 - --sleep int
   - -l
   - SLEEP
@@ -153,7 +200,7 @@ docker run --rm ghcr.io/retaildevcrews/ngsa-lr:beta --sleep 15000 --run-loop --s
 - --zone string
   - ZONE
     - deployment Zone for logging (user defined)
-    - default: `null`
+    - default: `unknown`
 
 ### RunLoop Mode Parameters
 
@@ -199,7 +246,7 @@ In order to debug LodeRunner app we must first set some of the command line argu
 <!-- markdownlint-disable MD034 MD036 -->
 **Client Mode**
 
-   >-s https://[any] -f memory-baseline.json memory-benchmark.json --delay-start -1 --secrets-volume secrets
+   >--mode client --secrets-volume secrets --region centralus --zone azure --prometheus
 
 OR
 
