@@ -47,9 +47,38 @@ Conveys the current status, time of that status, and the associated LoadClient's
 
 Used as the lease container for ChangeFeed
 
-- A lease container acts as state storage and coordinates processing the change feed across multiple workers. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-processor#components-of-the-change-feed-processor)
+- A lease container acts as state storage and coordinates processing the change feed across multiple workers. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-processor#components-of-the-change-feed-processor))
 
 Lease container requirements
 
-- Partion key definition must be `/id`. [Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions#requirements)
-- The connection string to Azure Cosmos DB account with lease collection must have write permissions. [Docs](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger?tabs=csharp#configuration)
+- Partion key definition must be `/id`. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions#requirements))
+- The connection string to Azure Cosmos DB account with lease collection must have write permissions. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger?tabs=csharp#configuration))
+
+## CosmosDB Key
+
+Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) require a Read-Write key from CosmosDB.
+
+The rest of the required files in the `/secrets` folder are already included (i.e. `CosmosCollection`, `CosmosDatabase`, `CosmosTestDatabase`, `CosmosUrl`).
+
+1. In the loderunner application's directory, create `secrets/CosmosKey`
+2. Save the Read-Write key from CosmosDB in the CosmosKey file
+
+## CosmosDB Firewall IP Ranges
+
+Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) add your IP address to allow access to CosmosDB
+
+### Example of issues not setting this will cause
+
+- `"ExceptionMessage": "Repository test for LodeRunnerDB:LodeRunner failed."
+
+### Solution
+
+1. Navigate to the Azure Portal
+2. Go to the associated `Azure Cosmos DB account`
+3. Under `Settings`, go to `Firewall and virtual networks`
+4. Add your IP address under `Firewall` > `IP`
+5. Save
+6. A notification with "Updating Firewall configuration" should appear at the top
+7. It will take a little time to update. Once the firewall is updated you will be able to run the app.
+
+TODO - Replace the Add IP instructions with CLI command if possible
