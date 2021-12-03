@@ -23,6 +23,7 @@
     "test": "jest",
     "eject": "react-scripts eject",
     "lint": "eslint --fix 'src/**/*.{js,jsx}'",
+    "lint-audit": "eslint 'src/**/*.{js,jsx}'",
     "format": "prettier -w ."
   },
   "eslintConfig": {
