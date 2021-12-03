@@ -91,9 +91,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// Determines whether this instance [can get clients].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task CanGetClients()
+        // [Fact]
+        // [Trait("Category", "Integration")]
+        private async Task CanGetClients()
         {
             using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClients));
 
@@ -110,9 +110,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        [Trait("Category", "Integration")]
-        public async Task CanGetClientsById()
+        // [Fact]
+        // [Trait("Category", "Integration")]
+        private async Task CanGetClientsById()
         {
             using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClientsById));
 
