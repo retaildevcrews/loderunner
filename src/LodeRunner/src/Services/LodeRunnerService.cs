@@ -266,7 +266,7 @@ namespace LodeRunner.Services
             try
             {
                 // wait indefinitely
-                await Task.Delay(this.config.DelayStart, this.cancellationTokenSource.Token).ConfigureAwait(false);
+                await Task.Delay(-1, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
             catch (TaskCanceledException tce)
             {
