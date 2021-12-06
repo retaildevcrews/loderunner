@@ -1,13 +1,13 @@
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
 .app {
-    height: 100vh;
+  height: 100vh;
 }
 .app-content {
-    display: flex;
-    height: 100%;
-    flex: auto;
+  display: flex;
+  height: 100%;
+  flex: auto;
 }
 .pending-overlay {
   z-index: 100;

@@ -7,10 +7,14 @@ LodeRunner.API is intended to facility testing in controlled environments by add
 1. Clone the Repo:
       `git clone https://github.com/retaildevcrews/loderunner.git`
 
-2. Change into the API directory:
+2. Add CosmosDB secret key ([Instructions](../LodeRunner.Data/README.md#cosmosdb-key))
+
+3. Allow access to CosmosDB through firewall ([Instructions](../LodeRunner.Data/README.md#cosmosdb-firewall-ip-ranges))
+
+4. Change into the API directory:
       `cd src/LodeRunner.API`
 
-3. Run the Application
+5. Run the Application
       `dotnet run`
 
 You should see the following response:

@@ -302,11 +302,13 @@ __pycache__/
 
 # Files generated during multi-cluster spike walkthrough
 spikes/istio-multicluster/istio-*-cluster.yaml
-# Typescript
-node_modules
 dist
 .nyc_output
-src/LodeRunner.UI/.env.*
+
+# LodeRunner.UI
+node_modules
+.env.*
+build
 
 ### OSX ###
 # General

@@ -2,47 +2,53 @@
 
 LodeRunner.UI is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
 
-## UI Application Scripts
+## Development Experience
 
-In the project directory, you can run:
+### Initial Setup
 
-- `npm clean-install`: Installs npm dependecies.
+1. Setup LodeRunner and LodeRunner.API pods ([Instructions](../../README.md#running-the-system-via-codespaces))
+2. Set `src/LodeRunner.UI/.env.development` REACT_APP_SERVER to LodeRunner.API URL
+   - To prevent accidental commits `git update-index --assume-unchanged .env.development`
+3. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
+4. Install node dependencies in `npm install`
+5. Start the client `npm start`
 
-- `npm start` : Runs the app in development mode
+### Re-run
 
-- `npm run lint` : Runs Linter and automatically fixes Linter recommended changes
-
-- `npm test` : Launches the test runner, jest, in the interactive watch mode.
-
-- `npm run build` : Builds the app for production to the `build` folder.
-
-- `npm run eject` : Removes the single build dependency from project and copies all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them.
-  - *Note: this is a one-way operation. Once you `eject`, you can’t go back!*
-
-## Running the UI Application Locally
-
-1. Clone the Repo `git clone https://github.com/retaildevcrews/loderunner.git`
-2. Change into the loderunner directory `cd loderunner`
-3. Set `src/LodeRunner.UI/.env.development` REACT_APP_SERVER to LodeRunner.API URL
-4. Set environmental variables for LodeRunner.API
-    - Initial setup
-      - Set `LR_COL`, `LR_DB`, `LR_KEY`, and `LR_URL` with CosmosDB values
-      - Save environmental variables `./deploy/loderunner/local/saveenv.sh`
-    - Reset
-      - `source ~/.lr.env`
-5. Start the k3d cluster `make create`
-6. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
-7. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
-8. Install node dependencies `npm clean-install`
-9. Start the client `npm start`
+1. Verify in loderunner directory
+2. Set environmental variables for K8S generic secret via `source ~/.lr.env`
+3. Start the k3d cluster `make create`
+4. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
+5. In ports, set LodeRunner.API port visibility to public
+6. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
+7. Start the client `npm start`
 
 ## Testing the Client Application
 
-Run tests on Client components and functions using `npm test`
+Launch the test runner, jest, in the interactive watch mode: `npm test`
+
+## Linters
+
+- `npm run lint`: Runs ESLint and automatically fixes recommended changes
+- `npm run lint-audit`: Runs ESLint and lists recommended changes
+- `npm run format`: Runs Prettier and automatically fixes recommended changes
+
+## Fix dependency vulnerabilities
+
+1. Verify dependencies that require fixing
+   - `npm audit --production`
+   - Explanation: <https://github.com/facebook/create-react-app/issues/11174>
+   - NOTE: Please do not move react-scripts to devDependencies as suggested in the above article. This will break the docker image build.
+2. Automatically fix dependencies: `npm audit fix`
+
+## Production Build
+
+- `npm run build`: Builds app for production and saves in the `build` folder
+- `npm run build-prod`: Builds app for production and saves in the `build` folder without ESLint errors
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
