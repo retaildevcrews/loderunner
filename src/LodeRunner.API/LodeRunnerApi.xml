@@ -339,19 +339,21 @@
             Provides Extension methods for Models.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.Core.Models.LoadTestConfig,System.String@)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.Core.Models.LoadTestConfig,System.Collections.Generic.List{System.String},System.String@)">
             <summary>
-            Validates the specified load test configuration.
+            Validates the specified load test payload configuration.
             </summary>
             <param name="loadTestConfig">The load test configuration.</param>
+            <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
             <param name="errorMessage">Error MEssage String if any.</param>
             <returns>Whether or not  the DTO passes validation.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.Core.Models.LoadTestConfig)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.Core.Models.LoadTestConfig,System.Collections.Generic.List{System.String})">
             <summary>
-            Gets the arguments.
+            Gets the arguments from properties that exist in changedProperties list.
             </summary>
             <param name="loadTestConfig">The load test configuration.</param>
+            <param name="payloadPropertiesChanged">Changed Properties list.</param>
             <returns>the args.</returns>
         </member>
         <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.Core.Models.LoadTestConfig,System.String)">

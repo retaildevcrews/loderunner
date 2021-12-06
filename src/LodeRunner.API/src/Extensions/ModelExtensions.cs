@@ -19,16 +19,17 @@ namespace LodeRunner.API.Middleware
     public static class ModelExtensions
     {
         /// <summary>
-        /// Validates the specified load test configuration.
+        /// Validates the specified load test payload configuration.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
         /// <param name="errorMessage">Error MEssage String if any.</param>
         /// <returns>Whether or not  the DTO passes validation.</returns>
-        public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage)
+        public static bool Validate(this LoadTestConfig loadTestConfig, List<string> payloadPropertiesChanged, out string errorMessage)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
 
-            string[] args = GetArgs(loadTestConfig);
+            string[] args = GetArgs(loadTestConfig, payloadPropertiesChanged);
 
             bool result = false;
 
@@ -55,11 +56,12 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Gets the arguments.
+        /// Gets the arguments from properties that exist in changedProperties list.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="payloadPropertiesChanged">Changed Properties list.</param>
         /// <returns>the args.</returns>
-        private static string[] GetArgs(LoadTestConfig loadTestConfig)
+        private static string[] GetArgs(LoadTestConfig loadTestConfig, List<string> payloadPropertiesChanged)
         {
             var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
 
@@ -67,11 +69,15 @@ namespace LodeRunner.API.Middleware
 
             foreach (var prop in properties)
             {
-                var descriptionAttributes = (DescriptionAttribute[])prop.GetCustomAttributes(typeof(DescriptionAttribute), false);
-                if (descriptionAttributes.Length > 0)
+                // NOTE: Only convert properties to arguments if the property exist is ChangedProperties list. This list represents the Json data sent as Payload
+                if (payloadPropertiesChanged.Contains(prop.Name))
                 {
-                    argsList.Add(descriptionAttributes[0].Description);
-                    argsList.Add(loadTestConfig.FieldValue(prop.Name));
+                    var descriptionAttributes = (DescriptionAttribute[])prop.GetCustomAttributes(typeof(DescriptionAttribute), false);
+                    if (descriptionAttributes.Length > 0)
+                    {
+                        argsList.Add(descriptionAttributes[0].Description);
+                        argsList.Add(loadTestConfig.FieldValue(prop.Name));
+                    }
                 }
             }
 

@@ -215,8 +215,19 @@ namespace LodeRunner.Core.CommandLine
             OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
 
             bool runLoop = runLoopRes.GetValueOrDefault<bool>();
-            int? duration = durationRes.GetValueOrDefault<int?>();
             bool random = randomRes.GetValueOrDefault<bool>();
+
+            int? duration = null;
+            try
+            {
+                duration = durationRes.GetValueOrDefault<int?>();
+            }
+            catch
+            {
+                // let system.commandline.parser handle the error
+                // This implementation match webvalidate implementation in CommandLine.cs.
+                // What happens is that when a integer type parameter such as duration is not provided and we try to get the value utilizing method GetValueOrDefault. it throws an exception.
+            }
 
             if (duration != null && duration > 0 && !runLoop)
             {
