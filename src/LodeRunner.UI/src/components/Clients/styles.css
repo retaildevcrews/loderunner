@@ -13,6 +13,9 @@
   margin: 0;
   margin-bottom: 1em;
 }
+.clients-notification {
+  font-weight: bold;
+}
 .clients-item {
   display: flex;
   margin: 6px 0;
