@@ -1021,6 +1021,131 @@
             LoadRestConfig Payload.
             </summary>
         </member>
+        <member name="E:LodeRunner.Core.Models.LoadTestConfigPayload.PropertyChanged">
+            <summary>
+            Occurs when a property value changes.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.PropertiesChanged">
+            <summary>
+            Gets or sets the properties changed list.
+            </summary>
+            <value>
+            The changed properties.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Files">
+            <summary>
+            Gets or sets the files.
+            </summary>
+            <value>
+            The files.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.StrictJson">
+            <summary>
+            Gets or sets a value indicating whether [strict json].
+            </summary>
+            <value>
+              <c>true</c> if [strict json]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.BaseURL">
+            <summary>
+            Gets or sets the base URL.
+            </summary>
+            <value>
+            The base URL.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.VerboseErrors">
+            <summary>
+            Gets or sets a value indicating whether [verbose errors].
+            </summary>
+            <value>
+              <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Randomize">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:LodeRunner.Core.Models.LoadTestConfig"/> is randomize.
+            </summary>
+            <value>
+              <c>true</c> if randomize; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Timeout">
+            <summary>
+            Gets or sets the timeout.
+            </summary>
+            <value>
+            The timeout.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Server">
+            <summary>
+            Gets or sets the server.
+            </summary>
+            <value>
+            The server.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Tag">
+            <summary>
+            Gets or sets the tag.
+            </summary>
+            <value>
+            The tag.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Sleep">
+            <summary>
+            Gets or sets the sleep.
+            </summary>
+            <value>
+            The sleep.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.RunLoop">
+            <summary>
+            Gets or sets a value indicating whether [run loop].
+            </summary>
+            <value>
+              <c>true</c> if [run loop]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Duration">
+            <summary>
+            Gets or sets the duration.
+            </summary>
+            <value>
+            The duration.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.MaxErrors">
+            <summary>
+            Gets or sets the maximum errors.
+            </summary>
+            <value>
+            The maximum errors.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.DelayStart">
+            <summary>
+            Gets or sets the delay start.
+            </summary>
+            <value>
+            The delay start.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.DryRun">
+            <summary>
+            Gets or sets a value indicating whether [dry run].
+            </summary>
+            <value>
+              <c>true</c> if [dry run]; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.EntityType">
             <summary>
             Gets the type of the entity.
@@ -1028,6 +1153,44 @@
             <value>
             The type of the entity.
             </value>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.OnPropertyChanged(System.String)">
+            <summary>
+            Called when [property changed].
+            </summary>
+            <param name="fieldName">The field name.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Collections.Generic.List{System.String}@,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            Sets the field.
+            </summary>
+            <param name="field">The field.</param>
+            <param name="value">The value.</param>
+            <param name="callerMemberName">Name of the caller member.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Int32@,System.Int32,System.String)">
+            <summary>
+            Sets the field.
+            </summary>
+            <param name="field">The field.</param>
+            <param name="value">The value.</param>
+            <param name="callerMemberName">Name of the caller member.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.String@,System.String,System.String)">
+            <summary>
+            Sets the field.
+            </summary>
+            <param name="field">The field.</param>
+            <param name="value">The value.</param>
+            <param name="callerMemberName">Name of the caller member.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Boolean@,System.Boolean,System.String)">
+            <summary>
+            Sets the field.
+            </summary>
+            <param name="field">if set to <c>true</c> [field].</param>
+            <param name="value">if set to <c>true</c> [value].</param>
+            <param name="callerMemberName">Name of the caller member.</param>
         </member>
         <member name="T:LodeRunner.Core.Models.TestRun">
             <summary>

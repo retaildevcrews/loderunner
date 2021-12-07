@@ -108,6 +108,7 @@ namespace LodeRunner.Test.UnitTests
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, Core.SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, "must be an integer >= 0", "Argument --delay-start")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "go" }, "must be at least 3 characters", "Argument --secrets-volume")]
+        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "-2" }, "must be an integer >= 1", "Argument --duration")]
         public void CommandMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
@@ -115,37 +116,6 @@ namespace LodeRunner.Test.UnitTests
             var errors = root.Parse(args).Errors;
 
             Assert.True(errors.Count == 1 && errors.Any(m => m.Message.Contains(expectedErrorMessage)), messageifFailed);
-        }
-
-        /// <summary>
-        /// Test the failure case of LodeRunner in Traditional mode when validating dependencies for the ones that use GetValueOrDefault.
-        /// </summary>
-        /// <param name="args">The arguments.</param>
-        /// <param name="expectedErrorMessage">The expected error message.</param>
-        /// <param name="messageifFailed">The message to display if test failed.</param>
-        [Theory]
-        [Trait("Category", "Unit")]
-        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "-2" }, "must be an integer >= 1", "Argument --duration")]
-        public void CommandMode_ValidateDependencies_With_Invalid_Data_And_GetValueOrDefault(string[] args, string expectedErrorMessage, string messageifFailed)
-        {
-            // Note: we do not need to test for "--run-loop" and "--random" since they are both boolean type and default to "true", so exception is never thrown.
-            RootCommand root = LRCommandLine.BuildRootCommandMode();
-
-            try
-            {
-                var errors = root.Parse(args).Errors;
-                Assert.True(false, "Previous line should have thrown a General Exception based on InLineData. InlineData is not appropriate for this Unit Test.");
-
-                // Note: if Assert failed, try to move InLineData to UnitTest CommandMode_ValidateDependencies_Failure()
-            }
-            catch (Xunit.Sdk.TrueException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Assert.True(ex.Message.Contains(expectedErrorMessage), messageifFailed);
-            }
         }
 
         /// <summary>
