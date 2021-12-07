@@ -39,19 +39,16 @@ namespace LodeRunner.API.Data
         };
 
         private readonly IClientStatusService clientStatusService;
-        private readonly ILoadTestConfigService loadTestConfigService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LRAPICache"/> class.
         /// </summary>
         /// <param name="clientStatusService">Injection of client status service.</param>
-        /// <param name="loadTestConfigService">injection of load test config service.</param>
         /// <param name="cancellationTokenSource">Cancellation token source.</param>
-        public LRAPICache(IClientStatusService clientStatusService, ILoadTestConfigService loadTestConfigService, CancellationTokenSource cancellationTokenSource)
+        public LRAPICache(IClientStatusService clientStatusService, CancellationTokenSource cancellationTokenSource)
             : base(cancellationTokenSource)
         {
             this.clientStatusService = clientStatusService;
-            this.loadTestConfigService = loadTestConfigService;
 
             // NOTE: We need to make sure Cache gets populated at the time Cache is created, other wise any incoming request for Client will return a false HttpStatusCode.NoContent response.
             this.SetClientCache().Wait();
