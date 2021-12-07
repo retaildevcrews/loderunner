@@ -24,6 +24,6 @@ This applies to the following API route:
 
 - /api/clients/{clientStatusId}
 
-|   Name            |  Description                                  |  Type    |  Valid Input         |  Response Body      |  Notes  |
-|   ----            |  -----------                                  |  ----    |  -----------         |  -------------      |  -----  |
-|   clientStatusId  |  Return a specific client from the results    |  string  |  a non-empty string  |  Single `Client`    |         |
+|   Name            |  Description                                  |  Type    |  Valid Input              |  Response Body      |  Notes  |
+|   ----            |  -----------                                  |  ----    |  -----------              |  -------------      |  -----  |
+|   clientStatusId  |  Return a specific client from the results    |  string  |  a non-empty GUID string  |  Single `Client`    |         |

@@ -19,7 +19,7 @@ namespace LodeRunner.API.Middleware.Validation
         /// <summary>
         /// Gets or sets error Message.
         /// </summary>
-        /// <example>The parameter 'cientStatusId' should be a non-empty string.</example>
+        /// <example>The parameter 'cientStatusId' should be a non-empty GUID string.</example>
         public string Message { get; set; }
 
         /// <summary>

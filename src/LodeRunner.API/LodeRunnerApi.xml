@@ -659,6 +659,13 @@
             Query string parameters for Clients controller.
             </summary>
         </member>
+        <member name="M:LodeRunner.API.Middleware.ClientParameters.IsClientStatusIdValid(System.String)">
+            <summary>
+            Check if ClientStatus ID is Valid.
+            </summary>
+            <param name="clientStatusId">id to validate.</param>
+            <returns>true on valid.</returns>
+        </member>
         <member name="M:LodeRunner.API.Middleware.ClientParameters.ValidateClientStatusId(System.String)">
             <summary>
             Validate Id.
@@ -681,7 +688,7 @@
             <summary>
             Gets or sets error Message.
             </summary>
-            <example>The parameter 'cientStatusId' should be a non-empty string.</example>
+            <example>The parameter 'cientStatusId' should be a non-empty GUID string.</example>
         </member>
         <member name="M:LodeRunner.API.Middleware.Validation.ValidationError.GetErrorMessage(System.String)">
             <summary>
@@ -1021,12 +1028,6 @@
             </summary>
             <param name="results">The results.</param>
             <returns>The OK Action Result.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.ValidateEntityId(System.String)">
-            <summary>
-            Provide basic validation for ClientStatus Id .
-            </summary>
-            <param name="id">The client status identifier.</param>
         </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.GetMemoryCacheEntryOptions">
             <summary>
