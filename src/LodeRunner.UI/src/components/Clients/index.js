@@ -44,40 +44,46 @@ const Clients = ({ setFetchClientsInterval }) => {
         <option value="60000">1 minute</option>
       </select>
       <div>
-        {clients.map((c, index) => {
-          const {
-            [CLIENT.loadClientId]: loadClientId,
-            [CLIENT.status]: status,
-            [CLIENT.name]: name,
-          } = c;
-          return (
-            <div key={loadClientId} className="clients-item">
-              <button
-                className="clients-item-select"
-                type="button"
-                onClick={() => toggleClient(loadClientId)}
-                onKeyDown={() => toggleClient(loadClientId)}
-              >
-                {name || "Unknown"}
-                {selectedClients[loadClientId] && (
-                  <CheckMark fillColor="white" width="1em" />
-                )}
-              </button>
-              <button
-                className={`clients-item-status ${
-                  status === CLIENT_STATUSES.ready ? "ready" : "pending"
-                } ${openedClientDetailsIndex === index && "selected"}`}
-                type="button"
-                title={status}
-                aria-label={status}
-                onClick={() => toggleClientDetails(index)}
-                onKeyDown={() => toggleClientDetails(index)}
-              >
-                {openedClientDetailsIndex === index && ">"}
-              </button>
-            </div>
-          );
-        })}
+        {clients && clients.length > 0 ? (
+          clients.map((c, index) => {
+            const {
+              [CLIENT.loadClientId]: loadClientId,
+              [CLIENT.status]: status,
+              [CLIENT.name]: name,
+            } = c;
+            return (
+              <div key={loadClientId} className="clients-item">
+                <button
+                  className="clients-item-select"
+                  type="button"
+                  onClick={() => toggleClient(loadClientId)}
+                  onKeyDown={() => toggleClient(loadClientId)}
+                >
+                  {name || "Unknown"}
+                  {selectedClients[loadClientId] && (
+                    <CheckMark fillColor="white" width="1em" />
+                  )}
+                </button>
+                <button
+                  className={`clients-item-status ${
+                    status === CLIENT_STATUSES.ready ? "ready" : "pending"
+                  } ${openedClientDetailsIndex === index && "selected"}`}
+                  type="button"
+                  title={status}
+                  aria-label={status}
+                  onClick={() => toggleClientDetails(index)}
+                  onKeyDown={() => toggleClientDetails(index)}
+                >
+                  {openedClientDetailsIndex === index && ">"}
+                </button>
+              </div>
+            );
+          })
+        ) : (
+          <div className="clients-notification">
+            <p>No Load Clients Available</p>
+          </div>
+        )}
       </div>
     </div>
   );
