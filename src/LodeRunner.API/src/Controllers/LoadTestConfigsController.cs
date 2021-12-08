@@ -108,5 +108,40 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateErrorResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
             }
         }
+
+        /// <summary>
+        /// Deletes the load test configuration.
+        /// </summary>
+        /// <param name="loadTestConfigId">The Load Test Config id to delete</param>
+        /// <param name="loadTestConfigService">The load Test Config Service.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>IActionResult.</returns>
+        [HttpDelete("{loadTestConfigId}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.DeletedLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteLoadTestConfig)]
+        [SwaggerOperation(
+            Summary = "Deletes a LoadTestConfig item",
+            Description = "Requires Load Test Config id",
+            OperationId = "DeleteLoadTestConfig")]
+        public async Task<ActionResult> DeleteLoadTestConfig([FromRoute, SwaggerRequestBody("The Load Test Config id to delete", Required = true)] string loadTestConfigId, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
+
+            switch (deleteTaskResult)
+                {
+                    case HttpStatusCode.OK:
+                        return await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK);
+                    case HttpStatusCode.NotFound:
+                        return await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound);
+                    default:
+                        return await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError);
+                }
+        }
     }
 }

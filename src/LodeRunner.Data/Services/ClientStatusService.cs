@@ -120,5 +120,17 @@ namespace LodeRunner.Services
 
             this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The corresponding Entity.
+        /// </returns>
+        public async Task<ClientStatus> Delete(string id)
+        {
+            return await this.Delete<ClientStatus>(id);
+        }
     }
 }

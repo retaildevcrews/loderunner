@@ -111,6 +111,15 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.DeleteLoadTestConfig(System.String,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Deletes the load test configuration.
+            </summary>
+            <param name="loadTestConfigId">The Load Test Config id to delete</param>
+            <param name="loadTestConfigService">The load Test Config Service.</param>
+            <param name="cancellationTokenSource">The cancellation token source.</param>
+            <returns>IActionResult.</returns>
+        </member>
         <member name="T:LodeRunner.API.Config">
             <summary>
             Configurations for App.
@@ -938,6 +947,21 @@
         <member name="F:LodeRunner.API.SystemConstants.UnableToCreateLoadTestConfig">
             <summary>
             The unable to create load test configuration.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.DeletedLoadTestConfig">
+            <summary>
+            The load test configuration successfully deleted.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToDeleteLoadTestConfig">
+            <summary>
+            The unable to delete load test configuration.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.NotFoundLoadTestConfig">
+            <summary>
+            The load test configuration was not found.
             </summary>
         </member>
         <member name="T:LodeRunner.API.Data.LRAPICache">
