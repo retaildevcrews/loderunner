@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Models;
@@ -33,5 +34,12 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The Inserted LoadTestConfig entity.</returns>
         Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier to delete.</param>
+        /// <returns>The delete request status code.</returns>
+        Task<HttpStatusCode> Delete(string id);
     }
 }

@@ -91,5 +91,17 @@ namespace LodeRunner.Services
             int defaultValue = 0;
             return await this.CosmosDBRepository.InternalCosmosDBSqlQueryScalar<TEntity, int>(sql, defaultValue).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Deletes the specified identifier.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="id">The identifier.</param>
+        /// <returns>The corresponding entity.</returns>
+        public virtual async Task<TEntity> Delete<TEntity>(string id)
+        {
+            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
+            return await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, entityType.ToString());
+        }
     }
 }

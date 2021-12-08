@@ -182,5 +182,22 @@ namespace LodeRunner.API
         /// The unable to create load test configuration.
         /// </summary>
         public const string UnableToCreateLoadTestConfig = "Unable to create Load Test Config item.";
+
+        /// <summary>
+        /// The load test configuration successfully deleted.
+        /// </summary>
+        public const string DeletedLoadTestConfig = "Load Test Config item successfully deleted";
+
+
+        /// <summary>
+        /// The unable to delete load test configuration.
+        /// </summary>
+        public const string UnableToDeleteLoadTestConfig = "Unable to delete Load Test Config item.";
+
+
+        /// <summary>
+        /// The load test configuration was not found.
+        /// </summary>
+        public const string NotFoundLoadTestConfig = "Load Test Config item not found.";
     }
 }
