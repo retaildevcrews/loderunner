@@ -263,6 +263,16 @@ namespace LodeRunner.Core.CommandLine
                 return -1;
             }
 
+            // use default sleep value if 0 passed and run-loop set
+            if (result.Parent.Symbol.Name == "sleep" &&
+                val == 0 &&
+                result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") is OptionResult res &&
+                res.GetValueOrDefault<bool>())
+            {
+                Console.WriteLine("--sleep value of 0 is incompatible while --run-loop is also set. --sleep value will be ignored and reset to the default.");
+                return GetCommandDefaultValues(result);
+            }
+
             return val;
         }
 
