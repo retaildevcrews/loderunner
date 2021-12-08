@@ -83,18 +83,26 @@
             <param name="cosmosConfig">App Cosmos Configuration.</param>
             <returns>HealthCheckResult.</returns>
         </member>
-        <member name="T:LodeRunner.API.Controllers.LoadTestConfigController">
+        <member name="T:LodeRunner.API.Controllers.LoadTestConfigsController">
             <summary>
-            Handle all of the /api/loadtestconfig requests.
+            Handle all of the /api/loadtestconfigs requests.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.#ctor(AutoMapper.IMapper)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.#ctor(AutoMapper.IMapper)">
             <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.LoadTestConfigController"/> class.
+            Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.LoadTestConfigsController"/> class.
             </summary>
             <param name="mapper">The mapper.</param>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.GetLoadTestConfigs(LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Returns a JSON array of LoadTestConfig objects.
+            </summary>
+            <param name="loadTestConfigService">The loadTestConfig service for LRAPI</param>
+            <param name="cancellationTokenSource">The cancellation Token Source.</param>
+            <returns>IActionResult.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Creates the load test configuration.
             </summary>
@@ -937,12 +945,11 @@
             Cached Data.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.#ctor(LodeRunner.Data.Interfaces.IClientStatusService,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Data.LRAPICache.#ctor(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource)">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.API.Data.LRAPICache"/> class.
             </summary>
             <param name="clientStatusService">Injection of client status service.</param>
-            <param name="loadTestConfigService">injection of load test config service.</param>
             <param name="cancellationTokenSource">Cancellation token source.</param>
         </member>
         <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0})">

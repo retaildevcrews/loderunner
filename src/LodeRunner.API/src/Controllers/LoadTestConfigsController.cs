@@ -1,35 +1,69 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
 {
     /// <summary>
-    /// Handle all of the /api/loadtestconfig requests.
+    /// Handle all of the /api/loadtestconfigs requests.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [SwaggerTag("Create, read, update LoadTest Configurations")]
-    public class LoadTestConfigController : Controller
+    public class LoadTestConfigsController : Controller
     {
         private readonly IMapper autoMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadTestConfigController"/> class.
+        /// Initializes a new instance of the <see cref="LoadTestConfigsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public LoadTestConfigController(IMapper mapper)
+        public LoadTestConfigsController(IMapper mapper)
         {
             this.autoMapper = mapper;
+        }
+
+        /// <summary>
+        /// Returns a JSON array of LoadTestConfig objects.
+        /// </summary>
+        /// <param name="loadTestConfigService">The loadTestConfig service for LRAPI</param>
+        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
+        /// <returns>IActionResult.</returns>
+        [HttpGet]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents or empty array if not found.", typeof(LoadTestConfig[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerOperation(
+            Summary = "Gets a JSON array of LoadTestConfig objects",
+            Description = "Returns an array of `LoadTestConfig` documents",
+            OperationId = "GetLoadTestConfigs")]
+        public async Task<ActionResult<IEnumerable<LoadTestConfig>>> GetLoadTestConfigs([FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<LoadTestConfig> loadTestConfigs = (List<LoadTestConfig>)await loadTestConfigService.GetAll();
+            if (loadTestConfigs.Count == 0)
+            {
+                return new NoContentResult();
+            }
+
+            return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);
         }
 
         /// <summary>
