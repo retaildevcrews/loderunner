@@ -688,7 +688,7 @@
             <summary>
             Gets or sets error Message.
             </summary>
-            <example>The parameter 'cientStatusId' should be a non-empty GUID string.</example>
+            <example>The parameter 'clientStatusId' should be a non-empty string.</example>
         </member>
         <member name="M:LodeRunner.API.Middleware.Validation.ValidationError.GetErrorMessage(System.String)">
             <summary>

@@ -109,7 +109,7 @@ namespace LodeRunner.Services
                     return HttpStatusCode.InternalServerError;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return HttpStatusCode.InternalServerError;
             }
