@@ -12,7 +12,9 @@ using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Cache;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -39,6 +41,7 @@ namespace LodeRunner.API.Data
         };
 
         private readonly IClientStatusService clientStatusService;
+        private readonly IModelValidator<ClientStatus> validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LRAPICache"/> class.
@@ -49,6 +52,7 @@ namespace LodeRunner.API.Data
             : base(cancellationTokenSource)
         {
             this.clientStatusService = clientStatusService;
+            this.validator = new ClientStatusValidator();
 
             // NOTE: We need to make sure Cache gets populated at the time Cache is created, other wise any incoming request for Client will return a false HttpStatusCode.NoContent response.
             this.SetClientCache().Wait();
@@ -105,7 +109,7 @@ namespace LodeRunner.API.Data
         /// <returns>Client.</returns>
         public async Task<ActionResult> GetClientByClientStatusId(string clientStatusId)
         {
-            this.ValidateEntityId(clientStatusId);
+            ClientParameters.ValidateClientStatusId(clientStatusId);
 
             Client result = await this.GetEntry<Client>(clientStatusId);
 
@@ -133,8 +137,10 @@ namespace LodeRunner.API.Data
         {
             ClientStatus clientStatus = (dynamic)doc;
 
-            // TODO: Need to validate clientStatus all together  before to create Client ?
-            this.ValidateEntityId(clientStatus.Id);
+            if (!this.validator.ValidateEntity(clientStatus))
+            {
+                throw new InvalidDataException("Client Status object is invalid.");
+            }
 
             this.SetEntry(clientStatus.Id, new Client(clientStatus), this.GetMemoryCacheEntryOptions());
         }
@@ -159,29 +165,6 @@ namespace LodeRunner.API.Data
                 // return 500 error
                 return await ResultHandler.CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
             }
-        }
-
-        /// <summary>
-        /// Provide basic validation for ClientStatus Id .
-        /// </summary>
-        /// <param name="id">The client status identifier.</param>
-        private void ValidateEntityId(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                throw new ArgumentNullException($"{this.GetType().Name}: clientStatusId cannot be null or empty invalid");
-            }
-
-            // TODO : Need to validate Id as GUID
-            // Guid guidValue;
-            // try
-            // {
-            //    guidValue = Guid.Parse(id);
-            // }
-            // catch (Exception ex)
-            // {
-            //    throw new InvalidDataException($"Invalid GUID value {id}'", ex);
-            // }
         }
 
         /// <summary>
