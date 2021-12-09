@@ -27,7 +27,7 @@ function App() {
 
   useEffect(() => {
     getClients()
-      .then((cs) => setClients(cs.filter((c) => c)))
+      .then((c) => setClients(c))
       .catch(() => setClients([]));
   }, [fetchClientsTrigger]);
 

@@ -44,7 +44,7 @@ const Clients = ({ setFetchClientsInterval }) => {
         <option value="60000">1 minute</option>
       </select>
       <div>
-        {clients && clients.length > 0 ? (
+        {clients.length > 0 ? (
           clients.map((c, index) => {
             const {
               [CLIENT.loadClientId]: loadClientId,
