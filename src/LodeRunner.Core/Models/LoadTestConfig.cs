@@ -135,7 +135,6 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The delay start.
         /// </value>
-        [Required]
         [Range(0, 86400, ErrorMessage = "Can only be between 0 .. 86400")]
         [Description("--delay-start")]
         public virtual int DelayStart { get; set; }
