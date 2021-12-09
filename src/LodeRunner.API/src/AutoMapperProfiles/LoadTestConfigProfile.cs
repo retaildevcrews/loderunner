@@ -17,7 +17,10 @@ namespace LodeRunner.API.AutoMapperProfiles
         /// </summary>
         public LoadTestConfigProfile()
         {
-            this.CreateMap<LoadTestConfig, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore());
+            this.CreateMap<LoadTestConfig, LoadTestConfig>().ForMember(x => x.Id, opt =>
+            {
+                opt.Ignore();
+            });
         }
     }
 }

@@ -199,5 +199,15 @@ namespace LodeRunner.API
         /// The load test configuration was not found.
         /// </summary>
         public const string NotFoundLoadTestConfig = "Load Test Config item not found.";
+
+        /// <summary>
+        /// String for unable to update load test configuration.
+        /// </summary>
+        public const string UnableToUpdateLoadTestConfig = "Unable to update Load Test Config item.";
+
+        /// <summary>
+        /// String for unable to update load test configuration.
+        /// </summary>
+        public const string UnableToGetLoadTestConfig = "Load Test Config with specified id does not exist.";
     }
 }

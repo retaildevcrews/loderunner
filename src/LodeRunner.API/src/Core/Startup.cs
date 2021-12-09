@@ -151,8 +151,6 @@ namespace LodeRunner.API
         {
             AddSwaggerServices(services);
 
-            services.AddAutoMapper(typeof(LoadTestConfigProfile));
-
             services.AddCors();
 
             // set json serialization defaults and api behavior
@@ -189,6 +187,8 @@ namespace LodeRunner.API
 
                 .AddSingleton<SystemComponentsService>()
                 .AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
+
+            services.AddAutoMapper(typeof(LoadTestConfigProfile), typeof(LoadTestPayloadProfile));
         }
 
         /// <summary>

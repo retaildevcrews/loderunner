@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.Core.Models
@@ -52,6 +53,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The files.
         /// </value>
+        [ValidateNever]
         public override List<string> Files { get => this.files; set => this.SetField(ref this.files, value); }
 
         /// <summary>
@@ -100,6 +102,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The server.
         /// </value>
+        [ValidateNever]
         public override List<string> Server { get => this.server; set => this.SetField(ref this.server, value); }
 
         /// <summary>
