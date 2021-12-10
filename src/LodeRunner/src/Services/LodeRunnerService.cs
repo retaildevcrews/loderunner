@@ -83,7 +83,11 @@ namespace LodeRunner.Services
         /// </summary>
         public void Dispose()
         {
-            this.statusUpdateTimer.Stop();
+            if (statusUpdateTimer != default(System.Timers.Timer))
+            {
+                this.statusUpdateTimer.Stop();
+            }
+
             this.statusUpdateTimer = null;
             this.lastStatusSender = null;
             this.lastStatusArgs = null;
