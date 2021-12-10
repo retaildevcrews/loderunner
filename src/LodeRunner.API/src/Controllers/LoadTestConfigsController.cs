@@ -7,7 +7,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
@@ -181,7 +180,22 @@ namespace LodeRunner.API.Controllers
             }
 
             // First get the object for verification
-            var existingLoadTestConfig = await loadTestConfigService.Get(loadTestConfigId);
+            LoadTestConfig existingLoadTestConfig;
+            try
+            {
+                existingLoadTestConfig = await loadTestConfigService.Get(loadTestConfigId);
+            }
+            catch (CosmosException cex)
+            {
+                // Returns most common Expcetion: 404 NotFound, 429 TooManyReqs
+                return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                return await ResultHandler.CreateErrorResult($"Unknown server exception: {ex.Message}", HttpStatusCode.InternalServerError);
+            }
+
+            // If we get null object without exception, its 404 as well
             if (existingLoadTestConfig == null)
             {
                 // We don't have the item with specified ID, throw error
