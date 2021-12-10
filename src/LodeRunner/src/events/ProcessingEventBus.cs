@@ -11,10 +11,6 @@ namespace LodeRunner.Events
     /// </summary>
     public static class ProcessingEventBus
     {
-        private static Timer statusUpdateTimer = default;
-        private static object lastStatusSender = default;
-        private static ClientStatusEventArgs lastStatusArgs = default;
-
         /// <summary>
         /// Occurs when [status update].
         /// </summary>
@@ -29,44 +25,7 @@ namespace LodeRunner.Events
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public static void OnStatusUpdate(object sender, ClientStatusEventArgs args)
         {
-            lastStatusSender = sender;
-            lastStatusArgs = args;
-
-            if (statusUpdateTimer == default(Timer))
-            {
-                statusUpdateTimer = new ();
-                statusUpdateTimer.Interval = 5000; // TODO change this to App.Config.Frequency * 1000
-                statusUpdateTimer.Elapsed += OnStatusTimerEvent;
-            }
-
-            statusUpdateTimer.Stop();
             StatusUpdate(sender, args);
-
-            statusUpdateTimer.Start();
-        }
-
-        // TODO: Move liveness timer to LodeRunnerService
-
-        /// <summary>
-        /// Called when [status timer event].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
-        public static void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
-        {
-            lastStatusArgs.LastUpdated = DateTime.UtcNow;
-            OnStatusUpdate(lastStatusSender, lastStatusArgs);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public static void Dispose()
-        {
-            statusUpdateTimer.Stop();
-            statusUpdateTimer = null;
-            lastStatusSender = null;
-            lastStatusArgs = null;
         }
     }
 }

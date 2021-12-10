@@ -14,6 +14,11 @@ namespace LodeRunner
     public class Config : ILRConfig, ICosmosConfig
     {
         /// <summary>
+        /// gets or sets the status update interval in seconds.
+        /// </summary>
+        public int StatusUpdateInterval { get; set; } = 5;
+
+        /// <summary>
         /// gets or sets the server / url.
         /// </summary>
         public List<string> Server { get; set; }

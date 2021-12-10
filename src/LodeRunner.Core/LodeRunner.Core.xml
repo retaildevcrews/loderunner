@@ -456,6 +456,11 @@
             The Config Interface.
             </summary>
         </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.StatusUpdateInterval">
+            <summary>
+            gets or sets the status update interval in seconds.
+            </summary>
+        </member>
         <member name="P:LodeRunner.Core.Interfaces.ILRConfig.Server">
             <summary>
             gets or sets the server / url.
