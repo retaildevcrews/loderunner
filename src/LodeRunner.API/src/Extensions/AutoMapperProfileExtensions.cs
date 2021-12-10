@@ -18,9 +18,9 @@ namespace LodeRunner.API.Extensions
             var destType = typeof(LoadTestConfig);
             foreach (var property in destType.GetProperties())
             {
-                expression.ForMember(property.Name, opt => opt.Condition(srcPayload =>
+                expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>
                 {
-                    if (srcPayload != null && srcPayload.PropertiesChanged.Contains(property.Name))
+                    if (srcPayload.PropertiesChanged.Contains(property.Name))
                     {
                         return true;
                     }

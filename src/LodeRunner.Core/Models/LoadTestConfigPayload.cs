@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -17,22 +18,10 @@ namespace LodeRunner.Core.Models
     /// LoadRestConfig Payload.
     /// </summary>
     [SwaggerSchemaFilter(typeof(LoadTestConfigPayloadSchemaFilter))]
-    public class LoadTestConfigPayload : LoadTestConfig, INotifyPropertyChanged
+    public class LoadTestConfigPayload : INotifyPropertyChanged
     {
-        private List<string> files;
-        private bool strictJson;
-        private string baseURL;
-        private bool verboseErrors;
-        private bool randomize;
-        private int timeout;
-        private List<string> server;
-        private string tag;
-        private int sleep;
-        private bool runLoop;
-        private int duration;
-        private int maxErrors;
-        private int delayStart;
-        private bool dryRun;
+        // Composite LoadTestConfig object to hold data
+        private readonly LoadTestConfig loadTestConfig = new ();
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -45,7 +34,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The changed properties.
         /// </value>
-        public List<string> PropertiesChanged { get; set; } = new List<string>();
+        public List<string> PropertiesChanged { get; set; } = new ();
 
         /// <summary>
         /// Gets or sets the files.
@@ -53,8 +42,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The files.
         /// </value>
-        [ValidateNever]
-        public override List<string> Files { get => this.files; set => this.SetField(ref this.files, value); }
+        public List<string> Files { get => this.loadTestConfig.Files; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [strict json].
@@ -62,7 +50,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [strict json]; otherwise, <c>false</c>.
         /// </value>
-        public override bool StrictJson { get => this.strictJson; set => this.SetField(ref this.strictJson, value); }
+        public bool StrictJson { get => this.loadTestConfig.StrictJson; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the base URL.
@@ -70,7 +58,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The base URL.
         /// </value>
-        public override string BaseURL { get => this.baseURL; set => this.SetField(ref this.baseURL, value); }
+        public string BaseURL { get => this.loadTestConfig.BaseURL; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [verbose errors].
@@ -78,7 +66,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
         /// </value>
-        public override bool VerboseErrors { get => this.verboseErrors; set => this.SetField(ref this.verboseErrors, value); }
+        public bool VerboseErrors { get => this.loadTestConfig.VerboseErrors; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LoadTestConfig"/> is randomize.
@@ -86,7 +74,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if randomize; otherwise, <c>false</c>.
         /// </value>
-        public override bool Randomize { get => this.randomize; set => this.SetField(ref this.randomize, value); }
+        public bool Randomize { get => this.loadTestConfig.Randomize; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the timeout.
@@ -94,7 +82,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The timeout.
         /// </value>
-        public override int Timeout { get => this.timeout; set => this.SetField(ref this.timeout, value); }
+        public int Timeout { get => this.loadTestConfig.Timeout; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the server.
@@ -102,8 +90,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The server.
         /// </value>
-        [ValidateNever]
-        public override List<string> Server { get => this.server; set => this.SetField(ref this.server, value); }
+        public List<string> Server { get => this.loadTestConfig.Server; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the tag.
@@ -111,7 +98,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The tag.
         /// </value>
-        public override string Tag { get => this.tag; set => this.SetField(ref this.tag, value); }
+        public string Tag { get => this.loadTestConfig.Tag; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the sleep.
@@ -119,7 +106,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The sleep.
         /// </value>
-        public override int Sleep { get => this.sleep; set => this.SetField(ref this.sleep, value); }
+        public int Sleep { get => this.loadTestConfig.Sleep; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [run loop].
@@ -127,7 +114,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [run loop]; otherwise, <c>false</c>.
         /// </value>
-        public override bool RunLoop { get => this.runLoop; set => this.SetField(ref this.runLoop, value); }
+        public bool RunLoop { get => this.loadTestConfig.RunLoop; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the duration.
@@ -135,7 +122,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The duration.
         /// </value>
-        public override int Duration { get => this.duration; set => this.SetField(ref this.duration, value); }
+        public int Duration { get => this.loadTestConfig.Duration; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the maximum errors.
@@ -143,7 +130,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The maximum errors.
         /// </value>
-        public override int MaxErrors { get => this.maxErrors; set => this.SetField(ref this.maxErrors, value); }
+        public int MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the delay start.
@@ -151,7 +138,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The delay start.
         /// </value>
-        public override int DelayStart { get => this.delayStart; set => this.SetField(ref this.delayStart, value); }
+        public int DelayStart { get => this.loadTestConfig.DelayStart; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [dry run].
@@ -159,26 +146,15 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [dry run]; otherwise, <c>false</c>.
         /// </value>
-        public override bool DryRun { get => this.dryRun; set => this.SetField(ref this.dryRun, value); }
+        public bool DryRun { get => this.loadTestConfig.DryRun; set => this.SetField(value); }
 
         /// <summary>
-        /// Gets the type of the entity.
+        /// Gets or sets the name.
         /// </summary>
         /// <value>
-        /// The type of the entity.
+        /// The name.
         /// </value>
-        public override EntityType EntityType
-        {
-            get
-            {
-                if (this.entityType == EntityType.Unassigned)
-                {
-                    this.entityType = this.GetType().BaseType.Name.As<EntityType>(EntityType.Unassigned);
-                }
-
-                return this.entityType;
-            }
-        }
+        public string Name { get => this.loadTestConfig.Name; set => this.SetField(value); }
 
         /// <summary>
         /// Called when [property changed].
@@ -194,51 +170,25 @@ namespace LodeRunner.Core.Models
         }
 
         /// <summary>
-        /// Sets the field.
+        /// Sets the field on LoadTestConfig based on the field.
+        /// Assuming property names in this class are the same as in LoadTestConfig.
+        /// We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in LoadTestConfig
+        /// If this is called from a method, propertyName should be set explicitly.
         /// </summary>
-        /// <param name="field">The field.</param>
         /// <param name="value">The value.</param>
-        /// <param name="callerMemberName">Name of the caller member.</param>
-        private void SetField(ref List<string> field, List<string> value, [CallerMemberName] string callerMemberName = null)
+        /// <param name="propertyName">Name of the caller propert.</param>
+        private void SetField<T>(T value, [CallerMemberName] string propertyName = null)
         {
-            field = value;
-            this.OnPropertyChanged(callerMemberName);
-        }
+            // Get Reflected property object based on the propertyName
+            // Ideally this method should be called from the same property name which needs to updated
+            var filesProp = this.loadTestConfig.GetType().GetProperty(propertyName);
+            if (filesProp.PropertyType != typeof(T))
+            {
+                throw new InvalidCastException($"Cannot cast {typeof(T).FullName} to {filesProp.GetType().FullName}");
+            }
 
-        /// <summary>
-        /// Sets the field.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="callerMemberName">Name of the caller member.</param>
-        private void SetField(ref int field, int value, [CallerMemberName] string callerMemberName = null)
-        {
-            field = value;
-            this.OnPropertyChanged(callerMemberName);
-        }
-
-        /// <summary>
-        /// Sets the field.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="callerMemberName">Name of the caller member.</param>
-        private void SetField(ref string field, string value, [CallerMemberName] string callerMemberName = null)
-        {
-            field = value;
-            this.OnPropertyChanged(callerMemberName);
-        }
-
-        /// <summary>
-        /// Sets the field.
-        /// </summary>
-        /// <param name="field">if set to <c>true</c> [field].</param>
-        /// <param name="value">if set to <c>true</c> [value].</param>
-        /// <param name="callerMemberName">Name of the caller member.</param>
-        private void SetField(ref bool field, bool value, [CallerMemberName] string callerMemberName = null)
-        {
-            field = value;
-            this.OnPropertyChanged(callerMemberName);
+            filesProp.SetValue(this.loadTestConfig, value);
+            this.OnPropertyChanged(propertyName);
         }
     }
 }

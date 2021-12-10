@@ -162,6 +162,7 @@ namespace LodeRunner.API
                     options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+            services.AddAutoMapper(typeof(LoadTestPayloadProfile));
 
             services
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
@@ -187,8 +188,6 @@ namespace LodeRunner.API
 
                 .AddSingleton<SystemComponentsService>()
                 .AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
-
-            services.AddAutoMapper(typeof(LoadTestConfigProfile), typeof(LoadTestPayloadProfile));
         }
 
         /// <summary>

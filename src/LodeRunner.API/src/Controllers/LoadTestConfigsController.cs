@@ -88,9 +88,9 @@ namespace LodeRunner.API.Controllers
             }
 
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
-            LoadTestConfig newloadTestConfig = this.autoMapper.Map<LoadTestConfig, LoadTestConfig>(loadTestConfigPayload as LoadTestConfig);
+            var newloadTestConfig = this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload);
 
-            if (newloadTestConfig.Validate(loadTestConfigPayload.PropertiesChanged, out string errorMessage))
+            if (newloadTestConfig.Validate(out string errorMessage, loadTestConfigPayload.PropertiesChanged))
             {
                 var insertedLoadTestConfig = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
 
@@ -146,7 +146,19 @@ namespace LodeRunner.API.Controllers
 
         /// <summary>
         /// Updates a load test configuration.
+        /// The payload doesn't have to be a full LoadTestConfig item.
+        /// Partial payload with only changed fields are accepted too.
         /// </summary>
+        /// <example>
+        /// Payload Example 1: {"duration":222}
+        ///         Example 2: {
+        ///                      "baseURL": "lode-url.org",
+        ///                      "runLoop": true,
+        ///                      "duration": 333,
+        ///                      "timeout": 303,
+        ///                      "files":[ "/path/to/gem.json" ]
+        ///                    }
+        /// </example>
         /// <param name="loadTestConfigId">The load test config id.</param>
         /// <param name="loadTestConfigPayload">The load test config payload.</param>
         /// <param name="loadTestConfigService">Load test config Service.</param>
@@ -156,10 +168,10 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.NoContent, "`LoadTestConfig` was updated.", null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateLoadTestConfig)]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetLoadTestConfig)]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Invalid payload data")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
         [SwaggerOperation(
             Summary = "Updates an existing LoadTestConfig item",
-            Description = "Requires Load Test Config payload and ID",
+            Description = "Requires load test config payload (partial or full) and ID",
             OperationId = "UpdateLoadTestConfig")]
         public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
@@ -170,23 +182,19 @@ namespace LodeRunner.API.Controllers
 
             // First get the object for verification
             var existingLoadTestConfig = await loadTestConfigService.Get(loadTestConfigId);
-
             if (existingLoadTestConfig == null)
             {
                 // We don't have the item with specified ID, throw error
                 return await ResultHandler.CreateErrorResult(SystemConstants.UnableToGetLoadTestConfig, HttpStatusCode.NotFound);
             }
 
-            // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
+            // Map LoadTestConfigPayload to existing LoadTestConfig.
             this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload, existingLoadTestConfig);
-            // Replace newLoadTestConfig ID from our URL
-            //newLoadTestConfig.Id = loadTestConfigId;
 
-            if (existingLoadTestConfig.Validate(loadTestConfigPayload.PropertiesChanged, out string errorMessage))
+            // Validate the mapped loadTestConfig
+            if (existingLoadTestConfig.Validate(out string errorMessage))
             {
-                // TODO: Resolve this
-                Task<LoadTestConfig> insertedLoadTestConfig = null;
-                //await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
+                var insertedLoadTestConfig = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
 
                 if (insertedLoadTestConfig != null)
                 {
@@ -199,7 +207,7 @@ namespace LodeRunner.API.Controllers
             }
             else
             {
-                return await ResultHandler.CreateErrorResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
+                return await ResultHandler.CreateErrorResult($"{SystemConstants.InvalidPayloadData} {errorMessage}", HttpStatusCode.BadRequest);
             }
         }
     }

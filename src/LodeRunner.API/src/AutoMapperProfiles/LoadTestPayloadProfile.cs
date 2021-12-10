@@ -3,7 +3,6 @@
 
 using AutoMapper;
 using LodeRunner.API.Extensions;
-using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.AutoMapperProfiles
@@ -19,7 +18,7 @@ namespace LodeRunner.API.AutoMapperProfiles
         /// </summary>
         public LoadTestPayloadProfile()
         {
-            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().IgnoreNotProvidedProps();
+            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreNotProvidedProps();
         }
     }
 }
