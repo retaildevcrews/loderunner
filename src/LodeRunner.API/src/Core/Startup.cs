@@ -151,8 +151,6 @@ namespace LodeRunner.API
         {
             AddSwaggerServices(services);
 
-            services.AddAutoMapper(typeof(LoadTestConfigProfile));
-
             services.AddCors();
 
             // set json serialization defaults and api behavior
@@ -164,6 +162,7 @@ namespace LodeRunner.API
                     options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+            services.AddAutoMapper(typeof(LoadTestPayloadProfile));
 
             services
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))

@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using AutoMapper;
+using LodeRunner.API.Extensions;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.AutoMapperProfiles
@@ -10,14 +11,14 @@ namespace LodeRunner.API.AutoMapperProfiles
     /// Represents the LoadTestConfig Auto-mapping Profile.
     /// </summary>
     /// <seealso cref="AutoMapper.Profile" />
-    public class LoadTestConfigProfile : Profile
+    public class LoadTestPayloadProfile : Profile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadTestConfigProfile"/> class.
+        /// Initializes a new instance of the <see cref="LoadTestPayloadProfile"/> class.
         /// </summary>
-        public LoadTestConfigProfile()
+        public LoadTestPayloadProfile()
         {
-            this.CreateMap<LoadTestConfig, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore());
+            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreNotProvidedProps();
         }
     }
 }

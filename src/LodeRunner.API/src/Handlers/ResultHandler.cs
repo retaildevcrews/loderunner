@@ -18,6 +18,23 @@ namespace LodeRunner.API.Middleware
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
 
         /// <summary>
+        /// Creates No Content Result.
+        /// </summary>
+        /// <param name="statusCode">Http StatusCode.</param>
+        /// <returns>JsonResult.</returns>
+        public static async Task<JsonResult> CreateNoContent(HttpStatusCode statusCode = HttpStatusCode.NoContent)
+        {
+            return await Task.Run(() =>
+            {
+                return new JsonResult(null)
+                {
+                    StatusCode = (int)statusCode,
+                    ContentType = JsonContentTypeApplicationJson,
+                };
+            });
+        }
+
+        /// <summary>
         /// Creates an Error JsonResult.
         /// </summary>
         /// <param name="message">The Message.</param>

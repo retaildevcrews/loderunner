@@ -188,16 +188,29 @@ namespace LodeRunner.API
         /// </summary>
         public const string DeletedLoadTestConfig = "Load Test Config item successfully deleted";
 
-
         /// <summary>
         /// The unable to delete load test configuration.
         /// </summary>
         public const string UnableToDeleteLoadTestConfig = "Unable to delete Load Test Config item.";
 
-
         /// <summary>
         /// The load test configuration was not found.
         /// </summary>
         public const string NotFoundLoadTestConfig = "Load Test Config item not found.";
+
+        /// <summary>
+        /// String for unable to update load test configuration.
+        /// </summary>
+        public const string UnableToUpdateLoadTestConfig = "Unable to update Load Test Config item.";
+
+        /// <summary>
+        /// String for unable to update load test configuration.
+        /// </summary>
+        public const string UnableToGetLoadTestConfig = "Load Test Config with specified id does not exist.";
+
+        /// <summary>
+        /// Invalid Payload data.
+        /// </summary>
+        public const string InvalidPayloadData = "Invalid Payload data.";
     }
 }
