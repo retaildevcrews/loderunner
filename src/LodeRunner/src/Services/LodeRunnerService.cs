@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Interfaces;
@@ -29,6 +30,9 @@ namespace LodeRunner.Services
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly ClientStatus clientStatus;
+        private System.Timers.Timer statusUpdateTimer = default;
+        private object lastStatusSender = default;
+        private ClientStatusEventArgs lastStatusArgs = default;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
@@ -79,6 +83,14 @@ namespace LodeRunner.Services
         /// </summary>
         public void Dispose()
         {
+            if (statusUpdateTimer != default(System.Timers.Timer))
+            {
+                this.statusUpdateTimer.Stop();
+            }
+
+            this.statusUpdateTimer = null;
+            this.lastStatusSender = null;
+            this.lastStatusArgs = null;
             GC.SuppressFinalize(this);
         }
 
@@ -260,9 +272,9 @@ namespace LodeRunner.Services
             ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
             ProcessingEventBus.StatusUpdate += this.LogStatusChange;
 
-            ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
 
-            ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, "Ready - test ready"));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, "Ready - test ready"));
             try
             {
                 // wait indefinitely
@@ -270,15 +282,11 @@ namespace LodeRunner.Services
             }
             catch (TaskCanceledException tce)
             {
-                ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {tce.Message}"));
+                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {tce.Message}"));
             }
             catch (OperationCanceledException oce)
             {
-                ProcessingEventBus.OnStatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {oce.Message}"));
-            }
-            finally
-            {
-                ProcessingEventBus.Dispose();
+                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {oce.Message}"));
             }
 
             return Core.SystemConstants.ExitSuccess;
@@ -298,6 +306,13 @@ namespace LodeRunner.Services
             this.RegisterServices(serviceBuilder);
 
             this.RegisterCancellationTokensForServices();
+
+            this.statusUpdateTimer = new ()
+            {
+                Interval = config.StatusUpdateInterval * 1000,
+            };
+
+            this.statusUpdateTimer.Elapsed += OnStatusTimerEvent;
         }
 
         /// <summary>
@@ -364,6 +379,32 @@ namespace LodeRunner.Services
             {
                 this.GetClientStatusService().TerminateService(this.clientStatus);
             });
+        }
+
+        /// <summary>
+        /// Called when [status timer event].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
+        private void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
+        {
+            this.lastStatusArgs.LastUpdated = DateTime.UtcNow;
+            StatusUpdate(this.lastStatusSender, this.lastStatusArgs);
+        }
+
+        /// <summary>
+        /// Called when [status update].
+        /// </summary>
+        /// <param name="sender">The sender</param>
+        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
+        private void StatusUpdate(object sender, ClientStatusEventArgs args)
+        {
+            this.lastStatusSender = sender;
+            this.lastStatusArgs = args;
+
+            this.statusUpdateTimer.Stop();
+            ProcessingEventBus.OnStatusUpdate(sender, args);
+            this.statusUpdateTimer.Start();
         }
     }
 }
