@@ -4,7 +4,7 @@
 using System;
 using System.Timers;
 
-namespace LodeRunner.Events
+namespace LodeRunner.Core.Events
 {
     /// <summary>
     /// Represents the Processing Event Bus.
@@ -15,8 +15,6 @@ namespace LodeRunner.Events
         /// Occurs when [status update].
         /// </summary>
         public static event EventHandler<ClientStatusEventArgs> StatusUpdate = (sender, e) => { };
-
-        // TODO: Move to LodeRunner.Core.Events namespace in a LodeRunner.Core lib
 
         /// <summary>
         /// Called when [status update].

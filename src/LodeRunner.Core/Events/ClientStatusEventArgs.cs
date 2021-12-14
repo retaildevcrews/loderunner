@@ -4,8 +4,7 @@
 using System;
 using LodeRunner.Core.Models;
 
-// TODO: Move to LodeRunner.Core.Events namespace in a LodeRunner.Core lib
-namespace LodeRunner.Events
+namespace LodeRunner.Core.Events
 {
     /// <summary>
     /// Represents the ClientStatusEventArgs and contains the main functionality of the class.

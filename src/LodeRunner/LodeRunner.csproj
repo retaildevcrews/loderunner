@@ -82,7 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="src\events\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LodeRunner.Core\LodeRunner.Core.csproj" />
