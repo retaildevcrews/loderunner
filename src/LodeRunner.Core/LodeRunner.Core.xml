@@ -278,6 +278,60 @@
             <param name="result">The result.</param>
             <returns>the default value.</returns>
         </member>
+        <member name="T:LodeRunner.Core.Events.ClientStatusEventArgs">
+            <summary>
+            Represents the ClientStatusEventArgs and contains the main functionality of the class.
+            </summary>
+            <seealso cref="T:System.EventArgs" />
+        </member>
+        <member name="M:LodeRunner.Core.Events.ClientStatusEventArgs.#ctor(LodeRunner.Core.Models.ClientStatusType,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Events.ClientStatusEventArgs"/> class.
+            </summary>
+            <param name="status">The status.</param>
+            <param name="message">The message.</param>
+        </member>
+        <member name="P:LodeRunner.Core.Events.ClientStatusEventArgs.LastUpdated">
+            <summary>
+            Gets or sets the last updated.
+            </summary>
+            <value>
+            The last updated.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Events.ClientStatusEventArgs.Status">
+            <summary>
+            Gets or sets the status.
+            </summary>
+            <value>
+            The status.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Events.ClientStatusEventArgs.Message">
+            <summary>
+            Gets or sets the message.
+            </summary>
+            <value>
+            The message.
+            </value>
+        </member>
+        <member name="T:LodeRunner.Core.Events.ProcessingEventBus">
+            <summary>
+            Represents the Processing Event Bus.
+            </summary>
+        </member>
+        <member name="E:LodeRunner.Core.Events.ProcessingEventBus.StatusUpdate">
+            <summary>
+            Occurs when [status update].
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Events.ProcessingEventBus.OnStatusUpdate(System.Object,LodeRunner.Core.Events.ClientStatusEventArgs)">
+            <summary>
+            Called when [status update].
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="args">The <see cref="T:LodeRunner.Core.Events.ClientStatusEventArgs"/> instance containing the event data.</param>
+        </member>
         <member name="T:LodeRunner.Core.Extensions.StringExtensions">
             <summary>
             Provides String Extension methods.
@@ -1151,12 +1205,12 @@
               <c>true</c> if [dry run]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.EntityType">
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Name">
             <summary>
-            Gets the type of the entity.
+            Gets or sets the name.
             </summary>
             <value>
-            The type of the entity.
+            The name.
             </value>
         </member>
         <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.OnPropertyChanged(System.String)">
@@ -1165,37 +1219,15 @@
             </summary>
             <param name="fieldName">The field name.</param>
         </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Collections.Generic.List{System.String}@,System.Collections.Generic.List{System.String},System.String)">
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField``1(``0,System.String)">
             <summary>
-            Sets the field.
+            Sets the field on LoadTestConfig based on the field.
+            Assuming property names in this class are the same as in LoadTestConfig.
+            We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in LoadTestConfig
+            If this is called from a method, propertyName should be set explicitly.
             </summary>
-            <param name="field">The field.</param>
             <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Int32@,System.Int32,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">The field.</param>
-            <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.String@,System.String,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">The field.</param>
-            <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Boolean@,System.Boolean,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">if set to <c>true</c> [field].</param>
-            <param name="value">if set to <c>true</c> [value].</param>
-            <param name="callerMemberName">Name of the caller member.</param>
+            <param name="propertyName">Name of the caller propert.</param>
         </member>
         <member name="T:LodeRunner.Core.Models.TestRun">
             <summary>
