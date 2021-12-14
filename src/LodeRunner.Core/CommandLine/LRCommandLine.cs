@@ -65,7 +65,7 @@ namespace LodeRunner.Core.CommandLine
             root.AddOption(new Option<bool>(new string[] { "-r", "--run-loop" }, Parsers.ParseBool, true, "Run test in an infinite loop"));
             root.AddOption(new Option<bool>(new string[] { "--verbose-errors" }, Parsers.ParseBool, true, "Log verbose error messages"));
             root.AddOption(new Option<bool>(new string[] { "--random" }, Parsers.ParseBool, true, "Run requests randomly (requires --run-loop)"));
-            root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGTZero, true, "Test duration (seconds)  (requires --run-loop)"));
+            root.AddOption(new Option<int>(new string[] { "--duration" }, Parsers.ParseIntGEZero, true, "Test duration (seconds)  (requires --run-loop)"));
             root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
             root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
@@ -229,9 +229,9 @@ namespace LodeRunner.Core.CommandLine
                 // What happens is that when a integer type parameter such as duration is not provided and we try to get the value utilizing method GetValueOrDefault. it throws an exception.
             }
 
-            if (duration != null && duration > 0 && !runLoop)
+            if (duration != null && duration == 0 && runLoop)
             {
-                msg += $"{SystemConstants.CmdLineValidationDurationAndLoopMessage}\n";
+                Console.WriteLine(SystemConstants.CmdLineNoticeDurationValueIgnoredMessage);
             }
             else if (random && !runLoop)
             {

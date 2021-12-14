@@ -55,11 +55,6 @@ namespace LodeRunner.Core
         public const string DevelopmentEnvironment = "Development";
 
         /// <summary>
-        /// The command line validation duration and loop message.
-        /// </summary>
-        public const string CmdLineValidationDurationAndLoopMessage = "--run-loop must be true to use --duration";
-
-        /// <summary>
         /// The command line validation random and loop message.
         /// </summary>
         public const string CmdLineValidationRandomAndLoopMessage = "--run-loop must be true to use --random";
@@ -78,6 +73,16 @@ namespace LodeRunner.Core
         /// The command line validation secrets volume end message.
         /// </summary>
         public const string CmdLineValidationSecretsVolumeEndMessage = ") does not exist";
+
+        /// <summary>
+        /// The command line notice message that sleep value is ignored.
+        /// </summary>
+        public const string CmdLineNoticeSleepValueIgnoredMessage = "--sleep value of 0 is ignored while --run-loop is also set";
+
+        /// <summary>
+        /// The command line notice message that duration value is ignored.
+        /// </summary>
+        public const string CmdLineNoticeDurationValueIgnoredMessage = "--duration value of 0 is ignored while --run-loop is also set";
 
         /// <summary>
         /// The exit success.

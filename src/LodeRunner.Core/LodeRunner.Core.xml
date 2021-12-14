@@ -1151,12 +1151,12 @@
               <c>true</c> if [dry run]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.EntityType">
+        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Name">
             <summary>
-            Gets the type of the entity.
+            Gets or sets the name.
             </summary>
             <value>
-            The type of the entity.
+            The name.
             </value>
         </member>
         <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.OnPropertyChanged(System.String)">
@@ -1165,37 +1165,15 @@
             </summary>
             <param name="fieldName">The field name.</param>
         </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Collections.Generic.List{System.String}@,System.Collections.Generic.List{System.String},System.String)">
+        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField``1(``0,System.String)">
             <summary>
-            Sets the field.
+            Sets the field on LoadTestConfig based on the field.
+            Assuming property names in this class are the same as in LoadTestConfig.
+            We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in LoadTestConfig
+            If this is called from a method, propertyName should be set explicitly.
             </summary>
-            <param name="field">The field.</param>
             <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Int32@,System.Int32,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">The field.</param>
-            <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.String@,System.String,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">The field.</param>
-            <param name="value">The value.</param>
-            <param name="callerMemberName">Name of the caller member.</param>
-        </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField(System.Boolean@,System.Boolean,System.String)">
-            <summary>
-            Sets the field.
-            </summary>
-            <param name="field">if set to <c>true</c> [field].</param>
-            <param name="value">if set to <c>true</c> [value].</param>
-            <param name="callerMemberName">Name of the caller member.</param>
+            <param name="propertyName">Name of the caller propert.</param>
         </member>
         <member name="T:LodeRunner.Core.Models.TestRun">
             <summary>
@@ -1416,11 +1394,6 @@
             The AppSetting development environment name.
             </summary>
         </member>
-        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationDurationAndLoopMessage">
-            <summary>
-            The command line validation duration and loop message.
-            </summary>
-        </member>
         <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationRandomAndLoopMessage">
             <summary>
             The command line validation random and loop message.
@@ -1439,6 +1412,16 @@
         <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsVolumeEndMessage">
             <summary>
             The command line validation secrets volume end message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineNoticeSleepValueIgnoredMessage">
+            <summary>
+            The command line notice message that sleep value is ignored.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineNoticeDurationValueIgnoredMessage">
+            <summary>
+            The command line notice message that duration value is ignored.
             </summary>
         </member>
         <member name="F:LodeRunner.Core.SystemConstants.ExitSuccess">
