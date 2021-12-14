@@ -1,7 +1,11 @@
 import { getApi, writeApi, deleteApi } from "./utilities";
 import { CONFIG } from "../models";
 
-const getConfigs = getApi("LoadTestConfig");
+const getConfigs = async () => {
+  const content = await getApi("LoadTestConfig");
+
+  return content || [];
+};
 
 const checkConfigInputs = (inputs) => {
   const checkedConfigs = [

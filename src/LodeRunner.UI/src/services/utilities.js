@@ -1,7 +1,15 @@
+const STATUS_CODE_NO_CONTENT = 204;
+
 const getResponseBody = async (res) => {
   const contentType = res.headers.get("content-type");
   let body;
 
+  // check and resolve for status codes
+  if (res.status === STATUS_CODE_NO_CONTENT) {
+    return undefined;
+  }
+
+  // check and resolve for content-type
   if (!contentType) {
     throw new Error("No content in response");
   } else if (contentType.includes("text")) {
@@ -22,7 +30,7 @@ const getResponseBody = async (res) => {
   return body;
 };
 
-const getApi = (endpoint) => async () => {
+const getApi = async (endpoint) => {
   try {
     const res = await fetch(`${process.env.REACT_APP_SERVER}/api/${endpoint}`);
     const body = await getResponseBody(res);
@@ -73,4 +81,4 @@ const deleteApi = (endpoint) => async (id) => {
   }
 };
 
-export { getApi, writeApi, deleteApi };
+export { getApi, writeApi, deleteApi, getResponseBody };
