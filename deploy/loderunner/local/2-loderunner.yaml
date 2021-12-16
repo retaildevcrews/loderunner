@@ -31,8 +31,8 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           args: 
-          - --delay-start
-          - "-1"
+          - --mode 
+          - Client
           - --secrets-volume
           - /app/secrets
           - --prometheus
@@ -40,10 +40,6 @@ spec:
           - dev
           - --region
           - dev
-          - -s
-          - http://ngsa-memory:8080
-          - -f
-          - benchmark.json
           volumeMounts:
             - name: secrets
               mountPath: "/app/secrets"
