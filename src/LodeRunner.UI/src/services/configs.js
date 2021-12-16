@@ -114,7 +114,7 @@ const writeConfig = async (method, inputs) => {
   checkConfigInputs(inputs);
   const payload = getConfigPayload(inputs);
   const endpoint =
-    method === "PUT" ? `LoadTestConfig/${inputs[CONFIG.id]}` : "LoadTestConfig";
+    method === "PUT" ? `LoadTestConfigs/${inputs[CONFIG.id]}` : "LoadTestConfig";
   return writeApi(method, endpoint)(payload);
 };
 
