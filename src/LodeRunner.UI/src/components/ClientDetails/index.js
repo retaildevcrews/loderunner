@@ -30,8 +30,8 @@ const ClientDetails = () => {
     [CLIENT.prometheus]: prometheus,
     [CLIENT.region]: region,
     [CLIENT.startTime]: startTime,
-    [CLIENT.startupArgs]: startupArgs,
     [CLIENT.status]: status,
+    [CLIENT.tag]: tag,
     [CLIENT.version]: version,
     [CLIENT.zone]: zone,
   } = clients[openedClientDetailsIndex];
@@ -83,8 +83,7 @@ const ClientDetails = () => {
         {statusId}
       </div>
       <h2 className="clientdetails-sectiontitle">
-        <span className="clientdetails-key">Startup Arguments: </span>
-        {startupArgs}
+        <span className="clientdetails-key">Startup Arguments </span>
       </h2>
       <div>
         <span className="clientdetails-key">Region: </span>
@@ -97,6 +96,10 @@ const ClientDetails = () => {
       <div>
         <span className="clientdetails-key">Prometheus Enabled: </span>
         {prometheus.toString()}
+      </div>
+      <div>
+        <span className="clientdetails-key">Log & App Insights Tag: </span>
+        {tag || "--"}
       </div>
       <div>
         <span className="clientdetails-key">Deployed: </span>
