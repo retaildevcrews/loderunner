@@ -2,7 +2,7 @@ import { getApi, writeApi, deleteApi } from "./utilities";
 import { CONFIG } from "../models";
 
 const getConfigs = async () => {
-  const content = await getApi("LoadTestConfig");
+  const content = await getApi("LoadTestConfigs");
 
   return content || [];
 };
