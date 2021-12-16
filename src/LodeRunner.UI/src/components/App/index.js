@@ -34,68 +34,7 @@ function App() {
   useEffect(() => {
     getConfigs()
       .then((c) => setConfigs(c))
-      .catch(() =>
-        // TODO: Remove mocked data
-        setConfigs([
-          {
-            entityType: "LoadTestConfig",
-            id: "abc123",
-            name: "Configurations 1",
-            files: ["baseline.json", "file-1.json"],
-            strictJson: true,
-            baseUrl: "baseurl",
-            verboseErrors: true,
-            randomize: true,
-            timeout: 20,
-            server: ["https://ngsa-memory.com", "server-1.com"],
-            tag: "tag",
-            sleep: 20,
-            runLoop: true,
-            duration: 20,
-            maxErrors: 20,
-            delayStart: -1,
-            dryRun: true,
-          },
-          {
-            entityType: "LoadTestConfig",
-            id: "def456",
-            name: "Configurations 2",
-            files: ["baseline.json", "benchmark.json"],
-            strictJson: false,
-            baseUrl: "",
-            verboseErrors: true,
-            randomize: false,
-            timeout: 30,
-            server: ["https://ngsa-memory.com", "https://ngsa-cosmos.com"],
-            tag: "pre-deploy",
-            sleep: 0,
-            runLoop: false,
-            duration: 0,
-            maxErrors: 10,
-            delayStart: -1,
-            dryRun: false,
-          },
-          {
-            entityType: "LoadTestConfig",
-            id: "ghi789",
-            name: "Configurations 3",
-            files: ["benchmark.json"],
-            strictJson: false,
-            baseUrl: "",
-            verboseErrors: true,
-            randomize: false,
-            timeout: 30,
-            server: ["https://ngsa-cosmos.com"],
-            tag: "",
-            sleep: 0,
-            runLoop: false,
-            duration: 0,
-            maxErrors: 10,
-            delayStart: -1,
-            dryRun: false,
-          },
-        ])
-      );
+      .catch(() => setConfigs([]));
   }, [fetchConfigsTrigger]);
 
   const setFetchClientsInterval = (interval) => {
