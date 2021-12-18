@@ -36,6 +36,9 @@ const ConfigForm = () => {
   const strictJsonFlagRef = useRef(
     openedConfig ? openedConfig[CONFIG.strictJson] : false
   );
+  const verboseFlagRef = useRef(
+    openedConfig ? openedConfig[CONFIG.verbose] : false
+  );
   const verboseErrorsFlagRef = useRef(
     openedConfig ? openedConfig[CONFIG.verboseErrors] : false
   );
@@ -72,24 +75,24 @@ const ConfigForm = () => {
       return;
     }
     // initial string form values
-    baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl];
-    configNameRef.current.value = openedConfig[CONFIG.name];
+    baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl] || "";
+    configNameRef.current.value = openedConfig[CONFIG.name] || "";
     if (durationFlagRef.current) {
       durationFlagRef.current.value = openedConfig[CONFIG.duration];
     }
     maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
     sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
-    tagFlagRef.current.value = openedConfig[CONFIG.tag];
+    tagFlagRef.current.value = openedConfig[CONFIG.tag] || "";
     timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
 
     // initial string array form values
     fileFlagRefs.forEach(({ id: index, ref }) => {
       // eslint-disable-next-line no-param-reassign
-      ref.current.value = openedConfig[CONFIG.files][index];
+      ref.current.value = openedConfig[CONFIG.files][index] || "";
     });
     serverFlagRefs.forEach(({ id: index, ref }) => {
       // eslint-disable-next-line no-param-reassign
-      ref.current.value = openedConfig[CONFIG.servers][index];
+      ref.current.value = openedConfig[CONFIG.servers][index] || "";
     });
   }, []);
 
@@ -155,6 +158,7 @@ const ConfigForm = () => {
       [CONFIG.runLoop]: runLoopFlagRef.current,
       [CONFIG.sleep]: sleepFlagRef.current.value,
       [CONFIG.tag]: tagFlagRef.current.value,
+      [CONFIG.verbose]: verboseFlagRef.current,
       [CONFIG.verboseErrors]: verboseErrorsFlagRef.current,
       [CONFIG.timeout]: timeoutFlagRef.current.value,
     };
@@ -172,6 +176,14 @@ const ConfigForm = () => {
       <h2>
         {openedConfigIndex === -1 ? "New Config" : openedConfig[CONFIG.name]}
       </h2>
+      <BooleanInput
+        label="Dry Run"
+        description="Validate settings with target clients without running load test"
+        elRef={dryRunFlagRef}
+        inputName="dryRunFlag"
+        onChange={onRefCurrentChange(dryRunFlagRef)}
+      />
+      <br />
       <StringInput
         label="Name"
         description="User friendly name for config settings"
@@ -209,19 +221,11 @@ const ConfigForm = () => {
       />
       <br />
       <BooleanInput
-        label="Strict JSON"
+        label="Parse Load Test Files with Strict JSON"
         description="Use strict RFC rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON."
         elRef={strictJsonFlagRef}
         inputName="strictJsonFlag"
         onChange={onRefCurrentChange(strictJsonFlagRef)}
-      />
-      <br />
-      <BooleanInput
-        label="Dry Run"
-        description="Validate the settings with the target clients"
-        elRef={dryRunFlagRef}
-        inputName="dryRunFlag"
-        onChange={onRefCurrentChange(dryRunFlagRef)}
       />
       <br />
       <StringInput
@@ -279,6 +283,23 @@ const ConfigForm = () => {
         <div className="configform-error">ERROR: {errors[CONFIG.sleep]}</div>
       )}
       <br />
+      <IntegerInput
+        label="Timeout"
+        description="Request timeout"
+        elRef={timeoutFlagRef}
+        inputName="timeoutFlag"
+        units="second(s)"
+        defaultValue={30}
+      />
+      <br />
+      <BooleanInput
+        label="Verbose"
+        description="Display 200 and 300 results as well as errors"
+        elRef={verboseFlagRef}
+        inputName="verboseFlag"
+        onChange={onRefCurrentChange(verboseFlagRef)}
+      />
+      <br />
       <BooleanInput
         label="Verbose Errors"
         description="Display validation error messages"
@@ -299,15 +320,6 @@ const ConfigForm = () => {
           ERROR: {errors[CONFIG.maxErrors]}
         </div>
       )}
-      <br />
-      <IntegerInput
-        label="Timeout"
-        description="Request timeout"
-        elRef={timeoutFlagRef}
-        inputName="timeoutFlag"
-        units="second(s)"
-        defaultValue={30}
-      />
       {errors[CONFIG.timeout] && (
         <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
       )}

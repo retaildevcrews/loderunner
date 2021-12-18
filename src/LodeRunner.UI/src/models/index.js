@@ -33,6 +33,7 @@ export const CONFIG = {
   name: "name",
   maxErrors: "maxErrors",
   strictJson: "strictJson",
+  verbose: "verbose",
   verboseErrors: "verboseErrors",
   randomize: "randomize",
   runLoop: "runLoop",

@@ -59,6 +59,7 @@ describe("getConfigPayload", () => {
       [CONFIG.timeout]: "10",
       [CONFIG.dryRun]: false,
       [CONFIG.strictJson]: true,
+      [CONFIG.verbose]: true,
       [CONFIG.verboseErrors]: true,
     };
 
@@ -77,6 +78,7 @@ describe("getConfigPayload", () => {
       [CONFIG.timeout]: 10,
       [CONFIG.dryRun]: false,
       [CONFIG.strictJson]: true,
+      [CONFIG.verbose]: true,
       [CONFIG.verboseErrors]: true,
     };
 
@@ -99,6 +101,7 @@ describe("getConfigPayload", () => {
       [CONFIG.timeout]: "10",
       [CONFIG.dryRun]: false,
       [CONFIG.strictJson]: true,
+      [CONFIG.verbose]: true,
       [CONFIG.verboseErrors]: true,
     };
 
@@ -112,6 +115,7 @@ describe("getConfigPayload", () => {
       [CONFIG.timeout]: 10,
       [CONFIG.dryRun]: false,
       [CONFIG.strictJson]: true,
+      [CONFIG.verbose]: true,
       [CONFIG.verboseErrors]: true,
     };
 

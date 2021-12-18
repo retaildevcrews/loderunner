@@ -1,4 +1,5 @@
 import { getApi, writeApi, deleteApi } from "./utilities";
+import getAsBoolean from "../utilities/types";
 import { CONFIG } from "../models";
 
 const getConfigs = async () => {
@@ -102,9 +103,10 @@ const getConfigPayload = (inputs) =>
       case CONFIG.dryRun:
       case CONFIG.strictJson:
       case CONFIG.runLoop:
+      case CONFIG.verbose:
       case CONFIG.verboseErrors:
         // always send boolean input
-        return { ...data, [config]: inputs[config] };
+        return { ...data, [config]: getAsBoolean(inputs[config]) };
       default:
         return data;
     }
@@ -114,7 +116,9 @@ const writeConfig = async (method, inputs) => {
   checkConfigInputs(inputs);
   const payload = getConfigPayload(inputs);
   const endpoint =
-    method === "PUT" ? `LoadTestConfigs/${inputs[CONFIG.id]}` : "LoadTestConfig";
+    method === "PUT"
+      ? `LoadTestConfigs/${inputs[CONFIG.id]}`
+      : "LoadTestConfig";
   return writeApi(method, endpoint)(payload);
 };
 
