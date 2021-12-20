@@ -1,15 +1,21 @@
 # LodeRunner.UI
 
-LodeRunner.UI is intended to facility testing in controlled environments by adding the capability to update load test configs without restarting load clients.
+LodeRunner.UI is intended to facility testing in controlled environments by providing the frontend to interact with LodeRunner.API. LodeRunner.API creates/updates/deletes load test configs in CosmosDB, that would be executed by LodeRunner without restarting the load client.
 
 ## Development Experience
 
 ### Initial Setup
 
-1. Setup LodeRunner and LodeRunner.API pods ([Instructions](../../README.md#running-the-system-via-codespaces))
-2. Set `src/LodeRunner.UI/.env.development` REACT_APP_SERVER to LodeRunner.API URL
-   - To prevent accidental commits `git update-index --assume-unchanged .env.development`
-3. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
+1. Setup LodeRunner and LodeRunner.API pods (Instructions at [Running the System via Codespaces](../../README.md#running-the-system-via-codespaces))
+2. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
+3. Set the endpoint LodeRunner.UI makes API calls to
+   - In Codespaces, navigate to the `PORTS` terminal
+   - Identify port `LodeRunner API (32088)` and hover over the `Local Address`
+   - Click on the clipboard icon to copy the local address
+   - Open `.env.development`
+   - Set `REACT_APP_SERVER` to copied LodeRunner.API URL
+   - **REMOVE TRAILING SLASH ON LODERUNNER.API URL OR LODERUNNER.UI WILL FAIL**
+   - Prevent accidental commits with `git update-index --assume-unchanged .env.development`
 4. Install node dependencies in `npm install`
 5. Start the client `npm start`
 
@@ -19,7 +25,10 @@ LodeRunner.UI is intended to facility testing in controlled environments by addi
 2. Set environmental variables for K8S generic secret via `source ~/.lr.env`
 3. Start the k3d cluster `make create`
 4. Deploy LodeRunner, LodeRunner.API, LodeRunner.UI `make lr-local`
-5. In ports, set LodeRunner.API port visibility to public
+5. Set LodeRunner.API port visibility to public
+   - In Codespaces, navigate to the `PORTS` terminal
+   - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
+   - Hover over `Port Visibility` and select `Public`
 6. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
 7. Start the client `npm start`
 

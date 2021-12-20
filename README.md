@@ -18,19 +18,33 @@
 
 ## Running the System via Codespaces
 
-1. Open codespaces in https://github.com/retaildevcrews/loderunner
+1. Open codespaces in <https://github.com/retaildevcrews/loderunner>
 2. Verify in the loderunner directory `pwd`
-3. Set `src/LodeRunner.UI/.env.production` REACT_APP_SERVER to LodeRunner.API URL
-   - To prevent accidental commits `git update-index --assume-unchanged .env.production`
-4. Set environmental variables for K8S generic secret
-   - Set `LR_COL` (collection), `LR_DB`, `LR_KEY`, and `LR_URL` with CosmosDB values
-   - Note: `LR_KEY` needs Read-Write permissions
+3. Set the endpoint LodeRunner.UI makes API calls to
+   - In Codespaces, navigate to the `PORTS` terminal
+   - Identify port `LodeRunner API (32088)` and hover over the `Local Address`
+   - Click on the clipboard icon to copy the local address
+   - Open `src/LodeRunner.UI/.env.production`
+   - Set `REACT_APP_SERVER` to copied LodeRunner.API URL
+   - **REMOVE TRAILING SLASH ON LODERUNNER.API URL OR LODERUNNER.UI WILL FAIL**
+   - Prevent accidental commits with `git update-index --assume-unchanged src/LodeRunner.UI/.env.production`
+4. Set environmental variables with CosmosDB values for K8S generic secret
+   - Set CosmosDB: `export LR_DB=LodeRunnerDB`
+   - Set CosmosDB Collection: `export LR_COL=LodeRunner`
+   - Set CosmosDB URL: `export LR_URL=https://ngsa-dev-cosmos.documents.azure.com:443/`
+   - Set Command to Get CosmosDB Key with Read-Write permissions
+     - Log Into Azure: `az login --use-device-code`
+     - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
+     - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-dev-cosmos -g ngsa-dev-shared-rg --query primaryMasterKey -o tsv)`
 5. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
 6. Start the k3d cluster `make create`
 7. Deploy pods
-    - `make all`: LodeRunner, LodeRunner.API, LodeRunner.UI, ngsa-app, prometheus, grafana, fluentbit, jumpbox
-    - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI
-8. In ports, set LodeRunner.API port visibility to public
+   - ~~`make all`: LodeRunner, LodeRunner.API, LodeRunner.UI, ngsa-app, prometheus, grafana, fluentbit, jumpbox~~ Note: monitoring and fluentbit namespaces are not ready
+   - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI
+8. Set LodeRunner.API port visibility to public
+   - In Codespaces, navigate to the `PORTS` terminal
+   - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
+   - Hover over `Port Visibility` and select `Public`
 
 ## Development of a loderunner Component
 

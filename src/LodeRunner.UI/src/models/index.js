@@ -18,6 +18,7 @@ export const CLIENT = {
   startTime: "startTime",
   startupArgs: "startupArgs",
   status: "status",
+  tag: "tag",
   version: "version",
   zone: "zone",
 };
