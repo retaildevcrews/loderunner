@@ -28,7 +28,7 @@ TODO: Describe the flags for each one, explain that -s and -f are ignored in cli
 ### Client Mode
 
 ```bash
---mode Client -s https://[any] -f memory-baseline.json memory-benchmark.json --secrets-volume secrets
+--mode Client --secrets-volume secrets --screts-volume /app/secrets --prometheus --zone dev --region dev
 ```
 
 ### Command Mode

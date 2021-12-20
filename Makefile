@@ -96,6 +96,7 @@ clean :
 	@# continue on error
 	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
 	-kubectl delete -f deploy/loderunner --ignore-not-found=true
+	-kubectl delete secret lr-secrets --namespace loderunner --ignore-not-found=true
 	-kubectl delete -f deploy/ngsa --ignore-not-found=true
 	-kubectl delete -f deploy/monitoring --ignore-not-found=true
 	-kubectl delete ns monitoring --ignore-not-found=true
