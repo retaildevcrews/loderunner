@@ -118,11 +118,11 @@ const writeConfig = async (method, inputs) => {
   const endpoint =
     method === "PUT"
       ? `LoadTestConfigs/${inputs[CONFIG.id]}`
-      : "LoadTestConfig";
+      : "LoadTestConfigs";
   return writeApi(method, endpoint)(payload);
 };
 
-const deleteConfig = deleteApi("LoadTestConfig");
+const deleteConfig = deleteApi("LoadTestConfigs");
 
 export {
   getConfigs,
