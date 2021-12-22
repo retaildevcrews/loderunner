@@ -4,14 +4,15 @@ import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
 import BooleanInput from "./BooleanInput";
 import { writeConfig } from "../../services/configs";
-import { ConfigsContext, DisplayContext } from "../../contexts";
+import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const ConfigForm = () => {
   // context props
-  const { setModalContent, setIsPending } = useContext(DisplayContext);
+  const { setIsPending } = useContext(AppContext);
+  const { setModalContent } = useContext(TestPageContext);
   const { configs, openedConfigId, setFetchConfigsTrigger } =
     useContext(ConfigsContext);
 

@@ -2,14 +2,20 @@ import { useContext } from "react";
 import PlayIcon from "../PlayIcon";
 import PencilIcon from "../PencilIcon";
 import TrashIcon from "../TrashIcon";
-import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import {
+  AppContext,
+  ClientsContext,
+  ConfigsContext,
+  TestPageContext,
+} from "../../contexts";
 import { deleteConfig } from "../../services/configs";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Configs = () => {
-  const { setModalContent, setIsPending } = useContext(DisplayContext);
+  const { setIsPending } = useContext(AppContext);
+  const { setModalContent } = useContext(TestPageContext);
   const { selectedClientIds } = useContext(ClientsContext);
   const {
     setFetchConfigsTrigger,

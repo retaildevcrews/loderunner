@@ -1,5 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import {
+  AppContext,
+  ClientsContext,
+  ConfigsContext,
+  TestPageContext,
+} from "../../contexts";
 import postTestRun from "../../services/testRun";
 import { CLIENT, CLIENT_STATUSES, CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
@@ -11,7 +16,8 @@ const TestSubmission = () => {
     useContext(ClientsContext);
   const { configs, setOpenedConfigId, testRunConfigId, setTestRunConfigId } =
     useContext(ConfigsContext);
-  const { setIsPending, setModalContent } = useContext(DisplayContext);
+  const { setIsPending } = useContext(AppContext);
+  const { setModalContent } = useContext(TestPageContext);
 
   const testRunConfig = configs.find(
     ({ [CONFIG.id]: id }) => id === testRunConfigId

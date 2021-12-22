@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import PencilIcon from "../PencilIcon";
-import { ClientsContext, DisplayContext } from "../../contexts";
+import { ClientsContext, TestPageContext } from "../../contexts";
 import { CLIENT, CLIENT_STATUSES } from "../../models";
 import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const ClientDetails = () => {
-  const { setMainContent, setModalContent } = useContext(DisplayContext);
+  const { setMainContent, setModalContent } = useContext(TestPageContext);
   const { clients, setOpenedClientDetailsId, openedClientDetailsId } =
     useContext(ClientsContext);
 
