@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const CheckMark = ({ fillColor, width }) => {
+const CheckMarkIcon = ({ fillColor, width }) => {
   return (
     <svg
       version="1.1"
@@ -32,14 +32,14 @@ const CheckMark = ({ fillColor, width }) => {
   );
 };
 
-CheckMark.defaultProps = {
+CheckMarkIcon.defaultProps = {
   fillColor: "black",
   width: "2em",
 };
 
-CheckMark.propTypes = {
+CheckMarkIcon.propTypes = {
   fillColor: PropTypes.string,
   width: PropTypes.string,
 };
 
-export default CheckMark;
+export default CheckMarkIcon;

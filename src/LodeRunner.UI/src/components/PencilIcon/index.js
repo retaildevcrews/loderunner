@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const Pencil = ({ fillColor, hoverColor, width }) => {
+const PencilIcon = ({ fillColor, hoverColor, width }) => {
   const [currentColor, setCurrentColor] = useState(fillColor);
 
   return (
@@ -37,16 +37,16 @@ const Pencil = ({ fillColor, hoverColor, width }) => {
   );
 };
 
-Pencil.defaultProps = {
+PencilIcon.defaultProps = {
   fillColor: "black",
   hoverColor: "grey",
   width: "1em",
 };
 
-Pencil.propTypes = {
+PencilIcon.propTypes = {
   fillColor: PropTypes.string,
   hoverColor: PropTypes.string,
   width: PropTypes.string,
 };
 
-export default Pencil;
+export default PencilIcon;

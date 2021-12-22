@@ -34,3 +34,13 @@
 .clientdetails-key {
   color: #2c7f84;
 }
+.clientdetails-status {
+  display: flex;
+  align-items: center;
+}
+.clientdetails-status-indicator {
+  display: inline-block;
+  height: 0.8em;
+  width: 0.8em;
+  border-radius: 50%;
+}

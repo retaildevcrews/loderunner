@@ -21,6 +21,7 @@ const Modal = ({ children }) => {
             type="button"
             onClick={closeModal}
             onKeyDown={closeModal}
+            aria-label="Close"
           >
             x
           </button>

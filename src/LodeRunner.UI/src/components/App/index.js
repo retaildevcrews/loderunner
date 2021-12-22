@@ -4,6 +4,7 @@ import ConfigForm from "../ConfigForm";
 import ContentPage from "../ContentPage";
 import PendingFeature from "../PendingFeature";
 import Modal from "../Modal";
+import TestSubmission from "../TestSubmission";
 import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
 import { getClients } from "../../services/clients";
 import { getConfigs } from "../../services/configs";
@@ -19,11 +20,14 @@ function App() {
   const fetchClientsIntervalId = useRef();
   const [fetchClientsTrigger, setFetchClientsTrigger] = useState(0);
   const [clients, setClients] = useState([]);
-  const [openedClientDetailsIndex, setOpenedClientDetailsIndex] = useState(-1);
+  const [openedClientDetailsId, setOpenedClientDetailsId] = useState(-1);
 
   const [fetchConfigsTrigger, setFetchConfigsTrigger] = useState(0);
   const [configs, setConfigs] = useState([]);
-  const [openedConfigIndex, setOpenedConfigIndex] = useState(-1);
+  const [openedConfigId, setOpenedConfigId] = useState(-1);
+
+  const [selectedClientIds, setSelectedClientIds] = useState({});
+  const [testRunConfigId, setTestRunConfigId] = useState(-1);
 
   useEffect(() => {
     getClients()
@@ -52,6 +56,13 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    // Handle cleanup when modal closes
+    if (modalContent === MODAL_CONTENT.closed && testRunConfigId !== -1) {
+      setTestRunConfigId(-1);
+    }
+  }, [modalContent]);
+
   return (
     <div className="app">
       <DisplayContext.Provider
@@ -67,35 +78,42 @@ function App() {
           value={{
             configs,
             setFetchConfigsTrigger,
-            openedConfigIndex,
-            setOpenedConfigIndex,
+            openedConfigId,
+            setOpenedConfigId,
+            testRunConfigId,
+            setTestRunConfigId,
           }}
         >
-          {isPending && (
-            <div className="pending-overlay">
-              <Spinner />
-            </div>
-          )}
-          {modalContent && (
-            <Modal>
-              {modalContent === MODAL_CONTENT.pendingFeature && (
-                <PendingFeature />
-              )}
-              {modalContent === MODAL_CONTENT.configForm && <ConfigForm />}
-            </Modal>
-          )}
-          <div className="app-content">
-            <ClientsContext.Provider
-              value={{
-                clients,
-                setOpenedClientDetailsIndex,
-                openedClientDetailsIndex,
-              }}
-            >
+          <ClientsContext.Provider
+            value={{
+              clients,
+              selectedClientIds,
+              setSelectedClientIds,
+              openedClientDetailsId,
+              setOpenedClientDetailsId,
+            }}
+          >
+            {isPending && (
+              <div className="pending-overlay">
+                <Spinner />
+              </div>
+            )}
+            {modalContent && (
+              <Modal>
+                {modalContent === MODAL_CONTENT.pendingFeature && (
+                  <PendingFeature />
+                )}
+                {modalContent === MODAL_CONTENT.configForm && <ConfigForm />}
+                {modalContent === MODAL_CONTENT.testSubmission && (
+                  <TestSubmission />
+                )}
+              </Modal>
+            )}
+            <div className="app-content">
               <Clients setFetchClientsInterval={setFetchClientsInterval} />
               <ContentPage />
-            </ClientsContext.Provider>
-          </div>
+            </div>
+          </ClientsContext.Provider>
         </ConfigsContext.Provider>
       </DisplayContext.Provider>
     </div>

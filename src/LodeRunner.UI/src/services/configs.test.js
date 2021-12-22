@@ -48,7 +48,6 @@ describe("getConfigPayload", () => {
       [CONFIG.baseUrl]: "test",
       [CONFIG.name]: "test",
       [CONFIG.tag]: "test",
-      // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: true,
       [CONFIG.duration]: 0,
       [CONFIG.randomize]: false,
@@ -67,7 +66,6 @@ describe("getConfigPayload", () => {
       [CONFIG.baseUrl]: "test",
       [CONFIG.name]: "test",
       [CONFIG.tag]: "test",
-      // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: true,
       [CONFIG.duration]: 0,
       [CONFIG.randomize]: false,
@@ -90,7 +88,6 @@ describe("getConfigPayload", () => {
       [CONFIG.baseUrl]: "",
       [CONFIG.name]: "",
       [CONFIG.tag]: "",
-      // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: false,
       [CONFIG.duration]: 0,
       [CONFIG.randomize]: false,
@@ -106,7 +103,6 @@ describe("getConfigPayload", () => {
     };
 
     const expectedPayload = {
-      // [CONFIG.delayStart]: -1,
       [CONFIG.runLoop]: false,
       [CONFIG.files]: [],
       [CONFIG.servers]: [],

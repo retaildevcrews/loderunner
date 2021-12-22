@@ -1,0 +1,370 @@
+import { useContext, useEffect, useState } from "react";
+import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import postTestRun from "../../services/testRun";
+import { CLIENT, CLIENT_STATUSES, CONFIG } from "../../models";
+import { MODAL_CONTENT } from "../../utilities/constants";
+import getMMMDYYYYhmma from "../../utilities/datetime";
+import "./styles.css";
+
+const TestSubmission = () => {
+  const { clients, selectedClientIds, setSelectedClientIds } =
+    useContext(ClientsContext);
+  const { configs, setOpenedConfigId, testRunConfigId, setTestRunConfigId } =
+    useContext(ConfigsContext);
+  const { setIsPending, setModalContent } = useContext(DisplayContext);
+
+  const testRunConfig = configs.find(({ id }) => id === testRunConfigId);
+  const selectedClients = clients.filter(
+    ({ [CLIENT.loadClientId]: clientId }) => selectedClientIds[clientId]
+  );
+  const [testRunClientIds, setTestRunClientIds] = useState(
+    selectedClients.reduce(
+      (agg, { [CLIENT.loadClientId]: clientId }) => ({
+        ...agg,
+        [clientId]: true,
+      }),
+      {}
+    )
+  );
+
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
+
+  useEffect(() => {
+    setIsSubmitDisabled(
+      // eslint-disable-next-line no-unused-vars
+      !Object.entries(testRunClientIds).some(([_, isChecked]) => isChecked)
+    );
+  }, [testRunClientIds]);
+
+  const handleTestRunClientSelection =
+    (clientId) =>
+    ({ target: { checked } }) => {
+      setTestRunClientIds({
+        ...testRunClientIds,
+        [clientId]: checked,
+      });
+    };
+
+  const handleEditConfig = (configId) => () => {
+    setOpenedConfigId(configId);
+    setModalContent(MODAL_CONTENT.configForm);
+    setTestRunConfigId(-1);
+  };
+
+  const handleCancel = () => {
+    setModalContent(MODAL_CONTENT.closed);
+  };
+
+  const handleSubmit = () => {
+    setIsPending(true);
+    const testRunClients = selectedClients.filter(
+      ({ [CLIENT.loadClientId]: clientId }) => testRunClientIds[clientId]
+    );
+    postTestRun(testRunConfig, testRunClients)
+      .then(() => {
+        // eslint-disable-next-line no-alert
+        alert("Successfully submitted load test run request");
+        setModalContent(MODAL_CONTENT.closed);
+        setSelectedClientIds({});
+      })
+      .catch(() => {
+        // eslint-disable-next-line no-alert
+        alert("Unable to submit load test run request");
+      })
+      .finally(() => setIsPending(false));
+  };
+
+  return (
+    <div className="testsubmission-content">
+      <h1>Load Test Submission</h1>
+      <h2>Selected Load Test Config</h2>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="User friendly name for config settings"
+        >
+          Name:&nbsp;
+        </span>
+        {`${testRunConfig[CONFIG.name] || "--"}`}
+      </div>
+      <div>
+        <span className="testsubmission-config-label" title="Config ID">
+          ID:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.id]}
+      </div>
+      <br />
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Validate settings with target clients without running load test"
+        >
+          Dry Run:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.dryRun].toString()}
+      </div>
+      <div>
+        <span className="testsubmission-config-label" title="Servers to test">
+          Servers:
+        </span>
+        <ul>
+          {testRunConfig[CONFIG.servers].map((s, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <li key={`${testRunConfig[CONFIG.id]}-server-${index}`}>{s}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Load test file to test"
+        >
+          Load Test Files:
+        </span>
+        <ul>
+          {testRunConfig[CONFIG.files].map((f, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <li key={`${testRunConfig[CONFIG.id]}-file-${index}`}>{f}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Base URL for load test files"
+        >
+          Base URL:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.baseUrl] || "--"}
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title=" Use strict RFC rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON."
+        >
+          Parse Load Test Files with Strict JSON:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.strictJson].toString()}
+      </div>
+      <br />
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Add a tag to the log"
+        >
+          Tag:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.tag] || "--"}
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Display 200 and 300 results as well as errors"
+        >
+          Verbose:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.verbose] === undefined
+          ? "--"
+          : testRunConfig[CONFIG.verbose].toString()}
+      </div>
+      <br />
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Run test in an infinite loop"
+        >
+          Run Loop:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.runLoop].toString()}
+      </div>
+      <div>
+        <span className="testsubmission-config-label" title="Test duration">
+          Duration:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.duration]} second(s)
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Processes load file randomly instead of from top to bottom"
+        >
+          Randomize:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.randomize].toString()}
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Sleep between each request"
+        >
+          Sleep:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.sleep]} ms
+      </div>
+      <br />
+      <div>
+        <span className="testsubmission-config-label" title="Request timeout">
+          Timeout:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.timeout]} second(s)
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Display validation error messages"
+        >
+          Verbose Errors:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.verboseErrors].toString()}
+      </div>
+      <div>
+        <span
+          className="testsubmission-config-label"
+          title="Maximum validation errors"
+        >
+          Max Errors:&nbsp;
+        </span>
+        {testRunConfig[CONFIG.maxErrors]}
+      </div>
+      <br />
+      <button
+        className="unset"
+        type="button"
+        onClick={handleEditConfig(testRunConfig[CONFIG.id])}
+        onKeyDown={handleEditConfig(testRunConfig[CONFIG.id])}
+      >
+        EDIT CONFIG
+      </button>
+      <h2>Selected Load Client(s)</h2>
+      {selectedClients.map(
+        ({
+          [CLIENT.loadClientId]: clientId,
+          [CLIENT.clientStatusId]: statusId,
+          [CLIENT.lastStatusChange]: lastStatusChange,
+          [CLIENT.lastUpdated]: lastUpdated,
+          [CLIENT.message]: message,
+          [CLIENT.name]: name,
+          [CLIENT.prometheus]: prometheus,
+          [CLIENT.region]: region,
+          [CLIENT.startTime]: startTime,
+          [CLIENT.status]: status,
+          [CLIENT.tag]: tag,
+          [CLIENT.version]: version,
+          [CLIENT.zone]: zone,
+        }) => (
+          <div key={clientId} className="testsubmission-client">
+            <input
+              type="checkbox"
+              checked={testRunClientIds[clientId]}
+              onChange={handleTestRunClientSelection(clientId)}
+              aria-label="Load Client Selection for Load Test Run"
+            />
+            <div>
+              <div>
+                <span className="testsubmission-client-label">Name:&nbsp;</span>
+                {name || "--"}
+              </div>
+              <div className="testsubmission-client-status">
+                <span className="testsubmission-client-label">
+                  Status:&nbsp;
+                </span>
+                {status}&nbsp;
+                <div
+                  aria-label={`Load Client Status: ${status}`}
+                  className={`testsubmission-client-status-indicator status-${
+                    status === CLIENT_STATUSES.ready ? "ready" : "pending"
+                  }`}
+                />
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Status Changed:&nbsp;
+                </span>
+                {getMMMDYYYYhmma(lastStatusChange)}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Updated:&nbsp;
+                </span>
+                {getMMMDYYYYhmma(lastUpdated)}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Message:&nbsp;
+                </span>
+                {message}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Status ID:&nbsp;
+                </span>
+                {statusId}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Region:&nbsp;
+                </span>
+                {region}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">Zone:&nbsp;</span>
+                {zone}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Prometheus Enabled:&nbsp;
+                </span>
+                {prometheus.toString()}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Log & App Insights Tag:&nbsp;
+                </span>
+                {tag || "--"}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  Deployed:&nbsp;
+                </span>
+                {getMMMDYYYYhmma(startTime)}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  LodeRunner Version:&nbsp;
+                </span>
+                {version}
+              </div>
+              <div>
+                <span className="testsubmission-client-label">
+                  LodeRunner ID:&nbsp;
+                </span>
+                {clientId}
+              </div>
+            </div>
+          </div>
+        )
+      )}
+      <div className="testsubmission-options">
+        <button
+          type="button"
+          className="unset"
+          onClick={handleCancel}
+          onKeyDown={handleCancel}
+        >
+          CANCEL
+        </button>
+        <button
+          type="button"
+          className="unset"
+          onClick={handleSubmit}
+          onKeyDown={handleSubmit}
+          disabled={isSubmitDisabled}
+        >
+          SUBMIT
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default TestSubmission;

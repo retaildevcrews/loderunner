@@ -12,13 +12,15 @@ import "./styles.css";
 const ConfigForm = () => {
   // context props
   const { setModalContent, setIsPending } = useContext(DisplayContext);
-  const { configs, openedConfigIndex, setFetchConfigsTrigger } =
+  const { configs, openedConfigId, setFetchConfigsTrigger } =
     useContext(ConfigsContext);
 
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
 
-  const openedConfig = configs[openedConfigIndex];
+  const openedConfig = configs.find(
+    ({ [CONFIG.id]: configId }) => configId === openedConfigId
+  );
 
   // initial boolean form values
   const dryRunFlagRef = useRef(
@@ -174,7 +176,7 @@ const ConfigForm = () => {
   return (
     <div className="configform">
       <h2>
-        {openedConfigIndex === -1 ? "New Config" : openedConfig[CONFIG.name]}
+        {openedConfigId === -1 ? "New Config" : openedConfig[CONFIG.name]}
       </h2>
       <BooleanInput
         label="Dry Run"
@@ -235,6 +237,14 @@ const ConfigForm = () => {
         inputName="tagFlag"
       />
       <br />
+      <BooleanInput
+        label="Verbose"
+        description="Display 200 and 300 results as well as errors"
+        elRef={verboseFlagRef}
+        inputName="verboseFlag"
+        onChange={onRefCurrentChange(verboseFlagRef)}
+      />
+      <br />
       <div className="configform-runloop">
         <BooleanInput
           label="Run Loop"
@@ -291,14 +301,9 @@ const ConfigForm = () => {
         units="second(s)"
         defaultValue={30}
       />
-      <br />
-      <BooleanInput
-        label="Verbose"
-        description="Display 200 and 300 results as well as errors"
-        elRef={verboseFlagRef}
-        inputName="verboseFlag"
-        onChange={onRefCurrentChange(verboseFlagRef)}
-      />
+      {errors[CONFIG.timeout] && (
+        <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
+      )}
       <br />
       <BooleanInput
         label="Verbose Errors"
@@ -319,9 +324,6 @@ const ConfigForm = () => {
         <div className="configform-error">
           ERROR: {errors[CONFIG.maxErrors]}
         </div>
-      )}
-      {errors[CONFIG.timeout] && (
-        <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
       )}
       <div className="configform-save">
         {!errors.response && Object.keys(errors).length > 0 && (

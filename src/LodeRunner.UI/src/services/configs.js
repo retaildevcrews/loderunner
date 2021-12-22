@@ -68,11 +68,6 @@ const getConfigPayload = (inputs) =>
         return inputs[config].length > 0
           ? { ...data, [config]: inputs[config] }
           : data;
-
-      // case CONFIG.delayStart:
-      //   // set constant value
-      //   return { ...data, [config]: -1 };
-
       case CONFIG.duration:
       case CONFIG.randomize:
         // send only if runLoop is set

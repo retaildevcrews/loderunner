@@ -7,6 +7,7 @@ const MODAL_CONTENT = {
   closed: undefined,
   configForm: "configForm",
   pendingFeature: "pendingFeature",
+  testSubmission: "testSubmission",
 };
 
 export { MAIN_CONTENT, MODAL_CONTENT };
