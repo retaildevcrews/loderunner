@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { A } from "hookrouter";
 import PlayIcon from "../PlayIcon";
 import PencilIcon from "../PencilIcon";
 import TrashIcon from "../TrashIcon";
@@ -93,6 +94,9 @@ const Configs = () => {
             <PencilIcon fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
           </button>
         </h1>
+        <A href="/results" className="unset navigation-results">
+          Load Test Results
+        </A>
       </div>
       <div>
         {configs.map(

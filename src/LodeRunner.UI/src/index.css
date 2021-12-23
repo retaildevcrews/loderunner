@@ -22,3 +22,7 @@ button.unset {
   font-size: inherit;
   line-height: inherit;
 }
+
+a.unset {
+  text-decoration: none;
+}

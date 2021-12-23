@@ -1,0 +1,27 @@
+.resultsoverview {
+  flex: auto;
+  padding: 6px 2em;
+  font-weight: bold;
+  overflow: auto;
+}
+.resultsoverview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.67em;
+}
+.resultsoverview-header h1 {
+  margin: 0;
+}
+a.navigation-test {
+  border: none;
+  border-radius: 4px;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
+a.navigation-test:hover {
+  background-color: #24b2b9;
+  color: white;
+}
