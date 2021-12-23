@@ -9,18 +9,20 @@ const IntegerInput = ({
   defaultValue,
 }) => (
   <div className="configform-input">
-    <span className="configform-input-label">{label}: </span>
-    {description}
-    <br />
-    <input
-      ref={elRef}
-      type="number"
-      step="1"
-      name={inputName}
-      defaultValue={defaultValue}
-    />
-    &nbsp;
-    {units}
+    <label htmlFor={inputName}>
+      <span className="configform-input-label">{label}: </span>
+      {description}
+      <br />
+      <input
+        ref={elRef}
+        type="number"
+        step="1"
+        name={inputName}
+        defaultValue={defaultValue}
+      />
+      &nbsp;
+      {units}
+    </label>
   </div>
 );
 
