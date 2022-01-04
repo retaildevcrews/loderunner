@@ -267,7 +267,6 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
-
             this.InitAndRegister();
 
             // Data connection not available yet, so we'll just update the stdout log
