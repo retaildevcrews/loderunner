@@ -1,0 +1,86 @@
+@startuml LodeRunner.API App and Change feed Init
+
+participant "App" as L8rAPIStart
+participant "WebHost" as WebHost
+collections "Controllers" as Endpoints #Orange
+participant "Loggers" as Loggers
+participant "APICache" as APICache
+participant "StatusUpdateListener" as StatusListener
+participant "ChangeFeedService" as ChangeFeedService
+participant "IChangeFeedObserver" as IChangeFeedObserver
+database    "CosmosDB" as CosmosDB
+
+[o-> L8rAPIStart: Start LodeRunner.API
+
+activate L8rAPIStart
+
+L8rAPIStart -> L8rAPIStart: Validate Arguments
+L8rAPIStart -> L8rAPIStart: Creates Start-up Config
+
+L8rAPIStart -> L8rAPIStart: Ensure secrets
+L8rAPIStart -> Loggers: Initialize Loggers
+activate Loggers
+Loggers --> L8rAPIStart
+deactivate Loggers
+L8rAPIStart -> L8rAPIStart: Register Temination Events
+
+L8rAPIStart -> WebHost: Build and Configures Host
+activate WebHost #LightGreen
+note right
+    Registers Controllers, Routes, Config, CosmosDBSettings, Uses Startup class
+end note
+WebHost -> Endpoints: Ready controllers
+activate Endpoints #Orange
+Endpoints --> WebHost
+deactivate Endpoints
+WebHost --> L8rAPIStart
+
+L8rAPIStart -> APICache: Initialize Cache
+activate APICache #FFBBBB
+APICache --> L8rAPIStart
+
+L8rAPIStart -> ChangeFeedService: Initialize Change feed listener
+activate ChangeFeedService #LightBlue
+
+ChangeFeedService -> ChangeFeedService : Creates System Objects
+note right
+    IChangeFeedProcessor, IChangeFeedObserverFactory, IChangeFeedObserver
+end note
+
+ChangeFeedService -> IChangeFeedObserver : Observer Events Subscription
+activate IChangeFeedObserver #blue
+group Observer Ready Callback
+    IChangeFeedObserver -> ChangeFeedService: Observer ready callback
+    ChangeFeedService -> StatusListener: Setup event subscriptions
+    activate StatusListener #LightGreen
+    StatusListener --> ChangeFeedService
+    ChangeFeedService --> IChangeFeedObserver
+end
+IChangeFeedObserver --> ChangeFeedService
+
+group On Process Changes
+    CosmosDB -> IChangeFeedObserver: Document Updates
+    activate CosmosDB
+    IChangeFeedObserver -> IChangeFeedObserver: Identify Doc Type
+    IChangeFeedObserver -> ChangeFeedService: Raise Doc Specific Event
+    ChangeFeedService -> StatusListener: Process Specific Doc Changes
+    StatusListener -> APICache: Update Cache
+    APICache --> StatusListener
+    StatusListener --> ChangeFeedService
+    ChangeFeedService --> IChangeFeedObserver
+    IChangeFeedObserver --> CosmosDB
+    deactivate CosmosDB
+end
+
+deactivate CosmosDB
+deactivate StatusListener
+deactivate ChangeFeedService
+
+deactivate APICache
+
+deactivate Endpoints
+
+deactivate WebHost
+
+
+@enduml

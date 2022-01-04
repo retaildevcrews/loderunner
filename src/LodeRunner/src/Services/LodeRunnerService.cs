@@ -267,14 +267,16 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
+            // Data connection not available yet, so we'll just update the stdout log
+            ProcessingEventBus.StatusUpdate += this.LogStatusChange;
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
+
             this.InitAndRegister();
 
+            // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
             ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
-            ProcessingEventBus.StatusUpdate += this.LogStatusChange;
 
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, "Initializing - test init"));
-
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, "Ready - test ready"));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
             try
             {
                 // wait indefinitely
@@ -282,11 +284,11 @@ namespace LodeRunner.Services
             }
             catch (TaskCanceledException tce)
             {
-                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {tce.Message}"));
+                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}"));
             }
             catch (OperationCanceledException oce)
             {
-                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating - {oce.Message}"));
+                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}"));
             }
 
             return Core.SystemConstants.ExitSuccess;
@@ -297,7 +299,7 @@ namespace LodeRunner.Services
         /// </summary>
         private void InitAndRegister()
         {
-            Secrets.LoadSecrets(config);
+            Secrets.LoadSecrets(this.config);
 
             var serviceBuilder = this.RegisterSystemObjects();
 
@@ -309,10 +311,10 @@ namespace LodeRunner.Services
 
             this.statusUpdateTimer = new ()
             {
-                Interval = config.StatusUpdateInterval * 1000,
+                Interval = this.config.StatusUpdateInterval * 1000,
             };
 
-            this.statusUpdateTimer.Elapsed += OnStatusTimerEvent;
+            this.statusUpdateTimer.Elapsed += this.OnStatusTimerEvent;
         }
 
         /// <summary>
@@ -389,7 +391,7 @@ namespace LodeRunner.Services
         private void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
         {
             this.lastStatusArgs.LastUpdated = DateTime.UtcNow;
-            StatusUpdate(this.lastStatusSender, this.lastStatusArgs);
+            this.StatusUpdate(this.lastStatusSender, this.lastStatusArgs);
         }
 
         /// <summary>
