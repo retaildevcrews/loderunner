@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import PropTypes from "prop-types";
-import { DisplayContext } from "../../contexts";
+import { TestPageContext } from "../../contexts";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Modal = ({ children }) => {
-  const { modalContent, setModalContent } = useContext(DisplayContext);
+  const { modalContent, setModalContent } = useContext(TestPageContext);
   const closeModal = () => setModalContent(MODAL_CONTENT.closed);
 
   return (

@@ -1,5 +1,6 @@
+import AppContext from "./app";
 import ClientsContext from "./clients";
 import ConfigsContext from "./configs";
-import DisplayContext from "./display";
+import TestPageContext from "./testPage";
 
-export { ClientsContext, ConfigsContext, DisplayContext };
+export { AppContext, ClientsContext, ConfigsContext, TestPageContext };

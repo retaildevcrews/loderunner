@@ -1,0 +1,10 @@
+.testpage-content {
+  display: flex;
+  height: 100%;
+  flex: auto;
+}
+.testpage-content-column {
+  display: flex;
+  height: 100%;
+  flex: auto;
+}

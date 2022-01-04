@@ -4,10 +4,16 @@
   font-weight: bold;
   overflow: auto;
 }
+.configs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.67em;
+}
 .configs-header h1 {
   display: flex;
   align-items: center;
-  margin-bottom: 0;
+  margin: 0;
 }
 .configs-header svg:hover {
   cursor: pointer;
@@ -34,13 +40,24 @@
 }
 .configs-item:hover {
   background-color: #24b2b9;
-  color: whitesmoke;
+  color: white;
 }
 .configs-item-options {
   display: flex;
   align-items: center;
 }
-
 .configs-item-options > button.runtest {
   margin-left: 0.4em;
+}
+a.navigation-results {
+  border: none;
+  border-radius: 4px;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
+a.navigation-results:hover {
+  background-color: #24b2b9;
+  color: white;
 }

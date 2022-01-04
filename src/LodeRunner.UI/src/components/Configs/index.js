@@ -1,15 +1,22 @@
 import { useContext } from "react";
+import { A } from "hookrouter";
 import PlayIcon from "../PlayIcon";
 import PencilIcon from "../PencilIcon";
 import TrashIcon from "../TrashIcon";
-import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
+import {
+  AppContext,
+  ClientsContext,
+  ConfigsContext,
+  TestPageContext,
+} from "../../contexts";
 import { deleteConfig } from "../../services/configs";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const Configs = () => {
-  const { setModalContent, setIsPending } = useContext(DisplayContext);
+  const { setIsPending } = useContext(AppContext);
+  const { setModalContent } = useContext(TestPageContext);
   const { selectedClientIds } = useContext(ClientsContext);
   const {
     setFetchConfigsTrigger,
@@ -87,6 +94,9 @@ const Configs = () => {
             <PencilIcon fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
           </button>
         </h1>
+        <A href="/results" className="unset navigation-results">
+          Load Test Results
+        </A>
       </div>
       <div>
         {configs.map(

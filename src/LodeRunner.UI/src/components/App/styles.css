@@ -4,11 +4,6 @@ button {
 .app {
   height: 100vh;
 }
-.app-content {
-  display: flex;
-  height: 100%;
-  flex: auto;
-}
 .pending-overlay {
   z-index: 100;
   position: absolute;
