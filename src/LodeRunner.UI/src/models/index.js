@@ -43,3 +43,15 @@ export const CONFIG = {
   tag: "tag",
   timeout: "timeout",
 };
+
+export const TEST_RUN = {
+  entityType: "entityType",
+  id: "id",
+  name: "name",
+  config: "loadTestConfig",
+  clients: "loadClients",
+  createdTime: "createdTime",
+  scheduledStartTime: "startTime",
+  totalCompletionTime: "completedTime",
+  results: "clientResults",
+};

@@ -22,3 +22,10 @@ button {
 .pending-overlay > img {
   height: 5em;
 }
+
+.status-ready {
+  background-color: #00c49a;
+}
+.status-pending {
+  background-color: #fb8f67;
+}

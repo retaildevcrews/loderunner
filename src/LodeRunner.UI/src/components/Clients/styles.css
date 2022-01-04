@@ -31,6 +31,9 @@
   display: flex;
   justify-content: space-between;
 }
+.clients-item-select-icon {
+  height: 1em;
+}
 .clients-item-select > svg {
   margin-left: 6px;
 }
@@ -44,12 +47,6 @@
   border: none;
   color: white;
   font-weight: bold;
-}
-.clients-item-status.ready {
-  background-color: #00c49a;
-}
-.clients-item-status.pending {
-  background-color: #fb8f67;
 }
 .clients-item-status:hover,
 .clients-item-status.selected {

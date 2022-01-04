@@ -1,0 +1,74 @@
+.modal-testsubmission {
+  background-color: #fefbe7;
+}
+.testsubmission button {
+  width: 100%;
+  background-color: #156064;
+  color: whitesmoke;
+  height: 2em;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.testsubmission button:hover {
+  background-color: #24b2b9;
+  color: white;
+}
+.testsubmission ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.testsubmission li {
+  line-height: 1.5em;
+}
+.testsubmission-config-label {
+  font-weight: bold;
+  cursor: help;
+}
+.testsubmission-clients-item {
+  display: flex;
+  margin-bottom: 1em;
+}
+.testsubmission-clients-item-label {
+  font-weight: bold;
+}
+.testsubmission-clients-item-status {
+  display: flex;
+  align-items: center;
+}
+.testsubmission-clients-item-status-indicator {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+  border-radius: 50%;
+}
+.testsubmission-settings {
+  margin-bottom: 1em;
+}
+.testsubmission-settings > label {
+  display: block;
+  margin-bottom: 0.5em;
+}
+.testsubmission-settings label[for="testRunName"] {
+  display: flex;
+  justify-content: space-between;
+}
+.testsubmission-settings-label {
+  font-weight: bold;
+}
+.testsubmission-settings input[id="testRunName"] {
+  width: calc(100% - 5em);
+}
+.testsubmission-settings input[type="datetime-local"] {
+  display: block;
+  width: calc(100% - 5px);
+}
+.testsubmission-settings-schedule-text {
+  display: flex;
+}
+.testsubmission-controls {
+  display: flex;
+  justify-content: space-between;
+}
+.testsubmission-controls button {
+  width: 48%;
+}

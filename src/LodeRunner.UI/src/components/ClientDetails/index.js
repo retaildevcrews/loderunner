@@ -1,14 +1,14 @@
 import React, { useContext } from "react";
-import Pencil from "../Pencil";
+import PencilIcon from "../PencilIcon";
 import { ClientsContext, DisplayContext } from "../../contexts";
-import { CLIENT } from "../../models";
+import { CLIENT, CLIENT_STATUSES } from "../../models";
 import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const ClientDetails = () => {
   const { setMainContent, setModalContent } = useContext(DisplayContext);
-  const { clients, setOpenedClientDetailsIndex, openedClientDetailsIndex } =
+  const { clients, setOpenedClientDetailsId, openedClientDetailsId } =
     useContext(ClientsContext);
 
   const openPendingFeatureModal = () =>
@@ -17,7 +17,7 @@ const ClientDetails = () => {
   const closeClientDetails = () => {
     setMainContent(MAIN_CONTENT.configs);
 
-    setOpenedClientDetailsIndex(-1);
+    setOpenedClientDetailsId(-1);
   };
 
   const {
@@ -34,7 +34,9 @@ const ClientDetails = () => {
     [CLIENT.tag]: tag,
     [CLIENT.version]: version,
     [CLIENT.zone]: zone,
-  } = clients[openedClientDetailsIndex];
+  } = clients.find(
+    ({ [CLIENT.loadClientId]: id }) => id === openedClientDetailsId
+  );
 
   return (
     <div className="clientdetails">
@@ -42,14 +44,19 @@ const ClientDetails = () => {
         <div>
           <h1>
             <span className="clientdetails-key">Name:&nbsp;</span>
-            {name || "Unknown"}
+            {name || "--"}
             <button
               className="unset"
               type="button"
               onClick={openPendingFeatureModal}
               onKeyDown={openPendingFeatureModal}
+              aria-label="Edit Load Client Name"
             >
-              <Pencil fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
+              <PencilIcon
+                fillColor="#2c7f84"
+                hoverColor="#24b2b9"
+                width="1em"
+              />
             </button>
           </h1>
           <div>
@@ -60,15 +67,22 @@ const ClientDetails = () => {
         <button
           className="clientdetails-header-exit"
           type="button"
+          aria-label="Close Load Client Details"
           onClick={closeClientDetails}
           onKeyDown={closeClientDetails}
         >
           x
         </button>
       </div>
-      <h2 className="clientdetails-sectiontitle">
+      <h2 className="clientdetails-sectiontitle clientdetails-status">
         <span className="clientdetails-key">Status: </span>
-        {status}
+        {status}&nbsp;
+        <div
+          aria-label={`Load Client Status: ${status}`}
+          className={`clientdetails-status-indicator status-${
+            status === CLIENT_STATUSES.ready ? "ready" : "pending"
+          }`}
+        />
       </h2>
       <div>
         <span className="clientdetails-key">Status Changed: </span>

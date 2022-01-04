@@ -33,36 +33,38 @@ const ArrayOfStringInput = ({
 
   return (
     <div className="configform-input arrayofstringinput">
-      <span className="configform-input-label">{label}: </span>
-      {description}
-      <br />
-      {flagRefs.map(({ id, ref }, index) => (
-        <div className="arrayofstringinput-input" key={`${inputName}-${id}`}>
-          <input ref={ref} type="string" name={inputName} defaultValue="" />
-          &nbsp;
-          {flagRefs.length - 1 !== index ? (
-            <>
+      <label htmlFor={inputName}>
+        <span className="configform-input-label">{label}: </span>
+        {description}
+        <br />
+        {flagRefs.map(({ id, ref }, index) => (
+          <div className="arrayofstringinput-input" key={`${inputName}-${id}`}>
+            <input ref={ref} type="string" name={inputName} defaultValue="" />
+            &nbsp;
+            {flagRefs.length - 1 !== index ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setEditedFlag({ id: editedFlag.id, index })}
+                >
+                  -
+                </button>
+                <br />
+              </>
+            ) : (
               <button
                 type="button"
-                onClick={() => setEditedFlag({ id: editedFlag.id, index })}
+                onClick={() =>
+                  setEditedFlag({ id: editedFlag.id + 1, index: -1 })
+                }
               >
-                -
+                +
               </button>
-              <br />
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() =>
-                setEditedFlag({ id: editedFlag.id + 1, index: -1 })
-              }
-            >
-              +
-            </button>
-          )}
-          <br />
-        </div>
-      ))}
+            )}
+            <br />
+          </div>
+        ))}
+      </label>
     </div>
   );
 };

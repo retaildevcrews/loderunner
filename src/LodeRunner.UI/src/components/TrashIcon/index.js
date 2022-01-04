@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const Trash = ({ fillColor, hoverColor, width }) => {
+const TrashIcon = ({ fillColor, hoverColor, width }) => {
   const [currentColor, setCurrentColor] = useState(fillColor);
 
   return (
@@ -28,16 +28,16 @@ const Trash = ({ fillColor, hoverColor, width }) => {
   );
 };
 
-Trash.defaultProps = {
+TrashIcon.defaultProps = {
   fillColor: "black",
   hoverColor: "grey",
   width: "1em",
 };
 
-Trash.propTypes = {
+TrashIcon.propTypes = {
   fillColor: PropTypes.string,
   hoverColor: PropTypes.string,
   width: PropTypes.string,
 };
 
-export default Trash;
+export default TrashIcon;

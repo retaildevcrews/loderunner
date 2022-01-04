@@ -1,7 +1,8 @@
 import { useContext } from "react";
-import Pencil from "../Pencil";
-import Trash from "../Trash";
-import { ConfigsContext, DisplayContext } from "../../contexts";
+import PlayIcon from "../PlayIcon";
+import PencilIcon from "../PencilIcon";
+import TrashIcon from "../TrashIcon";
+import { ClientsContext, ConfigsContext, DisplayContext } from "../../contexts";
 import { deleteConfig } from "../../services/configs";
 import { CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
@@ -9,12 +10,17 @@ import "./styles.css";
 
 const Configs = () => {
   const { setModalContent, setIsPending } = useContext(DisplayContext);
-  const { setFetchConfigsTrigger, configs, setOpenedConfigIndex } =
-    useContext(ConfigsContext);
+  const { selectedClientIds } = useContext(ClientsContext);
+  const {
+    setFetchConfigsTrigger,
+    configs,
+    setOpenedConfigId,
+    setTestRunConfigId,
+  } = useContext(ConfigsContext);
 
-  const openConfigFormModal = (index) => (e) => {
+  const openConfigFormModal = (id) => (e) => {
     e.stopPropagation();
-    setOpenedConfigIndex(index);
+    setOpenedConfigId(id);
     setModalContent(MODAL_CONTENT.configForm);
   };
 
@@ -25,7 +31,9 @@ const Configs = () => {
     e.stopPropagation();
 
     // eslint-disable-next-line no-alert
-    const isDeleteConfig = window.confirm(`Delete ${name} (${id})?`);
+    const isDeleteConfig = window.confirm(
+      `Delete load test config, ${name} (${id})?`
+    );
 
     if (isDeleteConfig) {
       setIsPending(true);
@@ -33,7 +41,7 @@ const Configs = () => {
       deleteConfig(id)
         .catch(() => {
           // eslint-disable-next-line no-alert
-          alert(`Unable to delete ${name} (${id})`);
+          alert(`Unable to delete load test config, ${name} (${id})`);
         })
         .finally(() => {
           setFetchConfigsTrigger(Date.now());
@@ -42,30 +50,52 @@ const Configs = () => {
     }
   };
 
+  const handleRunTest = (id, name) => (e) => {
+    e.stopPropagation();
+
+    const isClientSelected = Object.entries(selectedClientIds).some(
+      // eslint-disable-next-line no-unused-vars
+      ([_, isSelected]) => isSelected
+    );
+
+    if (!isClientSelected) {
+      // eslint-disable-next-line no-alert
+      alert(
+        `No load clients selected for test run with load test config, ${
+          name || "--"
+        } (${id})`
+      );
+    } else {
+      setTestRunConfigId(id);
+      setModalContent(MODAL_CONTENT.testSubmission);
+    }
+  };
+
   return (
     <div className="configs">
       <div className="configs-header">
         <h1>
-          Configs
+          Load Test Configs
           <button
             className="unset"
             type="button"
             onClick={openConfigFormModal(-1)}
             onKeyDown={openConfigFormModal(-1)}
+            aria-label="New Load Test Config"
+            title="New Load Test Config"
           >
-            <Pencil fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
+            <PencilIcon fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
           </button>
         </h1>
       </div>
       <div>
-        {configs.map((c, index) => {
-          const {
+        {configs.map(
+          ({
             [CONFIG.id]: configId,
             [CONFIG.name]: name,
             [CONFIG.servers]: servers,
             [CONFIG.files]: files,
-          } = c;
-          return (
+          }) => (
             <div
               role="presentation"
               key={configId}
@@ -73,10 +103,11 @@ const Configs = () => {
               type="button"
               onClick={openPendingFeatureModal}
               onKeyDown={openPendingFeatureModal}
+              aria-label="Pending Functionality"
             >
               <div>
                 <div>
-                  <span className="configs-key">Name:</span> {name || "Unknown"}
+                  <span className="configs-key">Name:</span> {name || "--"}
                 </div>
                 <div>
                   <span className="configs-key">ID:</span> {configId}
@@ -95,10 +126,11 @@ const Configs = () => {
                 <button
                   className="unset"
                   type="button"
-                  onClick={openConfigFormModal(index)}
-                  onKeyDown={openConfigFormModal(index)}
+                  onClick={openConfigFormModal(configId)}
+                  onKeyDown={openConfigFormModal(configId)}
+                  aria-label="Edit Load Test Config"
                 >
-                  <Pencil
+                  <PencilIcon
                     width="3em"
                     fillColor="lightgrey"
                     hoverColor="whitesmoke"
@@ -109,17 +141,31 @@ const Configs = () => {
                   type="button"
                   onClick={handleDeleteConfig(configId, name)}
                   onKeyDown={handleDeleteConfig(configId, name)}
+                  aria-label="Delete Load Test Config"
                 >
-                  <Trash
+                  <TrashIcon
                     width="2em"
+                    fillColor="lightgrey"
+                    hoverColor="whitesmoke"
+                  />
+                </button>
+                <button
+                  className="unset runtest"
+                  type="button"
+                  onClick={handleRunTest(configId, name)}
+                  onKeyDown={handleRunTest(configId, name)}
+                  aria-label="Run Load Test"
+                >
+                  <PlayIcon
+                    width="2.4em"
                     fillColor="lightgrey"
                     hoverColor="whitesmoke"
                   />
                 </button>
               </div>
             </div>
-          );
-        })}
+          )
+        )}
       </div>
     </div>
   );
