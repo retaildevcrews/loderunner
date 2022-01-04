@@ -297,9 +297,6 @@ namespace LodeRunner.Core.CommandLine
                     }
 
                     return 0;
-                case "duration":
-                    // default is -1 to differentiate when duration of 0 is passed
-                    return -1;
                 case "timeout":
                     return 30;
                 default:
