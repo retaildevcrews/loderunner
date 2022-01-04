@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LodeRunner.API.Services
 {
+    /// <summary>
+    /// Parent object of objects and services used in the application.
+    /// </summary>
     public class SystemComponentsService : ISystemComponentsService
     {
         private readonly CancellationTokenSource cancelTokenSource;
@@ -39,13 +42,13 @@ namespace LodeRunner.API.Services
         public void InitializeSystemComponents()
         {
             // Forces the creation of Required System Objects
-            ForceToCreateRequiredSystemObjects();
+            this.ForceToCreateRequiredSystemObjects();
 
             // Registers the cancellation tokens for services.
-            RegisterCancellationTokensForServices();
+            this.RegisterCancellationTokensForServices();
 
             // start CosmosDB Change Feed Processor
-            GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => EventsSubscription());
+            this.GetLRAPIChangeFeedService().StartChangeFeedProcessor(() => this.EventsSubscription());
         }
 
         /// <summary>
@@ -54,10 +57,10 @@ namespace LodeRunner.API.Services
         /// </summary>
         private void RegisterCancellationTokensForServices()
         {
-            this.cancelTokenSource.Token.Register(() =>
-            {
-                GetLRAPIChangeFeedService().StopChangeFeedProcessor();
-            });
+            _ = this.cancelTokenSource.Token.Register(() =>
+              {
+                  this.GetLRAPIChangeFeedService().StopChangeFeedProcessor();
+              });
         }
 
         /// <summary>
@@ -66,7 +69,7 @@ namespace LodeRunner.API.Services
         private void ForceToCreateRequiredSystemObjects()
         {
             // Cache
-            GetLRAPICache();
+            _ = this.GetLRAPICache();
         }
 
         /// <summary>
@@ -74,13 +77,13 @@ namespace LodeRunner.API.Services
         /// </summary>
         private void EventsSubscription()
         {
-            GetLRAPIChangeFeedService().SubscribeToProcessClientStatusChange(ProcessClientStatusChange);
+            this.GetLRAPIChangeFeedService().SubscribeToProcessClientStatusChange(this.ProcessClientStatusChange);
 
-            GetLRAPIChangeFeedService().SubscribeToProcessLoadClientChange(ProcessLoadClientChange);
+            this.GetLRAPIChangeFeedService().SubscribeToProcessLoadClientChange(this.ProcessLoadClientChange);
 
-            GetLRAPIChangeFeedService().SubscribeToProcessLoadTestConfigChange(ProcessLoadTestConfigChange);
+            this.GetLRAPIChangeFeedService().SubscribeToProcessLoadTestConfigChange(this.ProcessLoadTestConfigChange);
 
-            GetLRAPIChangeFeedService().SubscribeToProcessTestRunChange(ProcessTestRunChange);
+            this.GetLRAPIChangeFeedService().SubscribeToProcessTestRunChange(this.ProcessTestRunChange);
         }
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace LodeRunner.API.Services
         /// <param name="e">The <see cref="ProcessChangesEventArgs"/> instance containing the event data.</param>
         private void ProcessClientStatusChange(ProcessChangesEventArgs e)
         {
-            GetLRAPICache().ProcessClientStatusChange(e.Document);
+            this.GetLRAPICache().ProcessClientStatusChange(e.Document);
         }
 
         /// <summary>

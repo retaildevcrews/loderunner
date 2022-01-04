@@ -1609,6 +1609,11 @@
             </summary>
             <param name="eventHandler">The event handler.</param>
         </member>
+        <member name="T:LodeRunner.API.Services.SystemComponentsService">
+            <summary>
+            Parent object of objects and services used in the application.
+            </summary>
+        </member>
         <member name="M:LodeRunner.API.Services.SystemComponentsService.#ctor(System.Threading.CancellationTokenSource,LodeRunner.API.Interfaces.ILRAPIChangeFeedService,LodeRunner.API.Interfaces.ILRAPICache)">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.API.Services.SystemComponentsService"/> class.

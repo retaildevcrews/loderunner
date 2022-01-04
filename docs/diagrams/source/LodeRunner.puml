@@ -1,0 +1,88 @@
+@startuml LodeRunner Startup
+
+participant "Console App: Start" as L8rConsoleAppStart
+participant "LodeRunner Service" as L8rService
+participant "InternalMessageBus" as EventBus
+participant "StatusUpdateListener" as StatusListener
+participant "ClientStatusService" as ClientStatusService
+database    "CosmosDB" as CosmosDB
+
+[o-> L8rConsoleAppStart: Start LodeRunner Console App
+
+L8rConsoleAppStart -> L8rConsoleAppStart: Register Temination Events
+L8rConsoleAppStart -> L8rConsoleAppStart: Validate Arguments
+L8rConsoleAppStart -> L8rConsoleAppStart: Creates Start-up Config
+
+
+alt DryRun 
+L8rConsoleAppStart -> L8rService: Start Service  
+activate L8rService
+note right
+    Only validate parameters, but do not execute tests
+end note
+L8rService --> L8rConsoleAppStart : Output Dry-Run report  
+deactivate L8rService
+else Command Mode
+L8rConsoleAppStart -> L8rService: Start Service
+activate L8rService
+note right
+    Executes test utilizing Command Line args
+end note
+L8rService --> L8rConsoleAppStart : Output execution test results
+deactivate L8rService
+else Client Mode
+L8rConsoleAppStart -> L8rService: Start Service
+activate L8rService
+L8rService -> L8rService: Ensure secrets
+L8rService -> EventBus: Subscribe LogStatus to OnStatusUpdate 
+activate EventBus #Orange
+
+L8rService -> EventBus : Publish **"Inititalizing"** status
+L8rService -> L8rService: Register SysObjects and Services
+note left
+    Registers Config, CosmosDBSettings, CosmosDBRepository, 
+    ClientStatusService, LoadTestConfigService and 
+    TerminateService OnCancellationRequest
+end note
+L8rService -> L8rService: Check CosmosDB Connection
+L8rService -> EventBus: Subscribe UpdateCosmosStatus to OnStatusUpdate 
+L8rService -> EventBus : Publish **"Ready"** status
+
+loop Client Liveness Status
+    L8rService -> L8rService: Update LastUpdated time
+    L8rService -> EventBus : Publish updated status
+    Group Process Published Events
+        EventBus -> StatusListener
+        activate StatusListener #Purple
+        StatusListener -> ClientStatusService : Post Update
+        activate ClientStatusService #Blue
+        ClientStatusService -> CosmosDB : Upsert Document
+        activate CosmosDB
+        CosmosDB --> ClientStatusService
+        deactivate CosmosDB
+        ClientStatusService --> StatusListener
+        deactivate ClientStatusService
+        StatusListener --> EventBus
+        deactivate StatusListener
+    end
+end
+note left
+    Update status every 5 secs 
+    use last status and fresh timestamp 
+    to ensure that the status is current
+    and is not evicted based on TTL
+end note
+
+loop **Await Assignment**
+    hnote over L8rService : Awaits work notified from Change feed
+    group **On Cancellation Request**
+        L8rService -> EventBus : Publish **"Terminating"** status
+        L8rService -> L8rService: Exit Await Loop
+    end
+    deactivate EventBus
+end
+L8rService --> L8rConsoleAppStart : Terminating Application
+deactivate L8rService
+end
+
+@enduml
