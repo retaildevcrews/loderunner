@@ -231,6 +231,7 @@ namespace LodeRunner.Core.CommandLine
 
             if (duration != null && duration == 0 && runLoop)
             {
+                // Writing to console for information, but not populating the return msg as it will cause the RootCommand to error
                 Console.WriteLine(SystemConstants.CmdLineNoticeDurationValueIgnoredMessage);
             }
             else if (random && !runLoop)
