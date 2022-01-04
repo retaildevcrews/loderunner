@@ -1448,11 +1448,6 @@
             The AppSetting development environment name.
             </summary>
         </member>
-        <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationDurationAndLoopMessage">
-            <summary>
-            The command line validation duration and loop message.
-            </summary>
-        </member>
         <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationRandomAndLoopMessage">
             <summary>
             The command line validation random and loop message.
@@ -1471,6 +1466,16 @@
         <member name="F:LodeRunner.Core.SystemConstants.CmdLineValidationSecretsVolumeEndMessage">
             <summary>
             The command line validation secrets volume end message.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineNoticeSleepValueIgnoredMessage">
+            <summary>
+            The command line notice message that sleep value is ignored.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.Core.SystemConstants.CmdLineNoticeDurationValueIgnoredMessage">
+            <summary>
+            The command line notice message that duration value is ignored.
             </summary>
         </member>
         <member name="F:LodeRunner.Core.SystemConstants.ExitSuccess">

@@ -104,11 +104,10 @@ namespace LodeRunner.Test.UnitTests
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "1" }, Core.SystemConstants.CmdLineValidationDurationAndLoopMessage, "Validation for --duration.")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--random", "true" }, Core.SystemConstants.CmdLineValidationRandomAndLoopMessage, "Validation for --random")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, "must be an integer >= 0", "Argument --delay-start")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "go" }, "must be at least 3 characters", "Argument --secrets-volume")]
-        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "-2" }, "must be an integer >= 1", "Argument --duration")]
+        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "-2" }, "must be an integer >= 0", "Argument --duration")]
         public void CommandMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
