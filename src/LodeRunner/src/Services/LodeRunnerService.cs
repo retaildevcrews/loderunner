@@ -267,11 +267,12 @@ namespace LodeRunner.Services
         /// <returns>The Task with exit code.</returns>
         private async Task<int> StartAndWait()
         {
+
+            this.InitAndRegister();
+
             // Data connection not available yet, so we'll just update the stdout log
             ProcessingEventBus.StatusUpdate += this.LogStatusChange;
             this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
-
-            this.InitAndRegister();
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
             ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
