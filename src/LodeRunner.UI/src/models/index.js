@@ -55,3 +55,10 @@ export const TEST_RUN = {
   totalCompletionTime: "completedTime",
   results: "clientResults",
 };
+
+export const RESULT = {
+  client: "loadClient",
+  requestCount: "totalRequests",
+  successfulRequestCount: "successfulRequests",
+  failedRequestCount: "failedRequests",
+};

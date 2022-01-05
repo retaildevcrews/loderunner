@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import ClientDetails from "../ClientDetails";
 import Clients from "../Clients";
 import ConfigForm from "../ConfigForm";
@@ -7,6 +7,7 @@ import Modal from "../Modal";
 import PendingFeature from "../PendingFeature";
 import TestSubmission from "../TestSubmission";
 import {
+  AppContext,
   ClientsContext,
   ConfigsContext,
   TestPageContext,
@@ -47,6 +48,8 @@ const TestPage = () => {
     }
   };
 
+  const { setIsPending } = useContext(AppContext);
+
   useEffect(() => {
     getClients()
       .then((c) => setClients(c))
@@ -54,9 +57,11 @@ const TestPage = () => {
   }, [fetchClientsTrigger]);
 
   useEffect(() => {
+    setIsPending(true);
     getConfigs()
       .then((c) => setConfigs(c))
-      .catch(() => setConfigs([]));
+      .catch(() => setConfigs([]))
+      .finally(() => setIsPending(false));
   }, [fetchConfigsTrigger]);
 
   useEffect(() => {

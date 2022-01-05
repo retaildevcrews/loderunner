@@ -11,7 +11,7 @@ function App() {
   const [isPending, setIsPending] = useState(false);
 
   return (
-    <div className="app">
+    <div className={`app ${isPending ? "pending-overlay-enabled" : ""}`}>
       {isPending && (
         <div className="pending-overlay">
           <Spinner />

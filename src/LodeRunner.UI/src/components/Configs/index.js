@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { A } from "hookrouter";
 import PlayIcon from "../PlayIcon";
 import PencilIcon from "../PencilIcon";
+import RefreshIcon from "../RefreshIcon";
 import TrashIcon from "../TrashIcon";
 import {
   AppContext,
@@ -80,22 +81,30 @@ const Configs = () => {
 
   return (
     <div className="configs">
-      <div className="configs-header">
+      <div className="page-header">
         <h1>
+          <button
+            type="button"
+            aria-label="Refresh Load Test Result"
+            className="unset refresh"
+            onClick={() => setFetchConfigsTrigger(Date.now())}
+          >
+            <RefreshIcon height="0.8em" />
+          </button>
           Load Test Configs
           <button
-            className="unset"
+            className="unset configs-newitem"
             type="button"
             onClick={openConfigFormModal(-1)}
             onKeyDown={openConfigFormModal(-1)}
             aria-label="New Load Test Config"
             title="New Load Test Config"
           >
-            <PencilIcon fillColor="#2c7f84" hoverColor="#24b2b9" width="1em" />
+            +
           </button>
         </h1>
-        <A href="/results" className="unset navigation-results">
-          Load Test Results
+        <A href="/results" className="unset navigation">
+          Test Run Overview
         </A>
       </div>
       <div>
@@ -109,7 +118,7 @@ const Configs = () => {
             <div
               role="presentation"
               key={configId}
-              className="configs-item"
+              className="card"
               type="button"
               onClick={openPendingFeatureModal}
               onKeyDown={openPendingFeatureModal}
@@ -117,18 +126,18 @@ const Configs = () => {
             >
               <div>
                 <div>
-                  <span className="configs-key">Name:</span> {name || "--"}
+                  <span className="card-key">Name:</span> {name || "--"}
                 </div>
                 <div>
-                  <span className="configs-key">ID:</span> {configId}
+                  <span className="card-key">ID:</span> {configId}
                 </div>
                 <br />
                 <div>
-                  <span className="configs-key">Servers: </span>
+                  <span className="card-key">Servers: </span>
                   {servers.join(", ")}
                 </div>
                 <div>
-                  <span className="configs-key">Files: </span>
+                  <span className="card-key">Files: </span>
                   {files.join(", ")}
                 </div>
               </div>
