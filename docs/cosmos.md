@@ -29,22 +29,19 @@
     export LR_COSMOS_DB="LodeRunnerDB"
     export LR_COSMOS_TEST_DB="LodeRunnerTestDB"
     export LR_COSMOS_COL="LodeRunner"
-    export LR_COSMOS_LEASE="LRAPI"
-
+    
     # Create CosmosDB account
     az cosmosdb create -g $LR_RG -n $LR_COSMOS_ACCOUNT
 
     # Create CosmosDB database
     az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
-    # Create CosmosDB lease container for change feed processor
-    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
+    
     # Create CosmosDB container
     az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
 
     # Create CosmosDB test database
     az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_TEST_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
-    # Create CosmosDB lease container for change feed processor
-    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
+
     # Create CosmosDB container
     az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
 ```
