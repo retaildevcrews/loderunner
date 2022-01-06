@@ -6,12 +6,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Interfaces;
+using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -59,33 +58,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-
-            List<Client> result = new ();
-            try
-            {
-                // client statuses
-                var clientStatusList = await clientStatusService.GetAll();
-                foreach (var item in clientStatusList)
-                {
-                    result.Add(new Client(item));
-                }
-            }
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    await Logger.LogWarning(nameof(this.GetClients), Logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
-                }
-                else
-                {
-                    throw new Exception($"{nameof(this.GetClients)}: {ce.Message}", ce);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{nameof(this.GetClients)}: {ex.Message}", ex);
-            }
+            var result = await clientStatusService.GetClients(Logger);
 
             return await ResultHandler.HandleCacheResult(result, Logger);
         }
@@ -117,41 +90,14 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(this.GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
+                await Logger.LogWarning(nameof(GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            Client result = null;
-            try
-            {
-                // Get Client Status from Cosmos
-
-                var clientStatus = await clientStatusService.Get(clientStatusId);
-
-                if (clientStatus != null)
-                {
-                    result = new Client(clientStatus);
-                }
-            }
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    await Logger.LogWarning(nameof(this.GetClientByClientStatusId), Logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
-                }
-                else
-                {
-                    throw new Exception($"{nameof(this.GetClientByClientStatusId)}: {ce.Message}", ce);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{nameof(this.GetClientByClientStatusId)}: {ex.Message}", ex);
-            }
+            var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, Logger);
 
             return await ResultHandler.HandleCacheResult(result, Logger);
-
         }
- }
+    }
+}
