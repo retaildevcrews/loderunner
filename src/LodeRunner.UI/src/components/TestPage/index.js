@@ -95,7 +95,7 @@ const TestPage = () => {
           }}
         >
           {modalContent && (
-            <Modal>
+            <Modal content={modalContent} setContent={setModalContent}>
               {modalContent === MODAL_CONTENT.pendingFeature && (
                 <PendingFeature />
               )}

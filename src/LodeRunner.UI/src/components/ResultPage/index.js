@@ -1,11 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { A } from "hookrouter";
+import Modal from "../Modal";
+import PencilIcon from "../PencilIcon";
+import PendingFeature from "../PendingFeature";
 import RefreshIcon from "../RefreshIcon";
 import { AppContext } from "../../contexts";
 import { getResultById } from "../../services/results";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { CLIENT, RESULT, TEST_RUN, CONFIG } from "../../models";
+import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const ResultPage = ({ testRunId }) => {
@@ -47,6 +51,7 @@ const ResultPage = ({ testRunId }) => {
     [RESULT.failedRequestCount]: undefined,
   };
 
+  const [modalContent, setModalContent] = useState(MODAL_CONTENT.closed);
   const [result, setResult] = useState(defaultResultValues);
   const [fetchResultTrigger, setFetchResultTrigger] = useState(0);
   const { setIsPending } = useContext(AppContext);
@@ -180,6 +185,11 @@ const ResultPage = ({ testRunId }) => {
 
   return (
     <div className="result">
+      {modalContent && (
+        <Modal content={modalContent} setContent={setModalContent}>
+          {modalContent === MODAL_CONTENT.pendingFeature && <PendingFeature />}
+        </Modal>
+      )}
       <div className="page-header">
         <h1>
           <button
@@ -197,8 +207,15 @@ const ResultPage = ({ testRunId }) => {
         </A>
       </div>
       <div className="result-section">
-        <div>
+        <div className="result-item-name">
           Result Name: {testName} ({testId})
+          <button
+            type="button"
+            className="unset"
+            onClick={() => setModalContent(MODAL_CONTENT.pendingFeature)}
+          >
+            <PencilIcon width="1.7em" />
+          </button>
         </div>
         <div>
           <div className="result-item">

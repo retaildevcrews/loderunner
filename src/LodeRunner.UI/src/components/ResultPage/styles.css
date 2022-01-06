@@ -36,3 +36,7 @@
   margin: 0;
   padding-inline-start: 1em;
 }
+.result-item-name {
+  display: flex;
+  align-items: flex-start;
+}

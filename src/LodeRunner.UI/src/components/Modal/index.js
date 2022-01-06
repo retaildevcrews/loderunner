@@ -1,18 +1,15 @@
-import { useContext } from "react";
 import PropTypes from "prop-types";
-import { TestPageContext } from "../../contexts";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
-const Modal = ({ children }) => {
-  const { modalContent, setModalContent } = useContext(TestPageContext);
-  const closeModal = () => setModalContent(MODAL_CONTENT.closed);
+const Modal = ({ children, content, setContent }) => {
+  const closeModal = () => setContent(MODAL_CONTENT.closed);
 
   return (
     <div role="presentation" className="modal-wrapper" onClick={closeModal}>
       <div
         role="presentation"
-        className={`modal modal-${modalContent.toLowerCase()}`}
+        className={`modal modal-${content.toLowerCase()}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -34,6 +31,12 @@ const Modal = ({ children }) => {
 
 Modal.propTypes = {
   children: PropTypes.node.isRequired,
+  content: PropTypes.string,
+  setContent: PropTypes.func.isRequired,
+};
+
+Modal.defaultProps = {
+  content: MODAL_CONTENT.closed,
 };
 
 export default Modal;
