@@ -124,7 +124,32 @@ namespace LodeRunner.API.Data
         /// </returns>
         public async Task<ActionResult> GetClients()
         {
-            IEnumerable<Client> result = await this.GetEntries<Client>().ConfigureAwait(false);
+            List<Client> result = new ();
+            try
+            {
+                // client statuses
+                var clientStatusList = await clientStatusService.GetAll();
+                foreach (var item in clientStatusList)
+                {
+                    result.Add(new Client(item));
+                }
+            }
+            catch (CosmosException ce)
+            {
+                // log and return Cosmos status code
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await this.logger.LogWarning(nameof(this.GetClients), this.logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                }
+                else
+                {
+                    throw new Exception($"{nameof(this.GetClients)}: {ce.Message}", ce);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(this.GetClients)}: {ex.Message}", ex);
+            }
 
             return await this.HandleCacheResult(result);
         }

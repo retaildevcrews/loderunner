@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -8,7 +9,9 @@ using System.Threading.Tasks;
 using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -38,7 +41,7 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Returns a JSON array of Client objects.
         /// </summary>
-        /// <param name="appCache">The cache service.</param>
+        /// <param name="clientStatusService">The ClientStatusService.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
@@ -49,21 +52,49 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a JSON array of Client objects",
             Description = "Returns an array of `Client` documents",
             OperationId = "GetClients")]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            return await appCache.GetClients();
+
+            List<Client> result = new ();
+            try
+            {
+                // client statuses
+                var clientStatusList = await clientStatusService.GetAll();
+                foreach (var item in clientStatusList)
+                {
+                    result.Add(new Client(item));
+                }
+            }
+            catch (CosmosException ce)
+            {
+                // log and return Cosmos status code
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await Logger.LogWarning(nameof(this.GetClients), Logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                }
+                else
+                {
+                    throw new Exception($"{nameof(this.GetClients)}: {ce.Message}", ce);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(this.GetClients)}: {ex.Message}", ex);
+            }
+
+            return await ResultHandler.HandleCacheResult(result, Logger);
         }
 
         /// <summary>
         /// Returns a single JSON Client by Parameter, clientStatusId.
         /// </summary>
         /// <param name="clientStatusId">clientStatusId.</param>
-        /// <param name="appCache">The cache service.</param>
+        /// <param name="clientStatusService">The ClientStatusService.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
@@ -75,7 +106,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a single JSON Client by Parameter, clientStatusId.",
             Description = "Returns a single `Client` document by clientStatusId",
             OperationId = "GetClientByClientStatusId")]
-        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -91,7 +122,36 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            return await appCache.GetClientByClientStatusId(clientStatusId);
+            Client result = null;
+            try
+            {
+                // Get Client Status from Cosmos
+
+                var clientStatus = await clientStatusService.Get(clientStatusId);
+
+                if (clientStatus != null)
+                {
+                    result = new Client(clientStatus);
+                }
+            }
+            catch (CosmosException ce)
+            {
+                // log and return Cosmos status code
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await Logger.LogWarning(nameof(this.GetClientByClientStatusId), Logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                }
+                else
+                {
+                    throw new Exception($"{nameof(this.GetClientByClientStatusId)}: {ce.Message}", ce);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(this.GetClientByClientStatusId)}: {ex.Message}", ex);
+            }
+
+            return await ResultHandler.HandleCacheResult(result, Logger);
+
         }
-    }
  }

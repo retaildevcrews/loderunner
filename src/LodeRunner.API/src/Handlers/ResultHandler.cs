@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
@@ -16,6 +18,9 @@ namespace LodeRunner.API.Middleware
     {
         private const string JsonContentTypeApplicationJson = "application/json";
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
+
+        private const string CacheDataRequest = "Cache data request.";
+        private const string DataNotFound = "Requested data not found in Cache.";
 
         /// <summary>
         /// Creates No Content Result.
@@ -96,6 +101,75 @@ namespace LodeRunner.API.Middleware
             };
 
             return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);
+        }
+
+        /// <summary>
+        /// Handles cache results.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type of results.</typeparam>
+        /// <param name="results">Results from cache get.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>IActionResult.</returns>
+        public static async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
+        {
+            // log the request
+            await logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+
+            if (!results.Any())
+            {
+                await logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+
+                return new NoContentResult();
+            }
+
+            return await InternalReturnOKResult(results, logger);
+        }
+
+        /// <summary>
+        /// Handles cache results.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type.</typeparam>
+        /// <param name="results">Results from the cache.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>
+        /// Action result.
+        /// </returns>
+        public static async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
+        {
+            // log the request
+            await logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+
+            if (results == null)
+            {
+                await logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+
+                return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
+            }
+
+            return await InternalReturnOKResult(results, logger);
+        }
+
+        /// <summary>
+        /// Internals the return OK result.
+        /// </summary>
+        /// <param name="results">The results.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>The OK Action Result.</returns>
+        private static async Task<ActionResult> InternalReturnOKResult(object results, NgsaLog logger)
+        {
+            try
+            {
+                // return an OK object result
+                return new OkObjectResult(results);
+            }
+            catch (Exception ex)
+            {
+                // log and return exception
+                await logger.LogError(nameof(InternalReturnOKResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+
+                // return 500 error
+                return await ResultHandler.CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
