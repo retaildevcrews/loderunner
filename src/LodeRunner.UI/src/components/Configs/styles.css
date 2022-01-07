@@ -4,43 +4,14 @@
   font-weight: bold;
   overflow: auto;
 }
-.configs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.67em;
-}
-.configs-header h1 {
-  display: flex;
-  align-items: center;
-  margin: 0;
-}
-.configs-header svg:hover {
-  cursor: pointer;
-}
-.configs-key {
-  color: #24b2b9;
-}
-.configs-item:hover .configs-key {
+.configs button.configs-newitem {
+  margin-left: 0.3em;
+  font-weight: bold;
+  font-size: 1.2em;
   color: #156064;
 }
-.configs-item {
-  margin: 6px 0;
-  border: none;
-  border-radius: 4px;
-  padding: 1em;
-  background-color: #156064;
-  color: whitesmoke;
-  font-weight: bold;
-  text-align: left;
-  display: block;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.configs-item:hover {
-  background-color: #24b2b9;
-  color: white;
+button.configs-newitem:hover {
+  color: #24b2b9;
 }
 .configs-item-options {
   display: flex;
@@ -48,16 +19,4 @@
 }
 .configs-item-options > button.runtest {
   margin-left: 0.4em;
-}
-a.navigation-results {
-  border: none;
-  border-radius: 4px;
-  background-color: #156064;
-  color: whitesmoke;
-  font-weight: bold;
-  padding: 0.5em 1em;
-}
-a.navigation-results:hover {
-  background-color: #24b2b9;
-  color: white;
 }

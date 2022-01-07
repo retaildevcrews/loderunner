@@ -75,7 +75,7 @@ const ClientDetails = () => {
         </button>
       </div>
       <h2 className="clientdetails-sectiontitle clientdetails-status">
-        <span className="clientdetails-key">Status: </span>
+        <span className="clientdetails-key">Status:&nbsp;</span>
         {status}&nbsp;
         <div
           aria-label={`Load Client Status: ${status}`}

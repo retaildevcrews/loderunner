@@ -13,16 +13,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
-button.unset {
-  border: none;
-  background-color: transparent;
-  padding: 0;
-  margin: 0;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-a.unset {
-  text-decoration: none;
-}

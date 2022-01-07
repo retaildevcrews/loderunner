@@ -1,8 +1,23 @@
+button.unset {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+a.unset {
+  text-decoration: none;
+}
+a,
 button {
   cursor: pointer;
 }
 .app {
   height: 100vh;
+}
+.app.pending-overlay-enabled {
+  overflow: hidden;
 }
 .pending-overlay {
   z-index: 100;
@@ -13,14 +28,65 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  top: 0;
 }
 .pending-overlay > img {
   height: 5em;
 }
-
 .status-ready {
   background-color: #00c49a;
 }
 .status-pending {
   background-color: #fb8f67;
+}
+a.navigation {
+  border: none;
+  border-radius: 4px;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
+a.navigation:hover {
+  background-color: #24b2b9;
+  color: white;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.67em;
+}
+.page-header h1 {
+  margin: 0;
+  display: flex;
+}
+.page-header h1 > button.refresh {
+  margin-right: 0.3em;
+  display: flex;
+  align-items: center;
+}
+.card {
+  margin: 6px 0;
+  border: none;
+  border-radius: 4px;
+  padding: 1em;
+  background-color: #156064;
+  color: whitesmoke;
+  font-weight: bold;
+  text-align: left;
+  display: block;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card:hover {
+  background-color: #24b2b9;
+  color: white;
+}
+.card-key {
+  color: #24b2b9;
+}
+.card:hover .card-key {
+  color: #156064;
 }

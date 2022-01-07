@@ -252,7 +252,7 @@ const TestSubmission = () => {
         </div>
         <br />
         <button
-          className="unset"
+          className="unset testsubmission-button"
           type="button"
           onClick={handleEditConfig(testRunConfig[CONFIG.id])}
           onKeyDown={handleEditConfig(testRunConfig[CONFIG.id])}
@@ -400,7 +400,7 @@ const TestSubmission = () => {
       <div className="testsubmission-controls">
         <button
           type="button"
-          className="unset"
+          className="unset testsubmission-button"
           onClick={handleCancel}
           onKeyDown={handleCancel}
         >
@@ -408,7 +408,7 @@ const TestSubmission = () => {
         </button>
         <button
           type="button"
-          className="unset"
+          className="unset testsubmission-button"
           onClick={handleSubmit}
           onKeyDown={handleSubmit}
         >

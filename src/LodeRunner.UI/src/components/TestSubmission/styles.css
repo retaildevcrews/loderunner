@@ -1,7 +1,7 @@
 .modal-testsubmission {
   background-color: #fefbe7;
 }
-.testsubmission button {
+.testsubmission button.testsubmission-button {
   width: 100%;
   background-color: #156064;
   color: whitesmoke;
@@ -9,7 +9,7 @@
   border-radius: 4px;
   font-weight: bold;
 }
-.testsubmission button:hover {
+.testsubmission button.testsubmission-button:hover {
   background-color: #24b2b9;
   color: white;
 }
@@ -69,6 +69,6 @@
   display: flex;
   justify-content: space-between;
 }
-.testsubmission-controls button {
+.testsubmission-controls button.testsubmission-button {
   width: 48%;
 }
