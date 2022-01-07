@@ -173,15 +173,6 @@ namespace LodeRunner.API
 
                 .AddSingleton<LoadTestConfigService>()
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
-
-                //.AddSingleton<LRAPIChangeFeedService>()
-                //.AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
-
-                //.AddSingleton<LRAPICache>()
-                //.AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>())
-
-                //.AddSingleton<SystemComponentsService>()
-                //.AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
         }
 
         /// <summary>
