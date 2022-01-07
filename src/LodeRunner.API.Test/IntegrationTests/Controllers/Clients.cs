@@ -80,19 +80,14 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         private async Task CanGetClients()
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
-            for (int i = 1; i <= 3; i++)
-            {
-                await Task.Run(async () =>
-                {
-                    using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClients));
 
-                    string clientStatusId = l8rService.ClientStatusId;
+            using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClients));
 
-                    Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
+            string clientStatusId = l8rService.ClientStatusId;
 
-                    await httpClient.WaitAndValidateGetClientsToMatchId(ClientsUri, clientStatusId, this.jsonOptions, this.output);
-                });
-            }
+            Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
+
+            await httpClient.WaitAndValidateGetClientsToMatchId(ClientsUri, clientStatusId, this.jsonOptions, this.output);
         }
 
         /// <summary>
@@ -105,23 +100,17 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            for (int i = 1; i <= 3; i++)
-            {
-                await Task.Run(async () =>
-                {
-                    using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClientsById));
+            using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClientsById));
 
-                    string clientStatusId = l8rService.ClientStatusId;
+            string clientStatusId = l8rService.ClientStatusId;
 
-                    Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
+            Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
 
-                    await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
+            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
-                    l8rService.StopService();
+            l8rService.StopService();
 
-                    await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
-                });
-            }
+            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
         }
     }
 }
