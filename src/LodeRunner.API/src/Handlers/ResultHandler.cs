@@ -19,8 +19,8 @@ namespace LodeRunner.API.Middleware
         private const string JsonContentTypeApplicationJson = "application/json";
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
 
-        private const string CacheDataRequest = "Cache data request.";
-        private const string DataNotFound = "Requested data not found in Cache.";
+        private const string DataRequest = "Data request.";
+        private const string DataNotFound = "Requested data not found.";
 
         /// <summary>
         /// Creates No Content Result.
@@ -104,20 +104,20 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Handles cache results.
+        /// Handles results.
         /// </summary>
         /// <typeparam name="TEntity">Entity type of results.</typeparam>
-        /// <param name="results">Results from cache get.</param>
+        /// <param name="results">Results from GetClients operation.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>IActionResult.</returns>
-        public static async Task<ActionResult> HandleCacheResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
+        public static async Task<ActionResult> HandleResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
         {
             // log the request
-            await logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+            await logger.LogInformation(nameof(HandleResult), DataRequest);
 
             if (!results.Any())
             {
-                await logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+                await logger.LogInformation(nameof(HandleResult), DataNotFound);
 
                 return new NoContentResult();
             }
@@ -126,22 +126,22 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Handles cache results.
+        /// Handles results.
         /// </summary>
         /// <typeparam name="TEntity">Entity type.</typeparam>
-        /// <param name="results">Results from the cache.</param>
+        /// <param name="results">Results from GetClientById operation.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>
         /// Action result.
         /// </returns>
-        public static async Task<ActionResult> HandleCacheResult<TEntity>(TEntity results, NgsaLog logger)
+        public static async Task<ActionResult> HandleResult<TEntity>(TEntity results, NgsaLog logger)
         {
             // log the request
-            await logger.LogInformation(nameof(HandleCacheResult), CacheDataRequest);
+            await logger.LogInformation(nameof(HandleResult), DataRequest);
 
             if (results == null)
             {
-                await logger.LogInformation(nameof(HandleCacheResult), DataNotFound);
+                await logger.LogInformation(nameof(HandleResult), DataNotFound);
 
                 return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
             }

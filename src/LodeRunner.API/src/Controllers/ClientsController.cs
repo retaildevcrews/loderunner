@@ -60,7 +60,7 @@ namespace LodeRunner.API.Controllers
 
             var result = await clientStatusService.GetClients(Logger);
 
-            return await ResultHandler.HandleCacheResult(result, Logger);
+            return await ResultHandler.HandleResult(result, Logger);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace LodeRunner.API.Controllers
 
             var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, Logger);
 
-            return await ResultHandler.HandleCacheResult(result, Logger);
+            return await ResultHandler.HandleResult(result, Logger);
         }
     }
 }
