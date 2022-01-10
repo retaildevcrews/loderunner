@@ -112,13 +112,8 @@ namespace LodeRunner.API.Middleware
         /// <returns>IActionResult.</returns>
         public static async Task<ActionResult> HandleResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
         {
-            // log the request
-            await logger.LogInformation(nameof(HandleResult), DataRequest);
-
             if (!results.Any())
             {
-                await logger.LogInformation(nameof(HandleResult), DataNotFound);
-
                 return new NoContentResult();
             }
 
@@ -136,13 +131,8 @@ namespace LodeRunner.API.Middleware
         /// </returns>
         public static async Task<ActionResult> HandleResult<TEntity>(TEntity results, NgsaLog logger)
         {
-            // log the request
-            await logger.LogInformation(nameof(HandleResult), DataRequest);
-
             if (results == null)
             {
-                await logger.LogInformation(nameof(HandleResult), DataNotFound);
-
                 return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
             }
 
