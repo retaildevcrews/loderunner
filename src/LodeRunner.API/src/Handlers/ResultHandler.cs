@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -104,61 +105,36 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
-        /// Handles results.
-        /// </summary>
-        /// <typeparam name="TEntity">Entity type of results.</typeparam>
-        /// <param name="results">Results from GetClients operation.</param>
-        /// <param name="logger">The logger.</param>
-        /// <returns>IActionResult.</returns>
-        public static async Task<ActionResult> HandleResult<TEntity>(IEnumerable<TEntity> results, NgsaLog logger)
-        {
-            if (!results.Any())
-            {
-                return new NoContentResult();
-            }
-
-            return await InternalReturnOKResult(results, logger);
-        }
-
-        /// <summary>
-        /// Handles results.
-        /// </summary>
-        /// <typeparam name="TEntity">Entity type.</typeparam>
-        /// <param name="results">Results from GetClientById operation.</param>
-        /// <param name="logger">The logger.</param>
-        /// <returns>
-        /// Action result.
-        /// </returns>
-        public static async Task<ActionResult> HandleResult<TEntity>(TEntity results, NgsaLog logger)
-        {
-            if (results == null)
-            {
-                return await ResultHandler.CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
-            }
-
-            return await InternalReturnOKResult(results, logger);
-        }
-
-        /// <summary>
-        /// Internals the return OK result.
+        /// Handles the result.
         /// </summary>
         /// <param name="results">The results.</param>
         /// <param name="logger">The logger.</param>
-        /// <returns>The OK Action Result.</returns>
-        private static async Task<ActionResult> InternalReturnOKResult(object results, NgsaLog logger)
+        /// <returns>The Action Result.</returns>
+        public static async Task<ActionResult> HandleResult(object results, NgsaLog logger)
         {
-            try
+            if (results == null)
             {
-                // return an OK object result
-                return new OkObjectResult(results);
+                return await CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
             }
-            catch (Exception ex)
+            else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
             {
-                // log and return exception
-                await logger.LogError(nameof(InternalReturnOKResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+                return new NoContentResult();
+            }
+            else
+            {
+                try
+                {
+                    // return an OK object result
+                    return new OkObjectResult(results);
+                }
+                catch (Exception ex)
+                {
+                    // log and return exception
+                    await logger.LogError(nameof(HandleResult), "Exception", NgsaLog.LogEvent500, ex: ex);
 
-                // return 500 error
-                return await ResultHandler.CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
+                    // return 500 error
+                    return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
+                }
             }
         }
     }

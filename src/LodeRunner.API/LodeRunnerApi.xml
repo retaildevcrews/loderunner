@@ -546,33 +546,13 @@
             <param name="path">string.</param>
             <returns>JsonResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0},LodeRunner.API.Middleware.NgsaLog)">
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.HandleResult(System.Object,LodeRunner.API.Middleware.NgsaLog)">
             <summary>
-            Handles cache results.
-            </summary>
-            <typeparam name="TEntity">Entity type of results.</typeparam>
-            <param name="results">Results from cache get.</param>
-            <param name="logger">The logger.</param>
-            <returns>IActionResult.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.HandleCacheResult``1(``0,LodeRunner.API.Middleware.NgsaLog)">
-            <summary>
-            Handles cache results.
-            </summary>
-            <typeparam name="TEntity">Entity type.</typeparam>
-            <param name="results">Results from the cache.</param>
-            <param name="logger">The logger.</param>
-            <returns>
-            Action result.
-            </returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.InternalReturnOKResult(System.Object,LodeRunner.API.Middleware.NgsaLog)">
-            <summary>
-            Internals the return OK result.
+            Handles the result.
             </summary>
             <param name="results">The results.</param>
             <param name="logger">The logger.</param>
-            <returns>The OK Action Result.</returns>
+            <returns>The Action Result.</returns>
         </member>
         <member name="T:LodeRunner.API.Middleware.SwaggerExtension">
             <summary>
