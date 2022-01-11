@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
@@ -16,6 +19,9 @@ namespace LodeRunner.API.Middleware
     {
         private const string JsonContentTypeApplicationJson = "application/json";
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
+
+        private const string DataRequest = "Data request.";
+        private const string DataNotFound = "Requested data not found.";
 
         /// <summary>
         /// Creates No Content Result.
@@ -96,6 +102,40 @@ namespace LodeRunner.API.Middleware
             };
 
             return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);
+        }
+
+        /// <summary>
+        /// Handles the result.
+        /// </summary>
+        /// <param name="results">The results.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>The Action Result.</returns>
+        public static async Task<ActionResult> HandleResult(object results, NgsaLog logger)
+        {
+            if (results == null)
+            {
+                return await CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
+            }
+            else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
+            {
+                return new NoContentResult();
+            }
+            else
+            {
+                try
+                {
+                    // return an OK object result
+                    return new OkObjectResult(results);
+                }
+                catch (Exception ex)
+                {
+                    // log and return exception
+                    await logger.LogError(nameof(HandleResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+
+                    // return 500 error
+                    return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
+                }
+            }
         }
     }
 }

@@ -2,19 +2,13 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
-using LodeRunner.Core.Models;
 using LodeRunner.Services;
 using Xunit;
 
@@ -33,7 +27,6 @@ namespace LodeRunner.API.Test.IntegrationTests
         public static HttpClient CreateLodeRunnerAPIHttpClient(ApiWebApplicationFactory<Startup> apiWebFactory)
         {
             var httpClient = apiWebFactory.CreateClient();
-            InitializeSystemComponents(apiWebFactory.Services);
             return httpClient;
         }
 
@@ -75,17 +68,6 @@ namespace LodeRunner.API.Test.IntegrationTests
             await rootClient.InvokeAsync(args).ConfigureAwait(true);
 
             return l8rService;
-        }
-
-        /// <summary>
-        /// Initialize SystemComponents.
-        /// </summary>
-        /// <param name="serviceProvider">the ServiceProvider.</param>
-        private static void InitializeSystemComponents(IServiceProvider serviceProvider)
-        {
-            ISystemComponentsService systemComponentsService = (ISystemComponentsService)serviceProvider.GetService(typeof(SystemComponentsService));
-
-            systemComponentsService.InitializeSystemComponents();
         }
     }
 }

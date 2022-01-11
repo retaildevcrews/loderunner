@@ -4,20 +4,14 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AutoMapper;
 using LodeRunner.API.AutoMapperProfiles;
 using LodeRunner.API.Core;
-using LodeRunner.API.Data;
 using LodeRunner.API.Handlers.ExceptionMiddleware;
-using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
-using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Core.Models;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
@@ -181,16 +175,7 @@ namespace LodeRunner.API
                 .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>())
 
                 .AddSingleton<TestRunService>()
-                .AddSingleton<ITestRunService>(provider => provider.GetRequiredService<TestRunService>())
-
-                .AddSingleton<LRAPIChangeFeedService>()
-                .AddSingleton<ILRAPIChangeFeedService>(provider => provider.GetRequiredService<LRAPIChangeFeedService>())
-
-                .AddSingleton<LRAPICache>()
-                .AddSingleton<ILRAPICache>(provider => provider.GetRequiredService<LRAPICache>())
-
-                .AddSingleton<SystemComponentsService>()
-                .AddSingleton<ISystemComponentsService>(provider => provider.GetRequiredService<SystemComponentsService>());
+                .AddSingleton<ITestRunService>(provider => provider.GetRequiredService<TestRunService>());
         }
 
         /// <summary>

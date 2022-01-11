@@ -15,17 +15,6 @@
             Initializes a new instance of the <see cref="T:LodeRunner.API.AutoMapperProfiles.LoadTestPayloadProfile"/> class.
             </summary>
         </member>
-        <member name="T:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile">
-            <summary>
-            Represents the TestRun Auto-mapping Profile.
-            </summary>
-            <seealso cref="T:AutoMapper.Profile" />
-        </member>
-        <member name="M:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile"/> class.
-            </summary>
-        </member>
         <member name="T:LodeRunner.API.Controllers.ClientsController">
             <summary>
             Handle all of the /api/clients requests.
@@ -36,20 +25,20 @@
             Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.ClientsController"/> class.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Controllers.ClientsController.GetClients(LodeRunner.API.Interfaces.ILRAPICache,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.ClientsController.GetClients(LodeRunner.Services.ClientStatusService,System.Threading.CancellationTokenSource)">
             <summary>
             Returns a JSON array of Client objects.
             </summary>
-            <param name="appCache">The cache service.</param>
+            <param name="clientStatusService">The ClientStatusService.</param>
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.ClientsController.GetClientByClientStatusId(System.String,LodeRunner.API.Interfaces.ILRAPICache,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.ClientsController.GetClientByClientStatusId(System.String,LodeRunner.Services.ClientStatusService,System.Threading.CancellationTokenSource)">
             <summary>
             Returns a single JSON Client by Parameter, clientStatusId.
             </summary>
             <param name="clientStatusId">clientStatusId.</param>
-            <param name="appCache">The cache service.</param>
+            <param name="clientStatusService">The ClientStatusService.</param>
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
             <returns>IActionResult.</returns>
         </member>
@@ -150,43 +139,6 @@
             <param name="loadTestConfigId">The load test config id.</param>
             <param name="loadTestConfigPayload">The load test config payload.</param>
             <param name="loadTestConfigService">Load test config Service.</param>
-            <param name="cancellationTokenSource">The cancellation token source.</param>
-            <returns>IActionResult.</returns>
-        </member>
-        <member name="T:LodeRunner.API.Controllers.TestRunsController">
-            <summary>
-            Handle all of the /api/testruns requests.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.#ctor(AutoMapper.IMapper)">
-            <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.TestRunsController"/> class.
-            </summary>
-            <param name="mapper">The mapper.</param>
-        </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.GetTestRuns(LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
-            <summary>
-            Returns a JSON array of Test Run objects.
-            </summary>
-            <param name="testRunService">The testRun service for LRAPI</param>
-            <param name="cancellationTokenSource">The cancellation Token Source.</param>
-            <returns>IActionResult.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateTestRunConfig(LodeRunner.Core.Models.TestRunPayload,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
-            <summary>
-            Creates the test run.
-            </summary>
-            <param name="testRunPayload">The test run.</param>
-            <param name="testRunService">Test Run Service.</param>
-            <param name="cancellationTokenSource">The cancellation token source.</param>
-            <returns>IActionResult.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.DeleteTestRun(System.String,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
-            <summary>
-            Deletes the TestRun.
-            </summary>
-            <param name="testRunId">The Test Run id to delete</param>
-            <param name="testRunService">The Test Run Service.</param>
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
@@ -426,31 +378,28 @@
             Provides Extension methods for Models.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate``1(``0,System.String@,System.Collections.Generic.List{System.String})">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.Core.Models.LoadTestConfig,System.String@,System.Collections.Generic.List{System.String})">
             <summary>
-            Validates the specified model.
+            Validates the specified load test payload configuration.
             </summary>
-            <typeparam name="TEntity">The model type.</typeparam>
-            <param name="model">The model.</param>
-            <param name="errorMessage">Error Message String if any.</param>
+            <param name="loadTestConfig">The load test configuration.</param>
+            <param name="errorMessage">Error MEssage String if any.</param>
             <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
             <returns>Whether or not  the DTO passes validation.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs``1(``0,System.Collections.Generic.List{System.String})">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.Core.Models.LoadTestConfig,System.Collections.Generic.List{System.String})">
             <summary>
             Gets the arguments from properties that exist in changedProperties list.
             </summary>
-            <typeparam name="TEntity">The model type.</typeparam>
-            <param name="model">The model.</param>
+            <param name="loadTestConfig">The load test configuration.</param>
             <param name="payloadPropertiesChanged">Changed Properties list.</param>
             <returns>the args.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue``1(``0,System.String)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.Core.Models.LoadTestConfig,System.String)">
             <summary>
             Fields the value.
             </summary>
-            <typeparam name="TEntity">The model type.</typeparam>
-            <param name="modelDto">The model.</param>
+            <param name="loadTestConfigDto">The load test configuration.</param>
             <param name="fieldName">Name of the field.</param>
             <returns>The value.</returns>
         </member>
@@ -596,6 +545,14 @@
             <param name="errorList">list of validation errors.</param>
             <param name="path">string.</param>
             <returns>JsonResult.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.HandleResult(System.Object,LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Handles the result.
+            </summary>
+            <param name="results">The results.</param>
+            <param name="logger">The logger.</param>
+            <returns>The Action Result.</returns>
         </member>
         <member name="T:LodeRunner.API.Middleware.SwaggerExtension">
             <summary>
@@ -1066,107 +1023,6 @@
             Invalid Payload data.
             </summary>
         </member>
-        <member name="F:LodeRunner.API.SystemConstants.UnableToCreateTestRun">
-            <summary>
-            The unable to create test run.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.SystemConstants.DeletedTestRun">
-            <summary>
-            The test run successfully deleted.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.SystemConstants.UnableToDeleteTestRun">
-            <summary>
-            The unable to delete test run.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.SystemConstants.NotFoundTestRun">
-            <summary>
-            The test run was not found.
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.SystemConstants.UnableToUpdateTestRun">
-            <summary>
-            String for unable to update TestRun item (non-nested properties).
-            </summary>
-        </member>
-        <member name="F:LodeRunner.API.SystemConstants.UnableToGetTestRun">
-            <summary>
-            The unable to get test run.
-            </summary>
-        </member>
-        <member name="T:LodeRunner.API.Data.LRAPICache">
-            <summary>
-            Cached Data.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.#ctor(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource)">
-            <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.Data.LRAPICache"/> class.
-            </summary>
-            <param name="clientStatusService">Injection of client status service.</param>
-            <param name="cancellationTokenSource">Cancellation token source.</param>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0})">
-            <summary>
-            Handles cache results.
-            </summary>
-            <typeparam name="TEntity">Entity type of results.</typeparam>
-            <param name="results">Results from cache get.</param>
-            <returns>IActionResult.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.HandleCacheResult``1(``0)">
-            <summary>
-            Handles cache results.
-            </summary>
-            <typeparam name="TEntity">Entity type.</typeparam>
-            <param name="results">Results from the cache.</param>
-            <returns>
-            Action result.
-            </returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClientByClientStatusId(System.String)">
-            <summary>
-            Gets client from cache by clientStatusId.
-            </summary>
-            <param name="clientStatusId">Client status ID.</param>
-            <returns>Client.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetClients">
-            <summary>
-            Gets clients from cache.
-            </summary>
-            <returns>
-            Enumerable of clients.
-            </returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.ProcessClientStatusChange(Microsoft.Azure.Documents.Document)">
-            <summary>
-            Processes clientStatus change feed items.
-            </summary>
-            <param name="doc">Change feed item.</param>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.InternalReturnOKResult(System.Object)">
-            <summary>
-            Internals the return OK result.
-            </summary>
-            <param name="results">The results.</param>
-            <returns>The OK Action Result.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.GetMemoryCacheEntryOptions">
-            <summary>
-            Gets the memory cache entry options.
-            </summary>
-            <returns>
-            The MemoryCacheEntryOptions.
-            </returns>
-        </member>
-        <member name="M:LodeRunner.API.Data.LRAPICache.SetClientCache">
-            <summary>
-            Sets the client cache.
-            </summary>
-        </member>
         <member name="T:LodeRunner.API.Models.Client">
             <summary>
             Model of client.
@@ -1392,6 +1248,23 @@
             <param name="status">HealthStatus (dotnet).</param>
             <returns>string.</returns>
         </member>
+        <member name="M:LodeRunner.API.Extensions.ClientStatusServiceExtensions.GetClients(LodeRunner.Services.ClientStatusService,LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Gets all clients.
+            </summary>
+            <param name="clientStatusService">The client status service.</param>
+            <param name="logger">The logger.</param>
+            <returns>The Task</returns>
+        </member>
+        <member name="M:LodeRunner.API.Extensions.ClientStatusServiceExtensions.GetClientByClientStatusId(LodeRunner.Services.ClientStatusService,System.String,LodeRunner.API.Middleware.NgsaLog)">
+            <summary>
+            Gets the client by identifier.
+            </summary>
+            <param name="clientStatusService">The client status service.</param>
+            <param name="clientStatusId">The client status identifier.</param>
+            <param name="logger">The logger.</param>
+            <returns>The Task.</returns>
+        </member>
         <member name="T:LodeRunner.API.Handlers.ExceptionMiddleware.GlobalException">
             <summary>
             Represent the Global Exception class.
@@ -1544,222 +1417,6 @@
             <param name="healthCheckResult">The health check result.</param>
             <returns>The associated ContentResult.</returns>
         </member>
-        <member name="T:LodeRunner.API.Interfaces.ILRAPICache">
-            <summary>
-            Data Access Layer for Cache Interface.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.ProcessClientStatusChange(Microsoft.Azure.Documents.Document)">
-            <summary>
-            Processes client status item from changefeed.
-            </summary>
-            <param name="doc">Changefeed item.</param>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(``0)">
-            <summary>
-            Handles cache results.
-            </summary>
-            <typeparam name="TEntity">Entity type.</typeparam>
-            <param name="results">Results from the cache.</param>
-            <returns>Action result.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.HandleCacheResult``1(System.Collections.Generic.IEnumerable{``0})">
-            <summary>
-            Handles the cache result.
-            </summary>
-            <typeparam name="TEntity">The type of the entity.</typeparam>
-            <param name="results">The results.</param>
-            <returns>Action result.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClients">
-            <summary>
-            Gets clients from cache.
-            </summary>
-            <returns>Enumerable of clients.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPICache.GetClientByClientStatusId(System.String)">
-            <summary>
-            Gets client by clientStatusId from cache.
-            </summary>
-            <param name="clientStatusId">Client status ID.</param>
-            <returns>Client.</returns>
-        </member>
-        <member name="T:LodeRunner.API.Interfaces.ILRAPIChangeFeedService">
-            <summary>
-            Interface for the LodeRunner.API changefeed service.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPIChangeFeedService.SubscribeToProcessTestRunChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process test run change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPIChangeFeedService.SubscribeToProcessLoadTestConfigChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process load test configuration change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPIChangeFeedService.SubscribeToProcessLoadClientChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process load client change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Interfaces.ILRAPIChangeFeedService.SubscribeToProcessClientStatusChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process client status change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="T:LodeRunner.API.Services.ISystemComponentsService">
-            <summary>
-            SystemComponentsService Interface.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.ISystemComponentsService.InitializeSystemComponents">
-            <summary>
-            Initializes the system components.
-            </summary>
-        </member>
-        <member name="T:LodeRunner.API.Services.LRAPIChangeFeedService">
-            <summary>
-            Implements the Relay Runner API Change Feed Service.
-            </summary>
-            <seealso cref="T:LodeRunner.Services.ChangeFeedService" />
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.#ctor(LodeRunner.Data.Interfaces.ICosmosDBRepository)">
-            <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.Services.LRAPIChangeFeedService"/> class.
-            </summary>
-            <param name="cosmosDBRepository">CosmosDB repository.</param>
-        </member>
-        <member name="P:LodeRunner.API.Services.LRAPIChangeFeedService.ChangeFeedLeaseName">
-            <summary>
-            Gets lease container name for changefeed.
-            </summary>
-        </member>
-        <member name="P:LodeRunner.API.Services.LRAPIChangeFeedService.HostName">
-            <summary>
-            Gets host name for changefeed processor.
-            </summary>
-        </member>
-        <member name="P:LodeRunner.API.Services.LRAPIChangeFeedService.ChangeFeedObserver">
-            <summary>
-            Gets changefeed observer instance.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.GetChangeFeedObserver">
-            <summary>
-            Gets the change feed observer.
-            </summary>
-            <returns>
-            The IChangeFeedObserver.
-            </returns>
-            <value>
-            The change feed observer.
-            </value>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.CreateProcessor">
-            <summary>
-            Creates the processor.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.SubscribeToProcessTestRunChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process test run change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.SubscribeToProcessLoadTestConfigChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process load test configuration change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.SubscribeToProcessLoadClientChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process load client change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.LRAPIChangeFeedService.SubscribeToProcessClientStatusChange(LodeRunner.Services.ChangeFeedService.ProcessChangeEventHandler)">
-            <summary>
-            Subscribes to process client status change.
-            </summary>
-            <param name="eventHandler">The event handler.</param>
-        </member>
-        <member name="T:LodeRunner.API.Services.SystemComponentsService">
-            <summary>
-            Parent object of objects and services used in the application.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.#ctor(System.Threading.CancellationTokenSource,LodeRunner.API.Interfaces.ILRAPIChangeFeedService,LodeRunner.API.Interfaces.ILRAPICache)">
-            <summary>
-            Initializes a new instance of the <see cref="T:LodeRunner.API.Services.SystemComponentsService"/> class.
-            </summary>
-            <param name="cancellationTokenSource">The cancellation token source.</param>
-            <param name="lrAPIChangeFeedService">lrAPI ChangeFeed Service.</param>
-            <param name="lrAPICache">lrAPI Cache.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.InitializeSystemComponents">
-            <summary>
-            Initializes the system components.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.RegisterCancellationTokensForServices">
-            <summary>
-            Registers the cancellation tokens for services.
-            This method will allows to register multiple Cancellation tokens with different purposes for different Services.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.ForceToCreateRequiredSystemObjects">
-            <summary>
-            Forces to create required system objects.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.EventsSubscription">
-            <summary>
-            Registers the events.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.ProcessClientStatusChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the client status change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.ProcessLoadClientChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the load client change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.ProcessLoadTestConfigChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the load test configuration change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.ProcessTestRunChange(LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs)">
-            <summary>
-            Processes the test run change.
-            </summary>
-            <param name="e">The <see cref="T:LodeRunner.Data.ChangeFeed.ProcessChangesEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.GetLRAPIChangeFeedService">
-            <summary>
-            Gets the change feed service.
-            </summary>
-            <returns>The ChangeFeed Service.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Services.SystemComponentsService.GetLRAPICache">
-            <summary>
-            Gets the cache service.
-            </summary>
-            <returns>The Cache Service.</returns>
-        </member>
         <member name="T:LodeRunner.API.App">
             <summary>
             Main application class.
@@ -1798,11 +1455,6 @@
             </summary>
             <param name="config">command line config.</param>
             <returns>status.</returns>
-        </member>
-        <member name="M:LodeRunner.API.App.InitializeSystemComponents">
-            <summary>
-            Initializes the system components.
-            </summary>
         </member>
         <member name="M:LodeRunner.API.App.Init(LodeRunner.API.Config,LodeRunner.API.Middleware.NgsaLog)">
             <summary>

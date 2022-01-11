@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -10,16 +9,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Data;
-using LodeRunner.API.Interfaces;
 using LodeRunner.API.Middleware;
-using LodeRunner.API.Services;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Data.ChangeFeed;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Documents.ChangeFeedProcessor.PartitionManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -52,8 +46,6 @@ namespace LodeRunner.API
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
-
-        private static IChangeFeedProcessor ChangeFeedProcessor { get; set; }
 
         /// <summary>
         /// Main entry point.
@@ -104,9 +96,6 @@ namespace LodeRunner.API
                 // log startup messages
                 await logger.LogInformation($"LodeRunner.API Backend Started", LodeRunner.API.Middleware.VersionExtension.Version);
 
-                // Preps the system.
-                InitializeSystemComponents();
-
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
 
@@ -122,16 +111,6 @@ namespace LodeRunner.API
 
                 return -1;
             }
-        }
-
-        /// <summary>
-        /// Initializes the system components.
-        /// </summary>
-        private static void InitializeSystemComponents()
-        {
-            ISystemComponentsService systemComponentsService = (ISystemComponentsService)host.Services.GetService(typeof(SystemComponentsService));
-
-            systemComponentsService.InitializeSystemComponents();
         }
 
         /// <summary>

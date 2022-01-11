@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Documents.ChangeFeedProcessor;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -30,13 +29,6 @@ namespace LodeRunner.Data.Interfaces
         /// The name of the collection.
         /// </value>
         string CollectionName { get; }
-
-        /// <summary>
-        /// Gets the new document collection information.
-        /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
-        /// <returns>The DocumentCollectionInfo instance.</returns>
-        DocumentCollectionInfo GetNewDocumentCollectionInfo(string collectionName);
 
         /// <summary>
         /// Gets the by identifier asynchronous.
