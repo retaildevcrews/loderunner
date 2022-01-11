@@ -12,7 +12,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace LodeRunner.Core.Models
 {
     /// <summary>
-    /// LoadRestConfig Model.
+    /// LoadTestConfig Model.
     /// </summary>
     [SwaggerSchemaFilter(typeof(LoadTestConfigSchemaFilter))]
     public class LoadTestConfig : BaseEntityModel

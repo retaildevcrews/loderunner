@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using LodeRunner.Core.SchemaFilters;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.Core.Models
 {
     /// <summary>
     /// TestRun Model.
     /// </summary>
+    [SwaggerSchemaFilter(typeof(TestRunSchemaFilter))]
     public class TestRun : BaseEntityModel
     {
         /// <summary>
@@ -42,14 +45,6 @@ namespace LodeRunner.Core.Models
         /// The start time.
         /// </value>
         public DateTime StartTime { get; set; }
-
-        /// <summary>
-        /// Gets or sets the completed time.
-        /// </summary>
-        /// <value>
-        /// The completed time.
-        /// </value>
-        public DateTime CompletedTime { get; set; }
 
         /// <summary>
         /// Gets or sets the client results.

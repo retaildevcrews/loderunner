@@ -4,37 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
-using LodeRunner.Core.Extensions;
-using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.Core.Models
 {
     /// <summary>
-    /// LoadRestConfig Payload.
+    /// LoadTestConfig Payload.
     /// </summary>
     [SwaggerSchemaFilter(typeof(LoadTestConfigPayloadSchemaFilter))]
-    public class LoadTestConfigPayload : INotifyPropertyChanged
+    public class LoadTestConfigPayload : BasePayload, INotifyPropertyChanged
     {
         // Composite LoadTestConfig object to hold data
         private readonly LoadTestConfig loadTestConfig = new ();
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Gets or sets the properties changed list.
-        /// </summary>
-        /// <value>
-        /// The changed properties.
-        /// </value>
-        public List<string> PropertiesChanged { get; set; } = new ();
 
         /// <summary>
         /// Gets or sets the files.
@@ -157,27 +140,15 @@ namespace LodeRunner.Core.Models
         public string Name { get => this.loadTestConfig.Name; set => this.SetField(value); }
 
         /// <summary>
-        /// Called when [property changed].
-        /// </summary>
-        /// <param name="fieldName">The field name.</param>
-        protected void OnPropertyChanged([CallerMemberName] string fieldName = null)
-        {
-            if (!this.PropertiesChanged.Contains(fieldName))
-            {
-                this.PropertiesChanged.Add(fieldName);
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(fieldName));
-            }
-        }
-
-        /// <summary>
         /// Sets the field on LoadTestConfig based on the field.
         /// Assuming property names in this class are the same as in LoadTestConfig.
         /// We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in LoadTestConfig
         /// If this is called from a method, propertyName should be set explicitly.
         /// </summary>
+        /// <typeparam name="T">The property value.</typeparam>
         /// <param name="value">The value.</param>
-        /// <param name="propertyName">Name of the caller propert.</param>
-        private void SetField<T>(T value, [CallerMemberName] string propertyName = null)
+        /// <param name="propertyName">Name of the caller property.</param>
+        protected override void SetField<T>(T value, [CallerMemberName] string propertyName = null)
         {
             // Get Reflected property object based on the propertyName
             // Ideally this method should be called from the same property name which needs to updated

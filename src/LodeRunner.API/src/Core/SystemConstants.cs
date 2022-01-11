@@ -212,5 +212,35 @@ namespace LodeRunner.API
         /// Invalid Payload data.
         /// </summary>
         public const string InvalidPayloadData = "Invalid Payload data.";
+
+        /// <summary>
+        /// The unable to create test run.
+        /// </summary>
+        public const string UnableToCreateTestRun = "Unable to create Test Run item.";
+
+        /// <summary>
+        /// The test run successfully deleted.
+        /// </summary>
+        public const string DeletedTestRun = "Test Run item successfully deleted";
+
+        /// <summary>
+        /// The unable to delete test run.
+        /// </summary>
+        public const string UnableToDeleteTestRun = "Unable to delete Test Run item.";
+
+        /// <summary>
+        /// The test run was not found.
+        /// </summary>
+        public const string NotFoundTestRun = "Test Run item not found.";
+
+        /// <summary>
+        /// String for unable to update TestRun item (non-nested properties).
+        /// </summary>
+        public const string UnableToUpdateTestRun = "Unable to update Test Run item (non-nested properties).";
+
+        /// <summary>
+        /// The unable to get test run.
+        /// </summary>
+        public const string UnableToGetTestRun = "Unable to get Test Run item.";
     }
 }

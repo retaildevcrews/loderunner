@@ -31,5 +31,25 @@ namespace LodeRunner.API.Extensions
 
             return expression;
         }
+
+        public static IMappingExpression<TestRunPayload, TestRun> IgnoreNotProvidedProps(
+            this IMappingExpression<TestRunPayload, TestRun> expression)
+        {
+            var destType = typeof(TestRun);
+            foreach (var property in destType.GetProperties())
+            {
+                expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>
+                {
+                    if (srcPayload.PropertiesChanged.Contains(property.Name))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }));
+            }
+
+            return expression;
+        }
     }
 }

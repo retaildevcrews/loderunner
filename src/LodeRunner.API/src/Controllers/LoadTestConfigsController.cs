@@ -42,7 +42,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents or empty array if not found.", typeof(LoadTestConfig[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents.", typeof(LoadTestConfig[]), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(

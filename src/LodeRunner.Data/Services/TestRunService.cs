@@ -15,20 +15,20 @@ using Microsoft.Azure.Cosmos;
 namespace LodeRunner.Services
 {
     /// <summary>
-    ///   Load Test Config Service.
+    ///   Test Run Service.
     /// </summary>
-    public class LoadTestConfigService : BaseService, ILoadTestConfigService
+    public class TestRunService : BaseService, ITestRunService
     {
-        private readonly IModelValidator<LoadTestConfig> validator;
+        private readonly IModelValidator<TestRun> validator;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadTestConfigService"/> class.
+        /// Initializes a new instance of the <see cref="TestRunService"/> class.
         /// </summary>
-        /// <param name="cosmosDBRepository">The client status repository.</param>
-        public LoadTestConfigService(ICosmosDBRepository cosmosDBRepository)
+        /// <param name="cosmosDBRepository">The loderunner repository.</param>
+        public TestRunService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
-            this.validator = new LoadTestConfigValidator();
+            this.validator = new TestRunValidator();
         }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace LodeRunner.Services
         /// <returns>
         /// The corresponding Entity.
         /// </returns>
-        public async Task<LoadTestConfig> Get(string id)
+        public async Task<TestRun> Get(string id)
         {
-            return await this.Get<LoadTestConfig>(id);
+            return await this.Get<TestRun>(id);
         }
 
         /// <summary>
@@ -49,29 +49,29 @@ namespace LodeRunner.Services
         /// <returns>
         /// all items for a given type.
         /// </returns>
-        public async Task<IEnumerable<LoadTestConfig>> GetAll()
+        public async Task<IEnumerable<TestRun>> GetAll()
         {
-            return await this.GetAll<LoadTestConfig>();
+            return await this.GetAll<TestRun>();
         }
 
         /// <summary>
-        /// Posts the specified load test configuration.
+        /// Posts the specified load test run.
         /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="testRun">The load test run.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
-        /// The Inserted LoadTestConfig entity.
+        /// The Inserted TestRun entity.
         /// </returns>
-        public Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
+        public Task<TestRun> Post(TestRun testRun, CancellationToken cancellationToken)
         {
-            var returnValue = new Task<LoadTestConfig>(() => null);
+            var returnValue = new Task<TestRun>(() => null);
 
-            if (loadTestConfig != null && !cancellationToken.IsCancellationRequested)
+            if (testRun != null && !cancellationToken.IsCancellationRequested)
             {
                 // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(loadTestConfig))
+                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(testRun))
                 {
-                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(loadTestConfig, cancellationToken);
+                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(testRun, cancellationToken);
                 }
                 else
                 {
@@ -95,7 +95,7 @@ namespace LodeRunner.Services
         {
             try
             {
-                var loadTestConfig = await this.Delete<LoadTestConfig>(id);
+                var loadTestConfig = await this.Delete<TestRun>(id);
                 return HttpStatusCode.OK;
             }
             catch (CosmosException ce)
