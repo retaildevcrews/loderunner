@@ -187,7 +187,7 @@ namespace LodeRunner.API.Controllers
             }
             catch (CosmosException cex)
             {
-                // Returns most common Expcetion: 404 NotFound, 429 TooManyReqs
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
                 return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
             }
             catch (Exception ex)

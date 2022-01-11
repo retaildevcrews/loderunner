@@ -33,7 +33,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The LoadTestConfig.
         /// </value>
-        public LoadTestConfig LoadTestConfig { get => this.testRun.LoadTestConfig; set => this.SetField(new LoadTestConfig()); }
+        public LoadTestConfig LoadTestConfig { get => this.testRun.LoadTestConfig; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the LoadClients.
@@ -41,7 +41,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The LoadClients.
         /// </value>
-        public List<LoadClient> LoadClients { get => this.testRun.LoadClients; set => this.SetField(new List<LoadClient>()); }
+        public List<LoadClient> LoadClients { get => this.testRun.LoadClients; set => this.SetField(value); }
 
         /// <summary>
         /// Gets or sets the CreatedTime.

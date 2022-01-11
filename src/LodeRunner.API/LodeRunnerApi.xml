@@ -190,6 +190,20 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.UpdateTestRun(System.String,LodeRunner.Core.Models.TestRunPayload,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Updates a test run. Will not update nested properties (i.e. ClientResults).
+            The payload doesn't have to be a full TestRun item.
+            </summary>
+            <example>
+            Payload Example 1: {"name": "TestRun-Name001"}
+            </example>
+            <param name="testRunId">The test run id.</param>
+            <param name="testRunPayload">The test run payload.</param>
+            <param name="testRunService">Test Run Service.</param>
+            <param name="cancellationTokenSource">The cancellation token source.</param>
+            <returns>IActionResult.</returns>
+        </member>
         <member name="T:LodeRunner.API.Config">
             <summary>
             Configurations for App.
