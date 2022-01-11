@@ -1,8 +1,8 @@
 # loderunner
 
-- [LodeRunner](./LodeRunner/README.md) is the load client that waits for TestRun entries in CosmosDB, and execute those load tests
-- [LodeRunner.API](./LodeRunner.API/README.md) is a service that creates LoadTestConfig and TestRun entries in CosmosDB for LodeRunner to use in order to execute load tests
-- [LodeRunner.UI](./LodeRunner.UI/README.md) utilizes the LodeRunner.API endpoints to provide a user-friendly interface to create LoadTestConfigs and TestRun entries in CosmosDB
+- [LodeRunner](./src/LodeRunner/README.md) is the load client that waits for TestRun entries in CosmosDB, and execute those load tests
+- [LodeRunner.API](./src/LodeRunner.API/README.md) is a service that creates LoadTestConfig and TestRun entries in CosmosDB for LodeRunner to use in order to execute load tests
+- [LodeRunner.UI](./src/LodeRunner.UI/README.md) utilizes the LodeRunner.API endpoints to provide a user-friendly interface to create LoadTestConfigs and TestRun entries in CosmosDB
 
 **NOTE** All components of the loderunner ecosystem have additional functionality that are not listed here
 
