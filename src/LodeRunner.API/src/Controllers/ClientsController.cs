@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Interfaces;
+using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -38,7 +40,7 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Returns a JSON array of Client objects.
         /// </summary>
-        /// <param name="appCache">The cache service.</param>
+        /// <param name="clientStatusService">The ClientStatusService.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
@@ -49,21 +51,23 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a JSON array of Client objects",
             Description = "Returns an array of `Client` documents",
             OperationId = "GetClients")]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            return await appCache.GetClients();
+            var result = await clientStatusService.GetClients(Logger);
+
+            return await ResultHandler.HandleResult(result, Logger);
         }
 
         /// <summary>
         /// Returns a single JSON Client by Parameter, clientStatusId.
         /// </summary>
         /// <param name="clientStatusId">clientStatusId.</param>
-        /// <param name="appCache">The cache service.</param>
+        /// <param name="clientStatusService">The ClientStatusService.</param>
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
@@ -75,7 +79,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a single JSON Client by Parameter, clientStatusId.",
             Description = "Returns a single `Client` document by clientStatusId",
             OperationId = "GetClientByClientStatusId")]
-        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ILRAPICache appCache, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -86,12 +90,14 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(this.GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
+                await Logger.LogWarning(nameof(GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            return await appCache.GetClientByClientStatusId(clientStatusId);
+            var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, Logger);
+
+            return await ResultHandler.HandleResult(result, Logger);
         }
     }
- }
+}

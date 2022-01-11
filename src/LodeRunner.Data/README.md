@@ -43,17 +43,6 @@ Conveys the current status, time of that status, and the associated LoadClient's
 }
 ```
 
-## CosmosDB Collection: LRAPI
-
-Used as the lease container for ChangeFeed
-
-- A lease container acts as state storage and coordinates processing the change feed across multiple workers. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-processor#components-of-the-change-feed-processor))
-
-Lease container requirements
-
-- Partion key definition must be `/id`. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/cosmos-db/change-feed-functions#requirements))
-- The connection string to Azure Cosmos DB account with lease collection must have write permissions. ([Microsoft Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger?tabs=csharp#configuration))
-
 ## CosmosDB Key
 
 Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) require a Read-Write key from CosmosDB.

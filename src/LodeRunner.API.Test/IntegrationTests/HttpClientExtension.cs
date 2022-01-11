@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
@@ -23,7 +21,7 @@ namespace LodeRunner.API.Test.IntegrationTests
     /// </summary>
     public static class HttpClientExtension
     {
-        private const int WaitingTimeIncrementMs = 5000;
+        private const int WaitingTimeIncrementMs = 100;
 
         /// <summary>
         /// Validate GetById Request.
@@ -52,7 +50,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="output">The output.</param>
         /// <param name="timeoutLimitMs">The timeout limit ms.</param>
         /// <returns>The task.</returns>
-        public static async Task<bool> WaitAndValidateGetByIdToMatchStatus(this HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 10000)
+        public static async Task<bool> WaitAndValidateGetByIdToMatchStatus(this HttpClient httpClient, string clientsByIdUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 1000)
         {
             int timeout = WaitingTimeIncrementMs;
 
@@ -62,15 +60,13 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             while (timeout <= timeoutLimitMs)
             {
-                await Task.Delay(WaitingTimeIncrementMs);
-
-                // Cache
                 var httpResponse = await ValidateAndGetByIdRequest(httpClient, clientsByIdUri, clientStatusId);
 
                 lastHttpCode = httpResponse.StatusCode;
 
                 if (httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
+                    output.WriteLine($"Response StatusCode: 'NotFound' \t Delay: {timeout} ms \tClientStatusId: '{clientStatusId}' ");
                     await Task.Delay(WaitingTimeIncrementMs);
                     timeout += WaitingTimeIncrementMs;
                 }
@@ -87,6 +83,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                     }
                     else
                     {
+                        output.WriteLine($"Response StatusCode: 'OK'\t Delay: {timeout} ms \tClientStatusId: '{clientStatusId}' \tClientStatusType: '{client?.Status}'");
                         await Task.Delay(WaitingTimeIncrementMs);
                         timeout += WaitingTimeIncrementMs;
                     }
@@ -98,7 +95,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
             }
 
-            Assert.True(foundAndValid, $"Unable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
+            Assert.True(foundAndValid, $"Local Time:{DateTime.Now}\tUnable to process request for ClientStatusId: {clientStatusId}\tClientStatusType: '{clientStatusType}' - HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
 
             return foundAndValid;
         }
@@ -113,7 +110,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="output">The output.</param>
         /// <param name="timeoutLimitMs">The timeout limit ms.</param>
         /// <returns>the task.</returns>
-        public static async Task<bool> WaitAndValidateGetClientsToMatchId(this HttpClient httpClient, string clientsUri, string clientStatusId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 10000)
+        public static async Task<bool> WaitAndValidateGetClientsToMatchId(this HttpClient httpClient, string clientsUri, string clientStatusId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int timeoutLimitMs = 1000)
         {
             int timeout = WaitingTimeIncrementMs;
 
@@ -123,14 +120,13 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             while (timeout <= timeoutLimitMs)
             {
-                await Task.Delay(WaitingTimeIncrementMs);
-
                 var httpResponse = await httpClient.GetAsync(clientsUri);
 
                 lastHttpCode = httpResponse.StatusCode;
 
                 if (httpResponse.StatusCode == HttpStatusCode.NoContent)
                 {
+                    output.WriteLine($"Delay: {WaitingTimeIncrementMs} ms");
                     await Task.Delay(WaitingTimeIncrementMs);
                     timeout += WaitingTimeIncrementMs;
                 }
@@ -148,6 +144,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                     }
                     else
                     {
+                        output.WriteLine($"Delay: {timeout} ms");
                         await Task.Delay(WaitingTimeIncrementMs);
                         timeout += WaitingTimeIncrementMs;
                     }
@@ -159,7 +156,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
             }
 
-            Assert.True(found, $"Unable to process GetClients request, it could not verify ClientStatusId: {clientStatusId}\t- HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
+            Assert.True(found, $"Local Time:{DateTime.Now}\tUnable to process GetClients request, it could not verify ClientStatusId: {clientStatusId}\t- HttpStatusCode:{lastHttpCode} - Timeout:{timeout} ms");
 
             return found;
         }

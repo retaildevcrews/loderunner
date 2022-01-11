@@ -1,26 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.API.Models;
-using LodeRunner.API.Services;
-using LodeRunner.Core;
-using LodeRunner.Core.CommandLine;
-using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
-using LodeRunner.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -91,17 +75,17 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// Determines whether this instance [can get clients].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        // [Fact]
-        // [Trait("Category", "Integration")]
+        [Fact]
+        [Trait("Category", "Integration")]
         private async Task CanGetClients()
         {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
             using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClients));
 
             string clientStatusId = l8rService.ClientStatusId;
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
-
-            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             await httpClient.WaitAndValidateGetClientsToMatchId(ClientsUri, clientStatusId, this.jsonOptions, this.output);
         }
@@ -110,23 +94,23 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        // [Fact]
-        // [Trait("Category", "Integration")]
+        [Fact]
+        [Trait("Category", "Integration")]
         private async Task CanGetClientsById()
         {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
             using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClientsById));
 
             string clientStatusId = l8rService.ClientStatusId;
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId.");
 
-            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
-
-            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 15000);
+            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
             l8rService.StopService();
 
-            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output, 15000);
+            await httpClient.WaitAndValidateGetByIdToMatchStatus(ClientsByIdUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
         }
     }
 }

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.Azure.Documents.ChangeFeedProcessor;
 
 namespace LodeRunner.Data
 {
@@ -108,22 +107,6 @@ namespace LodeRunner.Data
                                                         IgnoreNullValues = true,
                                                     })
                                                     .Build();
-
-        /// <summary>
-        /// Gets the new document collection information.
-        /// </summary>
-        /// <param name="collectionName">Name of the collection.</param>
-        /// <returns>The corresponding DocumentCollectionInfo instance.</returns>
-        public DocumentCollectionInfo GetNewDocumentCollectionInfo(string collectionName)
-        {
-            return new ()
-            {
-                DatabaseName = this.settings.DatabaseName,
-                CollectionName = collectionName,
-                Uri = new Uri(this.settings.Uri),
-                MasterKey = this.settings.Key,
-            };
-        }
 
         /// <summary>
         /// Resolves the partition key.

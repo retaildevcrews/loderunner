@@ -15,7 +15,6 @@ else
     LR_COSMOS_DB="LodeRunnerDB"
     LR_COSMOS_TEST_DB="LodeRunnerTestDB"
     LR_COSMOS_COL="LodeRunner"
-    LR_COSMOS_LEASE="LRAPI"
 
     # Check if CosmosDB account name already exists
     echo "Checking if CosmosDB account name already exists..."
@@ -32,9 +31,7 @@ else
     # Create CosmosDB database
     echo "Creating CosmosDB database, ${LR_COSMOS_DB}..."
     az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
-    # Create lease container for change feed processor
-    echo "Creating lease container for database change feed processor, ${LR_COSMOS_LEASE}..."
-    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
+    
     # Create CosmosDB container
     echo "Creating CosmosDB container, ${LR_COSMOS_COL}..."
     az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
@@ -43,9 +40,7 @@ else
     # Create CosmosDB test database
     echo "Creating CosmosDB test database, ${LR_COSMOS_TEST_DB}..."
     az cosmosdb sql database create -a $LR_COSMOS_ACCOUNT -n $LR_COSMOS_TEST_DB -g $LR_RG --subscription $LR_SUBSCRIPTION
-    # Create lease container for change feed processor
-    echo "Creating lease container for test database change feed processor, ${LR_COSMOS_LEASE}..."
-    az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_LEASE -p "/id" -g $LR_RG --subscription $LR_SUBSCRIPTION
+
     # Create CosmosDB container
     echo "Creating CosmosDB test container, ${LR_COSMOS_COL}..."
     az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
