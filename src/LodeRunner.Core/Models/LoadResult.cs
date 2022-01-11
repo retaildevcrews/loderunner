@@ -11,7 +11,7 @@ namespace LodeRunner.Core.Models
     /// <summary>
     /// LoadResult model.
     /// </summary>
-    public class LoadResult : BaseEntityModel
+    public class LoadResult
     {
         /// <summary>
         /// Gets or sets the LoadClient.
@@ -20,7 +20,6 @@ namespace LodeRunner.Core.Models
         /// LoadClient.
         /// </value>
         [Required]
-        [ValidateList(ErrorMessage = "LoadClient must be set.")]
         [Description("LoadClient load test ran on.")]
         public virtual LoadClient LoadClient { get; set; }
 

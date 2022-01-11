@@ -202,92 +202,74 @@ namespace LodeRunner.API.Controllers
             }
         }
 
-        ///// <summary>
-        ///// Adds the payload to the ClientResults in the TestRun.
-        ///// </summary>
-        ///// <example>
-        ///// Payload Example 1: {
-        /////                     "id": "TestRun-Name001",
-        /////                     "date" : "",
-        /////                     "server" : "",
-        /////                     "statusCode" : "",
-        /////                     "verb" : "",
-        /////                     "path" : "",
-        /////                     "errors" : "",
-        /////                     "duration" : "",
-        /////                     "contentLength" : "",
-        /////                     "cVector" : "",
-        /////                     "cVectorBase" : "",
-        /////                     "quartile" : "",
-        /////                     "category" : "",
-        /////                     "errorDetails" : ""
-        /////                     }
-        ///// </example>
-        ///// <param name="loadTestConfigId">The load test config id.</param>
-        ///// <param name="loadTestConfigPayload">The load test config payload.</param>
-        ///// <param name="loadTestConfigService">Load test config Service.</param>
-        ///// <param name="cancellationTokenSource">The cancellation token source.</param>
-        ///// <returns>IActionResult.</returns>
-        //[HttpPost("{testRunId}/ClientResults")]
-        //[SwaggerResponse((int)HttpStatusCode.NoContent, "`LoadTestConfig` was updated.", null, "application/json")]
-        //[SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateLoadTestConfig)]
-        //[SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetLoadTestConfig)]
-        //[SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
-        //[SwaggerOperation(
-        //    Summary = "Updates an existing LoadTestConfig item",
-        //    Description = "Requires load test config payload (partial or full) and ID",
-        //    OperationId = "UpdateLoadTestConfig")]
-        //public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
-        //{
-        //    if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
-        //    {
-        //        return await ResultHandler.CreateCancellationInProgressResult();
-        //    }
+        /// <summary>
+        /// Adds the payload to the ClientResults in the TestRun.
+        /// </summary>
+        /// <param name="testRunId">The test run id.</param>
+        /// <param name="loadResultPayload">The load result payload.</param>
+        /// <param name="testRunService">The Test Run Service.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>IActionResult.</returns>
+        [HttpPost("{testRunId}/ClientResults")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, "`ClientResults` was updated.", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerOperation(
+            Summary = "Appending a LoadResult to the ClientResults in an existing TestRun",
+            Description = "Requires a full LoadResult payload and TestRunId",
+            OperationId = "CreateLoadResult")]
+        public async Task<ActionResult> CreateLoadResult([FromRoute] string testRunId, [FromBody, SwaggerRequestBody("The load result payload", Required = true)] LoadResultPayload loadResultPayload, [FromServices] ILoadTestConfigService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return await ResultHandler.CreateCancellationInProgressResult();
+            }
 
-        //    // First get the object for verification
-        //    LoadTestConfig existingLoadTestConfig;
-        //    try
-        //    {
-        //        existingLoadTestConfig = await loadTestConfigService.Get(loadTestConfigId);
-        //    }
-        //    catch (CosmosException cex)
-        //    {
-        //        // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-        //        return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return await ResultHandler.CreateErrorResult($"Unknown server exception: {ex.Message}", HttpStatusCode.InternalServerError);
-        //    }
+            // First get the object for verification
+            LoadTestConfig existingLoadTestConfig;
+            try
+            {
+                existingLoadTestConfig = await testRunService.Get(testRunId);
+            }
+            catch (CosmosException cex)
+            {
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
+                return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                return await ResultHandler.CreateErrorResult($"Unknown server exception: {ex.Message}", HttpStatusCode.InternalServerError);
+            }
 
-        //    // If we get null object without exception, its 404 as well
-        //    if (existingLoadTestConfig == null)
-        //    {
-        //        // We don't have the item with specified ID, throw error
-        //        return await ResultHandler.CreateErrorResult(SystemConstants.UnableToGetLoadTestConfig, HttpStatusCode.NotFound);
-        //    }
+            // If we get null object without exception, its 404 as well
+            if (existingLoadTestConfig == null)
+            {
+                // We don't have the item with specified ID, throw error
+                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToGetLoadTestConfig, HttpStatusCode.NotFound);
+            }
 
-        //    // Map LoadTestConfigPayload to existing LoadTestConfig.
-        //    this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload, existingLoadTestConfig);
+            // Map LoadTestConfigPayload to existing LoadTestConfig.
+            this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadResultPayload, existingLoadTestConfig);
 
-        //    // Validate the mapped loadTestConfig
-        //    if (existingLoadTestConfig.Validate(out string errorMessage))
-        //    {
-        //        var insertedLoadTestConfig = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
+            // Validate the mapped loadTestConfig
+            if (existingLoadTestConfig.Validate(out string errorMessage))
+            {
+                var insertedLoadTestConfig = await testRunService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
 
-        //        if (insertedLoadTestConfig != null)
-        //        {
-        //            return await ResultHandler.CreateNoContent();
-        //        }
-        //        else
-        //        {
-        //            return await ResultHandler.CreateErrorResult(SystemConstants.UnableToUpdateLoadTestConfig, HttpStatusCode.InternalServerError);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return await ResultHandler.CreateErrorResult($"{SystemConstants.InvalidPayloadData} {errorMessage}", HttpStatusCode.BadRequest);
-        //    }
-        //}
+                if (insertedLoadTestConfig != null)
+                {
+                    return await ResultHandler.CreateNoContent();
+                }
+                else
+                {
+                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToUpdateLoadTestConfig, HttpStatusCode.InternalServerError);
+                }
+            }
+            else
+            {
+                return await ResultHandler.CreateErrorResult($"{SystemConstants.InvalidPayloadData} {errorMessage}", HttpStatusCode.BadRequest);
+            }
+        }
     }
 }

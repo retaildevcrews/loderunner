@@ -16,9 +16,6 @@ namespace LodeRunner.Core.Models.Validators
         /// </summary>
         public LoadResultValidator()
         {
-            this.RuleFor(m => m.Id).NotEmpty();
-            this.RuleFor(m => m.PartitionKey).NotEmpty();
-            this.RuleFor(m => m.EntityType).IsInEnum();
             this.RuleFor(m => m.LoadClient).SetValidator(new LoadClientValidator());
             this.When(m => m.CompletedTime > DateTime.MinValue, () =>
             {
