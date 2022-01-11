@@ -89,22 +89,15 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
             var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
 
-            if (newTestRun.Validate(out string errorMessage, testRunPayload.PropertiesChanged))
-            {
-                var insertedTestRun = await testRunService.Post(newTestRun, cancellationTokenSource.Token);
+            var insertedTestRun = await testRunService.Post(newTestRun, cancellationTokenSource.Token);
 
-                if (insertedTestRun != null)
-                {
-                    return await ResultHandler.CreateResult(insertedTestRun, HttpStatusCode.OK);
-                }
-                else
-                {
-                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateTestRun, HttpStatusCode.InternalServerError);
-                }
+            if (insertedTestRun != null)
+            {
+                return await ResultHandler.CreateResult(insertedTestRun, HttpStatusCode.OK);
             }
             else
             {
-                return await ResultHandler.CreateErrorResult($"Invalid payload data. {errorMessage}", HttpStatusCode.BadRequest);
+                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateTestRun, HttpStatusCode.InternalServerError);
             }
         }
 

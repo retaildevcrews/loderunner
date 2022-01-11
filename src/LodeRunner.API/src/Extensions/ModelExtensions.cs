@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using LodeRunner.Core.CommandLine;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Middleware
 {
@@ -18,18 +19,17 @@ namespace LodeRunner.API.Middleware
     public static class ModelExtensions
     {
         /// <summary>
-        /// Validates the specified model.
+        /// Validates the specified load test payload configuration.
         /// </summary>
-        /// <typeparam name="TEntity">The model type.</typeparam>
-        /// <param name="model">The model.</param>
-        /// <param name="errorMessage">Error Message String if any.</param>
+        /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="errorMessage">Error MEssage String if any.</param>
         /// <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
         /// <returns>Whether or not  the DTO passes validation.</returns>
-        public static bool Validate<TEntity>(this TEntity model, out string errorMessage, List<string> payloadPropertiesChanged = null)
+        public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage, List<string> payloadPropertiesChanged = null)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
 
-            string[] args = GetArgs(model, payloadPropertiesChanged);
+            string[] args = GetArgs(loadTestConfig, payloadPropertiesChanged);
 
             bool result = false;
 
@@ -58,13 +58,12 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Gets the arguments from properties that exist in changedProperties list.
         /// </summary>
-        /// <typeparam name="TEntity">The model type.</typeparam>
-        /// <param name="model">The model.</param>
+        /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="payloadPropertiesChanged">Changed Properties list.</param>
         /// <returns>the args.</returns>
-        private static string[] GetArgs<TEntity>(TEntity model, List<string> payloadPropertiesChanged = null)
+        private static string[] GetArgs(LoadTestConfig loadTestConfig, List<string> payloadPropertiesChanged = null)
         {
-            var properties = model.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
+            var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
 
             List<string> argsList = new ();
 
@@ -77,7 +76,7 @@ namespace LodeRunner.API.Middleware
                     if (descriptionAttributes.Length > 0)
                     {
                         argsList.Add(descriptionAttributes[0].Description);
-                        argsList.Add(model.FieldValue(prop.Name));
+                        argsList.Add(loadTestConfig.FieldValue(prop.Name));
                     }
                 }
             }
@@ -88,15 +87,14 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Fields the value.
         /// </summary>
-        /// <typeparam name="TEntity">The model type.</typeparam>
-        /// <param name="modelDto">The model.</param>
+        /// <param name="loadTestConfigDto">The load test configuration.</param>
         /// <param name="fieldName">Name of the field.</param>
         /// <returns>The value.</returns>
-        private static string FieldValue<TEntity>(this TEntity modelDto, string fieldName)
+        private static string FieldValue(this LoadTestConfig loadTestConfigDto, string fieldName)
         {
             string result = string.Empty;
 
-            Type objType = modelDto.GetType();
+            Type objType = loadTestConfigDto.GetType();
 
             PropertyInfo[] props = objType.GetProperties();
 
@@ -106,13 +104,13 @@ namespace LodeRunner.API.Middleware
             {
                 if (propFound.PropertyType == typeof(List<string>))
                 {
-                    List<string> items = (List<string>)propFound.GetValue(modelDto);
+                    List<string> items = (List<string>)propFound.GetValue(loadTestConfigDto);
 
                     result = string.Join(" ", items);
                 }
                 else
                 {
-                    object propValue = propFound.GetValue(modelDto);
+                    object propValue = propFound.GetValue(loadTestConfigDto);
                     result = propValue == null ? string.Empty : propValue.ToString();
                 }
             }
