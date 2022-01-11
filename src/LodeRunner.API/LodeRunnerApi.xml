@@ -15,6 +15,17 @@
             Initializes a new instance of the <see cref="T:LodeRunner.API.AutoMapperProfiles.LoadTestPayloadProfile"/> class.
             </summary>
         </member>
+        <member name="T:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile">
+            <summary>
+            Represents the TestRun Auto-mapping Profile.
+            </summary>
+            <seealso cref="T:AutoMapper.Profile" />
+        </member>
+        <member name="M:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.AutoMapperProfiles.TestRunPayloadProfile"/> class.
+            </summary>
+        </member>
         <member name="T:LodeRunner.API.Controllers.ClientsController">
             <summary>
             Handle all of the /api/clients requests.
@@ -139,6 +150,43 @@
             <param name="loadTestConfigId">The load test config id.</param>
             <param name="loadTestConfigPayload">The load test config payload.</param>
             <param name="loadTestConfigService">Load test config Service.</param>
+            <param name="cancellationTokenSource">The cancellation token source.</param>
+            <returns>IActionResult.</returns>
+        </member>
+        <member name="T:LodeRunner.API.Controllers.TestRunsController">
+            <summary>
+            Handle all of the /api/testruns requests.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.#ctor(AutoMapper.IMapper)">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.API.Controllers.TestRunsController"/> class.
+            </summary>
+            <param name="mapper">The mapper.</param>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.GetTestRuns(LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Returns a JSON array of Test Run objects.
+            </summary>
+            <param name="testRunService">The testRun service for LRAPI</param>
+            <param name="cancellationTokenSource">The cancellation Token Source.</param>
+            <returns>IActionResult.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateTestRunConfig(LodeRunner.Core.Models.TestRunPayload,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Creates the test run.
+            </summary>
+            <param name="testRunPayload">The test run.</param>
+            <param name="testRunService">Test Run Service.</param>
+            <param name="cancellationTokenSource">The cancellation token source.</param>
+            <returns>IActionResult.</returns>
+        </member>
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.DeleteTestRun(System.String,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+            <summary>
+            Deletes the TestRun.
+            </summary>
+            <param name="testRunId">The Test Run id to delete</param>
+            <param name="testRunService">The Test Run Service.</param>
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
@@ -378,28 +426,31 @@
             Provides Extension methods for Models.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate(LodeRunner.Core.Models.LoadTestConfig,System.String@,System.Collections.Generic.List{System.String})">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.Validate``1(``0,System.String@,System.Collections.Generic.List{System.String})">
             <summary>
-            Validates the specified load test payload configuration.
+            Validates the specified model.
             </summary>
-            <param name="loadTestConfig">The load test configuration.</param>
-            <param name="errorMessage">Error MEssage String if any.</param>
+            <typeparam name="TEntity">The model type.</typeparam>
+            <param name="model">The model.</param>
+            <param name="errorMessage">Error Message String if any.</param>
             <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
             <returns>Whether or not  the DTO passes validation.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs(LodeRunner.Core.Models.LoadTestConfig,System.Collections.Generic.List{System.String})">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.GetArgs``1(``0,System.Collections.Generic.List{System.String})">
             <summary>
             Gets the arguments from properties that exist in changedProperties list.
             </summary>
-            <param name="loadTestConfig">The load test configuration.</param>
+            <typeparam name="TEntity">The model type.</typeparam>
+            <param name="model">The model.</param>
             <param name="payloadPropertiesChanged">Changed Properties list.</param>
             <returns>the args.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue(LodeRunner.Core.Models.LoadTestConfig,System.String)">
+        <member name="M:LodeRunner.API.Middleware.ModelExtensions.FieldValue``1(``0,System.String)">
             <summary>
             Fields the value.
             </summary>
-            <param name="loadTestConfigDto">The load test configuration.</param>
+            <typeparam name="TEntity">The model type.</typeparam>
+            <param name="modelDto">The model.</param>
             <param name="fieldName">Name of the field.</param>
             <returns>The value.</returns>
         </member>
@@ -1021,6 +1072,36 @@
         <member name="F:LodeRunner.API.SystemConstants.InvalidPayloadData">
             <summary>
             Invalid Payload data.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToCreateTestRun">
+            <summary>
+            The unable to create test run.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.DeletedTestRun">
+            <summary>
+            The test run successfully deleted.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToDeleteTestRun">
+            <summary>
+            The unable to delete test run.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.NotFoundTestRun">
+            <summary>
+            The test run was not found.
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToUpdateTestRun">
+            <summary>
+            String for unable to update TestRun item (non-nested properties).
+            </summary>
+        </member>
+        <member name="F:LodeRunner.API.SystemConstants.UnableToGetTestRun">
+            <summary>
+            The unable to get test run.
             </summary>
         </member>
         <member name="T:LodeRunner.API.Models.Client">

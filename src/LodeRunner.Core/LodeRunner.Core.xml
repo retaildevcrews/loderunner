@@ -641,6 +641,41 @@
             The name.
             </value>
         </member>
+        <member name="T:LodeRunner.Core.Models.BasePayload">
+            <summary>
+            Base class for payload.
+            </summary>
+        </member>
+        <member name="E:LodeRunner.Core.Models.BasePayload.PropertyChanged">
+            <summary>
+            Occurs when a property value changes.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.BasePayload.PropertiesChanged">
+            <summary>
+            Gets or sets the properties changed list.
+            </summary>
+            <value>
+            The changed properties.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Models.BasePayload.OnPropertyChanged(System.String)">
+            <summary>
+            Called when [property changed].
+            </summary>
+            <param name="fieldName">The field name.</param>
+        </member>
+        <member name="M:LodeRunner.Core.Models.BasePayload.SetField``1(``0,System.String)">
+            <summary>
+            Sets the field on an entity based on the field.
+            Assuming property names in this class are the same as in entity.
+            We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in entity.
+            If this is called from a method, propertyName should be set explicitly.
+            </summary>
+            <typeparam name="T">The property value.</typeparam>
+            <param name="value">The value.</param>
+            <param name="propertyName">Name of the caller property.</param>
+        </member>
         <member name="T:LodeRunner.Core.Models.ClientStatus">
             <summary>
               ClientStatus is primarily for conveying the current status, time of that status, and the LoadClient settings to consuming apps.
@@ -836,9 +871,57 @@
             LoadResult model.
             </summary>
         </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.LoadClient">
+            <summary>
+            Gets or sets the LoadClient.
+            </summary>
+            <value>
+            LoadClient.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.StartTime">
+            <summary>
+            Gets or sets the schedule start time.
+            </summary>
+            <value>
+            StartTime.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.CompletedTime">
+            <summary>
+            Gets or sets the time the load test on the LoadClient completed.
+            </summary>
+            <value>
+            CompletedTime.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.TotalRequests">
+            <summary>
+            Gets or sets the total number of requests.
+            </summary>
+            <value>
+            TotalRequests.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.SuccessfulRequests">
+            <summary>
+            Gets or sets the number of successful requests.
+            </summary>
+            <value>
+            SuccessfulRequests.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.LoadResult.FailedRequests">
+            <summary>
+            Gets or sets the number of failed requests.
+            </summary>
+            <value>
+            FailedRequests.
+            </value>
+        </member>
         <member name="T:LodeRunner.Core.Models.LoadTestConfig">
             <summary>
-            LoadRestConfig Model.
+            LoadTestConfig Model.
             </summary>
         </member>
         <member name="P:LodeRunner.Core.Models.LoadTestConfig.Files">
@@ -955,21 +1038,8 @@
         </member>
         <member name="T:LodeRunner.Core.Models.LoadTestConfigPayload">
             <summary>
-            LoadRestConfig Payload.
+            LoadTestConfig Payload.
             </summary>
-        </member>
-        <member name="E:LodeRunner.Core.Models.LoadTestConfigPayload.PropertyChanged">
-            <summary>
-            Occurs when a property value changes.
-            </summary>
-        </member>
-        <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.PropertiesChanged">
-            <summary>
-            Gets or sets the properties changed list.
-            </summary>
-            <value>
-            The changed properties.
-            </value>
         </member>
         <member name="P:LodeRunner.Core.Models.LoadTestConfigPayload.Files">
             <summary>
@@ -1091,12 +1161,6 @@
             The name.
             </value>
         </member>
-        <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.OnPropertyChanged(System.String)">
-            <summary>
-            Called when [property changed].
-            </summary>
-            <param name="fieldName">The field name.</param>
-        </member>
         <member name="M:LodeRunner.Core.Models.LoadTestConfigPayload.SetField``1(``0,System.String)">
             <summary>
             Sets the field on LoadTestConfig based on the field.
@@ -1104,8 +1168,9 @@
             We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in LoadTestConfig
             If this is called from a method, propertyName should be set explicitly.
             </summary>
+            <typeparam name="T">The property value.</typeparam>
             <param name="value">The value.</param>
-            <param name="propertyName">Name of the caller propert.</param>
+            <param name="propertyName">Name of the caller property.</param>
         </member>
         <member name="T:LodeRunner.Core.Models.TestRun">
             <summary>
@@ -1144,14 +1209,6 @@
             The start time.
             </value>
         </member>
-        <member name="P:LodeRunner.Core.Models.TestRun.CompletedTime">
-            <summary>
-            Gets or sets the completed time.
-            </summary>
-            <value>
-            The completed time.
-            </value>
-        </member>
         <member name="P:LodeRunner.Core.Models.TestRun.ClientResults">
             <summary>
             Gets or sets the client results.
@@ -1159,6 +1216,62 @@
             <value>
             The client results.
             </value>
+        </member>
+        <member name="T:LodeRunner.Core.Models.TestRunPayload">
+            <summary>
+            TestRun Payload.
+            </summary>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRunPayload.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRunPayload.LoadTestConfig">
+            <summary>
+            Gets or sets the LoadTestConfig.
+            </summary>
+            <value>
+            The LoadTestConfig.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRunPayload.LoadClients">
+            <summary>
+            Gets or sets the LoadClients.
+            </summary>
+            <value>
+            The LoadClients.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRunPayload.CreatedTime">
+            <summary>
+            Gets or sets the CreatedTime.
+            </summary>
+            <value>
+            The CreatedTime.
+            </value>
+        </member>
+        <member name="P:LodeRunner.Core.Models.TestRunPayload.StartTime">
+            <summary>
+            Gets or sets the StartTime.
+            </summary>
+            <value>
+            The StartTime.
+            </value>
+        </member>
+        <member name="M:LodeRunner.Core.Models.TestRunPayload.SetField``1(``0,System.String)">
+            <summary>
+            Sets the field on TestRun based on the field.
+            Assuming property names in this class are the same as in TestRun.
+            We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in TestRun.
+            If this is called from a method, propertyName should be set explicitly.
+            </summary>
+            <typeparam name="T">The property value.</typeparam>
+            <param name="value">The value.</param>
+            <param name="propertyName">Name of the caller property.</param>
         </member>
         <member name="T:LodeRunner.Core.Models.Validators.BaseEntityValidator`1">
             <summary>
@@ -1219,6 +1332,16 @@
             Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.LoadClientValidator"/> class.
             </summary>
         </member>
+        <member name="T:LodeRunner.Core.Models.Validators.LoadResultValidator">
+            <summary>
+            LoadResultValidator.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.LoadResultValidator.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.LoadResultValidator"/> class.
+            </summary>
+        </member>
         <member name="T:LodeRunner.Core.Models.Validators.LoadTestConfigValidator">
             <summary>
             LoadTestConfigValidator.
@@ -1227,6 +1350,16 @@
         <member name="M:LodeRunner.Core.Models.Validators.LoadTestConfigValidator.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.LoadTestConfigValidator"/> class.
+            </summary>
+        </member>
+        <member name="T:LodeRunner.Core.Models.Validators.TestRunValidator">
+            <summary>
+            TestRunValidator.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.Core.Models.Validators.TestRunValidator.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:LodeRunner.Core.Models.Validators.TestRunValidator"/> class.
             </summary>
         </member>
         <member name="T:LodeRunner.Core.Models.Validators.ValidateListAttribute">
@@ -1275,6 +1408,32 @@
             <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
         </member>
         <member name="M:LodeRunner.Core.SchemaFilters.LoadTestConfigSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
+        </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.TestRunPayloadSchemaFilter">
+            <summary>
+            Defines the TestRun Payload Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.TestRunPayloadSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
+        </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.TestRunSchemaFilter">
+            <summary>
+            Defines the TestRun Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.TestRunSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
             <summary>
             Applies the specified schema.
             </summary>
