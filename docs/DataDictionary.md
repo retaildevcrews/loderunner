@@ -141,10 +141,7 @@ This entity is still TBD
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
-| PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
-| TestRunId              |   String   | GUID used to retrieve the object directly. | Yes | |
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
-| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
 | CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | TotalRequests   |     Int        |                         | Yes | |

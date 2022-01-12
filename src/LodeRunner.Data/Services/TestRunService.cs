@@ -62,7 +62,7 @@ namespace LodeRunner.Services
         /// <returns>
         /// The Inserted TestRun entity.
         /// </returns>
-        public Task<TestRun> Post(TestRun testRun, CancellationToken cancellationToken)
+        public async Task<TestRun> Post(TestRun testRun, CancellationToken cancellationToken)
         {
             var returnValue = new Task<TestRun>(() => null);
 
@@ -81,7 +81,7 @@ namespace LodeRunner.Services
                 }
             }
 
-            return returnValue;
+            return await returnValue;
         }
 
         /// <summary>

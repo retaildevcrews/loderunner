@@ -4,13 +4,15 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using LodeRunner.Core.Models.Validators;
+using LodeRunner.Core.SchemaFilters;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.Core.Models
 {
     /// <summary>
     /// LoadResult model.
     /// </summary>
+    [SwaggerSchemaFilter(typeof(LoadResultSchemaFilter))]
     public class LoadResult
     {
         /// <summary>

@@ -62,7 +62,7 @@ namespace LodeRunner.Services
         /// <returns>
         /// The Inserted LoadTestConfig entity.
         /// </returns>
-        public Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
+        public async Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
         {
             var returnValue = new Task<LoadTestConfig>(() => null);
 
@@ -81,7 +81,7 @@ namespace LodeRunner.Services
                 }
             }
 
-            return returnValue;
+            return await returnValue;
         }
 
         /// <summary>

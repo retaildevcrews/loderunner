@@ -1388,6 +1388,19 @@
             <param name="schema">The schema.</param>
             <param name="context">The context.</param>
         </member>
+        <member name="T:LodeRunner.Core.SchemaFilters.LoadResultSchemaFilter">
+            <summary>
+            Defines the LoadResult Schema.
+            </summary>
+            <seealso cref="T:Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter" />
+        </member>
+        <member name="M:LodeRunner.Core.SchemaFilters.LoadResultSchemaFilter.Apply(Microsoft.OpenApi.Models.OpenApiSchema,Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext)">
+            <summary>
+            Applies the specified schema.
+            </summary>
+            <param name="schema">The schema.</param>
+            <param name="context">The context.</param>
+        </member>
         <member name="T:LodeRunner.Core.SchemaFilters.LoadTestConfigPayloadSchemaFilter">
             <summary>
             Defines the LoadTestConfig Schema.

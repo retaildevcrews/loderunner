@@ -211,7 +211,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost("{testRunId}/ClientResults")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`ClientResults` was updated.", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadResult` was created.", typeof(TestRun), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateTestRun)]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetTestRun)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
@@ -250,18 +250,13 @@ namespace LodeRunner.API.Controllers
             }
 
             // We add the loadResult to the existing ClientResult list.
-            if (existingTestRun.ClientResults == null)
-            {
-                existingTestRun.ClientResults = new List<LoadResult>();
-            }
-
             existingTestRun.ClientResults.Add(loadResultPayload);
 
             var insertedTestRun = await testRunService.Post(existingTestRun, cancellationTokenSource.Token);
 
             if (insertedTestRun != null)
             {
-                return await ResultHandler.CreateNoContent();
+                return await ResultHandler.CreateResult(insertedTestRun, HttpStatusCode.OK);
             }
             else
             {

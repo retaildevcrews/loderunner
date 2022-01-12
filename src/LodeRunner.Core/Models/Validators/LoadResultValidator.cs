@@ -19,7 +19,7 @@ namespace LodeRunner.Core.Models.Validators
             this.RuleFor(m => m.LoadClient).SetValidator(new LoadClientValidator());
             this.When(m => m.CompletedTime > DateTime.MinValue, () =>
             {
-                this.RuleFor(m => m.TotalRequests).GreaterThan(0);
+                this.RuleFor(m => m.TotalRequests).Equal(m => m.SuccessfulRequests + m.FailedRequests);
             });
         }
     }
