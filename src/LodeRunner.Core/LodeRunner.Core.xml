@@ -388,6 +388,11 @@
             The Config Interface.
             </summary>
         </member>
+        <member name="P:LodeRunner.Core.Interfaces.ILRConfig.LoadClientId">
+            <summary>
+            gets or sets the Load Client ID which is a GUID.
+            </summary>
+        </member>
         <member name="P:LodeRunner.Core.Interfaces.ILRConfig.StatusUpdateInterval">
             <summary>
             gets or sets the status update interval in seconds.

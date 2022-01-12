@@ -474,6 +474,7 @@ namespace LodeRunner
                 Duration = duration,
                 ContentLength = contentLength,
                 Failed = validationResult.Failed,
+                LoadClientId = this.config.LoadClientId,
             };
 
             // determine the Performance Level based on category
@@ -644,6 +645,7 @@ namespace LodeRunner
                     { "CVectorBase", perfLog.CorrelationVectorBase },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
+                    { "LoadClientId", perfLog.LoadClientId },
                 };
 
                 // add zone, region tag
