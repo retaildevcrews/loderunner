@@ -10,8 +10,16 @@ using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Extensions
 {
+    /// <summary>
+    /// Provides AutoMapper Profile Extension Methods.
+    /// </summary>
     public static class AutoMapperProfileExtensions
     {
+        /// <summary>
+        /// Builds the expression ignoring the not provided properties.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>IMappingExpression</returns>
         public static IMappingExpression<LoadTestConfigPayload, LoadTestConfig> IgnoreNotProvidedProps(
             this IMappingExpression<LoadTestConfigPayload, LoadTestConfig> expression)
         {
@@ -32,6 +40,11 @@ namespace LodeRunner.API.Extensions
             return expression;
         }
 
+        /// <summary>
+        /// Builds the expression ignoring the not provided properties.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>IMappingExpression</returns>
         public static IMappingExpression<TestRunPayload, TestRun> IgnoreNotProvidedProps(
             this IMappingExpression<TestRunPayload, TestRun> expression)
         {

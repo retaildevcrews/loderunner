@@ -67,7 +67,7 @@
             <param name="logger">logger.</param>
             <param name="hcLogger">HealthCheck logger.</param>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunHealthzAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunHealthzAsync(LodeRunner.Services.ClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
             <summary>
             Returns a plain text health status (pass, warn or fail).
             </summary>
@@ -76,7 +76,7 @@
             <param name="config">App Configuration.</param>
             <returns>The IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunIetfAsync(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunIetfAsync(LodeRunner.Services.ClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.API.Config)">
             <summary>
             Returns an IETF (draft) health+json representation of the full Health Check.
             </summary>
@@ -85,7 +85,7 @@
             <param name="config">App Configuration.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.HealthzController.RunCosmosHealthCheck(LodeRunner.Data.Interfaces.IClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.Core.Interfaces.ICosmosConfig)">
+        <member name="M:LodeRunner.API.Controllers.HealthzController.RunCosmosHealthCheck(LodeRunner.Services.ClientStatusService,System.Threading.CancellationTokenSource,LodeRunner.Core.Interfaces.ICosmosConfig)">
             <summary>
             Run the health check.
             </summary>
@@ -105,7 +105,7 @@
             </summary>
             <param name="mapper">The mapper.</param>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.GetLoadTestConfigs(LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.GetLoadTestConfigs(LodeRunner.Services.LoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Returns a JSON array of LoadTestConfig objects.
             </summary>
@@ -113,7 +113,7 @@
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.CreateLoadTestConfig(LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Services.LoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Creates the load test configuration.
             </summary>
@@ -131,7 +131,7 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.UpdateLoadTestConfig(System.String,LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Data.Interfaces.ILoadTestConfigService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.LoadTestConfigsController.UpdateLoadTestConfig(System.String,LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Services.LoadTestConfigService,System.Threading.CancellationTokenSource)">
             <summary>
             Updates a load test configuration.
             The payload doesn't have to be a full LoadTestConfig item.
@@ -164,7 +164,7 @@
             </summary>
             <param name="mapper">The mapper.</param>
         </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.GetTestRuns(LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.GetTestRuns(LodeRunner.Services.TestRunService,System.Threading.CancellationTokenSource)">
             <summary>
             Returns a JSON array of Test Run objects.
             </summary>
@@ -172,7 +172,7 @@
             <param name="cancellationTokenSource">The cancellation Token Source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateTestRunConfig(LodeRunner.Core.Models.TestRunPayload,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateTestRunConfig(LodeRunner.Core.Models.TestRunPayload,LodeRunner.Services.TestRunService,System.Threading.CancellationTokenSource)">
             <summary>
             Creates the test run.
             </summary>
@@ -190,7 +190,7 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.UpdateTestRun(System.String,LodeRunner.Core.Models.TestRunPayload,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.UpdateTestRun(System.String,LodeRunner.Core.Models.TestRunPayload,LodeRunner.Services.TestRunService,System.Threading.CancellationTokenSource)">
             <summary>
             Updates a test run. Will not update nested properties (i.e. ClientResults).
             The payload doesn't have to be a full TestRun item.
@@ -204,7 +204,7 @@
             <param name="cancellationTokenSource">The cancellation token source.</param>
             <returns>IActionResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateLoadResult(System.String,LodeRunner.Core.Models.LoadResult,LodeRunner.Data.Interfaces.ITestRunService,System.Threading.CancellationTokenSource)">
+        <member name="M:LodeRunner.API.Controllers.TestRunsController.CreateLoadResult(System.String,LodeRunner.Core.Models.LoadResult,LodeRunner.Services.TestRunService,System.Threading.CancellationTokenSource)">
             <summary>
             Adds the payload to the ClientResults in the TestRun.
             </summary>
@@ -610,11 +610,11 @@
             </summary>
             <returns>JsonResult.</returns>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateBadRequestResult(System.Collections.Generic.List{LodeRunner.API.Middleware.Validation.ValidationError},System.String)">
+        <member name="M:LodeRunner.API.Middleware.ResultHandler.CreateBadRequestResult(System.Object,System.String)">
             <summary>
             Create a BadRequest Result.
             </summary>
-            <param name="errorList">list of validation errors.</param>
+            <param name="errors">list of validation errors.</param>
             <param name="path">string.</param>
             <returns>JsonResult.</returns>
         </member>
@@ -1350,6 +1350,25 @@
             <param name="status">HealthStatus (dotnet).</param>
             <returns>string.</returns>
         </member>
+        <member name="T:LodeRunner.API.Extensions.AutoMapperProfileExtensions">
+            <summary>
+            Provides AutoMapper Profile Extension Methods.
+            </summary>
+        </member>
+        <member name="M:LodeRunner.API.Extensions.AutoMapperProfileExtensions.IgnoreNotProvidedProps(AutoMapper.IMappingExpression{LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Core.Models.LoadTestConfig})">
+            <summary>
+            Builds the expression ignoring the not provided properties.
+            </summary>
+            <param name="expression">The expression.</param>
+            <returns>IMappingExpression</returns>
+        </member>
+        <member name="M:LodeRunner.API.Extensions.AutoMapperProfileExtensions.IgnoreNotProvidedProps(AutoMapper.IMappingExpression{LodeRunner.Core.Models.TestRunPayload,LodeRunner.Core.Models.TestRun})">
+            <summary>
+            Builds the expression ignoring the not provided properties.
+            </summary>
+            <param name="expression">The expression.</param>
+            <returns>IMappingExpression</returns>
+        </member>
         <member name="M:LodeRunner.API.Extensions.ClientStatusServiceExtensions.GetClients(LodeRunner.Services.ClientStatusService,LodeRunner.API.Middleware.NgsaLog)">
             <summary>
             Gets all clients.
@@ -1441,7 +1460,7 @@
             The web site role env variable.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.CosmosHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{LodeRunner.API.CosmosHealthCheck},LodeRunner.Data.Interfaces.IClientStatusService,LodeRunner.Core.Interfaces.ICosmosConfig)">
+        <member name="M:LodeRunner.API.CosmosHealthCheck.#ctor(Microsoft.Extensions.Logging.ILogger{LodeRunner.API.CosmosHealthCheck},LodeRunner.Services.ClientStatusService,LodeRunner.Core.Interfaces.ICosmosConfig)">
             <summary>
             Initializes a new instance of the <see cref="T:LodeRunner.API.CosmosHealthCheck"/> class.
             </summary>

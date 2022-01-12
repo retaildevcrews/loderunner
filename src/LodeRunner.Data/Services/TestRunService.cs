@@ -2,13 +2,13 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using LodeRunner.Core.Interfaces;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 
@@ -17,10 +17,8 @@ namespace LodeRunner.Services
     /// <summary>
     ///   Test Run Service.
     /// </summary>
-    public class TestRunService : BaseService, ITestRunService
+    public class TestRunService : BaseService<TestRun>, ITestRunService
     {
-        private readonly IModelValidator<TestRun> validator;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunService"/> class.
         /// </summary>
@@ -28,30 +26,7 @@ namespace LodeRunner.Services
         public TestRunService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
-            this.validator = new TestRunValidator();
-        }
-
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The corresponding Entity.
-        /// </returns>
-        public async Task<TestRun> Get(string id)
-        {
-            return await this.Get<TestRun>(id);
-        }
-
-        /// <summary>
-        /// Gets all.
-        /// </summary>
-        /// <returns>
-        /// all items for a given type.
-        /// </returns>
-        public async Task<IEnumerable<TestRun>> GetAll()
-        {
-            return await this.GetAll<TestRun>();
+            this.Validator = new TestRunValidator();
         }
 
         /// <summary>
@@ -62,26 +37,24 @@ namespace LodeRunner.Services
         /// <returns>
         /// The Inserted TestRun entity.
         /// </returns>
-        public async Task<TestRun> Post(TestRun testRun, CancellationToken cancellationToken)
+        public async Task<ApiResponse<TestRun>> Post(TestRun testRun, CancellationToken cancellationToken)
         {
-            var returnValue = new Task<TestRun>(() => null);
+            var returnValue = await this.Save(testRun, cancellationToken);
 
-            if (testRun != null && !cancellationToken.IsCancellationRequested)
+            ApiResponse<TestRun> result = new ();
+
+            if (!this.Validator.IsValid)
             {
-                // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(testRun))
-                {
-                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(testRun, cancellationToken);
-                }
-                else
-                {
-                    // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
-                    // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
-                }
+                result.Errors = this.Validator.ErrorMessage;
+                result.StatusCode = HttpStatusCode.BadRequest;
+            }
+            else if (returnValue != null)
+            {
+                result.Model = returnValue;
+                result.StatusCode = HttpStatusCode.OK;
             }
 
-            return await returnValue;
+            return result;
         }
 
         /// <summary>
@@ -91,11 +64,11 @@ namespace LodeRunner.Services
         /// <returns>
         /// The corresponding Entity.
         /// </returns>
-        public async Task<HttpStatusCode> Delete(string id)
+        public new async Task<HttpStatusCode> Delete(string id)
         {
             try
             {
-                var loadTestConfig = await this.Delete<TestRun>(id);
+                var loadTestConfig = await base.Delete(id);
                 return HttpStatusCode.OK;
             }
             catch (CosmosException ce)

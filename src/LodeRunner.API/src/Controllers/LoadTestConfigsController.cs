@@ -10,6 +10,7 @@ using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
@@ -49,7 +50,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a JSON array of LoadTestConfig objects",
             Description = "Returns an array of `LoadTestConfig` documents",
             OperationId = "GetLoadTestConfigs")]
-        public async Task<ActionResult<IEnumerable<LoadTestConfig>>> GetLoadTestConfigs([FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<LoadTestConfig>>> GetLoadTestConfigs([FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -79,7 +80,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Creates a new LoadTestConfig item",
             Description = "Requires Load Test Config payload",
             OperationId = "CreateLoadTestConfig")]
-        public async Task<ActionResult> CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -91,11 +92,15 @@ namespace LodeRunner.API.Controllers
 
             if (newloadTestConfig.Validate(out string errorMessage, loadTestConfigPayload.PropertiesChanged))
             {
-                var insertedLoadTestConfig = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
+                var insertedLoadTestConfigResponse = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
 
-                if (insertedLoadTestConfig != null)
+                if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateResult(insertedLoadTestConfig, HttpStatusCode.OK);
+                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                }
+                else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return await ResultHandler.CreateBadRequestResult(insertedLoadTestConfigResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
                 }
                 else
                 {
@@ -132,15 +137,12 @@ namespace LodeRunner.API.Controllers
 
             var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
 
-            switch (deleteTaskResult)
+            return deleteTaskResult switch
             {
-                case HttpStatusCode.OK:
-                    return await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK);
-                case HttpStatusCode.NotFound:
-                    return await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound);
-                default:
-                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError);
-            }
+                HttpStatusCode.OK => await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK),
+                HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound),
+                _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
+            };
         }
 
         /// <summary>
@@ -172,7 +174,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Updates an existing LoadTestConfig item",
             Description = "Requires load test config payload (partial or full) and ID",
             OperationId = "UpdateLoadTestConfig")]
-        public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -208,15 +210,19 @@ namespace LodeRunner.API.Controllers
             // Validate the mapped loadTestConfig
             if (existingLoadTestConfig.Validate(out string errorMessage))
             {
-                var insertedLoadTestConfig = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
+                var insertedLoadTestConfigResponse = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
 
-                if (insertedLoadTestConfig != null)
+                if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateNoContent();
+                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                }
+                else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return await ResultHandler.CreateBadRequestResult(insertedLoadTestConfigResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
                 }
                 else
                 {
-                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToUpdateLoadTestConfig, HttpStatusCode.InternalServerError);
+                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
                 }
             }
             else

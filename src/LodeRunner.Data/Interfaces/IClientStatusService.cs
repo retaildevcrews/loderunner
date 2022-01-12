@@ -23,32 +23,6 @@ namespace LodeRunner.Data.Interfaces
         Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>The corresponding Entity.</returns>
-        Task<ClientStatus> Get(string id);
-
-        /// <summary>
-        /// Gets all.
-        /// </summary>
-        /// <returns>all items for a given type.</returns>
-        Task<IEnumerable<ClientStatus>> GetAll();
-
-        /// <summary>
-        /// Gets the most recent asynchronous.
-        /// </summary>
-        /// <param name="limit">The limit.</param>
-        /// <returns>all the number of items for a given type.</returns>
-        Task<IEnumerable<ClientStatus>> GetMostRecent(int limit = 1);
-
-        /// <summary>
-        /// Gets the count asynchronous.
-        /// </summary>
-        /// <returns>Items Count EntityType equals ClientStatus.</returns>
-        Task<int> GetCount();
-
-        /// <summary>
         /// Terminates the service.
         /// </summary>
         /// <param name="clientStatus">The ClientStatus entity.</param>

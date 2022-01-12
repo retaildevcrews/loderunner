@@ -9,6 +9,7 @@ using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.SchemaFilters;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -53,7 +54,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Healthz Check (simple)",
             Description = "Returns a text/plain health status (pass, warn or fail)",
             OperationId = "RunHealthzAsync")]
-        public async Task<IActionResult> RunHealthzAsync([FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource, [FromServices] Config config)
+        public async Task<IActionResult> RunHealthzAsync([FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource, [FromServices] Config config)
         {
             // get list of genres as list of string
             this.logger.LogInformation(nameof(this.RunHealthzAsync));
@@ -78,7 +79,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Healthz Check (IETF)",
             Description = "Returns an `IetfHealthCheck` document from the Health Check",
             OperationId = "RunIetfAsync")]
-        public async Task RunIetfAsync([FromServices] IClientStatusService clientStatusService,  [FromServices] CancellationTokenSource cancellationTokenSource, [FromServices] Config config)
+        public async Task RunIetfAsync([FromServices] ClientStatusService clientStatusService,  [FromServices] CancellationTokenSource cancellationTokenSource, [FromServices] Config config)
         {
             this.logger.LogInformation(nameof(this.RunHealthzAsync));
 
@@ -98,7 +99,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <param name="cosmosConfig">App Cosmos Configuration.</param>
         /// <returns>HealthCheckResult.</returns>
-        private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService, CancellationTokenSource cancellationTokenSource, ICosmosConfig cosmosConfig)
+        private async Task<HealthCheckResult> RunCosmosHealthCheck(ClientStatusService clientStatusService, CancellationTokenSource cancellationTokenSource, ICosmosConfig cosmosConfig)
         {
             CosmosHealthCheck chk = new (this.hcLogger, clientStatusService, cosmosConfig);
 

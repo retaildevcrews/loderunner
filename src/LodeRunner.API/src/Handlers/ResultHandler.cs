@@ -86,10 +86,10 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Create a BadRequest Result.
         /// </summary>
-        /// <param name="errorList">list of validation errors.</param>
+        /// <param name="errors">list of validation errors.</param>
         /// <param name="path">string.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateBadRequestResult(List<ValidationError> errorList, string path)
+        public static async Task<JsonResult> CreateBadRequestResult(object errors, string path)
         {
             Dictionary<string, object> data = new ()
             {
@@ -98,7 +98,7 @@ namespace LodeRunner.API.Middleware
                 { "detail", "One or more invalid parameters were specified." },
                 { "status", (int)HttpStatusCode.BadRequest },
                 { "instance", path },
-                { "validationErrors", errorList },
+                { "validationErrors", errors },
             };
 
             return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);

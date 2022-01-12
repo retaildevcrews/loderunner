@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 
@@ -17,10 +19,8 @@ namespace LodeRunner.Services
     /// <summary>
     ///   Load Test Config Service.
     /// </summary>
-    public class LoadTestConfigService : BaseService, ILoadTestConfigService
+    public class LoadTestConfigService : BaseService<LoadTestConfig>, ILoadTestConfigService
     {
-        private readonly IModelValidator<LoadTestConfig> validator;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadTestConfigService"/> class.
         /// </summary>
@@ -28,30 +28,7 @@ namespace LodeRunner.Services
         public LoadTestConfigService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
-            this.validator = new LoadTestConfigValidator();
-        }
-
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The corresponding Entity.
-        /// </returns>
-        public async Task<LoadTestConfig> Get(string id)
-        {
-            return await this.Get<LoadTestConfig>(id);
-        }
-
-        /// <summary>
-        /// Gets all.
-        /// </summary>
-        /// <returns>
-        /// all items for a given type.
-        /// </returns>
-        public async Task<IEnumerable<LoadTestConfig>> GetAll()
-        {
-            return await this.GetAll<LoadTestConfig>();
+            this.Validator = new LoadTestConfigValidator();
         }
 
         /// <summary>
@@ -59,29 +36,25 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The Inserted LoadTestConfig entity.
-        /// </returns>
-        public async Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
+        /// <returns>The Inserted LoadTestConfig response.</returns>
+        public async Task<ApiResponse<LoadTestConfig>> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
         {
-            var returnValue = new Task<LoadTestConfig>(() => null);
+            var returnValue = await this.Save(loadTestConfig, cancellationToken);
 
-            if (loadTestConfig != null && !cancellationToken.IsCancellationRequested)
+            ApiResponse<LoadTestConfig> result = new ();
+
+            if (!this.Validator.IsValid)
             {
-                // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(loadTestConfig))
-                {
-                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(loadTestConfig, cancellationToken);
-                }
-                else
-                {
-                    // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
-                    // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
-                }
+                result.Errors = this.Validator.ErrorMessage;
+                result.StatusCode = HttpStatusCode.BadRequest;
+            }
+            else if (returnValue != null)
+            {
+                result.Model = returnValue;
+                result.StatusCode = HttpStatusCode.OK;
             }
 
-            return await returnValue;
+            return result;
         }
 
         /// <summary>
@@ -91,11 +64,11 @@ namespace LodeRunner.Services
         /// <returns>
         /// The corresponding Entity.
         /// </returns>
-        public async Task<HttpStatusCode> Delete(string id)
+        public new async Task<HttpStatusCode> Delete(string id)
         {
             try
             {
-                var loadTestConfig = await this.Delete<LoadTestConfig>(id);
+                var loadTestConfig = await base.Delete(id);
                 return HttpStatusCode.OK;
             }
             catch (CosmosException ce)
