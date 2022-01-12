@@ -2,11 +2,13 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 
 namespace LodeRunner.Services
@@ -136,6 +138,29 @@ namespace LodeRunner.Services
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Creates the API response.
+        /// </summary>
+        /// <param name="returnValue">The return value.</param>
+        /// <returns>Api Response.</returns>
+        protected ApiResponse<TEntity> CreateApiResponse(TEntity returnValue)
+        {
+            ApiResponse<TEntity> result = new ();
+
+            if (!this.Validator.IsValid)
+            {
+                result.Errors = this.Validator.ErrorMessage;
+                result.StatusCode = HttpStatusCode.BadRequest;
+            }
+            else if (returnValue != null)
+            {
+                result.Model = returnValue;
+                result.StatusCode = HttpStatusCode.OK;
+            }
+
+            return result;
         }
     }
 }

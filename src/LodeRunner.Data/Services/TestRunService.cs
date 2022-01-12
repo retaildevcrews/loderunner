@@ -41,20 +41,7 @@ namespace LodeRunner.Services
         {
             var returnValue = await this.Save(testRun, cancellationToken);
 
-            ApiResponse<TestRun> result = new ();
-
-            if (!this.Validator.IsValid)
-            {
-                result.Errors = this.Validator.ErrorMessage;
-                result.StatusCode = HttpStatusCode.BadRequest;
-            }
-            else if (returnValue != null)
-            {
-                result.Model = returnValue;
-                result.StatusCode = HttpStatusCode.OK;
-            }
-
-            return result;
+            return this.CreateApiResponse(returnValue);
         }
 
         /// <summary>
