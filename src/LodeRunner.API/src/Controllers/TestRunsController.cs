@@ -171,8 +171,12 @@ namespace LodeRunner.API.Controllers
 
             switch (canGetExistingTestRunResponse.StatusCode)
             {
-                case HttpStatusCode.InternalServerError: await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError); break;
-                case HttpStatusCode.NotFound: await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound); break;
+                case HttpStatusCode.InternalServerError:
+                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError);
+                    break;
+                case HttpStatusCode.NotFound:
+                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound);
+                    break;
             }
 
             // Map TestRunPayload to existing TestRun.
