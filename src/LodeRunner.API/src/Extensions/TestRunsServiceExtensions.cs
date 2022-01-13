@@ -58,5 +58,46 @@ namespace LodeRunner.API.Extensions
 
             return result;
         }
+
+        /// <summary>
+        /// Gets the test run by identifier.
+        /// </summary>
+        /// <param name="testRunService">The test run service.</param>
+        /// <param name="testRunId">The test run identifier.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>The Task.</returns>
+        public static async Task<TestRun> GetTestRunById(this TestRunService testRunService, string testRunId, NgsaLog logger)
+        {
+            TestRun result = null;
+            try
+            {
+                // Get Test Run from Cosmos
+
+                TestRun testRun = await testRunService.Get(testRunId);
+
+                if (testRun != null)
+                {
+                    result = testRun;
+                }
+            }
+            catch (CosmosException ce)
+            {
+                // log and return Cosmos status code
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await logger.LogWarning(nameof(GetTestRunById), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                }
+                else
+                {
+                    throw new Exception($"{nameof(GetTestRunById)}: {ce.Message}", ce);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(GetTestRunById)}: {ex.Message}", ex);
+            }
+
+            return result;
+        }
     }
 }

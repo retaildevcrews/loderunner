@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,9 +18,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class TestRuns : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
-        private const string GetOrPostTestRunsUri = "/api/TestRuns";
-        private const string DeleteOrPutTestRunsByIdUri = "/api/TestRuns/{testRunId}";
-        private const string PostClientResultsByTestRunIdUri = "/api/TestRuns/{testRunId}/ClientResults";
+        private const string TestRunsUri = "/api/TestRuns";
 
         private readonly ApiWebApplicationFactory<Startup> factory;
 
@@ -82,15 +83,33 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            // TODO need to create one to make sure we can get at least on back.
-
-            await httpClient.GetTestRuns(GetOrPostTestRunsUri, this.jsonOptions, this.output);
+            await httpClient.GetTestRuns(TestRunsUri, this.jsonOptions, this.output);
         }
-
-
 
         /// <summary>
         /// Determines whether this instance [can put test runs].
+        /// </summary>
+        private async Task CanCreateAndGetTestRun()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            string json = JsonSerializer.Serialize(new TestRunTestPayload(), this.jsonOptions);
+            var payloadContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var httpPostResponse = await httpClient.PostAsync(TestRunsUri, payloadContent);
+
+            Assert.Equal(System.Net.HttpStatusCode.Created, httpPostResponse.StatusCode);
+
+            string postResponseContent = await httpPostResponse.Content.ReadAsStringAsync();
+            TestRun postedTestRun = JsonSerializer.Deserialize<TestRun>(postResponseContent);
+            var httpGetResponse = await httpClient.GetAsync(TestRunsUri + "/" + postedTestRun.Id);
+            string getResponseContent = await httpGetResponse.Content.ReadAsStringAsync();
+            TestRun gettedTestRun = JsonSerializer.Deserialize<TestRun>(getResponseContent);
+
+            Assert.Equal(postedTestRun, gettedTestRun);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
@@ -98,10 +117,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         private async Task CanPutTestRuns()
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
-
-            // TODO need to create one to make sure we can get at least on back.
-
-            await httpClient.PutTestRun(GetOrPostTestRunsUri, this.jsonOptions, this.output);
+            await httpClient.PutTestRun(TestRunsUri, this.jsonOptions, this.output);
         }
     }
 }
