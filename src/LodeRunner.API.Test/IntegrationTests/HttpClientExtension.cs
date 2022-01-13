@@ -30,12 +30,12 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// Validate GetById Request.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
-        /// <param name="clientsByIdUri">the clientsById Uri.</param>
-        /// <param name="clientStatusId">the clientStatusId.</param>
+        /// <param name="byIdUri">the Uri to get by ID.</param>
+        /// <param name="id">the ID to get by.</param>
         /// <returns>HttpResponseMessage.</returns>
-        public static async Task<HttpResponseMessage> ValidateAndGetByIdRequest(this HttpClient httpClient, string clientsByIdUri, string clientStatusId)
+        public static async Task<HttpResponseMessage> ValidateAndGetByIdRequest(this HttpClient httpClient, string byIdUri, string id)
         {
-            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{clientsByIdUri}{clientStatusId}");
+            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{byIdUri}{id}");
 
             Assert.False(httpResponse.StatusCode == HttpStatusCode.NoContent, "Response Code 204 - No Content.");
 
@@ -168,7 +168,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// GetTestRuns.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
-        /// <param name="getTestRunsUri">clientsById Uri.</param>
+        /// <param name="getTestRunsUri">getTestRuns Uri.</param>
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
@@ -201,6 +201,27 @@ namespace LodeRunner.API.Test.IntegrationTests
             return found;
         }
 
+        /// <summary>
+        /// GetTestRunById.
+        /// </summary>
+        /// <param name="httpClient">the httpClient.</param>
+        /// <param name="getTestRunByIdUri">getTestRunById Uri.</param>
+        /// <param name="testRunId">testRun ID</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<TestRun> GetTestRunById(this HttpClient httpClient, string getTestRunByIdUri, string testRunId, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        {
+            var httpResponse = await httpClient.ValidateAndGetByIdRequest(getTestRunByIdUri, testRunId);
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                return await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// GetTestRuns.
@@ -214,7 +235,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         {
             TestRunTestPayload testRunTestPayload = new ();
 
-            testRunTestPayload.Name = $"Sample TestRun - IntegrationTesting-{nameof(PutTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+            testRunTestPayload.Name = $"Sample TestRun - IntegrationTesting-{nameof(PostTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
             string jsonTestRun = JsonConvert.SerializeObject(testRunTestPayload);
             StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
@@ -240,16 +261,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        public static async Task<bool> PutTestRun(this HttpClient httpClient, TestRun testRun , string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        public static async Task<bool> PutTestRun(this HttpClient httpClient, TestRun testRun, string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
         {
             string newName = $"Updated TestRun - IntegrationTesting-{nameof(PutTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
             testRun.Name = newName;
-
-            if (testRun.ClientResults == null)
-            {
-                testRun.ClientResults = new List<LoadResult>();
-            }
 
             int actualClientResultsCount = testRun.ClientResults.Count;
 

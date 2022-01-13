@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -95,17 +96,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            string json = JsonSerializer.Serialize(new TestRunTestPayload(), this.jsonOptions);
-            var payloadContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var httpPostResponse = await httpClient.PostAsync(TestRunsUri, payloadContent);
-
-            Assert.Equal(System.Net.HttpStatusCode.Created, httpPostResponse.StatusCode);
-
-            string postResponseContent = await httpPostResponse.Content.ReadAsStringAsync();
-            TestRun postedTestRun = JsonSerializer.Deserialize<TestRun>(postResponseContent);
-            var httpGetResponse = await httpClient.GetAsync(TestRunsUri + "/" + postedTestRun.Id);
-            string getResponseContent = await httpGetResponse.Content.ReadAsStringAsync();
-            TestRun gettedTestRun = JsonSerializer.Deserialize<TestRun>(getResponseContent);
+            var postedTestRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
+            var gettedTestRun = await httpClient.GetTestRunById(TestRunsUri + "/", postedTestRun.Id, this.jsonOptions, this.output);
 
             Assert.Equal(postedTestRun, gettedTestRun);
         }
@@ -126,7 +118,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(testRun.Id).Count;
 
-            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
+            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Put a Sample TestRun item.");
 
             await httpClient.PutTestRun(testRun, $"{TestRunsUri}/{testRun.Id}", this.jsonOptions, this.output);
         }
