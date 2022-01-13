@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
@@ -166,33 +167,18 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            // First get the object for verification
-            TestRun existingTestRun;
-            try
-            {
-                existingTestRun = await testRunService.Get(testRunId);
-            }
-            catch (CosmosException cex)
-            {
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
-            }
-            catch (Exception ex)
-            {
-                return await ResultHandler.CreateErrorResult($"Unknown server exception: {ex.Message}", HttpStatusCode.InternalServerError);
-            }
+            var canGetExistingTestRunResponse = await testRunService.GetTestRun(testRunId);
 
-            // If we get null object without exception, its 404 as well
-            if (existingTestRun == null)
+            switch (canGetExistingTestRunResponse.StatusCode)
             {
-                // We don't have the item with specified ID, throw error
-                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToGetTestRun, HttpStatusCode.NotFound);
+                case HttpStatusCode.InternalServerError: await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError); break;
+                case HttpStatusCode.NotFound: await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound); break;
             }
 
             // Map TestRunPayload to existing TestRun.
-            this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload, existingTestRun);
+            this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload, canGetExistingTestRunResponse.Model);
 
-            var insertedTestRunResponse = await testRunService.Post(existingTestRun, cancellationTokenSource.Token);
+            var insertedTestRunResponse = await testRunService.Post(canGetExistingTestRunResponse.Model, cancellationTokenSource.Token);
 
             if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
             {
@@ -232,33 +218,22 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            // First get the object for verification
-            TestRun existingTestRun;
-            try
-            {
-                existingTestRun = await testRunService.Get(testRunId);
-            }
-            catch (CosmosException cex)
-            {
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
-            }
-            catch (Exception ex)
-            {
-                return await ResultHandler.CreateErrorResult($"Unknown server exception: {ex.Message}", HttpStatusCode.InternalServerError);
-            }
+            var canGetExistingTestRunResponse = await testRunService.GetTestRun(testRunId);
 
-            // If we get null object without exception, its 404 as well
-            if (existingTestRun == null)
+            switch (canGetExistingTestRunResponse.StatusCode)
             {
-                // We don't have the item with specified ID, throw error
-                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToGetTestRun, HttpStatusCode.NotFound);
+                case HttpStatusCode.InternalServerError:
+                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError);
+                    break;
+                case HttpStatusCode.NotFound:
+                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound);
+                    break;
             }
 
             // We add the loadResult to the existing ClientResult list.
-            existingTestRun.ClientResults.Add(loadResultPayload);
+            canGetExistingTestRunResponse.Model.ClientResults.Add(loadResultPayload);
 
-            var insertedTestRunResponse = await testRunService.Post(existingTestRun, cancellationTokenSource.Token);
+            var insertedTestRunResponse = await testRunService.Post(canGetExistingTestRunResponse.Model, cancellationTokenSource.Token);
 
             if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
             {
