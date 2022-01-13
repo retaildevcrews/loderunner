@@ -66,7 +66,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The error message success.
         /// </summary>
-        public const string ErrorMessageSuccess = "The parameter 'clientStatusId' should be a non-empty string";
+        public const string ErrorMessageSuccess = "'clientStatusId' value is not a valid GUID";
 
         /// <summary>
         /// The error message unknown.
