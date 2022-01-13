@@ -179,6 +179,11 @@ namespace LodeRunner.API
         public const string InvalidClientStatusId = "Invalid Client Status Id.";
 
         /// <summary>
+        /// The invalid load identifier.
+        /// </summary>
+        public const string InvalidLoadTestConfigId = "Invalid Load Tets Config Id.";
+
+        /// <summary>
         /// The unable to create load test configuration.
         /// </summary>
         public const string UnableToCreateLoadTestConfig = "Unable to create Load Test Config item.";
@@ -212,6 +217,11 @@ namespace LodeRunner.API
         /// Invalid Payload data.
         /// </summary>
         public const string InvalidPayloadData = "Invalid Payload data.";
+
+        /// <summary>
+        /// The invalid test run identifier.
+        /// </summary>
+        public const string InvalidTestRunId = "Invalid Test Run Id.";
 
         /// <summary>
         /// The unable to create test run.

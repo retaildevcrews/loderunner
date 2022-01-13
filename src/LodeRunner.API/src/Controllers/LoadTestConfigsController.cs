@@ -25,6 +25,13 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update LoadTest Configurations")]
     public class LoadTestConfigsController : Controller
     {
+        private static readonly NgsaLog Logger = new ()
+        {
+            Name = typeof(LoadTestConfigsController).FullName,
+            ErrorMessage = "LoadTestConfigsControllerException",
+            NotFoundError = "Load Test Configs Not Found",
+        };
+
         private readonly IMapper autoMapper;
 
         /// <summary>
@@ -74,7 +81,9 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadTestConfig` was created.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.Created, "`LoadTestConfig` was created.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Creates a new LoadTestConfig item",
@@ -122,7 +131,9 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpDelete("{loadTestConfigId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.DeletedLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidLoadTestConfigId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Deletes a LoadTestConfig item",
@@ -133,6 +144,15 @@ namespace LodeRunner.API.Controllers
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<Middleware.Validation.ValidationError> errorlist = LoadTestConfigParameters.ValidateLoadTestConfigId(loadTestConfigId);
+
+            if (errorlist.Count > 0)
+            {
+                await Logger.LogWarning(nameof(DeleteLoadTestConfig), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
@@ -170,6 +190,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateLoadTestConfig)]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetLoadTestConfig)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Updates an existing LoadTestConfig item",
             Description = "Requires load test config payload (partial or full) and ID",

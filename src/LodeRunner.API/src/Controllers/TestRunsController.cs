@@ -13,7 +13,6 @@ using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -26,6 +25,13 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update, delete Test Runs")]
     public class TestRunsController : Controller
     {
+        private static readonly NgsaLog Logger = new ()
+        {
+            Name = typeof(TestRunsController).FullName,
+            ErrorMessage = "TestRunsControllerException",
+            NotFoundError = "Test Runs Not Found",
+        };
+
         private readonly IMapper autoMapper;
 
         /// <summary>
@@ -68,6 +74,43 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
+        /// Returns a single JSON TestRun by Parameter, testRunId.
+        /// </summary>
+        /// <param name="testRunId">testRunId.</param>
+        /// <param name="testRunService">The TetsRunService.</param>
+        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
+        /// <returns>IActionResult.</returns>
+        [HttpGet("{testRunId}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Single `TestRun` document by testRunId.", typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerOperation(
+            Summary = "Gets a single JSON TestRun by Parameter, testRunId.",
+            Description = "Returns a single `TestRun` document by testRunId",
+            OperationId = "GetTestRunByTestRunId")]
+        public async Task<ActionResult<TestRun>> GetTestRunById([FromRoute] string testRunId, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<Middleware.Validation.ValidationError> errorlist = TestRunParameters.ValidateTestRunId(testRunId);
+
+            if (errorlist.Count > 0)
+            {
+                await Logger.LogWarning(nameof(GetTestRunById), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
+            }
+
+            var result = await testRunService.GetTestRunById(testRunId, Logger);
+
+            return await ResultHandler.HandleResult(result, Logger);
+        }
+
+        /// <summary>
         /// Creates the test run.
         /// </summary>
         /// <param name="testRunPayload">The test run.</param>
@@ -75,7 +118,9 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`TestRun` was created.", typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.Created, "`TestRun` was created.", typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateTestRun)]
         [SwaggerOperation(
             Summary = "Creates a new TestRun item",
@@ -95,7 +140,7 @@ namespace LodeRunner.API.Controllers
 
             if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
             {
-                return await ResultHandler.CreateResult(insertedTestRunResponse.Model, HttpStatusCode.OK);
+                return await ResultHandler.CreateResult(insertedTestRunResponse.Model, HttpStatusCode.Created);
             }
             else if (insertedTestRunResponse.StatusCode == HttpStatusCode.BadRequest)
             {
@@ -116,7 +161,9 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpDelete("{testRunId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.DeletedTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteTestRun)]
         [SwaggerOperation(
             Summary = "Deletes a TestRun item",
@@ -127,6 +174,15 @@ namespace LodeRunner.API.Controllers
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<Middleware.Validation.ValidationError> errorlist = TestRunParameters.ValidateTestRunId(testRunId);
+
+            if (errorlist.Count > 0)
+            {
+                await Logger.LogWarning(nameof(DeleteTestRun), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             var deleteTaskResult = await testRunService.Delete(testRunId);
@@ -154,6 +210,7 @@ namespace LodeRunner.API.Controllers
         [HttpPut("{testRunId}")]
         [SwaggerResponse((int)HttpStatusCode.NoContent, "`TestRun` was updated.", null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetTestRun)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
         [SwaggerOperation(
@@ -187,61 +244,6 @@ namespace LodeRunner.API.Controllers
             if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
             {
                 return await ResultHandler.CreateNoContent();
-            }
-            else if (insertedTestRunResponse.StatusCode == HttpStatusCode.BadRequest)
-            {
-                return await ResultHandler.CreateBadRequestResult(insertedTestRunResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-            else
-            {
-                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateTestRun, HttpStatusCode.InternalServerError);
-            }
-        }
-
-        /// <summary>
-        /// Adds the payload to the ClientResults in the TestRun.
-        /// </summary>
-        /// <param name="testRunId">The test run id.</param>
-        /// <param name="loadResultPayload">The load result payload.</param>
-        /// <param name="testRunService">The Test Run Service.</param>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <returns>IActionResult.</returns>
-        [HttpPost("{testRunId}/ClientResults")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadResult` was created.", typeof(TestRun), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateTestRun)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetTestRun)]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
-        [SwaggerOperation(
-            Summary = "Appending a LoadResult to the ClientResults in an existing TestRun",
-            Description = "Requires a full LoadResult payload and TestRunId",
-            OperationId = "CreateLoadResult")]
-        public async Task<ActionResult> CreateLoadResult([FromRoute] string testRunId, [FromBody, SwaggerRequestBody("The load result payload", Required = true)] LoadResult loadResultPayload, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
-        {
-            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
-            {
-                return await ResultHandler.CreateCancellationInProgressResult();
-            }
-
-            var canGetExistingTestRunResponse = await testRunService.GetTestRun(testRunId);
-
-            switch (canGetExistingTestRunResponse.StatusCode)
-            {
-                case HttpStatusCode.InternalServerError:
-                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError);
-                    break;
-                case HttpStatusCode.NotFound:
-                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound);
-                    break;
-            }
-
-            // We add the loadResult to the existing ClientResult list.
-            canGetExistingTestRunResponse.Model.ClientResults.Add(loadResultPayload);
-
-            var insertedTestRunResponse = await testRunService.Post(canGetExistingTestRunResponse.Model, cancellationTokenSource.Token);
-
-            if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
-            {
-                return await ResultHandler.CreateResult(insertedTestRunResponse.Model, HttpStatusCode.OK);
             }
             else if (insertedTestRunResponse.StatusCode == HttpStatusCode.BadRequest)
             {

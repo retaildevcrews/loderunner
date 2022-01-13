@@ -22,6 +22,7 @@ namespace LodeRunner.Core.Models.Validators
             this.RuleFor(m => m.EntityType).IsInEnum();
             this.RuleFor(m => m.CreatedTime).GreaterThan(DateTime.MinValue).WithMessage("Creation time is required.");
             this.RuleFor(m => m.LoadTestConfig).SetValidator(new LoadTestConfigValidator());
+            this.RuleFor(m => m.LoadClients.Count).GreaterThan(0);
             this.RuleForEach(m => m.LoadClients).SetValidator(new LoadClientValidator());
             this.RuleForEach(m => m.ClientResults).SetValidator(new LoadResultValidator());
         }
