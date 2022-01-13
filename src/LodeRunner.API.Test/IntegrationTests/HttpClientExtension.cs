@@ -7,10 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -160,5 +162,76 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             return found;
         }
+
+        /// <summary>
+        /// GetTestRuns.
+        /// </summary>
+        /// <param name="httpClient">the httpClient.</param>
+        /// <param name="getTestRunsUri">clientsById Uri.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<bool> GetTestRuns(this HttpClient httpClient, string getTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        {
+            bool found = false;
+
+            var httpResponse = await httpClient.GetAsync(getTestRunsUri);
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var testRuns = await httpResponse.Content.ReadFromJsonAsync<IEnumerable<TestRun>>(jsonOptions);
+
+                found = testRuns.Any();
+
+                if (found)
+                {
+                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Runs found.");
+                }
+            }
+
+            // TestRunsController will return 404 if not TestRuns items found after a request was successfully processed,  so 404 it is a valid response code,
+            else if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                found = true;
+            }
+
+            Assert.True(found, $"Local Time:{DateTime.Now}\tUnable to Get any TestRuns");
+
+            return found;
+        }
+
+        /// <summary>
+        /// GetTestRuns.
+        /// </summary>
+        /// <param name="httpClient">the httpClient.</param>
+        /// <param name="putTestRunsUri">clientsById Uri.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<bool> PutTestRun(this HttpClient httpClient, string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        {
+            bool found = false;
+            string jsonTestRun = JsonConvert.SerializeObject(new TestRunPayload());
+            StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PutAsync(putTestRunsUri, stringContent);
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var testRuns = await httpResponse.Content.ReadFromJsonAsync<IEnumerable<TestRun>>(jsonOptions);
+
+                found = testRuns.Any();
+
+                if (found)
+                {
+                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Runs found.");
+                }
+            }
+
+            Assert.True(found, $"Local Time:{DateTime.Now}\tUnable to Get any TestRuns");
+
+            return found;
+        }
+
     }
 }
