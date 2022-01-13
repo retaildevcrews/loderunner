@@ -160,6 +160,11 @@ namespace LodeRunner
         public bool IsClientMode { get; set; } = false;
 
         /// <summary>
+        /// gets or sets the guid to LoadClient ID.
+        /// </summary>
+        public string LoadClientId { get; set; }
+
+        /// <summary>
         /// Set the default config values.
         /// </summary>
         public void SetDefaultValues()

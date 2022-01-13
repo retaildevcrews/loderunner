@@ -81,6 +81,11 @@ namespace LodeRunner.Model
         public string Category { get; set; }
 
         /// <summary>
+        /// Gets or sets the LoadClientId.
+        /// </summary>
+        public string LoadClientId { get; set; }
+
+        /// <summary>
         /// Gets or sets the performance quartile.
         /// </summary>
         public int? Quartile { get; set; }

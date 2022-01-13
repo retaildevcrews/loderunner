@@ -68,7 +68,7 @@ namespace LodeRunner.Core.Models
         /// <returns>a new LoadClient entity.</returns>
         public static LoadClient GetNew(ILRConfig config, DateTime lastUpdated)
         {
-            return new LoadClient
+            LoadClient loadClient = new ()
             {
                 Version = Core.Version.AssemblyVersion,
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? SystemConstants.Unknown : config.Region,
@@ -77,6 +77,8 @@ namespace LodeRunner.Core.Models
                 StartupArgs = $"--secrets-volume {config.SecretsVolume}",
                 StartTime = lastUpdated,
             };
+            config.LoadClientId = loadClient.Id;
+            return loadClient;
         }
     }
 }
