@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using LodeRunner.API.Middleware;
 using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
 using Xunit;
@@ -117,7 +119,16 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         private async Task CanPutTestRuns()
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
-            await httpClient.PutTestRun(TestRunsUri, this.jsonOptions, this.output);
+
+            var testRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
+
+            Assert.NotNull(testRun);
+
+            var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(testRun.Id).Count;
+
+            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
+
+            await httpClient.PutTestRun(testRun, $"{TestRunsUri}/{testRun.Id}", this.jsonOptions, this.output);
         }
     }
 }

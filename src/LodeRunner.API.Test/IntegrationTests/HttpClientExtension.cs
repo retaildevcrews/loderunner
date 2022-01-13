@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
 using Newtonsoft.Json;
 using Xunit;
@@ -200,37 +201,75 @@ namespace LodeRunner.API.Test.IntegrationTests
             return found;
         }
 
+
         /// <summary>
         /// GetTestRuns.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
+        /// <param name="postTestRunsUri">clientsById Uri.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<TestRun> PostTestRun(this HttpClient httpClient, string postTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        {
+            TestRunTestPayload testRunTestPayload = new ();
+
+            testRunTestPayload.Name = $"Sample TestRun - IntegrationTesting-{nameof(PutTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+
+            string jsonTestRun = JsonConvert.SerializeObject(testRunTestPayload);
+            StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PostAsync(postTestRunsUri, stringContent);
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+
+                return testRun;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// GetTestRuns.
+        /// </summary>
+        /// <param name="httpClient">the httpClient.</param>
+        /// <param name="testRun">the testRun entity.</param>
         /// <param name="putTestRunsUri">clientsById Uri.</param>
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        public static async Task<bool> PutTestRun(this HttpClient httpClient, string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        public static async Task<bool> PutTestRun(this HttpClient httpClient, TestRun testRun , string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
         {
-            bool found = false;
-            string jsonTestRun = JsonConvert.SerializeObject(new TestRunPayload());
+            string newName = $"Updated TestRun - IntegrationTesting-{nameof(PutTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+
+            testRun.Name = newName;
+
+            if (testRun.ClientResults == null)
+            {
+                testRun.ClientResults = new List<LoadResult>();
+            }
+
+            int actualClientResultsCount = testRun.ClientResults.Count;
+
+            testRun.ClientResults.Add(new LoadResult());
+
+            string jsonTestRun = JsonConvert.SerializeObject(testRun);
+
             StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
 
             var httpResponse = await httpClient.PutAsync(putTestRunsUri, stringContent);
 
             if (httpResponse.IsSuccessStatusCode)
             {
-                var testRuns = await httpResponse.Content.ReadFromJsonAsync<IEnumerable<TestRun>>(jsonOptions);
+                var updatedTestRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
 
-                found = testRuns.Any();
-
-                if (found)
-                {
-                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Runs found.");
-                }
+                Assert.Equal(newName, updatedTestRun.Name);
+                Assert.Equal(actualClientResultsCount + 1, updatedTestRun.ClientResults.Count);
             }
 
-            Assert.True(found, $"Local Time:{DateTime.Now}\tUnable to Get any TestRuns");
-
-            return found;
+            return true;
         }
     }
 }

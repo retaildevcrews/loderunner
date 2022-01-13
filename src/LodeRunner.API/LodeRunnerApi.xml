@@ -764,7 +764,7 @@
         </member>
         <member name="T:LodeRunner.API.Middleware.ParametersValidator`1">
             <summary>
-            Query string parameters for Clients controller.
+            Validates string parameters for the given TEntity used from different controllers.
             </summary>
             <typeparam name="TEntity">The type of the entity.</typeparam>
         </member>
