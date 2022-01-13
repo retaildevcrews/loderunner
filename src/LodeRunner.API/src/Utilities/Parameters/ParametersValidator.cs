@@ -8,7 +8,7 @@ using LodeRunner.API.Middleware.Validation;
 namespace LodeRunner.API.Middleware
 {
     /// <summary>
-    /// Query string parameters for Clients controller.
+    /// Validates string parameters for the given TEntity used from different controllers.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public class ParametersValidator<TEntity>
