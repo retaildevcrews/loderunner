@@ -271,12 +271,12 @@ namespace LodeRunner.Services
 
             // Data connection not available yet, so we'll just update the stdout log
             ProcessingEventBus.StatusUpdate += this.LogStatusChange;
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
             ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
 
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
             try
             {
                 // wait indefinitely
@@ -284,11 +284,11 @@ namespace LodeRunner.Services
             }
             catch (TaskCanceledException tce)
             {
-                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}"));
             }
             catch (OperationCanceledException oce)
             {
-                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}"));
             }
 
             return Core.SystemConstants.ExitSuccess;
@@ -390,6 +390,8 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
         private void OnStatusTimerEvent(object sender, ElapsedEventArgs args)
         {
+            // Ensures that status remains valid and does not expire by updating time.
+            // Status value and sender remain the same
             this.lastStatusArgs.LastUpdated = DateTime.UtcNow;
             this.StatusUpdate(this.lastStatusSender, this.lastStatusArgs);
         }
