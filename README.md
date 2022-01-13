@@ -1,8 +1,8 @@
 # loderunner
 
-- [LodeRunner](./LodeRunner/README.md) is the load client that waits for TestRun entries in CosmosDB, and execute those load tests
-- [LodeRunner.API](./LodeRunner.API/README.md) is a service that creates LoadTestConfig and TestRun entries in CosmosDB for LodeRunner to use in order to execute load tests
-- [LodeRunner.UI](./LodeRunner.UI/README.md) utilizes the LodeRunner.API endpoints to provide a user-friendly interface to create LoadTestConfigs and TestRun entries in CosmosDB
+- [LodeRunner](./src/LodeRunner/README.md) is the load client that waits for TestRun entries in CosmosDB, and execute those load tests
+- [LodeRunner.API](./src/LodeRunner.API/README.md) is a service that creates LoadTestConfig and TestRun entries in CosmosDB for LodeRunner to use in order to execute load tests
+- [LodeRunner.UI](./src/LodeRunner.UI/README.md) utilizes the LodeRunner.API endpoints to provide a user-friendly interface to create LoadTestConfigs and TestRun entries in CosmosDB
 
 **NOTE** All components of the loderunner ecosystem have additional functionality that are not listed here
 
@@ -32,6 +32,7 @@
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
    - Set CosmosDB Collection: `export LR_COL=LodeRunner`
    - Set CosmosDB URL: `export LR_URL=https://ngsa-dev-cosmos.documents.azure.com:443/`
+   - Add Your IP Address To CosmosDB Firewall Allow List: [LodeRunner.Data](./src/LodeRunner.Data/README.md#solution)
    - Set Command to Get CosmosDB Key with Read-Write permissions
      - Log Into Azure: `az login --use-device-code`
      - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
