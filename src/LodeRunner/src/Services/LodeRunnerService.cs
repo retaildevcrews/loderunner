@@ -65,16 +65,16 @@ namespace LodeRunner.Services
         public ServiceProvider ServiceProvider { get; private set; }
 
         /// <summary>
-        /// Gets the ClientStatusId
+        /// Gets the ClientStatusId.
         /// </summary>
         /// <value>
-        /// The Id
+        /// The Id.
         /// </value>
         public string ClientStatusId
         {
             get
             {
-                return clientStatus.Id;
+                return this.clientStatus.Id;
             }
         }
 
@@ -83,7 +83,7 @@ namespace LodeRunner.Services
         /// </summary>
         public void Dispose()
         {
-            if (statusUpdateTimer != default(System.Timers.Timer))
+            if (this.statusUpdateTimer != default(System.Timers.Timer))
             {
                 this.statusUpdateTimer.Stop();
             }
@@ -184,11 +184,10 @@ namespace LodeRunner.Services
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
             // TODO: do we need a lock here?
-
             this.clientStatus.Message = args.Message;
-            clientStatus.Status = args.Status;
+            this.clientStatus.Status = args.Status;
 
-            _ = await GetClientStatusService().PostUpdate(clientStatus, cancellationTokenSource.Token).ConfigureAwait(false);
+            _ = await this.GetClientStatusService().PostUpdate(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
 
             // TODO : Add try catch and write log , then exit App?
         }
@@ -399,7 +398,7 @@ namespace LodeRunner.Services
         /// <summary>
         /// Called when [status update].
         /// </summary>
-        /// <param name="sender">The sender</param>
+        /// <param name="sender">The sender.</param>
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         private void StatusUpdate(object sender, ClientStatusEventArgs args)
         {
