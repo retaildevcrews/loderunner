@@ -762,62 +762,25 @@
             IDispose.Dispose().
             </summary>
         </member>
-        <member name="T:LodeRunner.API.Middleware.ClientParameters">
+        <member name="T:LodeRunner.API.Middleware.ParametersValidator`1">
             <summary>
             Query string parameters for Clients controller.
             </summary>
+            <typeparam name="TEntity">The type of the entity.</typeparam>
         </member>
-        <member name="M:LodeRunner.API.Middleware.ClientParameters.IsClientStatusIdValid(System.String)">
-            <summary>
-            Check if ClientStatus ID is Valid.
-            </summary>
-            <param name="clientStatusId">id to validate.</param>
-            <returns>true on valid.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.ClientParameters.ValidateClientStatusId(System.String)">
+        <member name="M:LodeRunner.API.Middleware.ParametersValidator`1.ValidateEntityId(System.String)">
             <summary>
             Validate Id.
             </summary>
-            <param name="clientStatusId">id to validate.</param>
+            <param name="entityId">id to validate.</param>
             <returns>empty list on valid.</returns>
         </member>
-        <member name="T:LodeRunner.API.Middleware.LoadTestConfigParameters">
+        <member name="M:LodeRunner.API.Middleware.ParametersValidator`1.IsEntityIdValid(System.String)">
             <summary>
-            Query string parameters for LoadTestConfigs controller.
+            Check if Entity ID is Valid.
             </summary>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.LoadTestConfigParameters.IsLoadTestConfigIdValid(System.String)">
-            <summary>
-            Check if LoadTestConfig ID is Valid.
-            </summary>
-            <param name="loadTestConfigId">id to validate.</param>
+            <param name="entityId">id to validate.</param>
             <returns>true on valid.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.LoadTestConfigParameters.ValidateLoadTestConfigId(System.String)">
-            <summary>
-            Validate Id.
-            </summary>
-            <param name="loadTestConfigId">id to validate.</param>
-            <returns>empty list on valid.</returns>
-        </member>
-        <member name="T:LodeRunner.API.Middleware.TestRunParameters">
-            <summary>
-            Query string parameters for TestRuns controller.
-            </summary>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.TestRunParameters.IsTestRunIdValid(System.String)">
-            <summary>
-            Check if TestRun ID is Valid.
-            </summary>
-            <param name="testRunId">id to validate.</param>
-            <returns>true on valid.</returns>
-        </member>
-        <member name="M:LodeRunner.API.Middleware.TestRunParameters.ValidateTestRunId(System.String)">
-            <summary>
-            Validate Id.
-            </summary>
-            <param name="testRunId">id to validate.</param>
-            <returns>empty list on valid.</returns>
         </member>
         <member name="T:LodeRunner.API.Middleware.Validation.ValidationError">
             <summary>

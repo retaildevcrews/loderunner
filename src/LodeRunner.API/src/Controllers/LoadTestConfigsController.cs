@@ -146,7 +146,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = LoadTestConfigParameters.ValidateLoadTestConfigId(loadTestConfigId);
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
             if (errorlist.Count > 0)
             {

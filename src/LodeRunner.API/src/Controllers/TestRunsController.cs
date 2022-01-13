@@ -96,7 +96,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = TestRunParameters.ValidateTestRunId(testRunId);
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
             if (errorlist.Count > 0)
             {
@@ -176,7 +176,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = TestRunParameters.ValidateTestRunId(testRunId);
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
             if (errorlist.Count > 0)
             {

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Core.Models;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -86,7 +87,7 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = ClientParameters.ValidateClientStatusId(clientStatusId);
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
 
             if (errorlist.Count > 0)
             {
