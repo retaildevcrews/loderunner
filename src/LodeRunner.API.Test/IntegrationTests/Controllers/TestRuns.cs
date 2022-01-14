@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
@@ -81,11 +82,36 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
         [Trait("Category", "Integration")]
-        private async Task CanGetTestRuns()
+        public async Task CanGetTestRuns()
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             await httpClient.GetTestRuns(TestRunsUri, this.jsonOptions, this.output);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CanPutTestRuns()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            TestRun testRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
+
+            Assert.NotNull(testRun);
+
+            var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(testRun.Id).Count;
+
+            var testRunPayload = testRun.AutomapAndGetTestRunPayload();
+
+            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
+
+            await httpClient.PutTestRun(testRunPayload, testRun.Id, TestRunsUri, this.jsonOptions, this.output);
+
+            // TODO: Delete testRun.Id
         }
 
         /// <summary>
@@ -108,27 +134,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             TestRun gettedTestRun = JsonSerializer.Deserialize<TestRun>(getResponseContent);
 
             Assert.Equal(postedTestRun, gettedTestRun);
-        }
-
-        /// <summary>
-        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
-        /// </summary>
-        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
-        [Trait("Category", "Integration")]
-        private async Task CanPutTestRuns()
-        {
-            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
-
-            var testRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
-
-            Assert.NotNull(testRun);
-
-            var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(testRun.Id).Count;
-
-            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
-
-            await httpClient.PutTestRun(testRun, $"{TestRunsUri}/{testRun.Id}", this.jsonOptions, this.output);
         }
     }
 }

@@ -178,7 +178,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var httpResponse = await httpClient.GetAsync(getTestRunsUri);
 
-            if (httpResponse.IsSuccessStatusCode)
+            if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
             {
                 var testRuns = await httpResponse.Content.ReadFromJsonAsync<IEnumerable<TestRun>>(jsonOptions);
 
@@ -191,7 +191,7 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
 
             // TestRunsController will return 404 if not TestRuns items found after a request was successfully processed,  so 404 it is a valid response code,
-            else if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+            else if (httpResponse.StatusCode == HttpStatusCode.NoContent)
             {
                 found = true;
             }
@@ -201,6 +201,28 @@ namespace LodeRunner.API.Test.IntegrationTests
             return found;
         }
 
+        /// <summary>
+        /// Gets the test runs.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="getTestRunByIdUri">The get test runs URI.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <returns>the task.</returns>
+        public static async Task<TestRun> GetTestRunById(this HttpClient httpClient, string getTestRunByIdUri, JsonSerializerOptions jsonOptions)
+        {
+            var httpResponse = await httpClient.GetAsync(getTestRunByIdUri);
+
+            if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
+            {
+                var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+
+                Assert.True(testRun != null, "Unable to get test run");
+
+                return testRun;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// GetTestRuns.
@@ -235,41 +257,49 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// GetTestRuns.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
-        /// <param name="testRun">the testRun entity.</param>
-        /// <param name="putTestRunsUri">clientsById Uri.</param>
+        /// <param name="testRunPayload">the testRunPayload entity.</param>
+        /// <param name="testRunId">clientsById Uri.</param>
+        /// <param name="testRunsUri">The test run id.</param>
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        public static async Task<bool> PutTestRun(this HttpClient httpClient, TestRun testRun , string putTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        public static async Task<bool> PutTestRun(this HttpClient httpClient, TestRunPayload testRunPayload, string testRunId, string testRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
         {
+            bool valid = false;
             string newName = $"Updated TestRun - IntegrationTesting-{nameof(PutTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
-            testRun.Name = newName;
+            testRunPayload.Name = newName;
 
-            if (testRun.ClientResults == null)
-            {
-                testRun.ClientResults = new List<LoadResult>();
-            }
+            int actualLoadClientsCount = testRunPayload.LoadClients.Count;
 
-            int actualClientResultsCount = testRun.ClientResults.Count;
+            Assert.False(testRunPayload.LoadClients.Count == 0, "TestRunPayload is expecting to have at least 1 item, since it is a TestPayload sample, look at [TestRunTestPayload.cs] file.");
 
-            testRun.ClientResults.Add(new LoadResult());
+            testRunPayload.LoadClients.Add(testRunPayload.LoadClients[0].AutomapAndGetaNewLoadClient());
 
-            string jsonTestRun = JsonConvert.SerializeObject(testRun);
+            string jsonTestRun = JsonConvert.SerializeObject(testRunPayload);
 
             StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
 
-            var httpResponse = await httpClient.PutAsync(putTestRunsUri, stringContent);
+            var httpResponse = await httpClient.PutAsync($"{testRunsUri}/{testRunId}", stringContent);
 
             if (httpResponse.IsSuccessStatusCode)
             {
-                var updatedTestRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+                Assert.True(httpResponse.StatusCode == HttpStatusCode.NoContent, "Invalid status code.");
+
+                var updatedTestRun = await httpClient.GetTestRunById($"{testRunsUri}/{testRunId}", jsonOptions);
+
+                Assert.NotNull(updatedTestRun);
 
                 Assert.Equal(newName, updatedTestRun.Name);
-                Assert.Equal(actualClientResultsCount + 1, updatedTestRun.ClientResults.Count);
+
+                Assert.Equal(actualLoadClientsCount + 1, updatedTestRun.LoadClients.Count);
+
+                valid = true;
             }
 
-            return true;
+            Assert.True(valid, $"Local Time:{DateTime.Now}\tUnable to Get TestRun");
+
+            return valid;
         }
     }
 }
