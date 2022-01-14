@@ -4,7 +4,7 @@
 using AutoMapper;
 using LodeRunner.Core.Models;
 
-namespace LodeRunner.API.Test.IntegrationTests
+namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
 {
     /// <summary>
     /// AutoMapper Extensions.
@@ -18,17 +18,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>The Test Payload object.</returns>
         public static TestRunPayload AutomapAndGetTestRunPayload(this TestRun testRunSource)
         {
-            // Do the mapping to assure we use the payload class.
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TestRun, TestRunPayload>());
-
-            var mapper = new Mapper(config);
-
-            TestRunPayload testRunPayload = mapper.Map<TestRun, TestRunPayload>(testRunSource);
-
-            return testRunPayload;
+            //// Do the mapping to assure we use the payload class.
+            return BasePayloadAutoMapperHelper<TestRun, TestRunPayload>.Map(testRunSource);
         }
 
-        /// <summary>
+       /// <summary>
         /// Automaps the and get a new LoadClient.
         /// </summary>
         /// <param name="loadClientSource">The test run source.</param>
@@ -36,13 +30,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         public static LoadClient AutomapAndGetaNewLoadClient(this LoadClient loadClientSource)
         {
             // Do the mapping to assure we generate a new ID.
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<LoadClient, LoadClient>().ForMember(x => x.Id, opt => opt.Ignore()));
-
-            var mapper = new Mapper(config);
-
-            LoadClient newLoadClient = mapper.Map<LoadClient, LoadClient>(loadClientSource);
-
-            return newLoadClient;
+            return BaseEntityAutoMapperHelper<LoadClient, LoadClient>.MapIgnoringId(loadClientSource);
         }
     }
 }

@@ -2,15 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using AutoMapper;
 using LodeRunner.API.Middleware;
-using LodeRunner.API.Test.IntegrationTests.Payloads;
+using LodeRunner.API.Test.IntegrationTests.AutoMapper;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;

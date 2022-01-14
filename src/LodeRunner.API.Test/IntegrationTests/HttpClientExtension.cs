@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.API.Test.IntegrationTests.AutoMapper;
 using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
 using Newtonsoft.Json;
