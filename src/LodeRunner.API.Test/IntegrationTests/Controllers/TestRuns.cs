@@ -116,7 +116,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             await httpClient.PutTestRun(testRunPayload, testRun.Id, TestRunsUri, this.jsonOptions, this.output);
 
             // Delete the TestRun created in this Integration Test scope
-            await httpClient.DeleteTestRunById(testRun.Id, TestRunsUri, this.jsonOptions, this.output);
+            await httpClient.DeleteTestRunById(testRun.Id, TestRunsUri, this.output);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             var postedTestRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
-            var gettedTestRun = await httpClient.GetTestRunById(TestRunsUri + "/", postedTestRun.Id, this.jsonOptions, this.output);
+            var gettedTestRun = await httpClient.GetTestRunById($"{TestRunsUri}/{postedTestRun.Id}", this.jsonOptions, this.output);
 
             Assert.Equal(postedTestRun, gettedTestRun);
         }
