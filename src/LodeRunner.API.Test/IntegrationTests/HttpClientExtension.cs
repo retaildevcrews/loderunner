@@ -186,13 +186,14 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                 if (found)
                 {
-                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Runs found.");
+                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Runs items found.");
                 }
             }
 
             // TestRunsController will return 404 if not TestRuns items found after a request was successfully processed,  so 404 it is a valid response code,
             else if (httpResponse.StatusCode == HttpStatusCode.NoContent)
             {
+                output.WriteLine($"Local Time:{DateTime.Now}\t No Test Runs items found, but request was successful.");
                 found = true;
             }
 
@@ -202,7 +203,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Gets the test runs.
+        /// Gets the test run by id.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
         /// <param name="getTestRunByIdUri">The get test runs URI.</param>
@@ -225,7 +226,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// GetTestRuns.
+        /// Post TestRuns.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
         /// <param name="postTestRunsUri">clientsById Uri.</param>
@@ -247,6 +248,7 @@ namespace LodeRunner.API.Test.IntegrationTests
             {
                 var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
 
+                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRun.Id}] was created by POST method.");
                 return testRun;
             }
 
@@ -295,11 +297,41 @@ namespace LodeRunner.API.Test.IntegrationTests
                 Assert.Equal(actualLoadClientsCount + 1, updatedTestRun.LoadClients.Count);
 
                 valid = true;
+
+                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRunId}] was updated by PUT method.");
             }
 
             Assert.True(valid, $"Local Time:{DateTime.Now}\tUnable to Get TestRun");
 
             return valid;
+        }
+
+
+        /// <summary>
+        /// Delete a Test Run by Id.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="testRunId">The testRunId.</param>
+        /// <param name="testRunsUri">The get test runs URI.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the successful task value.</returns>
+        public static async Task<bool> DeleteTestRunById(this HttpClient httpClient, string testRunId, string testRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        {
+            var httpResponse = await httpClient.DeleteAsync($"{testRunsUri}/{testRunId}");
+
+            if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
+            {
+                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRunId}] was deleted by DELETE method.");
+                return true;
+            }
+            else if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRunId}] could not be deleted,  was not found.");
+                return true;
+            }
+
+            return false;
         }
     }
 }

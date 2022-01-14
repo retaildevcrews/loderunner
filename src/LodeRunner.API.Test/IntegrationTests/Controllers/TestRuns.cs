@@ -99,19 +99,23 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
+            // Create a new TestRun
             TestRun testRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
 
             Assert.NotNull(testRun);
 
             var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(testRun.Id).Count;
 
-            var testRunPayload = testRun.AutomapAndGetTestRunPayload();
-
             Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
 
+            // Generate a TestRunPayload from newly created TestRun
+            var testRunPayload = testRun.AutomapAndGetTestRunPayload();
+
+            // Update the existing TestRun
             await httpClient.PutTestRun(testRunPayload, testRun.Id, TestRunsUri, this.jsonOptions, this.output);
 
-            // TODO: Delete testRun.Id
+            // Delete the TestRun created in this Integration Test scope
+            await httpClient.DeleteTestRunById(testRun.Id, TestRunsUri, this.jsonOptions, this.output);
         }
 
         /// <summary>
