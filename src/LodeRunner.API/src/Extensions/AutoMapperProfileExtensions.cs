@@ -16,39 +16,17 @@ namespace LodeRunner.API.Extensions
     public static class AutoMapperProfileExtensions
     {
         /// <summary>
-        /// Builds the expression ignoring the not provided properties.
+        /// Builds the expression ignoring the unmodified properties.
         /// </summary>
+        /// <typeparam name="TPayloadSource">The type of the payload source.</typeparam>
+        /// <typeparam name="TDestination">The type of the destination.</typeparam>
         /// <param name="expression">The expression.</param>
         /// <returns>IMappingExpression</returns>
-        public static IMappingExpression<LoadTestConfigPayload, LoadTestConfig> IgnoreNotProvidedProps(
-            this IMappingExpression<LoadTestConfigPayload, LoadTestConfig> expression)
+        public static IMappingExpression<TPayloadSource, TDestination> IgnoreUnmodifiedProperties<TPayloadSource, TDestination>(this IMappingExpression<TPayloadSource, TDestination> expression)
+            where TPayloadSource : BasePayload
+            where TDestination : BaseEntityModel
         {
-            var destType = typeof(LoadTestConfig);
-            foreach (var property in destType.GetProperties())
-            {
-                expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>
-                {
-                    if (srcPayload.PropertiesChanged.Contains(property.Name))
-                    {
-                        return true;
-                    }
-
-                    return false;
-                }));
-            }
-
-            return expression;
-        }
-
-        /// <summary>
-        /// Builds the expression ignoring the not provided properties.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>IMappingExpression</returns>
-        public static IMappingExpression<TestRunPayload, TestRun> IgnoreNotProvidedProps(
-            this IMappingExpression<TestRunPayload, TestRun> expression)
-        {
-            var destType = typeof(TestRun);
+            var destType = typeof(TDestination);
             foreach (var property in destType.GetProperties())
             {
                 expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>

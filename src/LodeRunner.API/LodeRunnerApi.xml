@@ -1365,17 +1365,12 @@
             Provides AutoMapper Profile Extension Methods.
             </summary>
         </member>
-        <member name="M:LodeRunner.API.Extensions.AutoMapperProfileExtensions.IgnoreNotProvidedProps(AutoMapper.IMappingExpression{LodeRunner.Core.Models.LoadTestConfigPayload,LodeRunner.Core.Models.LoadTestConfig})">
+        <member name="M:LodeRunner.API.Extensions.AutoMapperProfileExtensions.IgnoreUnmodifiedProperties``2(AutoMapper.IMappingExpression{``0,``1})">
             <summary>
-            Builds the expression ignoring the not provided properties.
+            Builds the expression ignoring the unmodified properties.
             </summary>
-            <param name="expression">The expression.</param>
-            <returns>IMappingExpression</returns>
-        </member>
-        <member name="M:LodeRunner.API.Extensions.AutoMapperProfileExtensions.IgnoreNotProvidedProps(AutoMapper.IMappingExpression{LodeRunner.Core.Models.TestRunPayload,LodeRunner.Core.Models.TestRun})">
-            <summary>
-            Builds the expression ignoring the not provided properties.
-            </summary>
+            <typeparam name="TPayloadSource">The type of the payload source.</typeparam>
+            <typeparam name="TDestination">The type of the destination.</typeparam>
             <param name="expression">The expression.</param>
             <returns>IMappingExpression</returns>
         </member>
