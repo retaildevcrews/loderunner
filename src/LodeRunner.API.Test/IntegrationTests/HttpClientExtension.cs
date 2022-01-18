@@ -166,7 +166,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// GetTestRuns.
+        /// Get Test Runs.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
         /// <param name="getTestRunsUri">getTestRuns Uri.</param>
@@ -231,8 +231,8 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <summary>
         /// Post TestRuns.
         /// </summary>
-        /// <param name="httpClient">the httpClient.</param>
-        /// <param name="postTestRunsUri">clientsById Uri.</param>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="postTestRunsUri">The post TestRun Uri.</param>
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
@@ -259,12 +259,12 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// GetTestRuns.
+        /// Post Test Run.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
         /// <param name="testRunPayload">the testRunPayload entity.</param>
-        /// <param name="testRunId">clientsById Uri.</param>
-        /// <param name="testRunsUri">The test run id.</param>
+        /// <param name="testRunId">The test run id.</param>
+        /// <param name="testRunsUri">The base TestRun Uri.</param>
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
@@ -315,8 +315,8 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// Delete a Test Run by Id.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
-        /// <param name="testRunId">The testRunId.</param>
-        /// <param name="testRunsUri">The get test runs URI.</param>
+        /// <param name="testRunId">The testRun Id.</param>
+        /// <param name="testRunsUri">The base TestRun Uri.</param>
         /// <param name="output">The output.</param>
         /// <returns>the successful task value.</returns>
         public static async Task<bool> DeleteTestRunById(this HttpClient httpClient, string testRunId, string testRunsUri, ITestOutputHelper output)
