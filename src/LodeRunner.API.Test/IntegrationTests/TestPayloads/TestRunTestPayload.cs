@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using LodeRunner.API.Test.IntegrationTests.TestPayloads;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Test.IntegrationTests.Payloads
 {
 #pragma warning disable SA1600 // Elements should be documented
-    public class TestRunTestPayload
+    public class TestRunTestPayload : BaseTestPayload
     {
         public string Name { get; set; } = "Sample - TestRun - JOHEE001";
 

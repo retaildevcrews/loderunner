@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using AutoMapper;
+using LodeRunner.API.Test.IntegrationTests.TestPayloads;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 
@@ -14,7 +15,7 @@ namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
     /// <typeparam name="TPayloadDestination">The type of the destination.</typeparam>
     public static class BasePayloadAutoMapperHelper<TSource, TPayloadDestination>
         where TSource : BaseEntityModel
-        where TPayloadDestination : BasePayload
+        where TPayloadDestination : BaseTestPayload
     {
         private static readonly Mapper OneToOneMapper = new (new MapperConfiguration(cfg => cfg.CreateMap<TSource, TPayloadDestination>()));
 

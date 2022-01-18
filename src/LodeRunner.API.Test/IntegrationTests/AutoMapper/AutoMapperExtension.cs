@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using AutoMapper;
+using LodeRunner.API.Test.IntegrationTests.Payloads;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
@@ -16,10 +17,10 @@ namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
         /// </summary>
         /// <param name="testRunSource">The test run source.</param>
         /// <returns>The Test Payload object.</returns>
-        public static TestRunPayload AutomapAndGetTestRunPayload(this TestRun testRunSource)
+        public static TestRunTestPayload AutomapAndGetTestRunPayload(this TestRun testRunSource)
         {
             //// Do the mapping to assure we use the payload class.
-            return BasePayloadAutoMapperHelper<TestRun, TestRunPayload>.Map(testRunSource);
+            return BasePayloadAutoMapperHelper<TestRun, TestRunTestPayload>.Map(testRunSource);
         }
 
        /// <summary>
