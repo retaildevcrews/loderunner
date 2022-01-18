@@ -87,7 +87,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
+        /// Determines whether this instance [can put test runs].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
@@ -116,7 +116,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can put test runs].
+        /// Determines whether this instance [can post and get test runs].
         /// </summary>
         private async Task CanCreateAndGetTestRun()
         {
