@@ -17,7 +17,7 @@ namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
         /// </summary>
         /// <param name="testRunSource">The test run source.</param>
         /// <returns>The Test Payload object.</returns>
-        public static TestRunTestPayload AutomapAndGetTestRunPayload(this TestRun testRunSource)
+        public static TestRunTestPayload AutomapAndGetTestRunTestPayload(this TestRun testRunSource)
         {
             //// Do the mapping to assure we use the payload class.
             return BasePayloadAutoMapperHelper<TestRun, TestRunTestPayload>.Map(testRunSource);

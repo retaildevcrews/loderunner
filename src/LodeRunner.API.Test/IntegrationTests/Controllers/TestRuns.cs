@@ -106,7 +106,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
 
             // Generate a TestRunPayload from newly created TestRun
-            var testRunPayload = testRun.AutomapAndGetTestRunPayload();
+            var testRunPayload = testRun.AutomapAndGetTestRunTestPayload();
 
             // Update the existing TestRun
             await httpClient.PutTestRun(testRunPayload, testRun.Id, TestRunsUri, this.jsonOptions, this.output);
