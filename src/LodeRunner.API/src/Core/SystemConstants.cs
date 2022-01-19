@@ -181,7 +181,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The invalid load identifier.
         /// </summary>
-        public const string InvalidLoadTestConfigId = "Invalid Load Tets Config Id.";
+        public const string InvalidLoadTestConfigId = "Invalid Load Test Config Id.";
 
         /// <summary>
         /// The unable to create load test configuration.

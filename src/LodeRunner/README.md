@@ -246,8 +246,13 @@ Loderunner will return a non-zero exit code (fail) under the following condition
 - Any validation error on a test that has FailOnValidationError set to true
 - Request timeout
 
-## TODO (Debugging?)
-{"Date":"2022-01-10T17:37:25.6120354Z","Server":"https://ngsa-pre-central-dev.cse.ms","StatusCode":500,"Verb":"GET","Path":"/memory/api/movies?genre=123456789012345678901","Errors":1,"Duration":466,"ContentLength":0,"CVector":null,"CVectorBase":null,"Quartile":null,"Category":"SearchMovies","ErrorDetails":"Exception: The SSL connection could not be established, see inner exception."}
+## Debugging
+
+```bash
+// Load Test Run: logging output
+ErrorDetails":"Exception: The SSL connection could not be established, see inner exception."
+```
+- This may occur due to an expired *.cse.ms certificate
 
 ## Contributing
 
