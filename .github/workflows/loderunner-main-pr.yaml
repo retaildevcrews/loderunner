@@ -105,7 +105,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@main
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@${{ github.ref_name }}
     with:
       tag_and_push: false
       run_and_test: true    
