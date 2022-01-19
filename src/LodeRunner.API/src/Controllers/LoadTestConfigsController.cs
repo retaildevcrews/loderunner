@@ -132,15 +132,12 @@ namespace LodeRunner.API.Controllers
 
             var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
 
-            switch (deleteTaskResult)
+            return deleteTaskResult switch
             {
-                case HttpStatusCode.OK:
-                    return await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK);
-                case HttpStatusCode.NotFound:
-                    return await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound);
-                default:
-                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError);
-            }
+                HttpStatusCode.OK => await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK),
+                HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound),
+                _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
+            };
         }
 
         /// <summary>
