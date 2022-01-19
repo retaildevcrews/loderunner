@@ -37,6 +37,9 @@ jobs:
   evaluate-changes:
     runs-on: ubuntu-20.04
 
+    env:
+      loderunner-api-yaml-path: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@${{ github.ref_name }}
+
     steps:
     - uses: actions/checkout@v2
     
@@ -105,7 +108,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@${{github.ref_name}}
+    uses: ${loderunner-api-yaml-path}
     with:
       tag_and_push: false
       run_and_test: true    
