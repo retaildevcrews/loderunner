@@ -31,12 +31,12 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// Validate GetById Request.
         /// </summary>
         /// <param name="httpClient">the httpClient.</param>
-        /// <param name="byIdUri">the Uri to get by ID.</param>
-        /// <param name="id">the ID to get by.</param>
+        /// <param name="clientsByIdUri">the clientsById Uri.</param>
+        /// <param name="clientStatusId">the clientStatusId.</param>
         /// <returns>HttpResponseMessage.</returns>
-        public static async Task<HttpResponseMessage> ValidateAndGetByIdRequest(this HttpClient httpClient, string byIdUri, string id)
+        public static async Task<HttpResponseMessage> ValidateAndGetByIdRequest(this HttpClient httpClient, string clientsByIdUri, string clientStatusId)
         {
-            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{byIdUri}{id}");
+            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{clientsByIdUri}{clientStatusId}");
 
             Assert.False(httpResponse.StatusCode == HttpStatusCode.NoContent, "Response Code 204 - No Content.");
 
