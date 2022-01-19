@@ -3,7 +3,9 @@
 
 namespace LodeRunner.API.Test.IntegrationTests.TestPayloads
 {
-#pragma warning disable SA1600 // Elements should be documented
+    /// <summary>
+    /// Base for Testing Payloads.
+    /// </summary>
     public class BaseTestPayload
     {
     }
