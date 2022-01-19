@@ -87,7 +87,26 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can put test runs].
+        /// Determines whether this instance [can post test runs].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CanCreateAndGetTestRunById()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            var postedTestRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
+            var gettedTestRun = await httpClient.GetTestRunById(TestRunsUri + "/" + postedTestRun.Id, this.jsonOptions, this.output);
+
+            // Delete the TestRun created in this Integration Test scope
+            await httpClient.DeleteTestRunById(gettedTestRun.Id, TestRunsUri, this.output);
+
+            Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gettedTestRun));
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
@@ -116,16 +135,22 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can post and get test runs].
+        /// Determines whether this instance [can delete test runs].
         /// </summary>
-        private async Task CanCreateAndGetTestRun()
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CanDeleteTestRunById()
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            var postedTestRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
-            var gettedTestRun = await httpClient.GetTestRunById($"{TestRunsUri}/{postedTestRun.Id}", this.jsonOptions, this.output);
+            var newTestRun = await httpClient.PostTestRun(TestRunsUri, this.jsonOptions, this.output);
 
-            Assert.Equal(postedTestRun, gettedTestRun);
+            // Delete the TestRun created in this Integration Test scope
+            await httpClient.DeleteTestRunById(newTestRun.Id, TestRunsUri, this.output);
+
+            var deletedTestRun = await httpClient.GetTestRunById(TestRunsUri + "/" + newTestRun.Id, this.jsonOptions, this.output);
+            Assert.Null(deletedTestRun);
         }
     }
 }
