@@ -93,7 +93,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@alfredoihernandez/loderunnerapi-replace-integration-testing
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@main
     with:
       tag_and_push: false
       run_and_test: true    
@@ -105,7 +105,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@main
+    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@alfredoihernandez/loderunnerapi-replace-integration-testing
     with:
       tag_and_push: false
       run_and_test: true    
