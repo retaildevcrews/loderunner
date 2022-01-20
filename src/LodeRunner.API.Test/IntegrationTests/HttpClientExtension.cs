@@ -80,32 +80,6 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Gets the test run by id.
-        /// </summary>
-        /// <param name="httpClient">The HTTP client.</param>
-        /// <param name="getTestRunByIdUri">The get test runs URI.</param>
-        /// <param name="jsonOptions">The json options.</param>
-        /// <param name="output">The output.</param>
-        /// <returns>the task.</returns>
-        public static async Task<TestRun> GetTestRunById(this HttpClient httpClient, string getTestRunByIdUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
-        {
-            output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
-            var httpResponse = await httpClient.GetAsync(getTestRunByIdUri);
-
-            if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
-            {
-                var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
-
-                Assert.True(testRun != null, "Unable to get test run");
-
-                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
-                return testRun;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Post TestRuns.
         /// </summary>
         /// <param name="httpClient">The httpClient.</param>
