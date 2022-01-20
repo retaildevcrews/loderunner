@@ -102,11 +102,12 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
             this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{gottenTestRun.Id}] retrieved by GET method.");
 
+            Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+
             // Delete the TestRun created in this Integration Test scope
             var httpResponse = await httpClient.DeleteAsync($"{TestRunsUri}/{gottenTestRun.Id}");
+            Assert.Equal(HttpStatusCode.NoContent, httpResponse.StatusCode);
             this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{gottenTestRun.Id}] deleted by DELETE method.");
-
-            Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
         }
 
         /// <summary>
@@ -124,10 +125,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var postedTestRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
             Assert.NotNull(postedTestRun);
-
-            var errorsCount = ParametersValidator<TestRun>.ValidateEntityId(postedTestRun.Id).Count;
-
-            Assert.True(errorsCount == 0, $"Local Time:{DateTime.Now}\tUnable to Post a Sample TestRun item.");
 
             // Generate a TestRunPayload from newly created TestRun
             var testRunPayload = postedTestRun.AutomapAndGetTestRunTestPayload();
@@ -156,10 +153,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Delete the TestRun created in this Integration Test scope
             await httpClient.DeleteAsync($"{TestRunsUri}/{testRun.Id}");
             this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] deleted by DELETE method.");
+            var deletedHttpResponse = await httpClient.GetAsync(TestRunsUri + "/" + testRun.Id);
+            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
 
-            var deletedTestRun = await httpClient.GetTestRunById(TestRunsUri + "/" + testRun.Id, this.jsonOptions, this.output);
-            output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
-            var httpResponse = await httpClient.GetAsync(getTestRunByIdUri);
+            var deletedTestRun = await deletedHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
             Assert.Null(deletedTestRun);
         }
     }
