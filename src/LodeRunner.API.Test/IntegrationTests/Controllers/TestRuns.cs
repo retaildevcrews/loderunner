@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -121,16 +122,33 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             // Create a new TestRun
-            HttpResponseMessage httpResponse = await httpClient.PostTestRun(TestRunsUri, this.output);
-            var postedTestRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+            HttpResponseMessage postResponse = await httpClient.PostTestRun(TestRunsUri, this.output);
+            var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
             Assert.NotNull(postedTestRun);
 
-            // Generate a TestRunPayload from newly created TestRun
-            var testRunPayload = postedTestRun.AutomapAndGetTestRunTestPayload();
+            var testRunPayload = new TestRunPayload();
+            testRunPayload.Name = "placeholder text that shouldn't match";
+            testRunPayload.CreatedTime = postedTestRun.CreatedTime;
+            testRunPayload.LoadClients = postedTestRun.LoadClients;
+            testRunPayload.LoadTestConfig = postedTestRun.LoadTestConfig;
+            testRunPayload.StartTime = postedTestRun.StartTime;
 
-            // Update the existing TestRun
-            await httpClient.PutTestRun(testRunPayload, postedTestRun.Id, TestRunsUri, this.jsonOptions, this.output);
+            Assert.True(testRunPayload.LoadClients.Count > 0);
+
+            StringContent stringContent = new (Newtonsoft.Json.JsonConvert.SerializeObject(testRunPayload), Encoding.UTF8, "application/json");
+            var putResponse = await httpClient.PutAsync($"{TestRunsUri}/{postedTestRun.Id}", stringContent);
+
+            Assert.Equal(HttpStatusCode.NoContent, putResponse.StatusCode);
+
+            var gottenHttpResponse = await httpClient.GetAsync($"{TestRunsUri}/{postedTestRun.Id}");
+            var updatedTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+
+            Assert.NotNull(updatedTestRun);
+
+            Assert.NotEqual(postedTestRun.Name, updatedTestRun.Name);
+
+            Assert.Equal(testRunPayload.LoadClients.Count + 1, updatedTestRun.LoadClients.Count);
 
             // Delete the TestRun created in this Integration Test scope
             await httpClient.DeleteAsync($"{TestRunsUri}/{postedTestRun.Id}");
