@@ -80,44 +80,6 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Get Test Runs.
-        /// </summary>
-        /// <param name="httpClient">the httpClient.</param>
-        /// <param name="getTestRunsUri">getTestRuns Uri.</param>
-        /// <param name="jsonOptions">The json options.</param>
-        /// <param name="output">The output.</param>
-        /// <returns>the task.</returns>
-        public static async Task<bool> GetTestRuns(this HttpClient httpClient, string getTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
-        {
-            bool found = false;
-
-            var httpResponse = await httpClient.GetAsync(getTestRunsUri);
-
-            if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
-            {
-                var testRuns = await httpResponse.Content.ReadFromJsonAsync<IEnumerable<TestRun>>(jsonOptions);
-
-                found = testRuns.Any();
-
-                if (found)
-                {
-                    output.WriteLine($"Local Time:{DateTime.Now}\t[{testRuns.Count()}] Test Run items found.");
-                }
-            }
-
-            // TestRunsController will return 404 if not TestRuns items found after a request was successfully processed,  so 404 it is a valid response code,
-            else if (httpResponse.StatusCode == HttpStatusCode.NoContent)
-            {
-                output.WriteLine($"Local Time:{DateTime.Now}\t No Test Run items found, but request was successful.");
-                found = true;
-            }
-
-            Assert.True(found, $"Local Time:{DateTime.Now}\tUnable to Get any TestRuns");
-
-            return found;
-        }
-
-        /// <summary>
         /// Gets the test run by id.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
@@ -127,6 +89,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>the task.</returns>
         public static async Task<TestRun> GetTestRunById(this HttpClient httpClient, string getTestRunByIdUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
         {
+            output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
             var httpResponse = await httpClient.GetAsync(getTestRunByIdUri);
 
             if (httpResponse.IsSuccessStatusCode && httpResponse.StatusCode == HttpStatusCode.OK)
@@ -150,7 +113,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        public static async Task<TestRun> PostTestRun(this HttpClient httpClient, string postTestRunsUri, JsonSerializerOptions jsonOptions, ITestOutputHelper output)
+        public static async Task<HttpResponseMessage> PostTestRun(this HttpClient httpClient, string postTestRunsUri, ITestOutputHelper output)
         {
             TestRunTestPayload testRunTestPayload = new ();
 
@@ -160,16 +123,9 @@ namespace LodeRunner.API.Test.IntegrationTests
             StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
 
             var httpResponse = await httpClient.PostAsync(postTestRunsUri, stringContent);
+            output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRun created by POST method.");
 
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
-
-                output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRun.Id}] created by POST method.");
-                return testRun;
-            }
-
-            return null;
+            return httpResponse;
         }
 
         /// <summary>
@@ -207,7 +163,9 @@ namespace LodeRunner.API.Test.IntegrationTests
             {
                 Assert.True(httpResponse.StatusCode == HttpStatusCode.NoContent, "Invalid status code.");
 
-                var updatedTestRun = await httpClient.GetTestRunById($"{testRunsUri}/{testRunId}", jsonOptions, output);
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRunId}] retrieved by GET method.");
+                var gottenHttpResponse = await httpClient.GetAsync(testRunsUri + "/" + testRunId);
+                var updatedTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
 
                 Assert.NotNull(updatedTestRun);
 
@@ -245,7 +203,7 @@ namespace LodeRunner.API.Test.IntegrationTests
             else if (httpResponse.StatusCode == HttpStatusCode.NotFound)
             {
                 output.WriteLine($"Local Time:{DateTime.Now}\t TestRunId: [{testRunId}] could not be deleted,  was not found.");
-                return true;
+                return false;
             }
 
             return false;
