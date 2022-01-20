@@ -159,7 +159,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpDelete("{testRunId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.DeletedTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.DeletedTestRun)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundTestRun)]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
@@ -188,7 +188,7 @@ namespace LodeRunner.API.Controllers
 
             return deleteTaskResult switch
             {
-                HttpStatusCode.OK => await ResultHandler.CreateResult(SystemConstants.DeletedTestRun, HttpStatusCode.OK),
+                HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
                 HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
                 _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
             };
