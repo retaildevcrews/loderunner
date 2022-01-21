@@ -80,5 +80,20 @@ namespace LodeRunner.Core.Models
             config.LoadClientId = loadClient.Id;
             return loadClient;
         }
+
+        /// <summary>
+        /// Sets mock LoadClient data.
+        /// </summary>
+        /// <param name="name">LoadClient name.</param>
+        public void SetMockData(string name)
+        {
+            this.Name = name;
+            this.Version = "1.0.1";
+            this.Region = "Central";
+            this.Zone = "central-az-1";
+            this.Prometheus = true;
+            this.StartupArgs = "--mode Client --region Central --zone central-az-1 --prometheus true";
+            this.StartTime = DateTime.UtcNow;
+        }
     }
 }

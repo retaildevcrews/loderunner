@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
@@ -147,5 +146,28 @@ namespace LodeRunner.Core.Models
         /// </value>
         [Description("--dry-run")]
         public virtual bool DryRun { get; set; }
+
+        /// <summary>
+        /// Sets mock LoadTestConfig data.
+        /// </summary>
+        /// <param name="name">LoadTestConfig name.</param>
+        public void SetMockData(string name)
+        {
+            this.Name = name;
+            this.Files = new List<string>() { "baseline.json", "benchmark.json" };
+            this.StrictJson = true;
+            this.BaseURL = "SampleBaseURL";
+            this.VerboseErrors = true;
+            this.Randomize = true;
+            this.Timeout = 10;
+            this.Server = new List<string>() { "www.yourprimaryserver.com", "www.yoursecondaryserver.com" };
+            this.Tag = "Sample Tag";
+            this.Sleep = 5;
+            this.RunLoop = true;
+            this.Duration = 60;
+            this.MaxErrors = 10;
+            this.DelayStart = 5;
+            this.DryRun = false;
+        }
     }
 }
