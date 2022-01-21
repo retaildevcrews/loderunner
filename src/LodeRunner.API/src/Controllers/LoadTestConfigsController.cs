@@ -67,7 +67,7 @@ namespace LodeRunner.API.Controllers
             List<LoadTestConfig> loadTestConfigs = (List<LoadTestConfig>)await loadTestConfigService.GetAll();
             if (loadTestConfigs.Count == 0)
             {
-                return new NoContentResult();
+                return await ResultHandler.CreateNoContent();
             }
 
             return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);

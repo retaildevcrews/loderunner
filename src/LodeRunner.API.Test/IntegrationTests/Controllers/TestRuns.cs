@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using LodeRunner.API.Middleware;
-using LodeRunner.API.Test.IntegrationTests.AutoMapper;
 using LodeRunner.Core.Models;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -62,28 +60,24 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            HttpResponseMessage httpResponse = await httpClient.GetAsync(TestRunsUri);
-
+            HttpResponseMessage httpResponse = await httpClient.GetTestRuns(TestRunsUri, this.output);
             Assert.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent });
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
             {
                 // TODO: Separate out to test GetAllTestRuns with OK response
                 var testRuns = await httpResponse.Content.ReadFromJsonAsync<List<TestRun>>(this.jsonOptions);
-                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t[{testRuns.Count}] Test Run items found.");
                 Assert.NotEmpty(testRuns);
             }
             else
             {
                 // TODO: Separate out to test GetAllTestRuns with No Content response
-                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t No Test Run items found, but request was successful.");
                 Assert.Equal(0, httpResponse.Content.Headers.ContentLength);
             }
-
         }
 
         /// <summary>
-        /// Determines whether this instance [can post test runs].
+        /// Determines whether this instance [can post a test run and get a test run by ID].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
         [Fact]
@@ -94,25 +88,21 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             HttpResponseMessage postedResponse = await httpClient.PostTestRun(TestRunsUri, this.output);
             Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
-            var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{postedTestRun.Id}] successfully created by POST method.");
 
-            var gottenHttpResponse = await httpClient.GetAsync(TestRunsUri + "/" + postedTestRun.Id);
+            var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+            var gottenHttpResponse = await httpClient.GetTestRunById(TestRunsUri, postedTestRun.Id, this.output);
 
             Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
             var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{gottenTestRun.Id}] retrieved by GET method.");
 
             Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
 
             // Delete the TestRun created in this Integration Test scope
-            var httpResponse = await httpClient.DeleteAsync($"{TestRunsUri}/{gottenTestRun.Id}");
-            Assert.Equal(HttpStatusCode.NoContent, httpResponse.StatusCode);
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{gottenTestRun.Id}] deleted by DELETE method.");
+            await httpClient.DeleteTestRunById(TestRunsUri, gottenTestRun.Id, this.output);
         }
 
         /// <summary>
-        /// Determines whether this instance [can get clients by identifier] the specified client status identifier.
+        /// Determines whether this instance [can update test run by identifier].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
@@ -125,38 +115,27 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postResponse = await httpClient.PostTestRun(TestRunsUri, this.output);
             var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
-            Assert.NotNull(postedTestRun);
-
-            var testRunPayload = new TestRunPayload();
-            testRunPayload.Name = "placeholder text that shouldn't match";
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CanPutTestRuns)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
             testRunPayload.CreatedTime = postedTestRun.CreatedTime;
-            testRunPayload.LoadClients = postedTestRun.LoadClients;
-            testRunPayload.LoadTestConfig = postedTestRun.LoadTestConfig;
             testRunPayload.StartTime = postedTestRun.StartTime;
+            testRunPayload.LoadTestConfig = postedTestRun.LoadTestConfig;
+            testRunPayload.LoadClients = postedTestRun.LoadClients;
 
-            Assert.True(testRunPayload.LoadClients.Count > 0);
+            // Update TestRun
+            var puttedResponse = await httpClient.PutTestRunById(TestRunsUri, postedTestRun.Id, testRunPayload, this.output);
 
-            StringContent stringContent = new (Newtonsoft.Json.JsonConvert.SerializeObject(testRunPayload), Encoding.UTF8, "application/json");
-            var putResponse = await httpClient.PutAsync($"{TestRunsUri}/{postedTestRun.Id}", stringContent);
+            Assert.Equal(HttpStatusCode.NoContent, puttedResponse.StatusCode);
 
-            Assert.Equal(HttpStatusCode.NoContent, putResponse.StatusCode);
+            var gottenResponse = await httpClient.GetTestRunById(TestRunsUri, postedTestRun.Id, this.output);
+            var gottenTestRun = await gottenResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+            postedTestRun.Name = testRunPayload.Name;
 
-            var gottenHttpResponse = await httpClient.GetAsync($"{TestRunsUri}/{postedTestRun.Id}");
-            var updatedTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
-
-            Assert.NotNull(updatedTestRun);
-
-            Assert.NotEqual(postedTestRun.Name, updatedTestRun.Name);
-
-            Assert.Equal(testRunPayload.LoadClients.Count + 1, updatedTestRun.LoadClients.Count);
-
-            // Delete the TestRun created in this Integration Test scope
-            await httpClient.DeleteAsync($"{TestRunsUri}/{postedTestRun.Id}");
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{postedTestRun.Id}] deleted by DELETE method.");
+            Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
         }
 
         /// <summary>
-        /// Determines whether this instance [can delete test runs].
+        /// Determines whether this instance [can delete a test run by ID].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
         [Fact]
@@ -169,13 +148,15 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
             // Delete the TestRun created in this Integration Test scope
-            await httpClient.DeleteAsync($"{TestRunsUri}/{testRun.Id}");
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] deleted by DELETE method.");
-            var deletedHttpResponse = await httpClient.GetAsync(TestRunsUri + "/" + testRun.Id);
-            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\t TestRunId: [{testRun.Id}] retrieved by GET method.");
+            var deletedResponse = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
+            Assert.Equal(HttpStatusCode.NoContent, deletedResponse.StatusCode);
 
-            var deletedTestRun = await deletedHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-            Assert.Null(deletedTestRun);
+            Assert.Equal(0, deletedResponse.Content.Headers.ContentLength);
+
+            var gottenHttpResponse = await httpClient.GetTestRunById(TestRunsUri, testRun.Id, this.output);
+            Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
+            var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
+            Assert.Contains("Requested data not found.", gottenMessage);
         }
     }
 }

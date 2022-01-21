@@ -66,7 +66,7 @@ namespace LodeRunner.API.Controllers
             List<TestRun> testRuns = (List<TestRun>)await testRunService.GetAll();
             if (testRuns.Count == 0)
             {
-                return new NoContentResult();
+                return await ResultHandler.CreateNoContent();
             }
 
             return await ResultHandler.CreateResult(testRuns, HttpStatusCode.OK);

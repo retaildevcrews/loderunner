@@ -26,18 +26,10 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Creates No Content Result.
         /// </summary>
-        /// <param name="statusCode">Http StatusCode.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateNoContent(HttpStatusCode statusCode = HttpStatusCode.NoContent)
+        public static async Task<NoContentResult> CreateNoContent()
         {
-            return await Task.Run(() =>
-            {
-                return new JsonResult(null)
-                {
-                    StatusCode = (int)statusCode,
-                    ContentType = JsonContentTypeApplicationJson,
-                };
-            });
+            return await Task.Run(() => new NoContentResult());
         }
 
         /// <summary>
@@ -118,7 +110,7 @@ namespace LodeRunner.API.Middleware
             }
             else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
             {
-                return new NoContentResult();
+                return await CreateNoContent();
             }
             else
             {

@@ -60,6 +60,61 @@ namespace LodeRunner.Core.Models
         public DateTime StartTime { get => this.testRun.StartTime; set => this.SetField(value); }
 
         /// <summary>
+        /// Sets mock TestRun payload data.
+        /// </summary>
+        /// <param name="name">TestRun name.</param>
+        public void SetMockData(string name)
+        {
+            this.Name = name;
+            this.CreatedTime = DateTime.UtcNow;
+            this.StartTime = DateTime.UtcNow;
+
+            this.LoadTestConfig = new LoadTestConfig()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = $"Mock LoadTestConfig",
+                Files = new List<string>() { "baseline.json", "benchmark.json" },
+                StrictJson = true,
+                BaseURL = "SampleBaseURL",
+                VerboseErrors = true,
+                Randomize = true,
+                Timeout = 10,
+                Server = new List<string>() { "www.yourprimaryserver.com", "www.yoursecondaryserver.com" },
+                Tag = "Sample Tag",
+                Sleep = 5,
+                RunLoop = true,
+                Duration = 60,
+                MaxErrors = 10,
+                DelayStart = 5,
+                DryRun = false,
+            };
+
+            this.LoadClients = new List<LoadClient>
+            {
+                new LoadClient()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Version = "1.0.1",
+                    Region = "Central",
+                    Zone = "central-az-1",
+                    Prometheus = true,
+                    StartupArgs = "--mode Client --region Central --zone central-az-1 --prometheus true",
+                    StartTime = DateTime.UtcNow,
+                },
+                new LoadClient()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Version = "1.2.1",
+                    Region = "West",
+                    Zone = "west-ca-2",
+                    Prometheus = true,
+                    StartupArgs = "--mode Client --region West --zone west-ca-2 --prometheus true",
+                    StartTime = DateTime.UtcNow,
+                },
+            };
+        }
+
+        /// <summary>
         /// Sets the field on TestRun based on the field.
         /// Assuming property names in this class are the same as in TestRun.
         /// We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in TestRun.
