@@ -3,7 +3,7 @@ name: markdownlint
 on: [push, pull_request]
 
 jobs:
-  delivery:
+  markdown-linter:
 
     runs-on: ubuntu-latest
 
