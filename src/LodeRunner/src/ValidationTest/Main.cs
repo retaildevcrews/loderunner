@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Model;
@@ -27,7 +28,7 @@ namespace LodeRunner
         /// </summary>
         private static readonly JsonSerializerOptions JsonOptions = new ()
         {
-            IgnoreNullValues = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
         private static Histogram requestDuration = null;

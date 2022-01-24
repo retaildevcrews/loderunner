@@ -75,7 +75,7 @@ namespace LodeRunner.API
                 jsonOptions = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 };
 
