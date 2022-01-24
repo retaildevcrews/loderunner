@@ -7,4 +7,4 @@ assignees: ''
 
 ---
 
-To find the dead links, please review the GitHub Actions logs at: https://github.com/retaildevcrews/ngsa/actions
+To find the dead links, please review the GitHub Actions logs at: <https://github.com/retaildevcrews/loderunner/actions>
