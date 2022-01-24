@@ -60,32 +60,6 @@ namespace LodeRunner.Core.Models
         public DateTime StartTime { get => this.testRun.StartTime; set => this.SetField(value); }
 
         /// <summary>
-        /// Sets mock TestRun payload data.
-        /// </summary>
-        /// <param name="name">TestRun name.</param>
-        public void SetMockData(string name)
-        {
-            this.Name = name;
-            this.CreatedTime = DateTime.UtcNow;
-            this.StartTime = DateTime.UtcNow;
-
-            this.LoadTestConfig = new LoadTestConfig();
-            this.LoadTestConfig.SetMockData($"Sample LoadTestConfig - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
-
-            var mockedLoadClientA = new LoadClient();
-            mockedLoadClientA.SetMockData($"Sample LoadClient A - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
-
-            var mockedLoadClientB = new LoadClient();
-            mockedLoadClientB.SetMockData($"Sample LoadClient B - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
-
-            this.LoadClients = new List<LoadClient>
-            {
-                mockedLoadClientA,
-                mockedLoadClientB,
-            };
-        }
-
-        /// <summary>
         /// Sets the field on TestRun based on the field.
         /// Assuming property names in this class are the same as in TestRun.
         /// We're using the Reflected [CallerMemberName] property, assuming we're calling this from the same property we want to change in TestRun.
