@@ -40,10 +40,10 @@ Application started. Press Ctrl+C to shut down.
 ```bash
 
 # test using httpie (installed automatically in Codespaces)
-http localhost:8081/api/version
+http localhost:8081/version
 
 # test using curl
-curl localhost:8081/api/version
+curl localhost:8081/version
 
 # testing Health Check -  IetfHealthCheck
 curl --request GET http://localhost:8081/Healthz/ietf
