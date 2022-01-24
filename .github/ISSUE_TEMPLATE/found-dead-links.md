@@ -1,7 +1,7 @@
 ---
 name: Found Dead Links
 about: Dead link
-title: 'Dead link(s) found in markdown files'
+title: 'Dead link(s) found in markdown files in loderunner repository'
 labels: 'Documentation Bug'
 assignees: ''
 
