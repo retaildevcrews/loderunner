@@ -52,6 +52,6 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The client results.
         /// </value>
-        public List<LoadResult> ClientResults { get; set; } = new (); // List<LoadResult>();
+        public List<LoadResult> ClientResults { get; set; } = new ();
     }
 }
