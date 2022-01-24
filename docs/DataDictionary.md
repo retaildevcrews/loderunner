@@ -118,7 +118,6 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 
 `Table 05: LoadTestConfig Properties`
 
-
 #### 2.3.2 TestRun
 
 | Property        |    Type        | Description             | Required  | Notes      |
@@ -151,6 +150,5 @@ This entity is still TBD
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
-
 
 `Table 07: LoadResult Properties`

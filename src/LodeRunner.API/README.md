@@ -18,10 +18,15 @@ LodeRunner.API is intended to facility testing in controlled environments by add
       `dotnet run`
 
 You should see the following response:
-> Hosting environment: Development or Production
+
+```bash
+
+Hosting environment: Development or Production
 Content root path: /src/LodeRunner.API
 Now listening on: http://[::]:8081
 Application started. Press Ctrl+C to shut down.
+
+```
 
 ### Port configuration
 
