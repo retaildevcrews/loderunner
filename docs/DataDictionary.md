@@ -18,6 +18,8 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
 | LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || xRxD | CRUx | xRxD |
+| LoadTestConfigPayload     | Used as the Load Test Configuration payload data sent to the server when you make an API request. || xxxx | xxxx | xxxx |
+| TestRunPayload     | Used as the Test Run payload data sent to the server when you make an API request. || xxxx | xxxx | xxxx |
 
 `Table 01: Primary LodeRunner Entities`
 
@@ -117,8 +119,31 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 
 `Table 05: LoadTestConfig Properties`
 
+#### 2.3.2 LoadTestConfig Payload
 
-#### 2.3.2 TestRun
+This object is utilized as the Load Test Config payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating Load Test Configs and helps to identify deltas during payload deserialization.
+
+| Property        |    Type    | Description             | Required  | Notes      |
+| :-------------- | :--------- | :---------------------- | :-------- | :----------|
+| Name            |   String   | Friendly name so that users may more easily identify configs | No | |
+| Files           |  String[]  | List of files to test   |   Yes     | match `--files` CLI flag |
+| StrictJson      |   Boolean  | Use strict json when parsing (default: `False`) | No | match to `--strict-json` CLI flag |
+| BaseURL         |   String   | Base url for files (default is empty) | No | match to `--base-url` CLI flag |
+| VerboseErrors   |   Boolean  | Displays validation error messages | No | match to `--verbose-errors` CLI flag |
+| Randomize       |   Boolean  | Requires `RunLoop` to be true.  Dictates whether to process a load file top to bottom (default: `false`) or randomly | No | match to `--random` CLI flag |
+| Timeout         |    Int     | Request timeout in seconds (default: 30) | No | match to `--timeout` CLI flag |
+| Server          |  String[]  | Server(s) to test (default is empty) | Yes | match to `--server` CLI flag |
+| Tag             |   String   | Tag for log | No | match to `--tag` CLI flag |
+| Sleep           |   String   | Sleep (ms) between each request (default: 0) | No | match to `--sleep` CLI flag |
+| RunLoop         |   Boolean  | Run test in an infinite loop (default: False) | No | match to `--run-loop` CLI flag |
+| Duration        |    Int     | Test duration (seconds) requires `RunLoop=True` (default: 0) | No | match to `--duration` CLI flag |
+| MaxErrors       |    Int     | Max validation errors (default: 10) | No | match to `--max-errors` CLI flag |
+| DelayStart      |    Int     | Delay test start.  Must be `-1` for LodeRunner as that sets LodeRunner into a wait mode | Yes | match to `--delay-start` CLI flag |
+| DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
+
+`Table 06: LoadTestConfig Payload Properties`
+
+#### 2.3.3 TestRun
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
@@ -133,9 +158,23 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | ClientResults   |  LoadResult[]  | This is an array of the result output from each client | No | |
 
-`Table 06: TestRun Properties`
+`Table 07: TestRun Properties`
 
-#### 2.3.3 LoadResult
+#### 2.3.4 TestRun Payload
+
+This object is utilized as the Test Run payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating TestRuns and helps to identify deltas during payload deserialization.
+
+| Property        |    Type        | Description             | Required  | Notes      |
+| :-------------- | :------------- | :---------------------- | :-------- | :----------|
+| Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
+| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
+| LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
+| CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
+| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
+
+`Table 08: TestRun Payload Properties`
+
+#### 2.3.5 LoadResult
 
 This entity is still TBD
 
@@ -149,4 +188,4 @@ This entity is still TBD
 | FailedRequests  |     Int        |                         | Yes | |
 
 
-`Table 07: LoadResult Properties`
+`Table 09: LoadResult Properties`
