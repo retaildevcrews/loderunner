@@ -14,7 +14,7 @@ namespace LodeRunner.Data.Interfaces
     /// <summary>
     /// LoadTestConfig Interface.
     /// </summary>
-    public interface ILoadTestConfigService
+    public interface ILoadTestConfigService : IBaseService<LoadTestConfig>
     {
         /// <summary>
         /// Posts the specified load test configuration.

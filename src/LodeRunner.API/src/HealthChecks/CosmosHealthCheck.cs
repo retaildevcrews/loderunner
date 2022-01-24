@@ -52,7 +52,7 @@ namespace LodeRunner.API
         private static JsonSerializerOptions jsonOptions;
 
         private readonly ILogger logger;
-        private readonly ClientStatusService clientStatusService;
+        private readonly IClientStatusService clientStatusService;
         private readonly ICosmosConfig cosmosConfig;
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace LodeRunner.API
         /// <param name="logger">ILogger.</param>
         /// <param name="clientStatusService">the clientStatusService.</param>
         /// <param name="cosmosConfig">App CosmosConfig Interface.</param>
-        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, ClientStatusService clientStatusService, ICosmosConfig cosmosConfig)
+        public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IClientStatusService clientStatusService, ICosmosConfig cosmosConfig)
         {
             // save to member vars
             this.logger = logger;

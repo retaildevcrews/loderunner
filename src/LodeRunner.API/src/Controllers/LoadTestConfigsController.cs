@@ -57,7 +57,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Gets a JSON array of LoadTestConfig objects",
             Description = "Returns an array of `LoadTestConfig` documents",
             OperationId = "GetLoadTestConfigs")]
-        public async Task<ActionResult<IEnumerable<LoadTestConfig>>> GetLoadTestConfigs([FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<LoadTestConfig>>> GetLoadTestConfigs([FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -89,7 +89,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Creates a new LoadTestConfig item",
             Description = "Requires Load Test Config payload",
             OperationId = "CreateLoadTestConfig")]
-        public async Task<ActionResult> CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> CreateLoadTestConfig([FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -195,7 +195,7 @@ namespace LodeRunner.API.Controllers
             Summary = "Updates an existing LoadTestConfig item",
             Description = "Requires load test config payload (partial or full) and ID",
             OperationId = "UpdateLoadTestConfig")]
-        public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> UpdateLoadTestConfig([FromRoute] string loadTestConfigId, [FromBody, SwaggerRequestBody("The load test config payload", Required = true)] LoadTestConfigPayload loadTestConfigPayload, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {

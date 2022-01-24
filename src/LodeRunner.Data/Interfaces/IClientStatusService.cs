@@ -12,7 +12,7 @@ namespace LodeRunner.Data.Interfaces
     /// <summary>
     /// ClientStatusService Interface.
     /// </summary>
-    public interface IClientStatusService
+    public interface IClientStatusService : IBaseService<ClientStatus>
     {
         /// <summary>
         /// Posts the update.
