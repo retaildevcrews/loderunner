@@ -227,8 +227,14 @@ namespace LodeRunner.Data
 
                 return true;
             }
-            catch (Exception)
+            catch (CosmosException ex)
             {
+                Console.WriteLine($"Exception: {ex.Message}\nCosmosException: Check Cosmos firewall settings for allowed IP address, and Cosmos key config.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
                 return false;
             }
         }
