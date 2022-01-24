@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This document is meant to show performance results when getting all entries from two different types of Cache object using different implementations 
+This document is meant to show performance results when getting all entries from two different types of Cache object using different implementations
 
 Cache data size 1,000,000 entries.
 

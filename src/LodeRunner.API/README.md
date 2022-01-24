@@ -33,15 +33,15 @@ Application started. Press Ctrl+C to shut down.
 ## Testing the API
 
 ```bash
- 
+
 # test using httpie (installed automatically in Codespaces)
 http localhost:8081/api/version
- 
+
 # test using curl
 curl localhost:8081/api/version
 
 # testing Health Check -  IetfHealthCheck
- curl --request GET http://localhost:8081/Healthz/ietf 
+ curl --request GET http://localhost:8081/Healthz/ietf
 
       # Overall Response Status
             # The least successful status from Checks performed.
@@ -51,11 +51,10 @@ curl localhost:8081/api/version
             # observedValue: The actual duration time (ms)
             # CosmosTimeout: The configured CosmosDB timeout value (default 60 seconds)
 
-      # Check Status 
+      # Check Status
             # Pass, if observedValue is less or equal to targetValue
             # Warn, if observedValue is greater than targetValue and less than CosmosTimeout
             # Fail, if observedValue is greater than CosmosTimeout
-      
 
 ```
 

@@ -23,7 +23,7 @@ We pledge to follow the [Microsoft Open Source Code of Conduct](https://opensour
 
 ## How we work together
 
-Teams and feature crews should feel free to be flexible based on your life situation - especially during COVID. Many of us work split schedules to accomodate our personal lives and health. You should feel empowered to work "your" schedule. 
+Teams and feature crews should feel free to be flexible based on your life situation - especially during COVID. Many of us work split schedules to accomodate our personal lives and health. You should feel empowered to work "your" schedule.
 
 ### Model, Coach, Care
 
@@ -79,19 +79,19 @@ Our crews are distributed across timezones and across the world. Where possible,
 ##### User Story Guideline
 
   Leveraging the 5 W's (who, what, when, where, why)
-  
+
 ##### Acceptance Criteria/Tests
 
-   User can *[select/operate] [Feature/Function]* so that *[output]* is *[visible/complete/etc.]*  
+   User can *[select/operate] [Feature/Function]* so that *[output]* is *[visible/complete/etc.]*
    Verify that...
 
 ##### I.N.V.E.S.T. in User Stories
 
-**I**ndependent - Can it be developed independently of other stories?  
-**N**egotiable - Is the scope negotiated to enable completion?  
-**V**aluable - Is the value to the user or customer clear?  
-**E**stimatable - Can the work be estimated? Are there unknowns, dependencies, barriers? Do we lack domain or technical knowledge?  
-**S**ize appropriately - Can it be completed in the iteration?  
+**I**ndependent - Can it be developed independently of other stories?
+**N**egotiable - Is the scope negotiated to enable completion?
+**V**aluable - Is the value to the user or customer clear?
+**E**stimatable - Can the work be estimated? Are there unknowns, dependencies, barriers? Do we lack domain or technical knowledge?
+**S**ize appropriately - Can it be completed in the iteration?
 **T**estable - What are the tests to know the work is done?
 
 ##### User Story Issues to Avoid
@@ -156,7 +156,6 @@ Our crews are distributed across timezones and across the world. Where possible,
 | **Review** | Tuesday @ 4:00PM CST | 30 minutes | Development Team, Scrum Master, Product Owner | Demonstrate the work we did this week. Show and tell time. |
 | **Retrospective** | Tuesday @ 4:30PM CST | 30 minutes | Development Team, Scrum Master, Product Owner | Reflect as a team on how we're doing -- what's working well for us, and what could we do better? |
 | **Planning** | Wednesday @ 5:00PM | 30 minutes | Scrum Master, Product Owner, Development Team | Commit to work for the next sprint. |
-
 
 ## How we code together
 
