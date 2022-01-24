@@ -23,7 +23,7 @@ namespace LodeRunner.Core.Models
         /// </value>
         [Required]
         [Description("LoadClient load test ran on.")]
-        public virtual LoadClient LoadClient { get; set; }
+        public LoadClient LoadClient { get; set; }
 
         /// <summary>
         /// Gets or sets the schedule start time.
@@ -32,7 +32,7 @@ namespace LodeRunner.Core.Models
         /// StartTime.
         /// </value>
         [Description("Schedule time to start the load test")]
-        public virtual DateTime StartTime { get; set; }
+        public DateTime StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the time the load test on the LoadClient completed.
@@ -41,7 +41,7 @@ namespace LodeRunner.Core.Models
         /// CompletedTime.
         /// </value>
         [Description("Completed load time test for a LoadClient")]
-        public virtual DateTime CompletedTime { get; set; }
+        public DateTime CompletedTime { get; set; }
 
         /// <summary>
         /// Gets or sets the total number of requests.
@@ -50,7 +50,7 @@ namespace LodeRunner.Core.Models
         /// TotalRequests.
         /// </value>
         [Description("Number of total requests")]
-        public virtual int TotalRequests { get; set; }
+        public int TotalRequests { get; set; }
 
         /// <summary>
         /// Gets or sets the number of successful requests.
@@ -59,7 +59,7 @@ namespace LodeRunner.Core.Models
         /// SuccessfulRequests.
         /// </value>
         [Description("Number of successful requests")]
-        public virtual int SuccessfulRequests { get; set; }
+        public int SuccessfulRequests { get; set; }
 
         /// <summary>
         /// Gets or sets the number of failed requests.
@@ -68,6 +68,6 @@ namespace LodeRunner.Core.Models
         /// FailedRequests.
         /// </value>
         [Description("Number of failed requests")]
-        public virtual int FailedRequests { get; set; }
+        public int FailedRequests { get; set; }
     }
 }
