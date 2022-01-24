@@ -82,7 +82,7 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="id">The identifier.</param>
         /// <param name="partitionKey">The partition key.</param>
         /// <returns>An instance of the document or null.</returns>
-        Task<TEntity> DeleteDocumentAsync<TEntity>(string id, string partitionKey);
+        Task<ItemResponse<TEntity>> DeleteDocumentAsync<TEntity>(string id, string partitionKey);
 
         /// <summary>
         /// Internals the cosmos database SQL query.

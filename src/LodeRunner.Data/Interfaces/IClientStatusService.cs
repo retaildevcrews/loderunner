@@ -12,42 +12,8 @@ namespace LodeRunner.Data.Interfaces
     /// <summary>
     /// ClientStatusService Interface.
     /// </summary>
-    public interface IClientStatusService
+    public interface IClientStatusService : IBaseService<ClientStatus>
     {
-        /// <summary>
-        /// Posts the update.
-        /// </summary>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Updated clientStatus entity.</returns>
-        Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>The corresponding Entity.</returns>
-        Task<ClientStatus> Get(string id);
-
-        /// <summary>
-        /// Gets all.
-        /// </summary>
-        /// <returns>all items for a given type.</returns>
-        Task<IEnumerable<ClientStatus>> GetAll();
-
-        /// <summary>
-        /// Gets the most recent asynchronous.
-        /// </summary>
-        /// <param name="limit">The limit.</param>
-        /// <returns>all the number of items for a given type.</returns>
-        Task<IEnumerable<ClientStatus>> GetMostRecent(int limit = 1);
-
-        /// <summary>
-        /// Gets the count asynchronous.
-        /// </summary>
-        /// <returns>Items Count EntityType equals ClientStatus.</returns>
-        Task<int> GetCount();
-
         /// <summary>
         /// Terminates the service.
         /// </summary>

@@ -12,34 +12,7 @@ namespace LodeRunner.Data.Interfaces
     /// <summary>
     /// LoadTestConfig Interface.
     /// </summary>
-    public interface ILoadTestConfigService
+    public interface ILoadTestConfigService : IBaseService<LoadTestConfig>
     {
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>The corresponding Enity.</returns>
-        Task<LoadTestConfig> Get(string id);
-
-        /// <summary>
-        /// Gets all.
-        /// </summary>
-        /// <returns>all items for a given type.</returns>
-        Task<IEnumerable<LoadTestConfig>> GetAll();
-
-        /// <summary>
-        /// Posts the specified load test configuration.
-        /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted LoadTestConfig entity.</returns>
-        Task<LoadTestConfig> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Deletes the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier to delete.</param>
-        /// <returns>The delete request status code.</returns>
-        Task<HttpStatusCode> Delete(string id);
     }
 }

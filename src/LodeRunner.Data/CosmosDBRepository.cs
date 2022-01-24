@@ -197,7 +197,7 @@ namespace LodeRunner.Data
         /// <param name="id">The identifier.</param>
         /// <param name="partitionKey">The partition key.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> DeleteDocumentAsync<TEntity>(string id, string partitionKey)
+        public async Task<ItemResponse<TEntity>> DeleteDocumentAsync<TEntity>(string id, string partitionKey)
         {
             return await this.Container<TEntity>().DeleteItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
         }

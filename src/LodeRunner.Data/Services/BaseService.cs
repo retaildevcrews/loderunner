@@ -2,9 +2,12 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
 
 namespace LodeRunner.Services
@@ -12,10 +15,12 @@ namespace LodeRunner.Services
     /// <summary>
     ///   Client Status Service.
     /// </summary>
-    public abstract class BaseService : IBaseService
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    public abstract class BaseService<TEntity> : IBaseService<TEntity>
+        where TEntity : BaseEntityModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaseService"/> class.
+        /// Initializes a new instance of the <see cref="BaseService{TEntity}"/> class.
         /// </summary>
         /// <param name="cosmosDBRepository">The cosmos database repository.</param>
         public BaseService(ICosmosDBRepository cosmosDBRepository)
@@ -31,13 +36,20 @@ namespace LodeRunner.Services
         /// </value>
         protected ICosmosDBRepository CosmosDBRepository { get; private set; }
 
+
+        /// <summary>
+        /// Gets or sets and Sets the validator.
+        /// </summary>
+        protected BaseEntityValidator<TEntity> Validator { get; set; }
+
+
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns>The corresponding entity.</returns>
-        public virtual async Task<TEntity> Get<TEntity>(string id)
+        public virtual async Task<TEntity> Get(string id)
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
@@ -47,9 +59,8 @@ namespace LodeRunner.Services
         /// <summary>
         /// Gets all.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <returns>all items for a given type.</returns>
-        public virtual async Task<IEnumerable<TEntity>> GetAll<TEntity>()
+        public virtual async Task<IEnumerable<TEntity>> GetAll()
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
@@ -66,7 +77,7 @@ namespace LodeRunner.Services
         /// <returns>
         /// all items for a given type.
         /// </returns>
-        public virtual async Task<IEnumerable<TEntity>> GetMostRecentAsync<TEntity>(int limit = 1)
+        public virtual async Task<IEnumerable<TEntity>> GetMostRecentAsync(int limit = 1)
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
@@ -78,11 +89,10 @@ namespace LodeRunner.Services
         /// <summary>
         /// Gets the count asynchronous.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <returns>
         /// Item count that match the Entity type.
         /// </returns>
-        public virtual async Task<int> GetCountAsync<TEntity>()
+        public virtual async Task<int> GetCountAsync()
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
 
@@ -95,13 +105,51 @@ namespace LodeRunner.Services
         /// <summary>
         /// Deletes the specified identifier.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns>The corresponding entity.</returns>
-        public virtual async Task<TEntity> Delete<TEntity>(string id)
+        public virtual async Task<HttpStatusCode> Delete(string id)
         {
             EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-            return await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, entityType.ToString());
+            var result = await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, entityType.ToString());
+            return result.StatusCode;
+        }
+
+        /// <summary>
+        /// Used to retrieve the most recently updated record.
+        /// </summary>
+        /// <param name="limit"> Set the number of records to return.</param>
+        /// <returns>List of documents.</returns>
+        public Task<IEnumerable<TEntity>> GetMostRecent(int limit = 1)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Used to add data to the store.
+        /// </summary>
+        /// <param name="entityToCreate">New object.</param>
+        /// <param name="cancellationToken">So operation may be cancelled</param>
+        /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
+        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken)
+        {
+            var returnValue = new Task<TEntity>(() => null);
+
+            if (entityToCreate != null && !cancellationToken.IsCancellationRequested)
+            {
+                // Update Entity if CosmosDB connection is ready and the object is valid
+                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.Validator.ValidateEntity(entityToCreate))
+                {
+                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(entityToCreate, cancellationToken);
+                }
+                else
+                {
+                    // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
+
+                    // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
+                }
+            }
+
+            return await returnValue;
         }
     }
 }
