@@ -46,7 +46,7 @@ http localhost:8081/api/version
 curl localhost:8081/api/version
 
 # testing Health Check -  IetfHealthCheck
- curl --request GET http://localhost:8081/Healthz/ietf
+curl --request GET http://localhost:8081/Healthz/ietf
 
       # Overall Response Status
             # The least successful status from Checks performed.
