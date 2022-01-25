@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
@@ -71,6 +72,43 @@ namespace LodeRunner.API.Controllers
             }
 
             return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Returns a single JSON LoadTestConfig by Parameter, LoadTestConfigId.
+        /// </summary>
+        /// <param name="loadTestConfigId">LoadTestConfigId.</param>
+        /// <param name="loadTestConfigService">The LoadTestConfigService.</param>
+        /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
+        /// <returns>IActionResult.</returns>
+        [HttpGet("{loadTestConfigId}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Single `LoadTestConfig` document by LoadTestConfigId.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidLoadTestConfigId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerOperation(
+            Summary = "Gets a single JSON LoadTestConfig by Parameter, loadTestConfigId.",
+            Description = "Returns a single `LoadTestConfig` document by loadTestConfigId",
+            OperationId = "GetLoadTestConfigByLoadTestConfigId")]
+        public async Task<ActionResult<LoadTestConfig>> GetLoadTestConfigById([FromRoute] string loadTestConfigId, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        {
+            if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
+            {
+                return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
+
+            if (errorlist.Count > 0)
+            {
+                await Logger.LogWarning(nameof(GetLoadTestConfigById), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
+            }
+
+            var result = await loadTestConfigService.GetLoadTestConfigById(loadTestConfigId, Logger);
+
+            return await ResultHandler.HandleResult(result, Logger);
         }
 
         /// <summary>
