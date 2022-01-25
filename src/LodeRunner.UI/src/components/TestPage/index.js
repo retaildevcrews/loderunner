@@ -54,6 +54,7 @@ const TestPage = () => {
     getClients()
       .then((c) => setClients(c))
       .catch(() => setClients([]));
+    return () => clearInterval(fetchClientsIntervalId.current);
   }, [fetchClientsTrigger]);
 
   useEffect(() => {
