@@ -50,7 +50,7 @@ RelayRunnerSummary{code="OK",cosmos="False",mode="Query",region="dev",zone="dev"
 # HELP RelayRunnerDuration Histogram of NGSA App request duration
 # TYPE RelayRunnerDuration histogram
 RelayRunnerDuration_sum{code="OK",cosmos="False",mode="Query",region="dev",zone="dev"} 235.98999999999995
-RelayRunnerDuration_count{code="OK",cosmos="False",mode="Query",region="dev",zone="dev"} 
+RelayRunnerDuration_count{code="OK",cosmos="False",mode="Query",region="dev",zone="dev"}
 ...
 ```
 
