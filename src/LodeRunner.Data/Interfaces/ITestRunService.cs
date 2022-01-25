@@ -12,17 +12,17 @@ using LodeRunner.Core.Responses;
 namespace LodeRunner.Data.Interfaces
 {
     /// <summary>
-    /// LoadTestConfig Interface.
+    /// TestRun Interface.
     /// </summary>
-    public interface ILoadTestConfigService : IBaseService<LoadTestConfig>
+    public interface ITestRunService
     {
         /// <summary>
-        /// Posts the specified load test configuration.
+        /// Posts the specified test run.
         /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="testRun">The test run.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted LoadTestConfig entity.</returns>
-        Task<ApiResponse<LoadTestConfig>> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken);
+        /// <returns>The Inserted TestRun entity.</returns>
+        Task<ApiResponse<TestRun>> Post(TestRun testRun, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes the specified identifier.

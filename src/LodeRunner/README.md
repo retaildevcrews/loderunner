@@ -246,6 +246,14 @@ Loderunner will return a non-zero exit code (fail) under the following condition
 - Any validation error on a test that has FailOnValidationError set to true
 - Request timeout
 
+## Debugging
+
+```bash
+// Load Test Run: logging output
+ErrorDetails":"Exception: The SSL connection could not be established, see inner exception."
+```
+- This may occur due to an expired *.cse.ms certificate
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

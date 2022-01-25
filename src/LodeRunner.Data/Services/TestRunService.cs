@@ -2,12 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
-using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.Responses;
@@ -17,29 +15,31 @@ using Microsoft.Azure.Cosmos;
 namespace LodeRunner.Services
 {
     /// <summary>
-    ///   Load Test Config Service.
+    ///   Test Run Service.
     /// </summary>
-    public class LoadTestConfigService : BaseService<LoadTestConfig>, ILoadTestConfigService
+    public class TestRunService : BaseService<TestRun>, ITestRunService
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadTestConfigService"/> class.
+        /// Initializes a new instance of the <see cref="TestRunService"/> class.
         /// </summary>
-        /// <param name="cosmosDBRepository">The client status repository.</param>
-        public LoadTestConfigService(ICosmosDBRepository cosmosDBRepository)
+        /// <param name="cosmosDBRepository">The loderunner repository.</param>
+        public TestRunService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
-            this.Validator = new LoadTestConfigValidator();
+            this.Validator = new TestRunValidator();
         }
 
         /// <summary>
-        /// Posts the specified load test configuration.
+        /// Posts the specified load test run.
         /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
+        /// <param name="testRun">The load test run.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted LoadTestConfig response.</returns>
-        public async Task<ApiResponse<LoadTestConfig>> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
+        /// <returns>
+        /// The Inserted TestRun entity.
+        /// </returns>
+        public async Task<ApiResponse<TestRun>> Post(TestRun testRun, CancellationToken cancellationToken)
         {
-            var returnValue = await this.Save(loadTestConfig, cancellationToken);
+            var returnValue = await this.Save(testRun, cancellationToken);
 
             return this.CreateApiResponse(returnValue);
         }

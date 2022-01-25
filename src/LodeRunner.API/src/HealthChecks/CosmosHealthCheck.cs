@@ -11,6 +11,7 @@ using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -74,7 +75,7 @@ namespace LodeRunner.API
                 jsonOptions = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 };
 
