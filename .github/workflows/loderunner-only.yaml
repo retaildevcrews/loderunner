@@ -119,5 +119,5 @@ jobs:
     - name: GitOps Deploy
       if: ${{ inputs.autogitops }}
       run: |        
-        dotnet tool install -g autogitops --version 0.0.3
+        dotnet tool install -g autogitops --version 0.1.0
         ago -u ${{ secrets.ghcr_id }} -p ${{ secrets.ghcr_pat }} -r /retaildevcrews/ngsa-asb
