@@ -34,29 +34,5 @@ namespace LodeRunner.API.Test.IntegrationTests
             loadTestConfig.DelayStart = 5;
             loadTestConfig.DryRun = false;
         }
-
-        /// <summary>
-        /// Sets mock LoadTestConfig Payload data.
-        /// </summary>
-        /// <param name="loadTestConfigPayload">The load test configuration.</param>
-        /// <param name="name">The name.</param>
-        public static void SetMockData(this LoadTestConfigPayload loadTestConfigPayload, string name)
-        {
-            loadTestConfigPayload.Name = name;
-            loadTestConfigPayload.Files = new List<string>() { "baseline.json", "benchmark.json" };
-            loadTestConfigPayload.StrictJson = true;
-            loadTestConfigPayload.BaseURL = "SampleBaseURL";
-            loadTestConfigPayload.VerboseErrors = true;
-            loadTestConfigPayload.Randomize = true;
-            loadTestConfigPayload.Timeout = 10;
-            loadTestConfigPayload.Server = new List<string>() { "www.yourprimaryserver.com", "www.yoursecondaryserver.com" };
-            loadTestConfigPayload.Tag = "Sample Tag";
-            loadTestConfigPayload.Sleep = 5;
-            loadTestConfigPayload.RunLoop = true;
-            loadTestConfigPayload.Duration = 60;
-            loadTestConfigPayload.MaxErrors = 10;
-            loadTestConfigPayload.DelayStart = 5;
-            loadTestConfigPayload.DryRun = false;
-        }
     }
 }

@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.API.Test.IntegrationTests.AutoMapper;
 using LodeRunner.Core.Models;
 using Newtonsoft.Json;
 using Xunit.Abstractions;
@@ -205,26 +206,52 @@ namespace LodeRunner.API.Test.IntegrationTests
             return httpResponse;
         }
 
+        ///// <summary>
+        ///// Get all LoadTestConfig.
+        ///// </summary>
+        ///// <param name="httpClient">The httpClient.</param>
+        ///// <param name="loadTestConfigsUri">The LoadTestConfig Uri.</param>
+        ///// <param name="output">The output.</param>
+        ///// <returns>the task.</returns>
+        ///// <summary>
+        ///// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        //public static async Task<HttpResponseMessage> GetLoadTestConfigs(this HttpClient httpClient, string loadTestConfigsUri, ITestOutputHelper output)
+        //{
+        //    HttpResponseMessage httpResponse = await httpClient.GetAsync(loadTestConfigsUri);
+
+        //    if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NoContent)
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all LoadTestConfig\tResponse StatusCode: '{httpResponse.StatusCode}'");
+        //    }
+        //    else
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+        //    }
+
+        //    return httpResponse;
+        //}
+
         /// <summary>
-        /// Get all LoadTestConfig.
+        /// Sends request to all TEntity Items.
         /// </summary>
-        /// <param name="httpClient">The httpClient.</param>
-        /// <param name="loadTestConfigsUri">The LoadTestConfig Uri.</param>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        /// <summary>
-        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
-        public static async Task<HttpResponseMessage> GetLoadTestConfigs(this HttpClient httpClient, string loadTestConfigsUri, ITestOutputHelper output)
+        public static async Task<HttpResponseMessage> GetAllItems<TEntity>(this HttpClient httpClient, string baseEntityUri, ITestOutputHelper output)
         {
-            HttpResponseMessage httpResponse = await httpClient.GetAsync(loadTestConfigsUri);
+            string entityName = typeof(TEntity).Name;
+
+            HttpResponseMessage httpResponse = await httpClient.GetAsync(baseEntityUri);
 
             if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NoContent)
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all LoadTestConfig\tResponse StatusCode: '{httpResponse.StatusCode}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'");
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
             }
 
             return httpResponse;
@@ -239,8 +266,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>the task.</returns>
         public static async Task<HttpResponseMessage> PostLoadTestConfig(this HttpClient httpClient, string loadTestConfigUri, ITestOutputHelper output)
         {
-            LoadTestConfigPayload loadTestConfigPayload = new ();
-            loadTestConfigPayload.SetMockData($"Sample LoadTestConfig - IntegrationTesting-{nameof(PostLoadTestConfig)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            LoadTestConfig loadTestConfig = new ();
+
+            loadTestConfig.SetMockData($"Sample LoadTestConfig - IntegrationTesting-{nameof(PostLoadTestConfig)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+
+            var loadTestConfigPayload = loadTestConfig.AutomapAndGetLoadTestConfigTestPayload();
 
             string jsonLoadTestConfig = JsonConvert.SerializeObject(loadTestConfigPayload);
             StringContent stringContent = new (jsonLoadTestConfig, Encoding.UTF8, "application/json");
@@ -259,53 +289,153 @@ namespace LodeRunner.API.Test.IntegrationTests
             return httpResponse;
         }
 
+
         /// <summary>
-        /// Get LoadTestConfig by ID.
+        /// Post LoadTestConfig.
         /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <typeparam name="TEntityPayload">The Entity Payload type.</typeparam>
         /// <param name="httpClient">The httpClient.</param>
-        /// <param name="loadTestConfigsUri">The LoadTestConfigs Uri.</param>
-        /// <param name="loadTestConfigId">The LoadTestConfig ID.</param>
+        /// <param name="baseEntityUri">The LoadTestConfigUri.</param>
         /// <param name="output">The output.</param>
         /// <returns>the task.</returns>
-        public static async Task<HttpResponseMessage> GetLoadTestConfigById(this HttpClient httpClient, string loadTestConfigsUri, string loadTestConfigId, ITestOutputHelper output)
+        public static async Task<HttpResponseMessage> PostEntity<TEntity, TEntityPayload>(this HttpClient httpClient, string baseEntityUri, ITestOutputHelper output)
+            where TEntity : BaseEntityModel, new()
+            where TEntityPayload : BasePayload
         {
-            var httpResponse = await httpClient.GetAsync(loadTestConfigsUri + "/" + loadTestConfigId);
+            string entityName = typeof(TEntity).Name;
+
+            TEntity entitySource = new ();
+
+            // TODO: How to set mock data for Generic BaseEntityModel ???
+
+            //entitySource.SetMockData($"Sample {entityName} - IntegrationTesting-{nameof(PostLoadTestConfig)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+
+            TEntityPayload entityPayload = BasePayloadAutoMapperHelper<TEntity, TEntityPayload>.Map(entitySource);
+
+            string jsonLoadTestConfig = JsonConvert.SerializeObject(entityPayload);
+
+            StringContent stringContent = new (jsonLoadTestConfig, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PostAsync(baseEntityUri, stringContent);
+
+            if (httpResponse.StatusCode == HttpStatusCode.Created)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+            }
+
+            return httpResponse;
+        }
+
+
+        /// <summary>
+        /// Get Entity Item by ID.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
+        /// <param name="itemId">The LoadTestConfig ID.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> GetItemById<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, ITestOutputHelper output)
+        {
+            string entityName = typeof(TEntity).Name;
+
+            var httpResponse = await httpClient.GetAsync(baseEntityUri + "/" + itemId);
 
             if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NotFound)
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET LoadTestConfig by ID\tResponse StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tResponse StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
             }
 
             return httpResponse;
         }
 
+        ///// <summary>
+        ///// Get LoadTestConfig by ID.
+        ///// </summary>
+        ///// <param name="httpClient">The httpClient.</param>
+        ///// <param name="loadTestConfigsUri">The LoadTestConfigs Uri.</param>
+        ///// <param name="loadTestConfigId">The LoadTestConfig ID.</param>
+        ///// <param name="output">The output.</param>
+        ///// <returns>the task.</returns>
+        //public static async Task<HttpResponseMessage> GetLoadTestConfigById(this HttpClient httpClient, string loadTestConfigsUri, string loadTestConfigId, ITestOutputHelper output)
+        //{
+        //    var httpResponse = await httpClient.GetAsync(loadTestConfigsUri + "/" + loadTestConfigId);
+
+        //    if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NotFound)
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET LoadTestConfig by ID\tResponse StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+        //    }
+        //    else
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+        //    }
+
+        //    return httpResponse;
+        //}
+
+        ///// <summary>
+        ///// Delete a LoadTestConfig by Id.
+        ///// </summary>
+        ///// <param name="httpClient">The HTTP client.</param>
+        ///// <param name="loadTestConfigsUri">The base LoadTestConfigs Uri.</param>
+        ///// <param name="loadTestConfigId">The LoadTestConfig ID.</param>
+        ///// <param name="output">The output.</param>
+        ///// <returns>the successful task value.</returns>
+        //public static async Task<HttpResponseMessage> DeleteLoadTestConfigById(this HttpClient httpClient, string loadTestConfigsUri, string loadTestConfigId, ITestOutputHelper output)
+        //{
+        //    var httpResponse = await httpClient.DeleteAsync($"{loadTestConfigsUri}/{loadTestConfigId}");
+
+        //    if (httpResponse.StatusCode == HttpStatusCode.NoContent || httpResponse.StatusCode == HttpStatusCode.NotFound)
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE LoadTestConfig\tResponse StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+        //    }
+        //    else
+        //    {
+        //        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+        //    }
+
+        //    return httpResponse;
+        //}
+
+
+
         /// <summary>
-        /// Delete a LoadTestConfig by Id.
+        /// Delete a Entity Item by Id.
         /// </summary>
-        /// <param name="httpClient">The HTTP client.</param>
-        /// <param name="loadTestConfigsUri">The base LoadTestConfigs Uri.</param>
-        /// <param name="loadTestConfigId">The LoadTestConfig ID.</param>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
+        /// <param name="itemId">The LoadTestConfig ID.</param>
         /// <param name="output">The output.</param>
         /// <returns>the successful task value.</returns>
-        public static async Task<HttpResponseMessage> DeleteLoadTestConfigById(this HttpClient httpClient, string loadTestConfigsUri, string loadTestConfigId, ITestOutputHelper output)
+        public static async Task<HttpResponseMessage> DeleteItemById<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, ITestOutputHelper output)
         {
-            var httpResponse = await httpClient.DeleteAsync($"{loadTestConfigsUri}/{loadTestConfigId}");
+            string entityName = typeof(TEntity).Name;
+            var httpResponse = await httpClient.DeleteAsync($"{baseEntityUri}/{itemId}");
 
             if (httpResponse.StatusCode == HttpStatusCode.NoContent || httpResponse.StatusCode == HttpStatusCode.NotFound)
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE LoadTestConfig\tResponse StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE LoadTestConfig\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tLoadTestConfigId: '{loadTestConfigId}'");
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
             }
 
             return httpResponse;
         }
+
+
 
         /// <summary>
         /// Put Load Test Config by ID.

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using LodeRunner.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -10,10 +9,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-//using LodeRunner.API.Middleware;
-//using LodeRunner.API.Test.IntegrationTests.AutoMapper;
-//using LodeRunner.API.Test.IntegrationTests.Payloads;
-//using LodeRunner.Core.Models;
+using LodeRunner.API.Test.IntegrationTests.AutoMapper;
+using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -53,7 +50,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             this.jsonOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
-
         /// <summary>
         /// Determines whether this instance [can get Load Test Configs].
         /// </summary>
@@ -64,7 +60,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            HttpResponseMessage httpResponse = await httpClient.GetLoadTestConfigs(LoadTestConfigsUri, this.output);
+            HttpResponseMessage httpResponse = await httpClient.GetAllItems<LoadTestConfig>(LoadTestConfigsUri, this.output);
             Assert.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent });
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
@@ -94,7 +90,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
             var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
-            var gottenHttpResponse = await httpClient.GetLoadTestConfigById(LoadTestConfigsUri, postedTestRun.Id, this.output);
+            var gottenHttpResponse = await httpClient.GetItemById<LoadTestConfig>(LoadTestConfigsUri, postedTestRun.Id, this.output);
 
             Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
             var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
@@ -102,10 +98,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
 
             // Delete the LoadTestConfig created in this Integration Test scope
-            await httpClient.DeleteLoadTestConfigById(LoadTestConfigsUri, gottenTestRun.Id, this.output);
+            await httpClient.DeleteItemById<LoadTestConfig>(LoadTestConfigsUri, gottenTestRun.Id, this.output);
         }
-
-        //*********************
 
         /// <summary>
         /// Determines whether this instance [can update loadTestConfig by identifier].
@@ -121,15 +115,18 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postResponse = await httpClient.PostLoadTestConfig(LoadTestConfigsUri, this.output);
             var postedLoadTestConfig = await postResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
-            LoadTestConfigPayload loadTestConfigPayload = new ();
-            loadTestConfigPayload.SetMockData($"Updated CanPutLoadTestConfigs - IntegrationTesting-{nameof(this.CanPutLoadTestConfigs)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            LoadTestConfig loadTestConfig = new ();
+
+            loadTestConfig.SetMockData($"Updated CanPutLoadTestConfigs - IntegrationTesting-{nameof(this.CanPutLoadTestConfigs)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+
+            var loadTestConfigPayload = loadTestConfig.AutomapAndGetLoadTestConfigTestPayload();
 
             // Update LoadTestConfig
             var puttedResponse = await httpClient.PutLoadTestConfigById(LoadTestConfigsUri, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
 
             Assert.Equal(HttpStatusCode.NoContent, puttedResponse.StatusCode);
 
-            var gottenResponse = await httpClient.GetLoadTestConfigById(LoadTestConfigsUri, postedLoadTestConfig.Id, this.output);
+            var gottenResponse = await httpClient.GetItemById<LoadTestConfig>(LoadTestConfigsUri, postedLoadTestConfig.Id, this.output);
             var gottenTestRun = await gottenResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
             postedLoadTestConfig.Name = loadTestConfigPayload.Name;
 
@@ -150,17 +147,15 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var loadTestConfig = await httpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
             // Delete the LoadTestConfig created in this Integration Test scope
-            var deletedResponse = await httpClient.DeleteLoadTestConfigById(LoadTestConfigsUri, loadTestConfig.Id, this.output);
+            var deletedResponse = await httpClient.DeleteItemById<LoadTestConfig>(LoadTestConfigsUri, loadTestConfig.Id, this.output);
             Assert.Equal(HttpStatusCode.NoContent, deletedResponse.StatusCode);
 
             Assert.Equal(0, deletedResponse.Content.Headers.ContentLength);
 
-            var gottenHttpResponse = await httpClient.GetLoadTestConfigById(LoadTestConfigsUri, loadTestConfig.Id, this.output);
+            var gottenHttpResponse = await httpClient.GetItemById<LoadTestConfig>(LoadTestConfigsUri, loadTestConfig.Id, this.output);
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Requested data not found.", gottenMessage);
         }
-
-
     }
 }
