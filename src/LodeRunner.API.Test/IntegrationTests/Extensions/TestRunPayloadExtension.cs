@@ -8,7 +8,7 @@ using LodeRunner.Core.Models;
 namespace LodeRunner.API.Test.IntegrationTests
 {
     /// <summary>
-    /// TestRunPayload Extentions.
+    /// TestRunPayload Extensions.
     /// </summary>
     public static class TestRunPayloadExtension
     {

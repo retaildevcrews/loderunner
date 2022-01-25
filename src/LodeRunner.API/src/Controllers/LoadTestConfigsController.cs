@@ -143,7 +143,7 @@ namespace LodeRunner.API.Controllers
 
                 if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.Created);
                 }
                 else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
                 {
@@ -197,7 +197,7 @@ namespace LodeRunner.API.Controllers
 
             return deleteTaskResult switch
             {
-                HttpStatusCode.OK => await ResultHandler.CreateResult(SystemConstants.DeletedLoadTestConfig, HttpStatusCode.OK),
+                HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
                 HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound),
                 _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
             };
@@ -273,7 +273,7 @@ namespace LodeRunner.API.Controllers
 
                 if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                    return await ResultHandler.CreateNoContent();
                 }
                 else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
                 {
