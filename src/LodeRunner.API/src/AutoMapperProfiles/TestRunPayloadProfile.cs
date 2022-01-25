@@ -8,17 +8,17 @@ using LodeRunner.Core.Models;
 namespace LodeRunner.API.AutoMapperProfiles
 {
     /// <summary>
-    /// Represents the LoadTestConfig Auto-mapping Profile.
+    /// Represents the TestRun Auto-mapping Profile.
     /// </summary>
     /// <seealso cref="AutoMapper.Profile" />
-    public class LoadTestPayloadProfile : Profile
+    public class TestRunPayloadProfile : Profile
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadTestPayloadProfile"/> class.
+        /// Initializes a new instance of the <see cref="TestRunPayloadProfile"/> class.
         /// </summary>
-        public LoadTestPayloadProfile()
+        public TestRunPayloadProfile()
         {
-            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreUnmodifiedProperties();
+            this.CreateMap<TestRunPayload, TestRun>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreUnmodifiedProperties();
         }
     }
 }

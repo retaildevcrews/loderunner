@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,7 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace LodeRunner.Core.Models
 {
     /// <summary>
-    /// LoadRestConfig Model.
+    /// LoadTestConfig Model.
     /// </summary>
     [SwaggerSchemaFilter(typeof(LoadTestConfigSchemaFilter))]
     public class LoadTestConfig : BaseEntityModel

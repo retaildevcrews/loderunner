@@ -10,6 +10,7 @@ using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Swashbuckle.AspNetCore.Annotations;
@@ -24,6 +25,13 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update LoadTest Configurations")]
     public class LoadTestConfigsController : Controller
     {
+        private static readonly NgsaLog Logger = new ()
+        {
+            Name = typeof(LoadTestConfigsController).FullName,
+            ErrorMessage = "LoadTestConfigsControllerException",
+            NotFoundError = "Load Test Configs Not Found",
+        };
+
         private readonly IMapper autoMapper;
 
         /// <summary>
@@ -42,7 +50,7 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents or empty array if not found.", typeof(LoadTestConfig[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents.", typeof(LoadTestConfig[]), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
@@ -59,7 +67,7 @@ namespace LodeRunner.API.Controllers
             List<LoadTestConfig> loadTestConfigs = (List<LoadTestConfig>)await loadTestConfigService.GetAll();
             if (loadTestConfigs.Count == 0)
             {
-                return new NoContentResult();
+                return await ResultHandler.CreateNoContent();
             }
 
             return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);
@@ -73,7 +81,9 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, "`LoadTestConfig` was created.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.Created, "`LoadTestConfig` was created.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Creates a new LoadTestConfig item",
@@ -91,11 +101,15 @@ namespace LodeRunner.API.Controllers
 
             if (newloadTestConfig.Validate(out string errorMessage, loadTestConfigPayload.PropertiesChanged))
             {
-                var insertedLoadTestConfig = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
+                var insertedLoadTestConfigResponse = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
 
-                if (insertedLoadTestConfig != null)
+                if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateResult(insertedLoadTestConfig, HttpStatusCode.OK);
+                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                }
+                else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return await ResultHandler.CreateBadRequestResult(insertedLoadTestConfigResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
                 }
                 else
                 {
@@ -117,7 +131,9 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpDelete("{loadTestConfigId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.DeletedLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidLoadTestConfigId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundLoadTestConfig)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteLoadTestConfig)]
         [SwaggerOperation(
             Summary = "Deletes a LoadTestConfig item",
@@ -128,6 +144,15 @@ namespace LodeRunner.API.Controllers
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
+            }
+
+            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
+
+            if (errorlist.Count > 0)
+            {
+                await Logger.LogWarning(nameof(DeleteLoadTestConfig), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
@@ -165,6 +190,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToUpdateLoadTestConfig)]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToGetLoadTestConfig)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Updates an existing LoadTestConfig item",
             Description = "Requires load test config payload (partial or full) and ID",
@@ -184,7 +210,7 @@ namespace LodeRunner.API.Controllers
             }
             catch (CosmosException cex)
             {
-                // Returns most common Expcetion: 404 NotFound, 429 TooManyReqs
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
                 return await ResultHandler.CreateErrorResult(cex.Message, cex.StatusCode);
             }
             catch (Exception ex)
@@ -205,15 +231,19 @@ namespace LodeRunner.API.Controllers
             // Validate the mapped loadTestConfig
             if (existingLoadTestConfig.Validate(out string errorMessage))
             {
-                var insertedLoadTestConfig = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
+                var insertedLoadTestConfigResponse = await loadTestConfigService.Post(existingLoadTestConfig, cancellationTokenSource.Token);
 
-                if (insertedLoadTestConfig != null)
+                if (insertedLoadTestConfigResponse.Model != null && insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    return await ResultHandler.CreateNoContent();
+                    return await ResultHandler.CreateResult(insertedLoadTestConfigResponse.Model, HttpStatusCode.OK);
+                }
+                else if (insertedLoadTestConfigResponse.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    return await ResultHandler.CreateBadRequestResult(insertedLoadTestConfigResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
                 }
                 else
                 {
-                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToUpdateLoadTestConfig, HttpStatusCode.InternalServerError);
+                    return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateLoadTestConfig, HttpStatusCode.InternalServerError);
                 }
             }
             else

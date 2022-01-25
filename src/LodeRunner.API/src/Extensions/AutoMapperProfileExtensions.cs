@@ -10,12 +10,23 @@ using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Extensions
 {
+    /// <summary>
+    /// Provides AutoMapper Profile Extension Methods.
+    /// </summary>
     public static class AutoMapperProfileExtensions
     {
-        public static IMappingExpression<LoadTestConfigPayload, LoadTestConfig> IgnoreNotProvidedProps(
-            this IMappingExpression<LoadTestConfigPayload, LoadTestConfig> expression)
+        /// <summary>
+        /// Builds the expression ignoring the unmodified properties.
+        /// </summary>
+        /// <typeparam name="TPayloadSource">The type of the payload source.</typeparam>
+        /// <typeparam name="TDestination">The type of the destination.</typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <returns>IMappingExpression</returns>
+        public static IMappingExpression<TPayloadSource, TDestination> IgnoreUnmodifiedProperties<TPayloadSource, TDestination>(this IMappingExpression<TPayloadSource, TDestination> expression)
+            where TPayloadSource : BasePayload
+            where TDestination : BaseEntityModel
         {
-            var destType = typeof(LoadTestConfig);
+            var destType = typeof(TDestination);
             foreach (var property in destType.GetProperties())
             {
                 expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>
