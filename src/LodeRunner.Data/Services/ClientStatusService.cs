@@ -30,71 +30,6 @@ namespace LodeRunner.Services
             this.Validator = new ClientStatusValidator();
         }
 
-        ///// <summary>
-        ///// Gets the specified identifier.
-        ///// </summary>
-        ///// <param name="id">The identifier.</param>
-        ///// <returns>
-        ///// The corresponding Entity.
-        ///// </returns>
-        //public async Task<ClientStatus> Get(string id)
-        //{
-        //    return await this.Get<ClientStatus>(id);
-        //}
-
-        ///// <summary>
-        ///// Gets all.
-        ///// </summary>
-        ///// <returns>
-        ///// all items for a given type.
-        ///// </returns>
-        //public async Task<IEnumerable<ClientStatus>> GetAll()
-        //{
-        //    return await this.GetAll<ClientStatus>();
-        //}
-
-        ///// <summary>
-        ///// Gets the count asynchronous.
-        ///// </summary>
-        ///// <returns>
-        ///// Items Count EntityType equals ClientStatus.
-        ///// </returns>
-        //public async Task<int> GetCount()
-        //{
-        //    return await this.GetCountAsync<ClientStatus>();
-        //}
-
-        ///// <summary>
-        ///// Posts the update.
-        ///// </summary>
-        ///// <param name="clientStatus">The ClientStatus entity.</param>
-        ///// <param name="cancellationToken">The cancellation token.</param>
-        ///// <returns>
-        /////    The Task[ClientStatus] with updated ClientStatus if CosmosDB post is ready.
-        /////    Otherwise, it returns null.
-        ///// </returns>
-        //public async Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
-        //{
-        //    var returnValue = new Task<ClientStatus>(() => null);
-
-        //    if (clientStatus != null && !cancellationToken.IsCancellationRequested)
-        //    {
-        //        // Update Entity if CosmosDB connection is ready and the object is valid
-        //        if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.validator.ValidateEntity(clientStatus))
-        //        {
-        //            returnValue = this.CosmosDBRepository.UpsertDocumentAsync(clientStatus, cancellationToken);
-        //        }
-        //        else
-        //        {
-        //            // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
-        //            // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
-        //        }
-        //    }
-
-        //    return await returnValue;
-        //}
-
         /// <summary>
         /// Terminates the service.
         /// </summary>
@@ -108,17 +43,5 @@ namespace LodeRunner.Services
 
             this.CosmosDBRepository.UpsertDocumentAsync(clientStatus).ConfigureAwait(false);
         }
-
-        ///// <summary>
-        ///// Gets the specified identifier.
-        ///// </summary>
-        ///// <param name="id">The identifier.</param>
-        ///// <returns>
-        ///// The corresponding Entity.
-        ///// </returns>
-        //public async Task<ClientStatus> Delete(string id)
-        //{
-        //    return await this.Delete<ClientStatus>(id);
-        //}
     }
 }

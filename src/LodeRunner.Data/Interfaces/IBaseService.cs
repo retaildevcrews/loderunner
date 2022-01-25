@@ -53,7 +53,7 @@ namespace LodeRunner.Data.Interfaces
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>
-        /// The corresponding Entity.
+        /// The corresponding Entity.  
         /// </returns>
         Task<HttpStatusCode> Delete(string id);
     }
