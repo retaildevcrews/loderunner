@@ -87,9 +87,12 @@ const ConfigForm = () => {
     baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl] || "";
     configNameRef.current.value = openedConfig[CONFIG.name] || "";
     if (durationFlagRef.current) {
+      console.log("line 90", { durationFlagRef });
       durationFlagRef.current.value = openedConfig[CONFIG.duration];
     }
-    maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
+    if (maxErrorsFlagRef.current) {
+      maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
+    }
     sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
     tagFlagRef.current.value = openedConfig[CONFIG.tag] || "";
     timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
@@ -152,6 +155,7 @@ const ConfigForm = () => {
   const saveConfig = () => {
     setIsPending(true);
 
+    console.log("line 156", { durationFlagRef });
     const inputs = {
       [CONFIG.baseUrl]: baseUrlFlagRef.current.value,
       [CONFIG.dryRun]: dryRunFlagRef.current,
@@ -269,6 +273,7 @@ const ConfigForm = () => {
                 elRef={durationFlagRef}
                 inputName="durationFlag"
                 units="second(s)"
+                defaultValue={0}
               />
               {errors[CONFIG.duration] && (
                 <div className="configform-error">
@@ -294,6 +299,7 @@ const ConfigForm = () => {
                 description="Maximum validation errors"
                 elRef={maxErrorsFlagRef}
                 inputName="maxErrorsFlag"
+                defaultValue={10}
               />
               {errors[CONFIG.maxErrors] && (
                 <div className="configform-error">

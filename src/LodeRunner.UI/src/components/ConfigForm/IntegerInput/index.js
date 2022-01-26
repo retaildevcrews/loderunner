@@ -9,8 +9,8 @@ const IntegerInput = ({
   units,
   defaultValue,
 }) => {
+  console.log({ inputName, defaultValue });
   useEffect(() => {
-    console.log("use effect", { elRef, defaultValue });
     // eslint-disable-next-line no-param-reassign
     elRef.current.value = defaultValue;
   }, []);
@@ -21,6 +21,7 @@ const IntegerInput = ({
         {description}
         <br />
         <input
+          key={inputName}
           ref={elRef}
           type="number"
           step="1"
