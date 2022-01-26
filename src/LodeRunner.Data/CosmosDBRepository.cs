@@ -4,9 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
@@ -229,12 +233,23 @@ namespace LodeRunner.Data
             }
             catch (CosmosException ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}\nCosmosException: Check Cosmos firewall settings for allowed IP address, and Cosmos key config.");
+                var exceptionLogEntry = new ExceptionLogEntry() { Source = "CosmosException", StatusCode = ex.StatusCode, Message = ex.Message };
+                var options = new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+                if (ex.StatusCode == HttpStatusCode.Forbidden || ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.BadGateway || ex.StatusCode == HttpStatusCode.GatewayTimeout)
+                {
+                    exceptionLogEntry.Hint = "Check Cosmos firewall settings for allowed IP address, network connectivity, permissions of identity being used, and/or Cosmos key config.";
+                }
+
+                Console.WriteLine(JsonSerializer.Serialize(exceptionLogEntry, options));
                 return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
+                var exceptionLogEntry = new ExceptionLogEntry() { Source = "Exception", Message = ex.Message };
+                var options = new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+                Console.WriteLine(JsonSerializer.Serialize(exceptionLogEntry, options));
                 return false;
             }
         }
