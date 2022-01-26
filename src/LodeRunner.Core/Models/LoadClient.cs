@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -79,7 +79,7 @@ namespace LodeRunner.Core.Models
             };
             config.LoadClientId = loadClient.Id;
             int suffixIndex = loadClient.Id.Length - 4;
-            loadClient.Name = $"{loadClient.Zone}-{loadClient.Region}-{loadClient.Id.Substring(suffixIndex)}";
+            loadClient.Name = $"{loadClient.Region}-{loadClient.Zone}-{loadClient.Id.Substring(suffixIndex)}";
             return loadClient;
         }
     }
