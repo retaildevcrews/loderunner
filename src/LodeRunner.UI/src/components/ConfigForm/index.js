@@ -72,12 +72,6 @@ const ConfigForm = () => {
   const tagFlagRef = useRef();
   const timeoutFlagRef = useRef();
 
-  console.log("config form", {
-    maxErrorsFlagRef,
-    durationFlagRef,
-    randomizeFlagRef,
-  });
-
   useEffect(() => {
     // do not set initial values if new config
     if (!openedConfig) {
@@ -87,7 +81,6 @@ const ConfigForm = () => {
     baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl] || "";
     configNameRef.current.value = openedConfig[CONFIG.name] || "";
     if (durationFlagRef.current) {
-      console.log("line 90", { durationFlagRef });
       durationFlagRef.current.value = openedConfig[CONFIG.duration];
     }
     if (maxErrorsFlagRef.current) {
@@ -155,7 +148,6 @@ const ConfigForm = () => {
   const saveConfig = () => {
     setIsPending(true);
 
-    console.log("line 156", { durationFlagRef });
     const inputs = {
       [CONFIG.baseUrl]: baseUrlFlagRef.current.value,
       [CONFIG.dryRun]: dryRunFlagRef.current,
