@@ -3,5 +3,5 @@
     "namespace": "loderunner",
     "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
     "imageTag": "beta",
-    "targets": ["ngsadev","ngsaprec"]
+    "targets": ["ngsadev","ngsaprec","dev-ngsa-asb-eastus","dev-ngsa-asb-westus2"]
 }
