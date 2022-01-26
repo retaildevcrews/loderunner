@@ -72,6 +72,12 @@ const ConfigForm = () => {
   const tagFlagRef = useRef();
   const timeoutFlagRef = useRef();
 
+  console.log("config form", {
+    maxErrorsFlagRef,
+    durationFlagRef,
+    randomizeFlagRef,
+  });
+
   useEffect(() => {
     // do not set initial values if new config
     if (!openedConfig) {
@@ -108,8 +114,7 @@ const ConfigForm = () => {
 
   const onRunLoopFlagRefChange = ({ target }) => {
     runLoopFlagRef.current = target.value === "true";
-    if (target.value !== "true") {
-      durationFlagRef.current.value = 0;
+    if (target.value === "false") {
       randomizeFlagRef.current = false;
     }
     setRunLoopFlagState(target.value === "true");
@@ -254,7 +259,7 @@ const ConfigForm = () => {
           inputName="runLoopFlag"
           onChange={onRunLoopFlagRefChange}
         />
-        {runLoopFlagState && (
+        {runLoopFlagState ? (
           <>
             <br />
             <div className="configform-runloop-dependent">
@@ -278,6 +283,23 @@ const ConfigForm = () => {
                 inputName="randomizeFlag"
                 onChange={onRefCurrentChange(randomizeFlagRef)}
               />
+            </div>
+          </>
+        ) : (
+          <>
+            <br />
+            <div className="configform-runloop-dependent">
+              <IntegerInput
+                label="Max Errors"
+                description="Maximum validation errors"
+                elRef={maxErrorsFlagRef}
+                inputName="maxErrorsFlag"
+              />
+              {errors[CONFIG.maxErrors] && (
+                <div className="configform-error">
+                  ERROR: {errors[CONFIG.maxErrors]}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -314,18 +336,6 @@ const ConfigForm = () => {
         onChange={onRefCurrentChange(verboseErrorsFlagRef)}
       />
       <br />
-      <IntegerInput
-        label="Max Errors"
-        description="Maximum validation errors"
-        elRef={maxErrorsFlagRef}
-        inputName="maxErrorsFlag"
-        defaultValue={10}
-      />
-      {errors[CONFIG.maxErrors] && (
-        <div className="configform-error">
-          ERROR: {errors[CONFIG.maxErrors]}
-        </div>
-      )}
       <div className="configform-save">
         {!errors.response && Object.keys(errors).length > 0 && (
           <div className="configform-save-error configform-error">
