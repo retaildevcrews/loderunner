@@ -13,7 +13,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | Type Name       |  Description    |  Notes                             |     LodeRunner.API  | LodeRunner | LodeRunner.UI |
 | :-------------- | :-------------- | :--------------------------------- | :----------| :----------| :----------|
 | BaseEntity      | Used as the parent for the data classes  | | xxxx | xxxx | xxxx |
-| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx | 
+| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx |
 | LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD | xRxx |
 | LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
@@ -43,6 +43,7 @@ This entity is the parent of several objects and defines common fields
 ### 2.2 Load Client Information
 
 #### 2.2.1 Example ClientStatus Flow
+
 <!-- markdownlint-disable MD033 -->
 <!-- couldn't get sizing to work in standard markdown -->
 <img src="diagrams/out/ClientStatus Flow.svg" /> <!-- width="800" height="600"/> -->
@@ -119,8 +120,6 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 
 `Table 05: LoadTestConfig Properties`
 
-#### 2.3.2 LoadTestConfig Payload
-
 This object is utilized as the Load Test Config payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating Load Test Configs and helps to identify deltas during payload deserialization.
 
 | Property        |    Type    | Description             | Required  | Notes      |
@@ -142,8 +141,6 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
 
 `Table 06: LoadTestConfig Payload Properties`
-
-#### 2.3.3 TestRun
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
@@ -186,6 +183,5 @@ This entity is still TBD
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
-
 
 `Table 09: LoadResult Properties`

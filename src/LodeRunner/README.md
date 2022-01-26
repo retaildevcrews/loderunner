@@ -72,7 +72,7 @@ LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` ar
 
 ### Mode and Argument Compatibility Table
 
-The following table helps identify which flags are neeed for starting the initial process in each mode.  
+The following table helps identify which flags are neeed for starting the initial process in each mode.
 
 **Note:** Many flags are not supported for **client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
 
