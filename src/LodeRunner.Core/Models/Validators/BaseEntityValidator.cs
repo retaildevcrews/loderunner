@@ -14,7 +14,7 @@ namespace LodeRunner.Core.Models.Validators
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public abstract class BaseEntityValidator<TEntity> : AbstractValidator<TEntity>, IModelValidator<TEntity>
-        where TEntity : BaseEntityModel
+    where TEntity : class
     {
         /// <summary>
         /// Gets the error message as string including the Entity Property-ErroeMessage.

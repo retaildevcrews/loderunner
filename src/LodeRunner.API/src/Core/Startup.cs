@@ -172,7 +172,10 @@ namespace LodeRunner.API
                 .AddSingleton<IClientStatusService>(provider => provider.GetRequiredService<ClientStatusService>())
 
                 .AddSingleton<LoadTestConfigService>()
-                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>());
+                .AddSingleton<ILoadTestConfigService>(provider => provider.GetRequiredService<LoadTestConfigService>())
+
+                .AddSingleton<TestRunService>()
+                .AddSingleton<ITestRunService>(provider => provider.GetRequiredService<TestRunService>());
         }
 
         /// <summary>

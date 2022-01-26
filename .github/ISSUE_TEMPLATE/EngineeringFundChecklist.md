@@ -8,10 +8,10 @@ This checklist helps to ensure that our projects meet our Engineering Fundamenta
 - [ ] Merges are done through PRs.
 - [ ] PRs reference related work items.
 - [ ] Commit history is consistent and commit messages are informative (what, why).
-- [ ] Secrets are not part of the commit history or made public. (see [Credential scanning](continuous-integration/credential-scanning/readme.md))
-- [ ] Public repositories follow the [OSS guidelines](source-control/readme.md#creating-a-new-repository), see `Required files in default branch for public repositories`.
+- [ ] Secrets are not part of the commit history or made public. (see [Credential scanning](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/continuous-integration/dev-sec-ops/secret-management/credential_scanning.md))
+- [ ] Public repositories follow the [OSS guidelines](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/source-control/README.md#creating-a-new-repository), see `Required files in default branch for public repositories`.
 
-More details on [Source Control](source-control/readme.md)
+More details on [Source Control](https://github.com/microsoft/code-with-engineering-playbook/tree/main/docs/source-control#readme)
 
 ## Work Item Tracking
 
@@ -23,7 +23,7 @@ More details on [Source Control](source-control/readme.md)
 - [ ] Unit tests cover the majority of all components (>90% if possible).
 - [ ] Integration tests run to test the solution e2e.
 
-More details on [Unit Testing](automated-testing/unit-testing/readme.md)
+More details on [Unit Testing](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/automated-testing/unit-testing/README.md)
 
 ## CI/CD
 
@@ -45,7 +45,7 @@ More details on [Unit Testing](automated-testing/unit-testing/readme.md)
 - [ ] Health of the system is monitored.
 - [ ] The client and server side observability data can be differentiated.
 - [ ] Logging configuration can be modified without code changes (eg: verbose mode).
-- [ ] [Incoming tracing context](observability/correlation-id.md) is propagated to allow for production issue debugging purposes.
+- [ ] [Incoming tracing context](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/observability/correlation-id.md) is propagated to allow for production issue debugging purposes.
 - [ ] GDPR compliance is ensured regarding PII (Personally Identifiable Information).
 
 ## Agile/Scrum
@@ -57,7 +57,7 @@ More details on [Unit Testing](automated-testing/unit-testing/readme.md)
 
 ## Design Reviews
 
-- [ ] Process for conducting design reviews is included in the [Working Agreement](/agile-development/team-agreements/working-agreements/readme.md)
+- [ ] Process for conducting design reviews is included in the [Working Agreement](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/working-agreements.md)
 - [ ] Design reviews for each major component of the solution are carried out and documented, including alternatives.
 - [ ] Stories and/or PRs link to the design document.
 - [ ] Each user story includes a task for design review by default, which is assigned or removed during sprint planning.
@@ -72,7 +72,7 @@ More details on [Unit Testing](automated-testing/unit-testing/readme.md)
 - [ ] Linters/Code Analyzers, unit tests and successful builds for PR merges are set up.
 - [ ] Process to enforce a quick review turnaround.
 
-More details on [Code Reviews](code-reviews/README.md)
+More details on [Code Reviews](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/code-reviews/README.md)
 
 ## Retrospectives
 
@@ -81,7 +81,7 @@ More details on [Code Reviews](code-reviews/README.md)
 - [ ] Experiments have owners and are added to project backlog.
 - [ ] Longer retrospective for Milestones and project completion.
 
-More details on [Retrospectives](agile-development/retrospectives/readme.md)
+More details on [Retrospectives](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/retrospectives.md)
 
 ## Engineering Feedback
 
@@ -89,4 +89,4 @@ More details on [Retrospectives](agile-development/retrospectives/readme.md)
 - [ ] Add suggestions for improvements to leveraged services and components
 - [ ] Ensure feedback is detailed and repeatable
 
-More details on [Engineering Feedback](engineering-feedback/readme.md)
+More details on [Engineering Feedback](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/engineering-feedback/README.md)

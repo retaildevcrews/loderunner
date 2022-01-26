@@ -72,7 +72,7 @@ LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` ar
 
 ### Mode and Argument Compatibility Table
 
-The following table helps identify which flags are neeed for starting the initial process in each mode.  
+The following table helps identify which flags are neeed for starting the initial process in each mode.
 
 **Note:** Many flags are not supported for **client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
 
@@ -245,6 +245,14 @@ Loderunner will return a non-zero exit code (fail) under the following condition
   - To cause the test to fail on any validation error, set --max-errors 1 (default is 10)
 - Any validation error on a test that has FailOnValidationError set to true
 - Request timeout
+
+## Debugging
+
+```bash
+// Load Test Run: logging output
+ErrorDetails":"Exception: The SSL connection could not be established, see inner exception."
+```
+- This may occur due to an expired *.cse.ms certificate
 
 ## Contributing
 

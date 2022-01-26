@@ -12,8 +12,8 @@ IaC/AKS/cluster/charts/smoker/helm-config.yaml
 
 *NGSA_Dashboard.json
 
-**/LodeRunner.Core.xml
-**/LodeRunnerApi.xml
+LodeRunner.Core.xml
+LodeRunnerApi.xml
 
 # User-specific files
 *.suo

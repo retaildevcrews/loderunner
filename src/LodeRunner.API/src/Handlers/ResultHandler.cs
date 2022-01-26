@@ -26,18 +26,10 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Creates No Content Result.
         /// </summary>
-        /// <param name="statusCode">Http StatusCode.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateNoContent(HttpStatusCode statusCode = HttpStatusCode.NoContent)
+        public static async Task<NoContentResult> CreateNoContent()
         {
-            return await Task.Run(() =>
-            {
-                return new JsonResult(null)
-                {
-                    StatusCode = (int)statusCode,
-                    ContentType = JsonContentTypeApplicationJson,
-                };
-            });
+            return await Task.Run(() => new NoContentResult());
         }
 
         /// <summary>
@@ -86,10 +78,10 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Create a BadRequest Result.
         /// </summary>
-        /// <param name="errorList">list of validation errors.</param>
+        /// <param name="errors">list of validation errors.</param>
         /// <param name="path">string.</param>
         /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateBadRequestResult(List<ValidationError> errorList, string path)
+        public static async Task<JsonResult> CreateBadRequestResult(object errors, string path)
         {
             Dictionary<string, object> data = new ()
             {
@@ -98,7 +90,7 @@ namespace LodeRunner.API.Middleware
                 { "detail", "One or more invalid parameters were specified." },
                 { "status", (int)HttpStatusCode.BadRequest },
                 { "instance", path },
-                { "validationErrors", errorList },
+                { "validationErrors", errors },
             };
 
             return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);
@@ -118,7 +110,7 @@ namespace LodeRunner.API.Middleware
             }
             else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
             {
-                return new NoContentResult();
+                return await CreateNoContent();
             }
             else
             {
