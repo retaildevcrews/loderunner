@@ -34,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IntegrationTests\Automapper\" />
     <Folder Include="Mocks\" />
   </ItemGroup>
 

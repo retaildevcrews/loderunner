@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -86,7 +87,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            HttpResponseMessage postedResponse = await httpClient.PostLoadTestConfig(LoadTestConfigsUri, this.output);
+            var loadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Sample -  LoadTestConfig");
+
+            HttpResponseMessage postedResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, LoadTestConfigsUri, this.output);
+
             Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
             var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
@@ -112,25 +116,34 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             // Create a new LoadTestConfig
-            HttpResponseMessage postResponse = await httpClient.PostLoadTestConfig(LoadTestConfigsUri, this.output);
-            var postedLoadTestConfig = await postResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
+            var loadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Sample - LoadTestConfig");
 
-            LoadTestConfig loadTestConfig = new ();
+            HttpResponseMessage postedResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, LoadTestConfigsUri, this.output);
 
-            loadTestConfig.SetMockData($"Updated CanPutLoadTestConfigs - IntegrationTesting-{nameof(this.CanPutLoadTestConfigs)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            var postedLoadTestConfig = await postedResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
-            var loadTestConfigPayload = loadTestConfig.AutomapAndGetLoadTestConfigTestPayload();
+            var updatedloadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Updated - LoadTestConfigs");
 
             // Update LoadTestConfig
-            var puttedResponse = await httpClient.PutLoadTestConfigById(LoadTestConfigsUri, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
+            var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, postedLoadTestConfig.Id, updatedloadTestConfigPayload, this.output);
 
             Assert.Equal(HttpStatusCode.NoContent, puttedResponse.StatusCode);
 
             var gottenResponse = await httpClient.GetItemById<LoadTestConfig>(LoadTestConfigsUri, postedLoadTestConfig.Id, this.output);
-            var gottenTestRun = await gottenResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
-            postedLoadTestConfig.Name = loadTestConfigPayload.Name;
+            var actualLoadTestConfig = await gottenResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
-            Assert.Equal(JsonSerializer.Serialize(postedLoadTestConfig), JsonSerializer.Serialize(gottenTestRun));
+            // We create a expected object to validate.
+            var expectedLoadTestConfig = postedLoadTestConfig.AutomapEntity();
+
+            // We test for NotEqual since we have updated loadTestConfigPayload.Name as part of Put at the previous step few lines above.
+            Assert.NotEqual(JsonSerializer.Serialize(expectedLoadTestConfig), JsonSerializer.Serialize(actualLoadTestConfig));
+
+            // For validation purpose we are reusing the original "postedTestRun" object, that we already mapped to "expectedLoadTestConfig",
+            // now we set "expectedLoadTestConfig.Name" to  "updatedloadTestConfigPayload.Name"
+            expectedLoadTestConfig.Name = updatedloadTestConfigPayload.Name;
+
+            // We test for Equal after have updated original postedTestRun.Name to match the loadTestConfigPayload.Name
+            Assert.Equal(JsonSerializer.Serialize(expectedLoadTestConfig), JsonSerializer.Serialize(actualLoadTestConfig));
         }
 
         /// <summary>
@@ -143,7 +156,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            HttpResponseMessage httpResponse = await httpClient.PostLoadTestConfig(LoadTestConfigsUri, this.output);
+            var loadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Sample - LoadTestConfig");
+
+            HttpResponseMessage httpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, LoadTestConfigsUri, this.output);
+
             var loadTestConfig = await httpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
             // Delete the LoadTestConfig created in this Integration Test scope
@@ -156,6 +172,20 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Requested data not found.", gottenMessage);
+        }
+
+        /// <summary>
+        /// Gets the load test configuration payload with mock data.
+        /// </summary>
+        /// <param name="configNamePrefix">Name to be set to entity's name property.</param>
+        /// <param name="methodName">Caller Name.</param>
+        /// <returns>LoadTestConfigPayload.</returns>
+        private LoadTestConfigPayload GetLoadTestConfigPayloadWithDefaultMockData(string configNamePrefix, [CallerMemberName] string methodName = nameof(this.GetLoadTestConfigPayloadWithDefaultMockData))
+        {
+            string entityName = $"{configNamePrefix} - IntegrationTesting-{methodName}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+            LoadTestConfig loadTestConfig = new ();
+            loadTestConfig.SetMockData(entityName);
+            return loadTestConfig.AutomapAndGetLoadTestConfigTestPayload();
         }
     }
 }
