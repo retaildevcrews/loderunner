@@ -78,6 +78,8 @@ namespace LodeRunner.Core.Models
                 StartTime = lastUpdated,
             };
             config.LoadClientId = loadClient.Id;
+            int suffixIndex = loadClient.Id.Length - 4;
+            loadClient.Name = $"{loadClient.Zone}-{loadClient.Region}-{loadClient.Id.Substring(suffixIndex)}";
             return loadClient;
         }
     }
