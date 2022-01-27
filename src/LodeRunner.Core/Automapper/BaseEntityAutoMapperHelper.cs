@@ -2,10 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using AutoMapper;
-using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 
-namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
+namespace LodeRunner.Core.Automapper
 {
     /// <summary>
     /// BaseEntity AutoMapper Helper.
@@ -17,6 +16,7 @@ namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
         where TDestination : BaseEntityModel
     {
         private static readonly Mapper OneToOneMapper = new (new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>()));
+
         private static readonly Mapper OneToOneMapperIgnoringId = new (new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>().ForMember(dest => dest.Id, opt => opt.Ignore())));
 
         /// <summary>

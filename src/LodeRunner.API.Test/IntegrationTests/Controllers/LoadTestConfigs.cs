@@ -133,7 +133,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var actualLoadTestConfig = await gottenResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
             // We create a expected object to validate.
-            var expectedLoadTestConfig = postedLoadTestConfig.AutomapEntity();
+            var expectedLoadTestConfig = postedLoadTestConfig.Clone();
 
             // We test for NotEqual since we have updated loadTestConfigPayload.Name as part of Put at the previous step few lines above.
             Assert.NotEqual(JsonSerializer.Serialize(expectedLoadTestConfig), JsonSerializer.Serialize(actualLoadTestConfig));
@@ -185,7 +185,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             string entityName = $"{configNamePrefix} - IntegrationTesting-{methodName}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
             LoadTestConfig loadTestConfig = new ();
             loadTestConfig.SetMockData(entityName);
-            return loadTestConfig.AutomapAndGetLoadTestConfigTestPayload();
+            return loadTestConfig.MapLoadTestConfigToPayload();
         }
     }
 }

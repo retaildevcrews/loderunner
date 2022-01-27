@@ -2,10 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using AutoMapper;
-using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 
-namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
+namespace LodeRunner.Core.Automapper
 {
     /// <summary>
     /// BasePayload AutoMapper Helper.
