@@ -290,6 +290,7 @@ namespace LodeRunner.Core.CommandLine
                     {
                         return 0;
                     }
+
                     return 10;
                 case "max-concurrent":
                     return 100;
