@@ -65,6 +65,12 @@ curl --request GET http://localhost:8081/Healthz/ietf
 
 Stop API application by typing Ctrl-C or the stop button if run via F5
 
+## API Object Validation Flow
+
+As object is passed to the LodeRunner.API endpoints, ASP.NET verifies payload uing `ComponentModel`, if Component Model attributes are present (e.g [Required], [Range(.., ..)] etc). Once the payload is verified, the controller will invoke object validation by using `ModelExtensions` class under LodeRunner.API.Extensions. This will use LodeRunner.Core to build `RootCommand` and use it to validate the payload against the passed args.
+
+Object -> `ComponentModel` validation -> ModelExtensions Object Validator -> Build `RootCommand` object -> Execute Command Line Parser Validator
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
