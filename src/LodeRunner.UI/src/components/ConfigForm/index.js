@@ -83,7 +83,9 @@ const ConfigForm = () => {
     if (durationFlagRef.current) {
       durationFlagRef.current.value = openedConfig[CONFIG.duration];
     }
-    maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
+    if (maxErrorsFlagRef.current) {
+      maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
+    }
     sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
     tagFlagRef.current.value = openedConfig[CONFIG.tag] || "";
     timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
@@ -108,8 +110,7 @@ const ConfigForm = () => {
 
   const onRunLoopFlagRefChange = ({ target }) => {
     runLoopFlagRef.current = target.value === "true";
-    if (target.value !== "true") {
-      durationFlagRef.current.value = 0;
+    if (target.value === "false") {
       randomizeFlagRef.current = false;
     }
     setRunLoopFlagState(target.value === "true");
@@ -254,7 +255,7 @@ const ConfigForm = () => {
           inputName="runLoopFlag"
           onChange={onRunLoopFlagRefChange}
         />
-        {runLoopFlagState && (
+        {runLoopFlagState ? (
           <>
             <br />
             <div className="configform-runloop-dependent">
@@ -264,6 +265,7 @@ const ConfigForm = () => {
                 elRef={durationFlagRef}
                 inputName="durationFlag"
                 units="second(s)"
+                defaultValue={0}
               />
               {errors[CONFIG.duration] && (
                 <div className="configform-error">
@@ -278,6 +280,24 @@ const ConfigForm = () => {
                 inputName="randomizeFlag"
                 onChange={onRefCurrentChange(randomizeFlagRef)}
               />
+            </div>
+          </>
+        ) : (
+          <>
+            <br />
+            <div className="configform-runloop-dependent">
+              <IntegerInput
+                label="Max Errors"
+                description="Maximum validation errors"
+                elRef={maxErrorsFlagRef}
+                inputName="maxErrorsFlag"
+                defaultValue={10}
+              />
+              {errors[CONFIG.maxErrors] && (
+                <div className="configform-error">
+                  ERROR: {errors[CONFIG.maxErrors]}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -314,18 +334,6 @@ const ConfigForm = () => {
         onChange={onRefCurrentChange(verboseErrorsFlagRef)}
       />
       <br />
-      <IntegerInput
-        label="Max Errors"
-        description="Maximum validation errors"
-        elRef={maxErrorsFlagRef}
-        inputName="maxErrorsFlag"
-        defaultValue={10}
-      />
-      {errors[CONFIG.maxErrors] && (
-        <div className="configform-error">
-          ERROR: {errors[CONFIG.maxErrors]}
-        </div>
-      )}
       <div className="configform-save">
         {!errors.response && Object.keys(errors).length > 0 && (
           <div className="configform-save-error configform-error">
