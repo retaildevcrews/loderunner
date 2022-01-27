@@ -80,7 +80,7 @@ Table legend:
 
 - **O** - Optional parameter for the given mode
 - **N** - Not supported for a given mode flag
-- **R** - Required for for a given mode flga
+- **R** - Required for for a given mode flag
 
 |                   | Mode        |            |                                                                |
 |-------------------|-------------|------------|----------------------------------------------------------------|
