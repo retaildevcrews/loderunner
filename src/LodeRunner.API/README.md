@@ -67,9 +67,9 @@ Stop API application by typing Ctrl-C or the stop button if run via F5
 
 ## API Object Validation Flow
 
-As object is passed to the **LodeRunner.API** endpoints, ASP.NET verifies payload uing `ComponentModel`, if Component Model attributes are present. Once the payload is verified, the controller will invoke object validation by using [`ModelExtensions`](src/Extensions/ModelExtensions.cs) class under **LodeRunner.API.Extensions**. This will use **LodeRunner.Core** to build `RootCommand` and use it to validate the payload against the passed args.
+Upon requesting **LodeRunner.API** endpoint, ASP.NET validates payload uing `ComponentModel`, if Component Model attributes are present. Once the payload is verified, the controller will invoke object validation by using [ModelExtensions](src/Extensions/ModelExtensions.cs) class under **LodeRunner.API.Extensions**. This will call **LodeRunner.Core** to build `RootCommand` and use it to validate the payload against the passed args.
 
-Object --> `ComponentModel` validation --> ModelExtensions Object Validator --> Build `RootCommand` object --> Execute Command Line Parser Validator
+Object --> `ComponentModel` validation --> ModelExtensions Object validation --> Build `RootCommand` object --> Execute Command Line Parser Validator
 
 ## Contributing
 
