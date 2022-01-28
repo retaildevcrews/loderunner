@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using LodeRunner.Core.Automapper;
 using LodeRunner.Core.Models;
 
-namespace LodeRunner.API.Test.IntegrationTests.AutoMapper
+namespace LodeRunner.Core.Automapper
 {
     /// <summary>
     /// AutoMapper Extensions.
