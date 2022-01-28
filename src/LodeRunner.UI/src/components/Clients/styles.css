@@ -30,6 +30,7 @@
   font-weight: bold;
   display: flex;
   justify-content: space-between;
+  overflow-wrap: anywhere;
 }
 .clients-item-select-icon {
   height: 1em;

@@ -75,6 +75,11 @@ namespace LodeRunner.Core
         public const string CmdLineValidationSecretsVolumeEndMessage = ") does not exist";
 
         /// <summary>
+        /// The command line validation max error and loop message.
+        /// </summary>
+        public const string CmdLineValidationMaxErrorAndLoopMessage = "--max-errors cannot be set when --run-loop is enabled";
+
+        /// <summary>
         /// The command line notice message that sleep value is ignored.
         /// </summary>
         public const string CmdLineNoticeSleepValueIgnoredMessage = "--sleep value of 0 is ignored while --run-loop is also set";

@@ -14,6 +14,10 @@ const months = [
 ];
 
 function getMMMDYYYYhmma(datetime) {
+  if (!datetime) {
+    return undefined;
+  }
+
   // Example format: Nov 1, 2021 @ 3:04pm
   const date = new Date(datetime);
   const hours = date.getHours();

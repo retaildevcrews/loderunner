@@ -4,3 +4,10 @@
   font-weight: bold;
   overflow: auto;
 }
+.resultsoverview-item-counts {
+  min-width: 280px;
+}
+.resultsoverview-item-counts > div {
+  display: flex;
+  justify-content: space-between;
+}
