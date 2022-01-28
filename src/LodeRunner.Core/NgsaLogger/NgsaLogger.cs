@@ -8,8 +8,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
+using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
-namespace LodeRunner.API.Middleware
+namespace LodeRunner.Core.NgsaLogger
 {
     /// <summary>
     /// Simple aspnet core middleware that logs requests to the console.

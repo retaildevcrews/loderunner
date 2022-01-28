@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
+using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
 namespace LodeRunner.API.Middleware
 {

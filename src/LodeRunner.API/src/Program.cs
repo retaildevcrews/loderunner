@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.NgsaLogger;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
