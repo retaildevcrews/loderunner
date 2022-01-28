@@ -80,7 +80,7 @@ Table legend:
 
 - **O** - Optional parameter for the given mode
 - **N** - Not supported for a given mode flag
-- **R** - Required for for a given mode flga
+- **R** - Required for for a given mode flag
 
 |                   | Mode        |            |                                                                |
 |-------------------|-------------|------------|----------------------------------------------------------------|
@@ -93,7 +93,7 @@ Table legend:
 | --base-url        | O           | N          |                                                                |
 | --delay-start     | O           | N          |                                                                |
 | --secrets-volume  | N           | R          |                                                                |
-| --max-errors      | O           | N          |                                                                |
+| --max-errors      | O           | N          | Not supported when --run-loop is set.                          |
 | --sleep           | O           | N          |                                                                |
 | --stric-json      | O           | N          |                                                                |
 | --summary-minutes | O           | N          |                                                                |
