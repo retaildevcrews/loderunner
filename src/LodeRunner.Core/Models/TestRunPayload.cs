@@ -45,6 +45,7 @@ namespace LodeRunner.Core.Models
 
         /// <summary>
         /// Gets or sets the CreatedTime.
+        /// It refers to the creation time of this TestRun.
         /// </summary>
         /// <value>
         /// The CreatedTime.
@@ -53,18 +54,11 @@ namespace LodeRunner.Core.Models
 
         /// <summary>
         /// Gets or sets the StartTime.
+        /// It refers to the time the TestRun is scheduled to execute.
         /// </summary>
         /// <value>
         /// The StartTime.
         /// </value>
         public DateTime StartTime { get => this.testRun.StartTime; set => this.SetField(this.testRun, value); }
-
-        /// <summary>
-        /// Gets or sets the CompletedTime.
-        /// </summary>
-        /// <value>
-        /// The StartTime.
-        /// </value>
-        public DateTime? CompletedTime { get => this.testRun.CompletedTime; set => this.SetField(this.testRun, value); }
     }
 }

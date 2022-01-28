@@ -124,7 +124,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateTestRun)]
         [SwaggerOperation(
             Summary = "Creates a new TestRun item",
-            Description = "Requires Test Run payload",
+            Description = "Requires Test Run payload. It will not accept overall CompletedTime or ClientResults, which should only be created by the LoadClient internally",
             OperationId = "CreateTestRunConfig")]
         public async Task<ActionResult> CreateTestRunConfig([FromBody, SwaggerRequestBody("The test run config payload", Required = true)] TestRunPayload testRunPayload, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
@@ -132,10 +132,6 @@ namespace LodeRunner.API.Controllers
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
-
-            // Explicitly set CompletedTime to null, in case CompletedTime is set in TestRunPayload
-            // TODO: Would have to create a new object to make AutoMapper ignore CompletedTime for Post only. Can we do better? maybe even using [Bind]
-            testRunPayload.CompletedTime = null;
 
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
             var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
@@ -246,7 +242,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
         [SwaggerOperation(
             Summary = "Updates an existing TestRun item",
-            Description = "Requires test run payload (partial or full) and ID",
+            Description = "Requires test run payload (partial or full) and ID. It will not accept overall CompletedTime or ClientResults, which should only be updated by the LoadClient internally",
             OperationId = "UpdateTestRun")]
         public async Task<ActionResult> UpdateTestRun([FromRoute] string testRunId, [FromBody, SwaggerRequestBody("The test run payload", Required = true)] TestRunPayload testRunPayload, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
