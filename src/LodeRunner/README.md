@@ -87,7 +87,7 @@ TODO: Describe the flags for each one, explain that -s and -f are ignored in **C
 
 The following table helps identify which flags are neeed for starting the initial process in each mode.
 
-**Note:** Many flags are not supported for **Client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
+**Note:** Many flags are not supported for **Client** mode, but they are used within a **TestRun**.  **TestRuns** are equivalent to running LodeRunner in command mode.
 
 Table legend:
 
