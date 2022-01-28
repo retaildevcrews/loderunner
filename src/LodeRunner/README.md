@@ -61,20 +61,20 @@ Load Testing
 
 ### Client Mode
 
-**Client** mode is a newly added mode in which LodeRunner will start and wait for a [TestRun](https://github.com/retaildevcrews/loderunner/blob/main/docs/DataDictionary.md#232-testrun) to be assigned for it to execute. The LodeRunner running in Client mode will then use the command line arguments specified in the **TestRun** to internally start a LodeRunner service to execute the test.
+**Client** mode is a newly added mode in which LodeRunner will start and wait for a [TestRun](https://github.com/retaildevcrews/loderunner/blob/main/docs/DataDictionary.md#232-testrun) to be assigned for it to execute. The LodeRunner running in **Client** mode will then use the command line arguments specified in the **TestRun** to internally start a LodeRunner service to execute the test.
 
 #### Polling for TestRuns
 
-Once initialized, LodeRunner will continue to poll CosmosDB for available TestRuns at a configurable interval (10s default). LodeRunner loops through any available TestRuns and executes them in ascending order by StartTime. Because TestRuns can have a scheduled StartTime, a TestRun that has a StartTime later than 1 minute in the future will be skipped. The skipped TestRun will continue to be available in subsequent polling results and will be executed closer to the scheduled StartTime.
+Once initialized, LodeRunner will continue to poll CosmosDB for available **TestRuns** at a configurable interval (10s default). LodeRunner loops through any available **TestRuns** and executes them in ascending order by StartTime. Because **TestRuns** can have a scheduled StartTime, a **TestRun** that has a StartTime later than 1 minute in the future will be skipped. The skipped **TestRun** will continue to be available in subsequent polling results and will be executed closer to the scheduled StartTime.
 
-In order for a TestRun to be available for a LodeRunner client, it must:
+In order for a **TestRun** to be available for a LodeRunner client, it must:
 
 - include the clientId in its list of LoadClients
 - not have already been executed by the client
 
 #### Example Client Mode Arguments
 
-TODO: Describe the flags for each one, explain that -s and -f are ignored in client mode
+TODO: Describe the flags for each one, explain that -s and -f are ignored in **Client** mode
 
 ```bash
 
@@ -86,7 +86,7 @@ TODO: Describe the flags for each one, explain that -s and -f are ignored in cli
 
 The following table helps identify which flags are neeed for starting the initial process in each mode.
 
-**Note:** Many flags are not supported for **client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
+**Note:** Many flags are not supported for **Client** mode, but they are used within a TestRun.  TestRuns are equivalent to running LodeRunner in client mode.
 
 Table legend:
 
