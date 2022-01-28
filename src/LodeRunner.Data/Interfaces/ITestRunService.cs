@@ -35,9 +35,7 @@ namespace LodeRunner.Data.Interfaces
         /// Gets all available TestRuns for the given client id.
         /// </summary>
         /// <param name="clientId">The client id.</param>
-        /// <returns>
-        /// List of TestRuns to run on client.
-        /// </returns>
+        /// <returns>List of TestRuns to run on client.</returns>
         Task<IEnumerable<TestRun>> GetAvailableTestRunsByClientIdAsync(string clientId);
     }
 }

@@ -446,9 +446,9 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Poll for TestRuns available to the client
+        /// Polls for TestRuns available to the client.
         /// </summary>
-        /// <returns>List of available TestRuns to execute</returns>
+        /// <returns>List of available TestRuns to execute.</returns>
         private async Task<List<TestRun>> PollForTestRunsAsync()
         {
             List<TestRun> testRuns = new ();
@@ -477,7 +477,7 @@ namespace LodeRunner.Services
         /// <summary>
         /// Executes the TestRun with a new lode runner instance in command mode.
         /// </summary>
-        /// <param name="testRun">TestRun configuration to execute</param>
+        /// <param name="testRun">TestRun configuration to execute.</param>
         private async Task ExecuteNewTestRunAsync(TestRun testRun)
         {
             // TODO: Add logic to convert TestRun to command line args for lode runner
