@@ -6,7 +6,7 @@ import {
   TestPageContext,
 } from "../../contexts";
 import postTestRun from "../../services/testRun";
-import { CLIENT, CLIENT_STATUSES, CONFIG } from "../../models";
+import { CLIENT, CLIENT_STATUS_TYPES, CONFIG } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
@@ -299,7 +299,7 @@ const TestSubmission = () => {
                   <div
                     aria-label={`Load Client Status: ${status}`}
                     className={`testsubmission-clients-item-status-indicator status-${
-                      status === CLIENT_STATUSES.ready ? "ready" : "pending"
+                      status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
                     }`}
                   />
                 </div>
