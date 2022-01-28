@@ -133,6 +133,10 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
+            // Explicitly set CompletedTime to null, in case CompletedTime is set in TestRunPayload
+            // TODO: Would have to create a new object to make AutoMapper ignore CompletedTime for Post only. Can we do better? maybe even using [Bind]
+            testRunPayload.CompletedTime = null;
+
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
             var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
 
@@ -198,6 +202,7 @@ namespace LodeRunner.API.Controllers
                     await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.InternalServerError),
                 (HttpStatusCode.NotFound, _) =>
                     await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.NotFound),
+
                 // This case is redundant, but is handy for testing
                 // (HttpStatusCode.OK, HttpStatusCode.NotFound) =>
                 //     await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
@@ -206,9 +211,8 @@ namespace LodeRunner.API.Controllers
                 (HttpStatusCode.OK, HttpStatusCode.OK) => await ResultHandler.CreateNoContent(),
                 (HttpStatusCode.OK, _) =>
                     await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
-                (_, _) =>
+                (_, _) => // For all other cases
                     await ResultHandler.CreateErrorResult($"{SystemConstants.Unknown}. TestRun ({testRunId}) GET Status: {existingTestRunResp.StatusCode}, DEL status: {delStatusCode}", HttpStatusCode.InternalServerError),
-                // For all other cases
             };
 
             // TODO: Remove the code block below

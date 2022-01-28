@@ -151,19 +151,30 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Since the CompletedTime property doesn't exist
             // Meaning the Test is still running
             // Try Deleting the TestRun created in this Integration Test scope
-            var deletedResponse = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
+            var response = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
             Assert.Null(testRun.CompletedTime);
-            Assert.Equal(HttpStatusCode.Conflict, deletedResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
 
             // Now set the CompletedTime object, indicating completion
+            TestRunPayload pl = new ();
+            pl.CompletedTime = DateTime.Now;
+            response = await httpClient.PutTestRunById(TestRunsUri, testRun.Id, pl, this.output);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            // Now makre sure we updated the completed time
+            response = await httpClient.GetTestRunById(TestRunsUri, testRun.Id, this.output);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            testRun = await response.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+            Assert.NotNull(testRun.CompletedTime);
+
             // Try deleting the TestRun created, which should return NoContent
-            deletedResponse = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
-            Assert.Equal(HttpStatusCode.NoContent, deletedResponse.StatusCode);
-            Assert.Equal(0, deletedResponse.Content.Headers.ContentLength);
+            response = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.Equal(0, response.Content.Headers.ContentLength);
 
             // Trying to delete the old TestRun should result in NotFound
-            deletedResponse = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
-            Assert.Equal(HttpStatusCode.NotFound, deletedResponse.StatusCode);
+            response = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
             var gottenHttpResponse = await httpClient.GetTestRunById(TestRunsUri, testRun.Id, this.output);
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);

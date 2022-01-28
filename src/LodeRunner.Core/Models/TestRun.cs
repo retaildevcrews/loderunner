@@ -47,8 +47,8 @@ namespace LodeRunner.Core.Models
         public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// Completed time for this TestRun.
-        /// If null, this property won't exist on serialization
+        /// Gets or sets completed time for this TestRun.
+        /// If null, this property won't exist on serialization.
         /// </summary>
         /// <value>
         /// CompletedTime.
