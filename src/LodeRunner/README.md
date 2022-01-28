@@ -13,7 +13,8 @@ To debug LodeRunner app, set command line arguments, otherwise it will only prin
 
 1. Click 'Debug'->'LodeRunner Debug Properties'
 2. In the 'Application arguments' box set the arguments. Here are some resources.
-    - [Example Arguments](#example-arguments)
+    - [Example Command Mode Arguments](#example-command-mode-arguments)
+    - [Example Client Mode Arguments](#example-client-mode-arguments)
     - [Mode Argument Compatibility Table](#mode-and-argument-compatibility-table)
     - [Command Line Parameter Descriptions](#command-line-parameter-descriptions)
     - [RunLoop Mode Parameters](#runloop-mode-parameters)
