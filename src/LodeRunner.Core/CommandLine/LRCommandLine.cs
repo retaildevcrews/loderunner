@@ -211,16 +211,19 @@ namespace LodeRunner.Core.CommandLine
             string msg = string.Empty;
 
             OptionResult runLoopRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") as OptionResult;
+            OptionResult maxErrorsRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "max-errors") as OptionResult;
             OptionResult durationRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "duration") as OptionResult;
             OptionResult randomRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "random") as OptionResult;
 
             bool runLoop = runLoopRes.GetValueOrDefault<bool>();
             bool random = randomRes.GetValueOrDefault<bool>();
-
             int? duration = null;
+            int maxErrors = default;
+
             try
             {
                 duration = durationRes.GetValueOrDefault<int?>();
+                maxErrors = maxErrorsRes.GetValueOrDefault<int>();
             }
             catch
             {
@@ -237,6 +240,11 @@ namespace LodeRunner.Core.CommandLine
             else if (random && !runLoop)
             {
                 msg += $"{SystemConstants.CmdLineValidationRandomAndLoopMessage}\n";
+            }
+
+            if (runLoop && maxErrors > 0)
+            {
+                msg += $"{SystemConstants.CmdLineValidationMaxErrorAndLoopMessage}\n";
             }
 
             return msg;

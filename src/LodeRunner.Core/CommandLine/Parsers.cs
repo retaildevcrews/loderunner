@@ -286,6 +286,11 @@ namespace LodeRunner.Core.CommandLine
             switch (result.Parent.Symbol.Name)
             {
                 case "max-errors":
+                    if (result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") is OptionResult optRes && optRes.GetValueOrDefault<bool>())
+                    {
+                        return 0;
+                    }
+
                     return 10;
                 case "max-concurrent":
                     return 100;

@@ -108,6 +108,7 @@ namespace LodeRunner.Test.UnitTests
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--delay-start", "-1" }, "must be an integer >= 0", "Argument --delay-start")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--secrets-volume", "go" }, "must be at least 3 characters", "Argument --secrets-volume")]
         [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--duration", "-2" }, "must be an integer >= 0", "Argument --duration")]
+        [InlineData(new string[] { "--mode", Core.SystemConstants.LodeRunnerCommandMode, "-s", "https://somerandomdomain.com", "-f", "memory-baseline.json", "--run-loop", "true", "--max-errors", "5" }, "--max-errors cannot be set when --run-loop is enabled", "Validation for --max-errors for --run-loop")]
         public void CommandMode_ValidateDependencies_Failure(string[] args, string expectedErrorMessage, string messageifFailed)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
