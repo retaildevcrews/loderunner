@@ -1,10 +1,7 @@
 # LodeRunner - A web request validation tool
 
-Loderunner (L8r) is an internal web request validation tool that we use to run end-to-end tests and long-running smoke tests.
-
-Loderunner uses both environment variables as well as command line options for configuration. Command flags take precedence over environment variables.
-
-Loderunner works in two distinct modes. The default mode processes the input file(s) in sequential order one time and exits. The "run loop" mode runs in a continuous loop until stopped or for the specified duration. Some environment variables and command flags are only valid if run loop is specified and L8r will exit and display usage information. Some parameters have different default values depending on the mode of execution.
+> Loderunner (L8r) is an internal web request validation tool that we use to run end-to-end tests and long-running smoke tests.
+> Loderunner uses both environment variables as well as command line options for configuration. Command flags take precedence over environment variables.
 
 ## Running and Debugging LodeRunner via Visual Studio 2019
 
@@ -21,31 +18,34 @@ To debug LodeRunner app, set command line arguments, otherwise it will only prin
     - [Command Line Parameter Descriptions](#command-line-parameter-descriptions)
     - [RunLoop Mode Parameters](#runloop-mode-parameters)
 
-## Example Arguments
+## LodeRunner Modes
 
-TODO: Describe the flags for each one, explain that -s and -f are ignored in client mode
+LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` argument is passed then LodeRunner will default to **Command** mode. The argument looks as follows with the default value in bold if unspecified:
 
-### Client Mode
-
-```bash
---mode Client --secrets-volume secrets --screts-volume /app/secrets --prometheus --zone dev --region dev
-```
+--mode=[**Command**|Client]
 
 ### Command Mode
 
+**Command** mode is the traditional mode for LodeRunner and will execute based on the arguments passed to via the command line. The default mode processes the input file(s) in sequential order one time and exits. The "run loop" mode runs in a continuous loop until stopped or for the specified duration. Some environment variables and command flags are only valid if run loop is specified and L8r will exit and display usage information. Some parameters have different default values depending on the mode of execution.
+
+#### Example Command Mode Arguments
+
 ```bash
+
 -s https://[Testing Target URL] -f memory-baseline.json memory-benchmark.json --delay-start 5 --run-loop true --duration 180
+
 ```
 
-### Long Running Tests
+Long Running Tests
 
 ```bash
-# continuously send request every 15 seconds
 
+# continuously send request every 15 seconds
 --sleep 15000 --run-loop --server "https://DomainName" --files benchmark.json
+
 ```
 
-### Load Testing
+Load Testing
 
 ```bash
 
@@ -59,18 +59,30 @@ TODO: Describe the flags for each one, explain that -s and -f are ignored in cli
 
 ```
 
-## LodeRunner Modes
+### Client Mode
 
-LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` argument is passed then LodeRunner will default to **Command** mode. The argument looks as follows with the default value in bold if unspecified:
+**Client** mode is a newly added mode in which LodeRunner will start and wait for a [TestRun](https://github.com/retaildevcrews/loderunner/blob/main/docs/DataDictionary.md#232-testrun) to be assigned for it to execute. The LodeRunner running in Client mode will then use the command line arguments specified in the **TestRun** to internally start a LodeRunner service to execute the test.
 
---mode=[**Command**|Client]
+#### Polling for TestRuns
 
-### Mode Definitions
+Once initialized, LodeRunner will continue to poll CosmosDB for available TestRuns at a configurable interval (10s default). LodeRunner loops through any available TestRuns and executes them in ascending order by StartTime. Because TestRuns can have a scheduled StartTime, a TestRun that has a StartTime later than 1 minute in the future will be skipped. The skipped TestRun will continue to be available in subsequent polling results and will be executed closer to the scheduled StartTime.
 
-- **Command** mode is the traditional mode for LodeRunner and will execute based on the arguments passed to via the command line.
-- **Client** mode is a newly added mode in which LodeRunner will start and await for a [TestRun](https://github.com/retaildevcrews/loderunner/blob/main/docs/DataDictionary.md#232-testrun) to be assigned for it to execute.  A **TestRun** will contain setting including arguments normally passed to LodeRunner in **Command** mode which will be used to internally start a LodeRunner service to execute the test based on those arguments.
+In order for a TestRun to be available for a LodeRunner client, it must:
 
-### Mode and Argument Compatibility Table
+- include the clientId in its list of LoadClients
+- not have already been executed by the client
+
+#### Example Client Mode Arguments
+
+TODO: Describe the flags for each one, explain that -s and -f are ignored in client mode
+
+```bash
+
+--mode Client --secrets-volume secrets --prometheus --zone dev --region dev
+
+```
+
+## Mode and Argument Compatibility Table
 
 The following table helps identify which flags are neeed for starting the initial process in each mode.
 
@@ -80,7 +92,7 @@ Table legend:
 
 - **O** - Optional parameter for the given mode
 - **N** - Not supported for a given mode flag
-- **R** - Required for for a given mode flga
+- **R** - Required for for a given mode flag
 
 |                   | Mode        |            |                                                                |
 |-------------------|-------------|------------|----------------------------------------------------------------|
@@ -109,7 +121,7 @@ Table legend:
 | --random          | O           | N          | Requires --run-loop.                                           |
 | --sleep           | O           | N          | Requires --run-loop.                                           |
 
-## Command Line Parameter Descriptions
+### Command Line Parameter Descriptions
 
 > Includes short flags and environment variable names where applicable.
 >
@@ -248,11 +260,14 @@ Loderunner will return a non-zero exit code (fail) under the following condition
 
 ## Debugging
 
+> This may occur due to an expired *.cse.ms certificate
+
 ```bash
+
 // Load Test Run: logging output
 ErrorDetails":"Exception: The SSL connection could not be established, see inner exception."
+
 ```
-- This may occur due to an expired *.cse.ms certificate
 
 ## Contributing
 
