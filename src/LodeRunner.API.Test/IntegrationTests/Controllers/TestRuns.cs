@@ -129,8 +129,14 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             var gottenResponse = await httpClient.GetTestRunById(TestRunsUri, postedTestRun.Id, this.output);
             var gottenTestRun = await gottenResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+
+            // We test for NotEqual since we have updated testRunPayload.Name as part of Put at the previous step few lines above.
+            Assert.NotEqual(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+
+            // For validation purpose we are reusing the original "postedTestRun" object, now we set "postedTestRun.Name" to "testRunPayload.Name"
             postedTestRun.Name = testRunPayload.Name;
 
+            // We test for Equal, now the Expected value "postedTestRun" should be equals that the Actual value gottenTestRun
             Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
         }
 

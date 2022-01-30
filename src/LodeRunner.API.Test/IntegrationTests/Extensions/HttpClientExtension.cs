@@ -204,5 +204,154 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             return httpResponse;
         }
+
+        /// <summary>
+        /// Sends request to all TEntity Items.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> GetAllItems<TEntity>(this HttpClient httpClient, string baseEntityUri, ITestOutputHelper output)
+            where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+
+            HttpResponseMessage httpResponse = await httpClient.GetAsync(baseEntityUri);
+
+            if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NoContent)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+            }
+
+            return httpResponse;
+        }
+
+        /// <summary>
+        /// Post LoadTestConfig.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <typeparam name="TEntityPayload">The EntityPayload type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="entityPayload">The Entity Payload.</param>
+        /// <param name="baseEntityUri">The LoadTestConfigUri.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> PostEntity<TEntity, TEntityPayload>(this HttpClient httpClient, TEntityPayload entityPayload, string baseEntityUri, ITestOutputHelper output)
+            where TEntityPayload : BasePayload
+            where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+
+            string jsonLoadTestConfig = JsonConvert.SerializeObject(entityPayload);
+
+            StringContent stringContent = new (jsonLoadTestConfig, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PostAsync(baseEntityUri, stringContent);
+
+            if (httpResponse.StatusCode == HttpStatusCode.Created)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+            }
+
+            return httpResponse;
+        }
+
+        /// <summary>
+        /// Get Entity Item by ID.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
+        /// <param name="itemId">The LoadTestConfig ID.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> GetItemById<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, ITestOutputHelper output)
+            where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+
+            var httpResponse = await httpClient.GetAsync(baseEntityUri + "/" + itemId);
+
+            if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tResponse StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+            }
+
+            return httpResponse;
+        }
+
+        /// <summary>
+        /// Delete a Entity Item by Id.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to Delete Item.</param>
+        /// <param name="itemId">The LoadTestConfig ID.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the successful task value.</returns>
+        public static async Task<HttpResponseMessage> DeleteItemById<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, ITestOutputHelper output)
+            where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+            var httpResponse = await httpClient.DeleteAsync($"{baseEntityUri}/{itemId}");
+
+            if (httpResponse.StatusCode == HttpStatusCode.NoContent || httpResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tResponse StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+            }
+
+            return httpResponse;
+        }
+
+        /// <summary>
+        /// Puts the entity by item identifier.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TEntityPayload">The type of the entity payload.</typeparam>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="baseEntityUri">TThe endpoint Uri to do the  Put.</param>
+        /// <param name="entityItemId">The entity item Id.</param>
+        /// <param name="entityPayload">The entity payload.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> PutEntityByItemId<TEntity, TEntityPayload>(this HttpClient httpClient, string baseEntityUri, string entityItemId, TEntityPayload entityPayload,  ITestOutputHelper output)
+             where TEntityPayload : BasePayload
+             where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+            StringContent stringContent = new (JsonConvert.SerializeObject(entityPayload), Encoding.UTF8, "application/json");
+
+            // Send Request
+            var httpResponse = await httpClient.PutAsync($"{baseEntityUri}/{entityItemId}", stringContent);
+
+            if (httpResponse.StatusCode == HttpStatusCode.NoContent)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT {entityName}Id\tResponse StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{entityItemId}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{entityItemId}'");
+            }
+
+            return httpResponse;
+        }
     }
 }
