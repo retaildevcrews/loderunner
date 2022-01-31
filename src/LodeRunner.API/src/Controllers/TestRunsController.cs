@@ -192,6 +192,14 @@ namespace LodeRunner.API.Controllers
                 }
             }
 
+            // Get       Delete    Returns   Message
+            // -------------------------------------
+            // IntErr    Any       IntErr    Cosmos error
+            // NotFound  Any       NotFound  ID not found
+            // Ok        NotFound  NotFound  (Redundant) Same as above*
+            // Ok        Conflict  Conflict  ID Found but unfinished
+            // Ok        Ok        NoContent All good
+            // Any       Any       IntErr    But also show GET and DELETE status
             return (existingTestRunResp.StatusCode, delStatusCode) switch
             {
                 (HttpStatusCode.InternalServerError, _) =>
@@ -210,16 +218,6 @@ namespace LodeRunner.API.Controllers
                 (_, _) => // For all other cases
                     await ResultHandler.CreateErrorResult($"{SystemConstants.Unknown}. TestRun ({testRunId}) GET Status: {existingTestRunResp.StatusCode}, DEL status: {delStatusCode}", HttpStatusCode.InternalServerError),
             };
-
-            // TODO: Remove the code block below
-            // var deleteTaskResult = await testRunService.Delete(testRunId);
-
-            // return deleteTaskResult switch
-            // {
-            //     HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
-            //     HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
-            //     _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
-            // };
         }
 
         /// <summary>
