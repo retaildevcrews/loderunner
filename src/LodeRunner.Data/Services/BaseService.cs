@@ -9,6 +9,7 @@ using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 
 namespace LodeRunner.Services
@@ -47,7 +48,6 @@ namespace LodeRunner.Services
         /// The cosmos database repository.
         /// </value>
         protected ICosmosDBRepository CosmosDBRepository { get; private set; }
-
 
         /// <summary>
         /// Gets the specified identifier.
@@ -106,47 +106,66 @@ namespace LodeRunner.Services
         public virtual async Task<HttpStatusCode> Delete(string id)
         {
             // TODO: Change to APIResponse type once merged with other branch of code.
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-            var result = await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, entityType.ToString());
+            var result = await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, this.entityType.ToString());
             return result.StatusCode;
-        }
-
-        /// <summary>
-        /// Used to retrieve the most recently updated record.
-        /// </summary>
-        /// <param name="limit"> Set the number of records to return.</param>
-        /// <returns>List of documents.</returns>
-        public Task<IEnumerable<TEntity>> GetMostRecent(int limit = 1)
-        {
-            throw new System.NotImplementedException();
         }
 
         /// <summary>
         /// Used to add data to the store.
         /// </summary>
         /// <param name="entityToCreate">New object.</param>
-        /// <param name="cancellationToken">So operation may be cancelled</param>
+        /// <param name="cancellationToken">So operation may be cancelled.</param>
         /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
-        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken)
+        public virtual async Task<ApiResponse<TEntity>> Post(TEntity entityToCreate, CancellationToken cancellationToken)
         {
-            var returnValue = new Task<TEntity>(() => null);
+            var returnValue = new ApiResponse<TEntity>();
 
-            if (entityToCreate != null && !cancellationToken.IsCancellationRequested)
+            if (entityToCreate != null && !cancellationToken.IsCancellationRequested && this.CosmosDBRepository.IsCosmosDBReady)
             {
                 // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.Validator.ValidateEntity(entityToCreate))
+                if (this.Validator.ValidateEntity(entityToCreate))
                 {
-                    returnValue = this.CosmosDBRepository.UpsertDocumentAsync(entityToCreate, cancellationToken);
+                    returnValue.Model = await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
+                    returnValue.StatusCode = HttpStatusCode.OK;
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
                     // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
+                    returnValue.Errors = this.Validator.ErrorMessage;
+                    returnValue.StatusCode = HttpStatusCode.BadRequest;
                 }
             }
+            else
+            {
+                returnValue.Errors += $"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}";
+                returnValue.StatusCode = HttpStatusCode.ServiceUnavailable;
+            }
 
-            return await returnValue;
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Creates the API response.
+        /// </summary>
+        /// <param name="returnValue">The return value.</param>
+        /// <returns>Api Response.</returns>
+        protected virtual async Task<ApiResponse<TEntity>> CreateApiResponse(Task<TEntity> returnValue)
+        {
+            ApiResponse<TEntity> result = new ();
+
+            if (!this.Validator.IsValid)
+            {
+                result.Errors = this.Validator.ErrorMessage;
+                result.StatusCode = HttpStatusCode.BadRequest;
+            }
+            else if (returnValue != null)
+            {
+                result.Model = await returnValue;
+                result.StatusCode = HttpStatusCode.OK;
+            }
+
+            return result;
         }
     }
 }

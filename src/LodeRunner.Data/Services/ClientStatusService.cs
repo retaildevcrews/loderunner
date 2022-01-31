@@ -29,24 +29,6 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Posts the update.
-        /// </summary>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        ///    The Task[ClientStatus] with updated ClientStatus if CosmosDB post is ready.
-        ///    Otherwise, it returns null.
-        /// </returns>
-        public async Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
-        {
-            return await this.Save(clientStatus, cancellationToken);
-        }
-
-        /// <summary>
-            this.Validator = new ClientStatusValidator();
-        }
-
-        /// <summary>
         /// Terminates the service.
         /// </summary>
         /// <param name="clientStatus">The ClientStatus entity.</param>

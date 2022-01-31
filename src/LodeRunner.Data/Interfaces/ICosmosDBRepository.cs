@@ -31,6 +31,13 @@ namespace LodeRunner.Data.Interfaces
         string CollectionName { get; }
 
         /// <summary>
+        /// Gets a value indicating whether CosmosDB is ready or not.
+        /// This caches the ready state from the initial check so it isn't checked every time.
+        /// TODO: Add a timer to refresh the ready state on a given interval.
+        /// </summary>
+        bool IsCosmosDBReady { get; }
+
+        /// <summary>
         /// Gets the by identifier asynchronous.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -116,6 +123,6 @@ namespace LodeRunner.Data.Interfaces
         /// Determines whether [is cosmos database ready].
         /// </summary>
         /// <returns>True is Cosmos DB has not exceeded the number of request units per second, otherwise false.</returns>
-        Task<bool> IsCosmosDBReady();
+        Task<bool> CosmosDBReadyCheck();
     }
 }

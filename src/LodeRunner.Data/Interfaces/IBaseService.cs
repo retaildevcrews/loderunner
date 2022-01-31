@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Models;
+using LodeRunner.Core.Responses;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -13,6 +15,7 @@ namespace LodeRunner.Data.Interfaces
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public interface IBaseService<TEntity>
+        where TEntity : class
     {
         /// <summary>
         /// Gets the specified identifier.
@@ -38,7 +41,7 @@ namespace LodeRunner.Data.Interfaces
         /// Gets the count asynchronous.
         /// </summary>
         /// <returns>Item count that match the Entity type.</returns>
-        Task<int> GetCountAsync();
+        Task<int> GetCount();
 
         /// <summary>
         /// Posts the update.
@@ -46,14 +49,14 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="entity">The object to add to the database.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The Updated clientStatus entity.</returns>
-        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken);
+        Task<ApiResponse<TEntity>> Post(TEntity entity, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>
-        /// The corresponding Entity.  
+        /// The corresponding Entity.
         /// </returns>
         Task<HttpStatusCode> Delete(string id);
     }

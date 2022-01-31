@@ -14,21 +14,7 @@ namespace LodeRunner.Data.Interfaces
     /// <summary>
     /// TestRun Interface.
     /// </summary>
-    public interface ITestRunService
+    public interface ITestRunService : IBaseService<TestRun>
     {
-        /// <summary>
-        /// Posts the specified test run.
-        /// </summary>
-        /// <param name="testRun">The test run.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted TestRun entity.</returns>
-        Task<ApiResponse<TestRun>> Post(TestRun testRun, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Deletes the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier to delete.</param>
-        /// <returns>The delete request status code.</returns>
-        Task<HttpStatusCode> Delete(string id);
     }
 }
