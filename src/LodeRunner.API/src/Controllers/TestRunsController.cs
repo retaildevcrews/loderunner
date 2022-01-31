@@ -9,6 +9,7 @@ using AutoMapper;
 using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -123,7 +124,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateTestRun)]
         [SwaggerOperation(
             Summary = "Creates a new TestRun item",
-            Description = "Requires Test Run payload",
+            Description = "Requires Test Run payload. It will not accept overall CompletedTime or ClientResults, which should only be created by the LoadClient internally",
             OperationId = "CreateTestRunConfig")]
         public async Task<ActionResult> CreateTestRunConfig([FromBody, SwaggerRequestBody("The test run config payload", Required = true)] TestRunPayload testRunPayload, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
@@ -160,37 +161,62 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpDelete("{testRunId}")]
         [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.DeletedTestRun)]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundTestRun)]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.Unknown)]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, SystemConstants.UnableToDeleteRunNotCompleted)]
         [SwaggerOperation(
             Summary = "Deletes a TestRun item",
             Description = "Requires Test Run id",
             OperationId = "DeleteTestRun")]
-        public async Task<ActionResult> DeleteTestRun([FromRoute, SwaggerRequestBody("The Test Run id to delete", Required = true)] string testRunId, [FromServices] ITestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult> DeleteTestRun([FromRoute, SwaggerRequestBody("The Test Run id to delete", Required = true)] string testRunId, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
+            var existingTestRunResp = await testRunService.GetTestRun(testRunId);
+            HttpStatusCode delStatusCode = HttpStatusCode.InternalServerError;
 
-            if (errorlist.Count > 0)
+            if (existingTestRunResp.StatusCode == HttpStatusCode.OK)
             {
-                await Logger.LogWarning(nameof(DeleteTestRun), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
+                if (existingTestRunResp.Model.CompletedTime != null)
+                {
+                    delStatusCode = await testRunService.Delete(testRunId);
+                }
+                else
+                {
+                    delStatusCode = HttpStatusCode.Conflict;
+                }
             }
 
-            var deleteTaskResult = await testRunService.Delete(testRunId);
-
-            return deleteTaskResult switch
+            // Get       Delete    Returns   Message
+            // -------------------------------------
+            // IntErr    Any       IntErr    Cosmos error
+            // NotFound  Any       NotFound  ID not found
+            // Ok        NotFound  NotFound  (Redundant) Same as above*
+            // Ok        Conflict  Conflict  ID Found but unfinished
+            // Ok        Ok        NoContent All good
+            // Any       Any       IntErr    But also show GET and DELETE status
+            return (existingTestRunResp.StatusCode, delStatusCode) switch
             {
-                HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
-                HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
-                _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
+                (HttpStatusCode.InternalServerError, _) =>
+                    await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.InternalServerError),
+                (HttpStatusCode.NotFound, _) =>
+                    await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.NotFound),
+
+                // This case is redundant, but is handy for testing
+                // (HttpStatusCode.OK, HttpStatusCode.NotFound) =>
+                //     await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
+                (HttpStatusCode.OK, HttpStatusCode.Conflict) =>
+                    await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict),
+                (HttpStatusCode.OK, HttpStatusCode.OK) => await ResultHandler.CreateNoContent(),
+                (HttpStatusCode.OK, _) =>
+                    await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
+                (_, _) => // For all other cases
+                    await ResultHandler.CreateErrorResult($"{SystemConstants.Unknown}. TestRun ({testRunId}) GET Status: {existingTestRunResp.StatusCode}, DEL status: {delStatusCode}", HttpStatusCode.InternalServerError),
             };
         }
 
@@ -214,7 +240,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
         [SwaggerOperation(
             Summary = "Updates an existing TestRun item",
-            Description = "Requires test run payload (partial or full) and ID",
+            Description = "Requires test run payload (partial or full) and ID. It will not accept overall CompletedTime or ClientResults, which should only be updated by the LoadClient internally",
             OperationId = "UpdateTestRun")]
         public async Task<ActionResult> UpdateTestRun([FromRoute] string testRunId, [FromBody, SwaggerRequestBody("The test run payload", Required = true)] TestRunPayload testRunPayload, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
