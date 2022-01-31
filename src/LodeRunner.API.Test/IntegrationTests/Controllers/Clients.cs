@@ -115,6 +115,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
             }
 
+            l8rService.StopService();
+
             Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
             List<Client> clients = await httpResponse.Content.ReadFromJsonAsync<List<Client>>(this.jsonOptions);
