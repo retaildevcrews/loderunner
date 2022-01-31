@@ -106,7 +106,7 @@ Table legend:
 | --base-url        | O           | N          |                                                                |
 | --delay-start     | O           | N          |                                                                |
 | --secrets-volume  | N           | R          |                                                                |
-| --max-errors      | O           | N          |                                                                |
+| --max-errors      | O           | N          | Not supported when --run-loop is set.                          |
 | --sleep           | O           | N          |                                                                |
 | --stric-json      | O           | N          |                                                                |
 | --summary-minutes | O           | N          |                                                                |

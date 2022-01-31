@@ -2,7 +2,7 @@ import { useContext } from "react";
 import PropTypes from "prop-types";
 import CheckMarkIcon from "../CheckMarkIcon";
 import { ClientsContext, TestPageContext } from "../../contexts";
-import { CLIENT, CLIENT_STATUSES } from "../../models";
+import { CLIENT, CLIENT_STATUS_TYPES } from "../../models";
 import { MAIN_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
@@ -78,7 +78,7 @@ const Clients = ({ setFetchClientsInterval }) => {
                   </button>
                   <button
                     className={`clients-item-status status-${
-                      status === CLIENT_STATUSES.ready ? "ready" : "pending"
+                      status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
                     } ${openedClientDetailsId === loadClientId && "selected"}`}
                     type="button"
                     title="Open Load Client Details"

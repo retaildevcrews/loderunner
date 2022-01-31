@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import PencilIcon from "../PencilIcon";
 import { ClientsContext, TestPageContext } from "../../contexts";
-import { CLIENT, CLIENT_STATUSES } from "../../models";
+import { CLIENT, CLIENT_STATUS_TYPES } from "../../models";
 import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
@@ -80,7 +80,7 @@ const ClientDetails = () => {
         <div
           aria-label={`Load Client Status: ${status}`}
           className={`clientdetails-status-indicator status-${
-            status === CLIENT_STATUSES.ready ? "ready" : "pending"
+            status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
           }`}
         />
       </h2>
