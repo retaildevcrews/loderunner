@@ -154,7 +154,10 @@ namespace LodeRunner.API
                     // log to XML
                     // this can be replaced when the dotnet XML logger is available
                     logger.ClearProviders();
-                    logger.AddNgsaLogger(config => { config.LogLevel = config.LogLevel; });
+
+                    // TODO: Research why  we need these many layers to inject ILogger  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                    logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; });
 
                     // if you specify the --log-level option, it will override the appsettings.json options
                     // remove any or all of the code below that you don't want to override
