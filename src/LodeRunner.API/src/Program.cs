@@ -42,6 +42,11 @@ namespace LodeRunner.API
         private static IWebHost host = null;
 
         /// <summary>
+        /// The logger application.
+        /// </summary>
+        private static ILogger loggerApp = null;
+
+        /// <summary>
         /// Gets or sets json serialization options.
         /// </summary>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
@@ -95,7 +100,7 @@ namespace LodeRunner.API
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                GetLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
+                GetAppLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -108,7 +113,7 @@ namespace LodeRunner.API
                 // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
 
                 // end app on error
-                GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
+                GetAppLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
 
                 return -1;
             }
@@ -118,9 +123,14 @@ namespace LodeRunner.API
         /// Gets the logger from Host services
         /// </summary>
         /// <returns>The App ILogger.</returns>
-        private static ILogger GetLogger()
+        private static ILogger GetAppLogger()
         {
-            return host.Services.GetRequiredService<ILogger<App>>();
+            if (loggerApp == null)
+            {
+                loggerApp = host.Services.GetRequiredService<ILogger<App>>();
+            }
+
+            return loggerApp;
         }
 
         /// <summary>
@@ -196,7 +206,7 @@ namespace LodeRunner.API
                 e.Cancel = true;
                 cancelTokenSource.Cancel();
 
-                GetLogger().LogInformation("Shutdown", "Shutting Down ...");
+                GetAppLogger().LogInformation("Shutdown", "Shutting Down ...");
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method
