@@ -90,7 +90,7 @@ namespace LodeRunner.Services
 
             // TODO: Update and add later once LoadResults schema is defined
             // sql + = $"and NOT array_contains(e.ClientResults, {{\"id\": \"{clientId}\"}}, true)";
-            sql += $"and (NOT IS_DEFINED(e.completedTime) or IS_NULL(e.completedTime)) ";
+            sql += $"and (NOT IS_DEFINED(e.completedTime) or IS_NULL(e.completedTime) or e.completedTime = '') ";
             sql += $"ORDER BY e.startTime ASC";
 
             return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TestRun>(sql).ConfigureAwait(false);
