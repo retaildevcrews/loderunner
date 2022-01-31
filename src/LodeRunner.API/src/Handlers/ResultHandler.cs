@@ -9,6 +9,7 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Middleware
 {
@@ -102,7 +103,7 @@ namespace LodeRunner.API.Middleware
         /// <param name="results">The results.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The Action Result.</returns>
-        public static async Task<ActionResult> HandleResult(object results, NgsaLog logger)
+        public static async Task<ActionResult> HandleResult(object results, ILogger logger)
         {
             if (results == null)
             {
@@ -122,7 +123,7 @@ namespace LodeRunner.API.Middleware
                 catch (Exception ex)
                 {
                     // log and return exception
-                    await logger.LogError(nameof(HandleResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(HandleResult)), ex, "Exception");
 
                     // return 500 error
                     return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);

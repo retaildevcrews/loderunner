@@ -14,6 +14,7 @@ using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -26,22 +27,18 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update LoadTest Configurations")]
     public class LoadTestConfigsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(LoadTestConfigsController).FullName,
-            ErrorMessage = "LoadTestConfigsControllerException",
-            NotFoundError = "Load Test Configs Not Found",
-        };
-
+        private readonly ILogger logger;
         private readonly IMapper autoMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadTestConfigsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public LoadTestConfigsController(IMapper mapper)
+        /// <param name="logger">The logger.</param>
+        public LoadTestConfigsController(IMapper mapper, ILogger<LoadTestConfigsController> logger)
         {
             this.autoMapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -101,14 +98,14 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(GetLoadTestConfigById), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(GetLoadTestConfigById)), $"{SystemConstants.InvalidLoadTestConfigId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            var result = await loadTestConfigService.GetLoadTestConfigById(loadTestConfigId, Logger);
+            var result = await loadTestConfigService.GetLoadTestConfigById(loadTestConfigId, logger);
 
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.HandleResult(result, logger);
         }
 
         /// <summary>
@@ -188,7 +185,7 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(DeleteLoadTestConfig), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), $"{SystemConstants.InvalidLoadTestConfigId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }

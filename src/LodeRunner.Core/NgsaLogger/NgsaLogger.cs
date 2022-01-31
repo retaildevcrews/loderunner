@@ -80,6 +80,7 @@ namespace LodeRunner.Core.NgsaLogger
 
             Dictionary<string, object> d = new ()
             {
+                { "date", DateTime.UtcNow },
                 { "logName", this.name },
                 { "logLevel", logLevel.ToString() },
                 { "eventId", eventId.Id },

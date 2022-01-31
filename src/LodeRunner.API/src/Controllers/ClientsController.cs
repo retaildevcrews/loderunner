@@ -12,6 +12,7 @@ using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -24,18 +25,15 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Read Clients")]
     public class ClientsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(ClientsController).FullName,
-            ErrorMessage = "ClientsControllerException",
-            NotFoundError = "Clients Not Found",
-        };
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientsController"/> class.
         /// </summary>
-        public ClientsController()
+        /// <param name="logger">The logger.</param>
+        public ClientsController(ILogger<ClientsController> logger)
         {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -59,9 +57,9 @@ namespace LodeRunner.API.Controllers
                 return await ResultHandler.CreateCancellationInProgressResult();
             }
 
-            var result = await clientStatusService.GetClients(Logger);
+            var result = await clientStatusService.GetClients(logger);
 
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.HandleResult(result, logger);
         }
 
         /// <summary>
@@ -91,14 +89,14 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(GetClientByClientStatusId)), $"{SystemConstants.InvalidClientStatusId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, Logger);
+            var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, logger);
 
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.HandleResult(result, logger);
         }
     }
 }

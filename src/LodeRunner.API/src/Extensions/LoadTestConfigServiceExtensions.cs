@@ -2,14 +2,12 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Extensions
 {
@@ -25,7 +23,7 @@ namespace LodeRunner.API.Extensions
         /// <param name="loadTestConfigId">The test run identifier.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The Task.</returns>
-        public static async Task<LoadTestConfig> GetLoadTestConfigById(this LoadTestConfigService loadTestConfigService, string loadTestConfigId, NgsaLog logger)
+        public static async Task<LoadTestConfig> GetLoadTestConfigById(this LoadTestConfigService loadTestConfigService, string loadTestConfigId, ILogger logger)
         {
             LoadTestConfig result = null;
             try
@@ -44,7 +42,7 @@ namespace LodeRunner.API.Extensions
                 // log and return Cosmos status code
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
-                    await logger.LogWarning(nameof(GetLoadTestConfigById), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    logger.LogWarning(new EventId((int)ce.StatusCode, nameof(GetLoadTestConfigById)), $"Load Test Configs {SystemConstants.NotFoundError}");
                 }
                 else
                 {

@@ -12,6 +12,7 @@ using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -24,22 +25,18 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update, delete Test Runs")]
     public class TestRunsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(TestRunsController).FullName,
-            ErrorMessage = "TestRunsControllerException",
-            NotFoundError = "Test Runs Not Found",
-        };
-
+        private readonly ILogger logger;
         private readonly IMapper autoMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public TestRunsController(IMapper mapper)
+        /// <param name="logger">The logger.</param>
+        public TestRunsController(IMapper mapper, ILogger<LoadTestConfigsController> logger)
         {
             this.autoMapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -99,14 +96,14 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(GetTestRunById), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(GetTestRunById)), $"{SystemConstants.InvalidTestRunId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
-            var result = await testRunService.GetTestRunById(testRunId, Logger);
+            var result = await testRunService.GetTestRunById(testRunId, logger);
 
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.HandleResult(result, logger);
         }
 
         /// <summary>
@@ -179,7 +176,7 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(DeleteTestRun), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteTestRun)), $"{SystemConstants.InvalidTestRunId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }

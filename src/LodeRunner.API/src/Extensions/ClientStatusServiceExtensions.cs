@@ -3,13 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Extensions
 {
@@ -21,7 +20,7 @@ namespace LodeRunner.API.Extensions
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The Task</returns>
-        public static async Task<List<Client>> GetClients(this ClientStatusService clientStatusService, NgsaLog logger)
+        public static async Task<List<Client>> GetClients(this ClientStatusService clientStatusService, ILogger logger)
         {
             List<Client> result = new ();
             try
@@ -38,7 +37,7 @@ namespace LodeRunner.API.Extensions
                 // log and return Cosmos status code
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
-                    await logger.LogWarning(nameof(GetClients), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    logger.LogWarning(new EventId((int)ce.StatusCode, nameof(GetClients)), $"Clients {SystemConstants.NotFoundError}");
                 }
                 else
                 {
@@ -60,7 +59,7 @@ namespace LodeRunner.API.Extensions
         /// <param name="clientStatusId">The client status identifier.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The Task.</returns>
-        public static async Task<Client> GetClientByClientStatusId(this ClientStatusService clientStatusService, string clientStatusId, NgsaLog logger)
+        public static async Task<Client> GetClientByClientStatusId(this ClientStatusService clientStatusService, string clientStatusId, ILogger logger)
         {
             Client result = null;
             try
@@ -79,7 +78,7 @@ namespace LodeRunner.API.Extensions
                 // log and return Cosmos status code
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
-                    await logger.LogWarning(nameof(GetClientByClientStatusId), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    logger.LogWarning(new EventId((int)ce.StatusCode, nameof(GetClientByClientStatusId)), $"Clients {SystemConstants.NotFoundError}");
                 }
                 else
                 {

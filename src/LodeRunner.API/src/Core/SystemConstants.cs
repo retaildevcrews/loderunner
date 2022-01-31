@@ -252,5 +252,10 @@ namespace LodeRunner.API
         /// The unable to get test run.
         /// </summary>
         public const string UnableToGetTestRun = "Unable to get Test Run item.";
+
+        /// <summary>
+        /// Generic not found error message.
+        /// </summary>
+        public const string NotFoundError = "Not Found.";
     }
 }
