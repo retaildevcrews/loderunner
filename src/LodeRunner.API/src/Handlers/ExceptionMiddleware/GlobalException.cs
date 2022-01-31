@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Handlers.ExceptionMiddleware
 {
@@ -15,14 +16,14 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
     public class GlobalException
     {
         private readonly RequestDelegate next;
-        private readonly NgsaLog logger;
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalException"/> class.
         /// </summary>
         /// <param name="next">The next.</param>
         /// <param name="logger">The logger.</param>
-        public GlobalException(RequestDelegate next, NgsaLog logger)
+        public GlobalException(RequestDelegate next, ILogger<GlobalException> logger)
         {
             this.logger = logger;
             this.next = next;
@@ -41,7 +42,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
             }
             catch (Exception ex)
             {
-                await this.logger.LogError("Global Exception", $"{ex.Message}", ex: ex);
+                this.logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, "Global Exception"), ex, $"{ex.Message}");
                 await this.HandleExceptionAsync(httpContext, ex);
             }
         }
@@ -63,7 +64,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
 
                 errorMessage = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}";
 
-                await this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
+                this.logger.LogError("GlobalException: HandleExceptionAsync", errorMessage);
             }
             else
             {
@@ -71,7 +72,7 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
 
                 errorMessage = $"{HttpStatusCode.InternalServerError} - {exception.Message}";
 
-                await this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
+                this.logger.LogError("GlobalException: HandleExceptionAsync", $"Internal Server Error: {exception}");
             }
 
             await context.Response.WriteAsync(errorMessage);
