@@ -18,8 +18,6 @@ namespace LodeRunner.Services
     /// </summary>
     public class ClientStatusService : BaseService<ClientStatus>, IClientStatusService
     {
-        // private readonly IModelValidator<ClientStatus> validator;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientStatusService"/> class.
         /// </summary>
@@ -27,6 +25,24 @@ namespace LodeRunner.Services
         public ClientStatusService(ICosmosDBRepository cosmosDBRepository)
             : base(cosmosDBRepository)
         {
+            this.Validator = new ClientStatusValidator();
+        }
+
+        /// <summary>
+        /// Posts the update.
+        /// </summary>
+        /// <param name="clientStatus">The ClientStatus entity.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        ///    The Task[ClientStatus] with updated ClientStatus if CosmosDB post is ready.
+        ///    Otherwise, it returns null.
+        /// </returns>
+        public async Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken)
+        {
+            return await this.Save(clientStatus, cancellationToken);
+        }
+
+        /// <summary>
             this.Validator = new ClientStatusValidator();
         }
 

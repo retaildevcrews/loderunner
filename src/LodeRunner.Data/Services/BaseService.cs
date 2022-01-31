@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
@@ -19,6 +20,8 @@ namespace LodeRunner.Services
     public abstract class BaseService<TEntity> : IBaseService<TEntity>
         where TEntity : BaseEntityModel
     {
+        private readonly EntityType entityType = EntityType.Unassigned;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseService{TEntity}"/> class.
         /// </summary>
@@ -26,7 +29,16 @@ namespace LodeRunner.Services
         public BaseService(ICosmosDBRepository cosmosDBRepository)
         {
             this.CosmosDBRepository = cosmosDBRepository;
+            this.entityType = typeof(TEntity).Name.As<EntityType>();
         }
+
+        /// <summary>
+        /// Gets or sets the validator.
+        /// </summary>
+        /// <value>
+        /// The validator.
+        /// </value>
+        public IModelValidator<TEntity> Validator { get; protected set; }
 
         /// <summary>
         /// Gets the cosmos database repository.
@@ -38,22 +50,13 @@ namespace LodeRunner.Services
 
 
         /// <summary>
-        /// Gets or sets and Sets the validator.
-        /// </summary>
-        protected BaseEntityValidator<TEntity> Validator { get; set; }
-
-
-        /// <summary>
         /// Gets the specified identifier.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns>The corresponding entity.</returns>
         public virtual async Task<TEntity> Get(string id)
         {
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-            return await this.CosmosDBRepository.GetByIdAsync<TEntity>(id, entityType.ToString());
+            return await this.CosmosDBRepository.GetByIdAsync<TEntity>(id, this.entityType.ToString());
         }
 
         /// <summary>
@@ -62,9 +65,7 @@ namespace LodeRunner.Services
         /// <returns>all items for a given type.</returns>
         public virtual async Task<IEnumerable<TEntity>> GetAll()
         {
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-            string sql = $"SELECT * from e WHERE e.entityType='{entityType}' ORDER BY e._ts DESC";
+            string sql = $"SELECT * from e WHERE e.entityType='{this.entityType}' ORDER BY e._ts DESC";
 
             return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TEntity>(sql).ConfigureAwait(false);
         }
@@ -72,16 +73,13 @@ namespace LodeRunner.Services
         /// <summary>
         /// Gets the most recent asynchronous.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="limit">The limit.</param>
         /// <returns>
         /// all items for a given type.
         /// </returns>
-        public virtual async Task<IEnumerable<TEntity>> GetMostRecentAsync(int limit = 1)
+        public virtual async Task<IEnumerable<TEntity>> GetMostRecent(int limit = 1)
         {
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-            string sql = $"SELECT * FROM e WHERE e.entityType='{entityType}' ORDER BY e._ts DESC OFFSET 0 LIMIT {limit}";
+            string sql = $"SELECT * FROM e WHERE e.entityType='{this.entityType}' ORDER BY e._ts DESC OFFSET 0 LIMIT {limit}";
 
             return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TEntity>(sql).ConfigureAwait(false);
         }
@@ -92,11 +90,9 @@ namespace LodeRunner.Services
         /// <returns>
         /// Item count that match the Entity type.
         /// </returns>
-        public virtual async Task<int> GetCountAsync()
+        public virtual async Task<int> GetCount()
         {
-            EntityType entityType = typeof(TEntity).Name.As<EntityType>();
-
-            string sql = $"SELECT VALUE COUNT(1) FROM e where e.entityType='{entityType}'";
+            string sql = $"SELECT VALUE COUNT(1) FROM e where e.entityType='{this.entityType}'";
 
             int defaultValue = 0;
             return await this.CosmosDBRepository.InternalCosmosDBSqlQueryScalar<TEntity, int>(sql, defaultValue).ConfigureAwait(false);

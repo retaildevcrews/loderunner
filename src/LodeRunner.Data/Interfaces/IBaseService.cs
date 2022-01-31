@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace LodeRunner.Data.Interfaces
 {
     /// <summary>
-    /// ClientStatusService Interface.
+    /// BaseService Interface.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public interface IBaseService<TEntity>

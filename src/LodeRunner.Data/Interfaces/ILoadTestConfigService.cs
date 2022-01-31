@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Responses;
 
 namespace LodeRunner.Data.Interfaces
 {

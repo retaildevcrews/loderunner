@@ -6,16 +6,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
+using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 
 namespace LodeRunner.Services
 {
     /// <summary>
-    ///   Client Status Service.
+    ///   Load Test Config Service.
     /// </summary>
     public class LoadTestConfigService : BaseService<LoadTestConfig>, ILoadTestConfigService
     {
