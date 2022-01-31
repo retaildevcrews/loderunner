@@ -14,6 +14,7 @@ const IntegerInput = ({
       {description}
       <br />
       <input
+        key={inputName}
         ref={elRef}
         type="number"
         step="1"
