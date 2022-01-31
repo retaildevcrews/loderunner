@@ -3,18 +3,16 @@
 
 using System;
 using System.Threading;
-using LodeRunner.API.Core;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Data;
+using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace LodeRunner.API.Test.IntegrationTests
 {
@@ -65,6 +63,16 @@ namespace LodeRunner.API.Test.IntegrationTests
                 services.AddSingleton<NgsaLog>(ngsalog);
                 services.AddSingleton<Config>(config);
                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                services.AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()));
+                services.AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>());
+                services.AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());
+
+                // Add CosmosDB Repository
+                services.AddSingleton<CosmosDBRepository>();
+                services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>(provider => provider.GetRequiredService<CosmosDBRepository>());
+
+                services.AddSingleton<TestRunService>();
+                services.AddSingleton<ITestRunService>(provider => provider.GetRequiredService<TestRunService>());
             });
         }
     }
