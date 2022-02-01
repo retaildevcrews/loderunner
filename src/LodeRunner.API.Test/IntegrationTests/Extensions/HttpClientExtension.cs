@@ -33,14 +33,14 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">Maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
         /// <returns>HttpStatusCode and Client from response.</returns>
-        public static (HttpStatusCode, Client) GetClientByIdRetries(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        public static async Task<(HttpStatusCode, Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
             HttpResponseMessage httpResponse = new ();
             Client client = null;
 
             for (int i = 1; i <= maxRetries; i++)
             {
-                httpResponse = httpClient.GetAsync($"{clientsUri}/{clientStatusId}").Result;
+                httpResponse = await httpClient.GetAsync($"{clientsUri}/{clientStatusId}");
 
                 if (httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -49,7 +49,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
                 else if (httpResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    client = httpResponse.Content.ReadFromJsonAsync<Client>(jsonOptions).Result;
+                    client = await httpResponse.Content.ReadFromJsonAsync<Client>(jsonOptions);
 
                     if (client.Status == clientStatusType)
                     {
@@ -82,13 +82,13 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">Maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
         /// <returns>HttpResponseMessage after retries.</returns>
-        public static HttpResponseMessage GetAsyncRetry(this HttpClient httpClient, string uri, string action, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        public static async Task<HttpResponseMessage> GetRetryAsync(this HttpClient httpClient, string uri, string action, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
             HttpResponseMessage httpResponse = new HttpResponseMessage();
 
             for (int i = 1; i <= maxRetries; i++)
             {
-                httpResponse = httpClient.GetAsync($"{uri}").Result;
+                httpResponse = await httpClient.GetAsync($"{uri}");
 
                 if (httpResponse.StatusCode == HttpStatusCode.NoContent)
                 {
