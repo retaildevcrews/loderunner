@@ -33,46 +33,75 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">Maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
         /// <returns>HttpStatusCode and Client from response.</returns>
-        public static (HttpStatusCode, Client) GetClientByIdRetries(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        public static async Task<(HttpStatusCode, Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
-            int attempts = 0;
-            HttpResponseMessage httpResponse;
+            HttpResponseMessage httpResponse = new ();
             Client client = null;
 
-            do
+            for (int i = 1; i <= maxRetries; i++)
             {
-                attempts++;
-                httpResponse = httpClient.GetAsync($"{clientsUri}/{clientStatusId}").Result;
+                httpResponse = await httpClient.GetAsync($"{clientsUri}/{clientStatusId}");
 
                 if (httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'NotFound'\tClientStatusId: '{clientStatusId}'\tAttempts: {attempts} [{timeBetweenRequestsMs}ms between requests]");
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'NotFound'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
                     Thread.Sleep(timeBetweenRequestsMs);
                 }
                 else if (httpResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    client = httpResponse.Content.ReadFromJsonAsync<Client>(jsonOptions).Result;
+                    client = await httpResponse.Content.ReadFromJsonAsync<Client>(jsonOptions);
 
                     if (client.Status == clientStatusType)
                     {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {attempts} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria met [{client.Status}]");
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria met [{client.Status}]");
                         break;
                     }
                     else
                     {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {attempts} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria not met [expected: {clientStatusType}, received: {client.Status}]");
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria not met [expected: {clientStatusType}, received: {client.Status}]");
                         Thread.Sleep(timeBetweenRequestsMs);
                     }
                 }
                 else
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {attempts} [{timeBetweenRequestsMs}ms between requests]");
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
                     break;
                 }
             }
-            while (attempts <= maxRetries);
 
             return (httpResponse.StatusCode, client);
+        }
+
+        /// <summary>
+        /// Retries the GET request until content or unexpected non-200 code is returned.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="uri">The URI path.</param>
+        /// <param name="action">Action for logging.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="maxRetries">Maximum retries.</param>
+        /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
+        /// <returns>HttpResponseMessage after retries.</returns>
+        public static async Task<HttpResponseMessage> GetRetryAsync(this HttpClient httpClient, string uri, string action, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        {
+            HttpResponseMessage httpResponse = new HttpResponseMessage();
+
+            for (int i = 1; i <= maxRetries; i++)
+            {
+                httpResponse = await httpClient.GetAsync($"{uri}");
+
+                if (httpResponse.StatusCode == HttpStatusCode.NoContent)
+                {
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tResponse StatusCode: '{httpResponse.StatusCode}'\tAttempts: {i + 1} [{timeBetweenRequestsMs}ms between requests]");
+                    Thread.Sleep(timeBetweenRequestsMs * i);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return httpResponse;
         }
 
         /// <summary>
