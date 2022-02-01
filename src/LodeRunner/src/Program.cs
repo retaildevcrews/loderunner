@@ -13,10 +13,14 @@ using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.NgsaLogger;
+using LodeRunner.Extensions;
+using LodeRunner.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner
 {
@@ -33,11 +37,12 @@ namespace LodeRunner
         /// <summary>
         /// Gets cancellation token.
         /// </summary>
-        private static CancellationTokenSource cancelTokenSource;
+        private static readonly CancellationTokenSource CancelTokenSource = new ();
 
         /// <summary>
         /// Gets or sets json serialization options.
         /// </summary>
+        /// <returns>JsonSerializerOptions.</returns>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -50,8 +55,6 @@ namespace LodeRunner
         /// <returns>0 on success.</returns>
         public static async Task<int> Main(string[] args)
         {
-            cancelTokenSource = new CancellationTokenSource();
-
             RegisterTerminationEvents();
 
             if (args != null)
@@ -78,6 +81,7 @@ namespace LodeRunner
         {
             if (config == null)
             {
+                // Logger has not been created yet, so we use Console.
                 Console.WriteLine("CommandOptions is null");
                 return Core.SystemConstants.ExitFail;
             }
@@ -85,7 +89,19 @@ namespace LodeRunner
             //Note: config.IsClientMode does not get auto-populated by RootCommand since it does not get parsed, so we need to set it manually.
             config.IsClientMode = isClientMode;
 
-            using var l8rService = new LodeRunnerService(config, cancelTokenSource);
+            // Register Services and System Objects.
+
+            var services = new ServiceCollection();
+
+            ConfigureServicesAndSystemObjects(services, config);
+
+            using var serviceProvider = services.BuildServiceProvider();
+
+            // Get the logger to log the .
+            // logger = serviceProvider.GetService<ILogger<App>>();
+
+            using var l8rService = serviceProvider.GetService<LodeRunnerService>();
+
             return await l8rService.StartService();
         }
 
@@ -114,14 +130,36 @@ namespace LodeRunner
                         {
                             webBuilder.ConfigureServices(services =>
                             {
-                                services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                                services.AddSingleton<CancellationTokenSource>(CancelTokenSource);
                                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                             });
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:{portNumber}/");
                         })
+                        .ConfigureLogging(logger =>
+                        {
+                            logger.Setup(config);
+                        })
                         .UseConsoleLifetime()
                         .Build();
+        }
+
+        /// <summary>
+        /// Configure App Services.
+        /// </summary>
+        /// <param name="services">Service Collection.</param>
+        /// <param name="config">The config.</param>
+        private static void ConfigureServicesAndSystemObjects(ServiceCollection services, Config config)
+        {
+            services.AddLogging(logger =>
+                {
+                    logger.Setup(config) // here we are creating our custom logger
+                        .AddConsole();
+                })
+                .AddSingleton<Config>(config)
+                .AddSingleton<CancellationTokenSource>(CancelTokenSource)
+                .AddSingleton<LodeRunnerService>()
+                .AddSingleton<ILodeRunnerService>(provider => provider.GetRequiredService<LodeRunnerService>());
         }
 
         /// <summary>
@@ -131,16 +169,16 @@ namespace LodeRunner
         {
             AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
             {
-                if (!cancelTokenSource.IsCancellationRequested)
+                if (!CancelTokenSource.IsCancellationRequested)
                 {
-                    cancelTokenSource.Cancel(false);
+                    CancelTokenSource.Cancel(false);
                 }
             };
 
             Console.CancelKeyPress += (_, e) =>
             {
                 e.Cancel = true;
-                cancelTokenSource.Cancel(false);
+                CancelTokenSource.Cancel(false);
             };
         }
 
@@ -159,6 +197,7 @@ namespace LodeRunner
                     {
                         string txt = File.ReadAllText(AsciiFile);
 
+                        // we use Console for Ascii Art.
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine(txt);
                         Console.ResetColor();

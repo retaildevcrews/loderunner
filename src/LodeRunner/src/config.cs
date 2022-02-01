@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using LodeRunner.Core.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner
 {
@@ -13,6 +14,8 @@ namespace LodeRunner
     /// </summary>
     public class Config : ILRConfig, ICosmosConfig
     {
+        private LogLevel logLevel = LogLevel.Information;
+
         /// <summary>
         /// gets or sets the status update interval in seconds.
         /// </summary>
@@ -163,6 +166,27 @@ namespace LodeRunner
         /// gets or sets the guid to LoadClient ID.
         /// </summary>
         public string LoadClientId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the logLevel.
+        /// </summary>
+        public LogLevel LogLevel
+        {
+            get
+            {
+                return this.logLevel;
+            }
+
+            set
+            {
+                this.logLevel = value <= LogLevel.Information ? LogLevel.Information : value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the logLevel is set.
+        /// </summary>
+        public bool IsLogLevelSet { get; set; }
 
         /// <summary>
         /// Set the default config values.

@@ -10,9 +10,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
+using Microsoft.Extensions.Logging;
 using Ngsa.Middleware;
 using Prometheus;
 
@@ -37,6 +39,9 @@ namespace LodeRunner
         private static SocketsHttpHandler httpSocketHandler;
 
         private readonly Dictionary<string, PerfTarget> targets = new ();
+
+        private readonly ILogger logger;
+
         private Config config;
 
         /// <summary>
@@ -44,12 +49,15 @@ namespace LodeRunner
         /// Constructor for ValidationTest.
         /// </summary>
         /// <param name="config">app config.</param>
-        public ValidationTest(Config config)
+        /// <param name="logger">the logger.</param>
+        public ValidationTest(Config config, ILogger logger)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
                 throw new ArgumentNullException(nameof(config));
             }
+
+            this.logger = logger;
 
             this.config = config;
 
@@ -139,7 +147,7 @@ namespace LodeRunner
         {
             if (config == null)
             {
-                Console.WriteLine("RunOnce:Config is null");
+                this.logger.LogError("RunOnce:Config is null");
                 return Core.SystemConstants.ExitFail;
             }
 
@@ -156,7 +164,7 @@ namespace LodeRunner
                 {
                     if (ndx > 0)
                     {
-                        Console.WriteLine();
+                        Console.WriteLine(); // TODO: do we need to write empty lines to console?
                         errorCount = 0;
                         validationFailureCount = 0;
                     }
@@ -213,7 +221,8 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        Console.WriteLine($"{Now}\tException: {ex.Message}");
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, "Exception");
+
                         errorCount++;
                     }
                 }
@@ -221,19 +230,19 @@ namespace LodeRunner
                 // log validation failure count
                 if (validationFailureCount > 0)
                 {
-                    Console.WriteLine($"Validation Errors: {validationFailureCount}");
+                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Validation Errors: {validationFailureCount}");
                 }
 
                 // log error count
                 if (errorCount > 0)
                 {
-                    Console.WriteLine($"Failed: {errorCount} Errors");
+                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Failed: {errorCount} Errors");
                 }
 
                 // log MaxErrors exceeded
                 if (errorCount + validationFailureCount >= config.MaxErrors)
                 {
-                    Console.Write($"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
+                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
                 }
             }
 
@@ -272,7 +281,7 @@ namespace LodeRunner
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new ()
+                TimerRequestState state = new (this.logger)
                 {
                     Server = svr,
                     Client = this.OpenHttpClient(svr),
@@ -321,7 +330,8 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    Console.WriteLine($"Exception: {tce}");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, "TaskCanceledException");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -333,7 +343,8 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    Console.Write($"Exception: {oce}");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, "OperationCanceledException");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -342,7 +353,8 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex}");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
+
                 return Core.SystemConstants.ExitFail;
             }
 
@@ -681,7 +693,6 @@ namespace LodeRunner
                     logDict.Add("ErrorDetails", errors.Trim());
                 }
 
-                // Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
         }

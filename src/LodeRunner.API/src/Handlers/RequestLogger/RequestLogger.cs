@@ -214,6 +214,8 @@ namespace LodeRunner.API.Middleware
         // log the request
         private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration)
         {
+            //TODO: do we need to replace REquest logger with NgsaLogger ?? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
             DateTime dt = DateTime.UtcNow;
 
             string category = ValidationError.GetCategory(context, out string subCategory, out string mode);

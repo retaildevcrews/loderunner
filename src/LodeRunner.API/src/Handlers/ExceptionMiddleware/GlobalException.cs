@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
+using LodeRunner.Core.NgsaLogger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

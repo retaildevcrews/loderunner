@@ -44,7 +44,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The logger application.
         /// </summary>
-        private static ILogger loggerApp = null;
+        private static ILogger logger = null;
 
         /// <summary>
         /// Gets or sets json serialization options.
@@ -100,7 +100,7 @@ namespace LodeRunner.API
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                GetAppLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
+                GetLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
@@ -113,7 +113,7 @@ namespace LodeRunner.API
                 // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
 
                 // end app on error
-                GetAppLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
+                GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
 
                 return -1;
             }
@@ -123,14 +123,14 @@ namespace LodeRunner.API
         /// Gets the logger from Host services
         /// </summary>
         /// <returns>The App ILogger.</returns>
-        private static ILogger GetAppLogger()
+        private static ILogger GetLogger()
         {
-            if (loggerApp == null)
+            if (logger == null)
             {
-                loggerApp = host.Services.GetRequiredService<ILogger<App>>();
+                logger = host.Services.GetRequiredService<ILogger<App>>();
             }
 
-            return loggerApp;
+            return logger;
         }
 
         /// <summary>
@@ -171,8 +171,6 @@ namespace LodeRunner.API
                     // this can be replaced when the dotnet XML logger is available
                     logger.ClearProviders();
 
-                    // TODO: Research why  we need these many layers to inject ILogger  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
                     logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; });
 
                     // if you specify the --log-level option, it will override the appsettings.json options
@@ -206,7 +204,7 @@ namespace LodeRunner.API
                 e.Cancel = true;
                 cancelTokenSource.Cancel();
 
-                GetAppLogger().LogInformation("Shutdown", "Shutting Down ...");
+                GetLogger().LogInformation("Shutdown", "Shutting Down ...");
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method

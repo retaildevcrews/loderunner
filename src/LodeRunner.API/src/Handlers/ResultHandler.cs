@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
+using LodeRunner.Core.NgsaLogger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -123,7 +124,7 @@ namespace LodeRunner.API.Middleware
                 catch (Exception ex)
                 {
                     // log and return exception
-                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(HandleResult)), ex, "Exception");
+                    logger.LogError(new EventId((int)(int)HttpStatusCode.InternalServerError, nameof(HandleResult)), ex, "Exception");
 
                     // return 500 error
                     return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
