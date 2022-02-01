@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 namespace LodeRunner.API
@@ -167,6 +167,21 @@ namespace LodeRunner.API
         /// The category sub category static.
         /// </summary>
         public const string CategorySubCategoryStatic = "Static";
+
+        /// <summary>
+        /// Found clients.
+        /// </summary>
+        public const string ClientsFound = "Array of `Client` documents.";
+
+        /// <summary>
+        /// No clients found.
+        /// </summary>
+        public const string ClientsNotFound = "No Clients found.";
+
+        /// <summary>
+        /// The unable to get clients.
+        /// </summary>
+        public const string UnableToGetClients = "Unable to get Clients.";
 
         /// <summary>
         /// The client identifier cannot be empty.

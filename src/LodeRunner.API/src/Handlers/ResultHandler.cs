@@ -47,7 +47,7 @@ namespace LodeRunner.API.Middleware
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<List<TEntity>>> getResult, NgsaLog logger, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<IEnumerable<TEntity>>> getResult, NgsaLog logger, [CallerMemberName] string methodName = null)
         {
             try
             {

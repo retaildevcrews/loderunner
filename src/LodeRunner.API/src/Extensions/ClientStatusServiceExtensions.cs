@@ -8,6 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 
@@ -19,35 +20,16 @@ namespace LodeRunner.API.Extensions
         /// Gets all clients.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
-        /// <param name="logger">The logger.</param>
         /// <returns>The Task</returns>
-        public static async Task<List<Client>> GetClients(this ClientStatusService clientStatusService, NgsaLog logger)
+        public static async Task<IEnumerable<Client>> GetClients(this IClientStatusService clientStatusService)
         {
             List<Client> result = new ();
-            try
+
+            // List of all clients
+            var clients = await clientStatusService.GetAll();
+            foreach (var item in clients)
             {
-                // client statuses
-                var clientStatusList = await clientStatusService.GetAll();
-                foreach (var item in clientStatusList)
-                {
-                    result.Add(new Client(item));
-                }
-            }
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    await logger.LogWarning(nameof(GetClients), logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
-                }
-                else
-                {
-                    throw new Exception($"{nameof(GetClients)}: {ce.Message}", ce);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{nameof(GetClients)}: {ex.Message}", ex);
+                result.Add(new Client(item));
             }
 
             return result;
