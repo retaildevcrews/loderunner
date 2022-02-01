@@ -1,14 +1,15 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 
 namespace LodeRunner.API.Middleware
 {
@@ -22,6 +23,50 @@ namespace LodeRunner.API.Middleware
 
         private const string DataRequest = "Data request.";
         private const string DataNotFound = "Requested data not found.";
+
+        /// <summary>
+        /// Creates the response for GET (all) methods.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="getResult">Gets results from data storage.</param>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="methodName">Caller member name to improve logging.</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<List<TEntity>>> getResult, NgsaLog logger, [CallerMemberName] string methodName = null)
+        {
+            try
+            {
+                var result = await getResult();
+
+                if (!(result as IEnumerable<object>).Any())
+                {
+                    return new NoContentResult();
+                }
+
+                return new OkObjectResult(result);
+            }
+            catch (CosmosException ce)
+            {
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Log Warning
+                    await logger.LogWarning($"{methodName} > {nameof(CreateGetResponse)}", logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    return new NoContentResult();
+                }
+                else
+                {
+                    // Log Error
+                    await logger.LogError($"{methodName} > {nameof(CreateGetResponse)}", "CosmosException", NgsaLog.LogEvent400, ex: ce);
+                    return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log Error
+                await logger.LogError($"{methodName} > {nameof(CreateGetResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
+                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > {ex.Message}");
+            }
+        }
 
         /// <summary>
         /// Creates No Content Result.
@@ -128,6 +173,20 @@ namespace LodeRunner.API.Middleware
                     return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
                 }
             }
+        }
+
+        /// <summary>
+        /// Create response for internal server error.
+        /// </summary>
+        /// <param name="message">Message to include in the response.</param>
+        /// <returns>JsonResult.</returns>
+        private static JsonResult CreateInternalServerErrorResponse(string message)
+        {
+            return new JsonResult(new ErrorResult { Error = HttpStatusCode.InternalServerError, Message = $"Internal Server Error: {message}" })
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                ContentType = JsonContentTypeApplicationJson,
+            };
         }
     }
 }
