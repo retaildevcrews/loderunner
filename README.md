@@ -11,6 +11,8 @@
 - Bash shell
   - Tested on: Visual Studio Codespaces, Mac, Ubuntu, Windows with WSL2)
   - Not supported: WSL1 or Cloud Shell
+- jq: `sudo apt-get install jq`
+- tr: `sudo apt-get install translate`
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Docker CLI ([download](https://docs.docker.com/install/))
 - .NET 5.0 ([download](https://docs.microsoft.com/en-us/dotnet/core/install/))
