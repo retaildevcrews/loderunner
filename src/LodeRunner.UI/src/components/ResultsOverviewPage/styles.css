@@ -5,9 +5,16 @@
   overflow: auto;
 }
 .resultsoverview-item-counts {
-  min-width: 280px;
+  min-width: 240px;
 }
 .resultsoverview-item-counts > div {
   display: flex;
   justify-content: space-between;
+}
+.resultsoverview-item-details {
+  width: 750px;
+}
+.resultsoverview-item-options {
+  display: flex;
+  align-items: center;
 }

@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { A } from "hookrouter";
 import RefreshIcon from "../RefreshIcon";
+import TrashIcon from "../TrashIcon";
+import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
-import { getResults } from "../../services/results";
+import { getResults, deleteTestRun } from "../../services/results";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
@@ -11,6 +13,31 @@ const ResultsOverviewPage = () => {
   const [fetchResultsTrigger, setFetchResultsTrigger] = useState(0);
   const [results, setResults] = useState([]);
   const { setIsPending } = useContext(AppContext);
+
+  const handleDeleteTestRun = (id, name) => (e) => {
+    e.stopPropagation();
+
+    // eslint-disable-next-line no-alert
+    const isDeleteTestRun = window.confirm(
+      `Delete load test run, ${name} (${id})?`
+    );
+
+    if (isDeleteTestRun) {
+      setIsPending(true);
+
+      deleteTestRun(id)
+        .catch((err) => {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Unable to delete load test run, ${name} (${id})\n\n${err.message}`
+          );
+        })
+        .finally(() => {
+          setFetchResultsTrigger(Date.now());
+          setIsPending(false);
+        });
+    }
+  };
 
   useEffect(() => {
     setIsPending(true);
@@ -70,8 +97,8 @@ const ResultsOverviewPage = () => {
           }
 
           return (
-            <A href={`/results/${testId}`} key={testId} className="unset card">
-              <div>
+            <div key={testId} className="unset card">
+              <div className="resultsoverview-item-details">
                 <div>
                   <span className="card-key">Name:</span> {testName}
                 </div>
@@ -103,7 +130,29 @@ const ResultsOverviewPage = () => {
                   {totalFailedRequest}
                 </div>
               </div>
-            </A>
+              <div className="resultsoverview-item-options">
+                <A href={`/results/${testId}`}>
+                  <PencilIcon
+                    width="3em"
+                    fillColor="lightgrey"
+                    hoverColor="whitesmoke"
+                  />
+                </A>
+                <button
+                  className="unset deleterun"
+                  type="button"
+                  onClick={handleDeleteTestRun(testId, testName)}
+                  onKeyDown={handleDeleteTestRun(testId, testName)}
+                  aria-label="Delete Test Run"
+                >
+                  <TrashIcon
+                    width="2em"
+                    fillColor="lightgrey"
+                    hoverColor="whitesmoke"
+                  />
+                </button>
+              </div>
+            </div>
           );
         }
       )}

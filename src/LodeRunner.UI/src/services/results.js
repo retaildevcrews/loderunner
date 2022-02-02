@@ -1,4 +1,4 @@
-import { getApi } from "./utilities";
+import { getApi, deleteApi } from "./utilities";
 
 const getResults = async () => {
   const content = await getApi("testruns");
@@ -10,4 +10,6 @@ const getResultById = async (testRunId) => {
   return content || {};
 };
 
-export { getResults, getResultById };
+const deleteTestRun = deleteApi("testruns");
+
+export { getResults, getResultById, deleteTestRun };
