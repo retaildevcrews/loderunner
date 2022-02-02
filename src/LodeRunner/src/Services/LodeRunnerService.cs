@@ -199,7 +199,7 @@ namespace LodeRunner.Services
             this.clientStatus.Message = args.Message;
             this.clientStatus.Status = args.Status;
 
-            _ = await this.GetClientStatusService().PostUpdate(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
+            _ = await this.GetClientStatusService().Post(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
 
             // TODO : Add try catch and write log , then exit App?
         }
@@ -454,7 +454,7 @@ namespace LodeRunner.Services
             List<TestRun> testRuns = new ();
             try
             {
-                var polledRuns = await GetTestRunService().GetAvailableTestRunsByClientIdAsync(this.ClientStatusId);
+                var polledRuns = await GetTestRunService().GetNewTestRunsByClientId(this.ClientStatusId);
                 foreach (var item in polledRuns)
                 {
                     testRuns.Add((TestRun)item);

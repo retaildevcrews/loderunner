@@ -68,7 +68,7 @@ namespace LodeRunner.Services
         /// <returns>
         /// List of TestRuns to run on client.
         /// </returns>
-        public async Task<IEnumerable<TestRun>> GetAvailableTestRunsByClientIdAsync(string clientId)
+        public async Task<IEnumerable<TestRun>> GetNewTestRunsByClientId(string clientId)
         {
             string sql = $"SELECT * FROM e WHERE e.entityType='TestRun' ";
             sql += $"and array_contains(e.loadClients, {{ \"id\": \"{clientId}\"}}, true) ";
