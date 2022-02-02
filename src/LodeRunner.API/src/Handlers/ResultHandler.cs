@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -23,6 +23,21 @@ namespace LodeRunner.API.Middleware
 
         private const string DataRequest = "Data request.";
         private const string DataNotFound = "Requested data not found.";
+
+        // Microsoft.AspNetCore.Mvc
+        // OkObjectResult
+        // NoContentResult
+        // NotFoundResult
+        // CreatedResult
+        // BadRequestObjectResult
+        // private
+        // InternalServerError > Exception, CosmosException
+        // public
+        // GET > OkObjectResult, NoContent, InternalServerError
+        // GET by ID > OkObjectResult, NotFound, InternalServerError, BadRequestObject
+        // CREATE > CreatedResult, BadRequestObjectResult, InternalServerError
+        // UPDATE > NoContentResult, NotFoundResult, BadRequestObject, InternalServerError
+        // DELETE > NoContentResult, NotFoundResult, InternalServerError
 
         /// <summary>
         /// Creates the response for GET (all) methods.
@@ -69,6 +84,20 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
+        /// Creates the response for ServiceUnavailable.
+        /// Currently only handles Cancellation InProgress Result use case.
+        /// </summary>
+        /// <returns>JsonResult.</returns>
+        public static JsonResult CreateServiceUnavailableResponse()
+        {
+            return new JsonResult(new ErrorResult { Error = HttpStatusCode.ServiceUnavailable, Message = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}" })
+            {
+                StatusCode = (int)HttpStatusCode.ServiceUnavailable,
+                ContentType = JsonContentTypeApplicationJson,
+            };
+        }
+
+        /// <summary>
         /// Creates No Content Result.
         /// </summary>
         /// <returns>JsonResult.</returns>
@@ -108,16 +137,6 @@ namespace LodeRunner.API.Middleware
 
                 return res;
             });
-        }
-
-        /// <summary>
-        /// ContentResult factory.
-        /// Creates Cancellation InProgress Result.
-        /// </summary>
-        /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateCancellationInProgressResult()
-        {
-            return await CreateErrorResult($"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}", HttpStatusCode.ServiceUnavailable);
         }
 
         /// <summary>

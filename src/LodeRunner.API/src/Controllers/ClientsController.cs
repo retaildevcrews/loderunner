@@ -56,7 +56,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             var result = await clientStatusService.GetClients(Logger);
@@ -84,7 +84,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
