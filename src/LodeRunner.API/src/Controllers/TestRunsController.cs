@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
@@ -50,27 +50,21 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `TestRun` documents.", typeof(TestRun[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
-        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunsFound, typeof(TestRun[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.TestRunsNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetTestRuns)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of TestRun objects",
             Description = "Returns an array of `TestRun` documents",
             OperationId = "GetTestRuns")]
-        public async Task<ActionResult<IEnumerable<TestRun>>> GetTestRuns([FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<TestRun>>> GetTestRuns([FromServices] ITestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<TestRun> testRuns = (List<TestRun>)await testRunService.GetAll();
-            if (testRuns.Count == 0)
-            {
-                return await ResultHandler.CreateNoContent();
-            }
-
-            return await ResultHandler.CreateResult(testRuns, HttpStatusCode.OK);
+            return await ResultHandler.CreateGetResponse(testRunService.GetAll, Logger);
         }
 
         /// <summary>
@@ -93,7 +87,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
@@ -130,7 +124,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
@@ -174,7 +168,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             var existingTestRunResp = await testRunService.GetTestRun(testRunId);
@@ -246,7 +240,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             var canGetExistingTestRunResponse = await testRunService.GetTestRun(testRunId);

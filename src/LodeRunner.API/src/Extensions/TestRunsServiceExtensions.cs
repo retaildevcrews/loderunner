@@ -10,6 +10,7 @@ using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Responses;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 

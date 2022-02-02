@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 namespace LodeRunner.API
@@ -169,6 +169,21 @@ namespace LodeRunner.API
         public const string CategorySubCategoryStatic = "Static";
 
         /// <summary>
+        /// Found clients.
+        /// </summary>
+        public const string ClientsFound = "Array of `Client` documents.";
+
+        /// <summary>
+        /// No clients found.
+        /// </summary>
+        public const string ClientsNotFound = "No Clients found.";
+
+        /// <summary>
+        /// The unable to get clients.
+        /// </summary>
+        public const string UnableToGetClients = "Unable to get Clients.";
+
+        /// <summary>
         /// The client identifier cannot be empty.
         /// </summary>
         public const string ClientIdCannotBeEmpty = "ClientStatusId cannot be empty.";
@@ -177,6 +192,21 @@ namespace LodeRunner.API
         /// The invalid client status identifier.
         /// </summary>
         public const string InvalidClientStatusId = "Invalid Client Status Id.";
+
+        /// <summary>
+        /// Found load test configurations.
+        /// </summary>
+        public const string LoadTestConfigsFound = "Array of `LoadTestConfig` documents.";
+
+        /// <summary>
+        /// No load test configurations found.
+        /// </summary>
+        public const string LoadTestConfigsNotFound = "No LoadTestConfigs found.";
+
+        /// <summary>
+        /// The unable to get load test configurations.
+        /// </summary>
+        public const string UnableToGetLoadTestConfigs = "Unable to get LoadTestConfigs.";
 
         /// <summary>
         /// The invalid load identifier.
@@ -212,6 +242,21 @@ namespace LodeRunner.API
         /// String for unable to update load test configuration.
         /// </summary>
         public const string UnableToGetLoadTestConfig = "Load Test Config with specified id does not exist.";
+
+        /// <summary>
+        /// Found test runs.
+        /// </summary>
+        public const string TestRunsFound = "Array of `TestRun` documents.";
+
+        /// <summary>
+        /// No load test runs found.
+        /// </summary>
+        public const string TestRunsNotFound = "No Test Runs found.";
+
+        /// <summary>
+        /// The unable to get test runs.
+        /// </summary>
+        public const string UnableToGetTestRuns = "Unable to get Test Runs.";
 
         /// <summary>
         /// Invalid Payload data.
