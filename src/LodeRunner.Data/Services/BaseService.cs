@@ -144,28 +144,5 @@ namespace LodeRunner.Services
 
             return returnValue;
         }
-
-        /// <summary>
-        /// Creates the API response.
-        /// </summary>
-        /// <param name="returnValue">The return value.</param>
-        /// <returns>Api Response.</returns>
-        protected virtual async Task<ApiResponse<TEntity>> CreateApiResponse(Task<TEntity> returnValue)
-        {
-            ApiResponse<TEntity> result = new ();
-
-            if (!this.Validator.IsValid)
-            {
-                result.Errors = this.Validator.ErrorMessage;
-                result.StatusCode = HttpStatusCode.BadRequest;
-            }
-            else if (returnValue != null)
-            {
-                result.Model = await returnValue;
-                result.StatusCode = HttpStatusCode.OK;
-            }
-
-            return result;
-        }
     }
 }

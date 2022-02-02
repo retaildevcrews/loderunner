@@ -179,7 +179,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
 
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
-            Assert.Contains("Requested data not found.", gottenMessage);
+            Assert.Contains("Not Found", gottenMessage);
         }
     }
 }
