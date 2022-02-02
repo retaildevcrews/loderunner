@@ -194,6 +194,21 @@ namespace LodeRunner.API
         public const string InvalidClientStatusId = "Invalid Client Status Id.";
 
         /// <summary>
+        /// Found load test configurations.
+        /// </summary>
+        public const string LoadTestConfigsFound = "Array of `LoadTestConfig` documents.";
+
+        /// <summary>
+        /// No load test configurations found.
+        /// </summary>
+        public const string LoadTestConfigsNotFound = "No LoadTestConfigs found.";
+
+        /// <summary>
+        /// The unable to get load test configurations.
+        /// </summary>
+        public const string UnableToGetLoadTestConfigs = "Unable to get LoadTestConfigs.";
+
+        /// <summary>
         /// The invalid load identifier.
         /// </summary>
         public const string InvalidLoadTestConfigId = "Invalid Load Test Config Id.";

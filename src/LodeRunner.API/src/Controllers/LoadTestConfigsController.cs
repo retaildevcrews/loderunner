@@ -51,8 +51,9 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents.", typeof(LoadTestConfig[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.LoadTestConfigsFound, typeof(LoadTestConfig[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.LoadTestConfigsNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetLoadTestConfigs)]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of LoadTestConfig objects",
@@ -65,13 +66,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<LoadTestConfig> loadTestConfigs = (List<LoadTestConfig>)await loadTestConfigService.GetAll();
-            if (loadTestConfigs.Count == 0)
-            {
-                return await ResultHandler.CreateNoContent();
-            }
-
-            return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);
+            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetLoadTestConfigs, Logger);
         }
 
         /// <summary>

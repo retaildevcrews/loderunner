@@ -8,6 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 
@@ -18,6 +19,17 @@ namespace LodeRunner.API.Extensions
     /// </summary>
     public static class LoadTestConfigServiceExtensions
     {
+        /// <summary>
+        /// Gets all load test configurations.
+        /// </summary>
+        /// <param name="loadTestConfigService">The load test config service.</param>
+        /// <returns>The Task</returns>
+        public static async Task<IEnumerable<LoadTestConfig>> GetLoadTestConfigs(this ILoadTestConfigService loadTestConfigService)
+        {
+            // List of all clients
+            return (List<LoadTestConfig>)await loadTestConfigService.GetAll();
+        }
+
         /// <summary>
         /// Gets the LoadTestConfig by identifier.
         /// </summary>
