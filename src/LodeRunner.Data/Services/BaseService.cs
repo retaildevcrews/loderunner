@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 
@@ -18,7 +19,7 @@ namespace LodeRunner.Services
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public abstract class BaseService<TEntity> : IBaseService<TEntity>
-        where TEntity : class
+        where TEntity : BaseEntityModel
     {
         private readonly EntityType entityType = EntityType.Unassigned;
 
@@ -102,36 +103,46 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>The corresponding entity.</returns>
-        public virtual async Task<TEntity> Delete(string id)
+        public virtual async Task<HttpStatusCode> Delete(string id)
         {
-            return await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, this.entityType.ToString());
+            // TODO: Change to APIResponse type once merged with other branch of code.
+            var result = await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, this.entityType.ToString());
+            return result.StatusCode;
         }
 
         /// <summary>
-        /// Posts the specified entity.
+        /// Used to add data to the store.
         /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Created or Updated Entity.</returns>
-        public async Task<TEntity> Save(TEntity model, CancellationToken cancellationToken)
+        /// <param name="entityToCreate">New object.</param>
+        /// <param name="cancellationToken">So operation may be cancelled.</param>
+        /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
+        public virtual async Task<ApiResponse<TEntity>> Post(TEntity entityToCreate, CancellationToken cancellationToken)
         {
-           // var returnValue = new Task<TEntity>(() => null);
-            if (model != null && !cancellationToken.IsCancellationRequested)
+            var returnValue = new ApiResponse<TEntity>();
+
+            if (entityToCreate != null && !cancellationToken.IsCancellationRequested && this.CosmosDBRepository.IsCosmosDBReady)
             {
                 // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.CosmosDBRepository.IsCosmosDBReady().Result && this.Validator.ValidateEntity(model))
+                if (this.Validator.ValidateEntity(entityToCreate))
                 {
-                    return await this.CosmosDBRepository.UpsertDocumentAsync(model, cancellationToken);
+                    returnValue.Model = await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
+                    returnValue.StatusCode = HttpStatusCode.OK;
                 }
                 else
                 {
                     // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-
                     // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
+                    returnValue.Errors = this.Validator.ErrorMessage;
+                    returnValue.StatusCode = HttpStatusCode.BadRequest;
                 }
             }
+            else
+            {
+                returnValue.Errors += $"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}";
+                returnValue.StatusCode = HttpStatusCode.ServiceUnavailable;
+            }
 
-            return null;
+            return returnValue;
         }
 
         /// <summary>
@@ -139,7 +150,7 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="returnValue">The return value.</param>
         /// <returns>Api Response.</returns>
-        protected ApiResponse<TEntity> CreateApiResponse(TEntity returnValue)
+        protected virtual async Task<ApiResponse<TEntity>> CreateApiResponse(Task<TEntity> returnValue)
         {
             ApiResponse<TEntity> result = new ();
 
@@ -150,7 +161,7 @@ namespace LodeRunner.Services
             }
             else if (returnValue != null)
             {
-                result.Model = returnValue;
+                result.Model = await returnValue;
                 result.StatusCode = HttpStatusCode.OK;
             }
 

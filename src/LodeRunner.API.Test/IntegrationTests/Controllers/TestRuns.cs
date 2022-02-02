@@ -164,7 +164,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // TODO: When TestRun feature is completed, refactor to add deletion test
             // Save the completed time and update CosmosDB
             testRun.CompletedTime = DateTime.Now;
-            _ = await testRunSvc.Save(testRun, System.Threading.CancellationToken.None);
+            _ = await testRunSvc.Post(testRun, System.Threading.CancellationToken.None);
 
             // Try deleting the TestRun created, which should return NoContent
             response = await httpClient.DeleteTestRunById(TestRunsUri, testRun.Id, this.output);

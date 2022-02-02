@@ -30,49 +30,5 @@ namespace LodeRunner.Services
         {
             this.Validator = new LoadTestConfigValidator();
         }
-
-        /// <summary>
-        /// Posts the specified load test configuration.
-        /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted LoadTestConfig response.</returns>
-        public async Task<ApiResponse<LoadTestConfig>> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken)
-        {
-            var returnValue = await this.Save(loadTestConfig, cancellationToken);
-
-            return this.CreateApiResponse(returnValue);
-        }
-
-        /// <summary>
-        /// Gets the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The corresponding Entity.
-        /// </returns>
-        public new async Task<HttpStatusCode> Delete(string id)
-        {
-            try
-            {
-                var loadTestConfig = await base.Delete(id);
-                return HttpStatusCode.OK;
-            }
-            catch (CosmosException ce)
-            {
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return HttpStatusCode.NotFound;
-                }
-                else
-                {
-                    return HttpStatusCode.InternalServerError;
-                }
-            }
-            catch (Exception)
-            {
-                return HttpStatusCode.InternalServerError;
-            }
-        }
     }
 }
