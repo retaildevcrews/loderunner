@@ -75,14 +75,14 @@ You will need to have set the environment variables from the previous section [C
 |   1  | **YOUR_IP**           |  `export YOUR_IP=$(eval dig +short myip.opendns.com @resolver1.opendns.com)` |
 |   2  | **IPS_FOR_FIREWALL**  | `export IPS_FOR_FIREWALL=az cosmosdb show -g $CosmosDB_RG -n $CosmosDB_ACCT | jq -r '.ipRules | map(.ipAddressOrRange) | @csv' | tr -d '"'` |
 |   3  | Check if your IP already allowed. <br> **Skip to step 6 if your IP is in the list** highlighted in <font color=red>red</font> by default. If you **do not see your address** then you will need to add it by proceeding to step 5.           | `grep "$YOUR_IP" <<< "$IPS_FOR_FIREWALL"` |
-|  4 | Create **ALL_IPS** list | `export ALL_IPS="\"${IPS_FOR_FIREWALL},${YOUR_IP}\""` |
+|  4 | Create **ALL_IPS** list | `export IPS_FOR_FIREWALL=$(eval az cosmosdb show -g $CosmosDB_RG -n $CosmosDB_ACCT | jq -r '.ipRules | map(.ipAddressOrRange) | @csv' | tr -d '"')` |
 |  5    | Update the allowed IPs for CosmosDB | `az cosmosdb update -n $CosmosDB_ACCT -g $CosmosDB_RG --ip-range-filter $ALL_IPS` |
 
 The following block is all of the shell commands pulled together with a conditional to check if you're IP is already allowed.  If not it will add it.
 
 ```bash
 export YOUR_IP=$(eval dig +short myip.opendns.com @resolver1.opendns.com)
-export IPS_FOR_FIREWALL=az cosmosdb show -g $CosmosDB_RG -n $CosmosDB_ACCT | jq -r '.ipRules | map(.ipAddressOrRange) | @csv' | tr -d '"'
+export IPS_FOR_FIREWALL=$(eval az cosmosdb show -g $CosmosDB_RG -n $CosmosDB_ACCT | jq -r '.ipRules | map(.ipAddressOrRange) | @csv' | tr -d '"')
 export ALL_IPS="\"${IPS_FOR_FIREWALL},${YOUR_IP}\""
 if [[ $IPS_FOR_FIREWALL != *$YOUR_IP* ]]; then
    echo "Your IP was not found. Adding to CosmosDB firewall..."
