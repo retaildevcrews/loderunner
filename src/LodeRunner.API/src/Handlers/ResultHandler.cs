@@ -24,21 +24,6 @@ namespace LodeRunner.API.Middleware
         private const string DataRequest = "Data request.";
         private const string DataNotFound = "Requested data not found.";
 
-        // Microsoft.AspNetCore.Mvc
-        // OkObjectResult
-        // NoContentResult
-        // NotFoundResult
-        // CreatedResult
-        // BadRequestObjectResult
-        // private
-        // InternalServerError > Exception, CosmosException
-        // public
-        // GET > OkObjectResult, NoContent, InternalServerError
-        // GET by ID > OkObjectResult, NotFound, InternalServerError, BadRequestObject
-        // CREATE > CreatedResult, BadRequestObjectResult, InternalServerError
-        // UPDATE > NoContentResult, NotFoundResult, BadRequestObject, InternalServerError
-        // DELETE > NoContentResult, NotFoundResult, InternalServerError
-
         /// <summary>
         /// Creates the response for GET (all) methods.
         /// </summary>

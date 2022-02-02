@@ -17,25 +17,6 @@ namespace LodeRunner.API.Extensions
     public static class ClientStatusServiceExtensions
     {
         /// <summary>
-        /// Gets all clients.
-        /// </summary>
-        /// <param name="clientStatusService">The client status service.</param>
-        /// <returns>The Task</returns>
-        public static async Task<IEnumerable<Client>> GetClients(this IClientStatusService clientStatusService)
-        {
-            List<Client> result = new ();
-
-            // List of all clients
-            var clients = await clientStatusService.GetAll();
-            foreach (var item in clients)
-            {
-                result.Add(new Client(item));
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Gets the client by identifier.
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>

@@ -20,17 +20,6 @@ namespace LodeRunner.API.Extensions
     public static class LoadTestConfigServiceExtensions
     {
         /// <summary>
-        /// Gets all load test configurations.
-        /// </summary>
-        /// <param name="loadTestConfigService">The load test config service.</param>
-        /// <returns>The Task</returns>
-        public static async Task<IEnumerable<LoadTestConfig>> GetLoadTestConfigs(this ILoadTestConfigService loadTestConfigService)
-        {
-            // List of all clients
-            return (List<LoadTestConfig>)await loadTestConfigService.GetAll();
-        }
-
-        /// <summary>
         /// Gets the LoadTestConfig by identifier.
         /// </summary>
         /// <param name="loadTestConfigService">The test run service.</param>

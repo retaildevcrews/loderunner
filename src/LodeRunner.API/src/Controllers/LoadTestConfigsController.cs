@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -66,7 +66,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetLoadTestConfigs, Logger);
+            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetAll, Logger);
         }
 
         /// <summary>
