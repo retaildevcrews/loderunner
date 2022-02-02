@@ -28,7 +28,7 @@ namespace LodeRunner.API.Middleware
         /// Creates the response for GET (all) methods.
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <param name="getResult">Gets results from data storage.</param>
+        /// <param name="getResult">Async task to retrieve results from data storage.</param>
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
