@@ -198,6 +198,7 @@ namespace LodeRunner.API.Controllers
             return deleteTaskResult switch
             {
                 HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
+                HttpStatusCode.NoContent => await ResultHandler.CreateNoContent(),
                 HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound),
                 _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
             };
