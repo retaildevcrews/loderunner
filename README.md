@@ -38,7 +38,7 @@
    - Set Command to Get CosmosDB Key with Read-Write permissions
      - Log Into Azure: `az login --use-device-code`
      - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
-     - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-dev-cosmos -g ngsa-dev-shared-rg --query primaryMasterKey -o tsv)`
+     - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv)`
 5. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
 6. Start the k3d cluster `make create`
 7. Deploy pods
