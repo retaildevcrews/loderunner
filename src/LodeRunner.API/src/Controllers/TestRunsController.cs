@@ -50,27 +50,21 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `TestRun` documents.", typeof(TestRun[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
-        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunsFound, typeof(TestRun[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.TestRunsNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetTestRuns)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of TestRun objects",
             Description = "Returns an array of `TestRun` documents",
             OperationId = "GetTestRuns")]
-        public async Task<ActionResult<IEnumerable<TestRun>>> GetTestRuns([FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<TestRun>>> GetTestRuns([FromServices] ITestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<TestRun> testRuns = (List<TestRun>)await testRunService.GetAll();
-            if (testRuns.Count == 0)
-            {
-                return await ResultHandler.CreateNoContent();
-            }
-
-            return await ResultHandler.CreateResult(testRuns, HttpStatusCode.OK);
+            return await ResultHandler.CreateGetResponse(testRunService.GetTestRuns, Logger);
         }
 
         /// <summary>

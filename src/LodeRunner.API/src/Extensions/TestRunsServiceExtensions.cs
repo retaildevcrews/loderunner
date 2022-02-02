@@ -10,6 +10,7 @@ using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Responses;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 
@@ -17,6 +18,17 @@ namespace LodeRunner.API.Extensions
 {
     public static class TestRunsServiceExtensions
     {
+        /// <summary>
+        /// Gets all test runs.
+        /// </summary>
+        /// <param name="testRunService">The test run service.</param>
+        /// <returns>The Task</returns>
+        public static async Task<IEnumerable<TestRun>> GetTestRuns(this ITestRunService testRunService)
+        {
+            // List of all test runs
+            return (List<TestRun>)await testRunService.GetAll();
+        }
+
         /// <summary>
         /// Gets TestRunId.
         /// </summary>

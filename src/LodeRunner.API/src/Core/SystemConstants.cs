@@ -244,6 +244,21 @@ namespace LodeRunner.API
         public const string UnableToGetLoadTestConfig = "Load Test Config with specified id does not exist.";
 
         /// <summary>
+        /// Found test runs.
+        /// </summary>
+        public const string TestRunsFound = "Array of `TestRun` documents.";
+
+        /// <summary>
+        /// No load test runs found.
+        /// </summary>
+        public const string TestRunsNotFound = "No Test Runs found.";
+
+        /// <summary>
+        /// The unable to get test runs.
+        /// </summary>
+        public const string UnableToGetTestRuns = "Unable to get Test Runs.";
+
+        /// <summary>
         /// Invalid Payload data.
         /// </summary>
         public const string InvalidPayloadData = "Invalid Payload data.";
