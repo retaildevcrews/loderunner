@@ -152,12 +152,13 @@ namespace LodeRunner.Core.NgsaLogger
             if (logLevel >= LogLevel.Error)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine(JsonSerializer.Serialize(d));
+
+                Console.Error.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(d));
             }
             else
             {
                 Console.ForegroundColor = logLevel == LogLevel.Warning ? ConsoleColor.Yellow : Console.ForegroundColor;
-                Console.WriteLine(JsonSerializer.Serialize(d));
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(d));
             }
 
             Console.ResetColor();
