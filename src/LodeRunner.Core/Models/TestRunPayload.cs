@@ -45,6 +45,7 @@ namespace LodeRunner.Core.Models
 
         /// <summary>
         /// Gets or sets the CreatedTime.
+        /// It refers to the creation time of this TestRun.
         /// </summary>
         /// <value>
         /// The CreatedTime.
@@ -53,6 +54,7 @@ namespace LodeRunner.Core.Models
 
         /// <summary>
         /// Gets or sets the StartTime.
+        /// It refers to the time the TestRun is scheduled to execute.
         /// </summary>
         /// <value>
         /// The StartTime.

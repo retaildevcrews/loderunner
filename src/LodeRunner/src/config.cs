@@ -22,6 +22,11 @@ namespace LodeRunner
         public int StatusUpdateInterval { get; set; } = 5;
 
         /// <summary>
+        /// gets or sets the polling test run interval in seconds.
+        /// </summary>
+        public int PollingInterval { get; set; } = 10;
+
+        /// <summary>
         /// gets or sets the server / url.
         /// </summary>
         public List<string> Server { get; set; }

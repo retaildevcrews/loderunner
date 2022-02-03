@@ -120,6 +120,8 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 
 `Table 05: LoadTestConfig Properties`
 
+#### 2.3.2 LoadTestConfig Payload
+
 This object is utilized as the Load Test Config payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating Load Test Configs and helps to identify deltas during payload deserialization.
 
 | Property        |    Type    | Description             | Required  | Notes      |
@@ -141,6 +143,8 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
 
 `Table 06: LoadTestConfig Payload Properties`
+
+#### 2.3.3 TestRun Properties
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|

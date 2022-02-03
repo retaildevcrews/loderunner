@@ -23,12 +23,12 @@ namespace LodeRunner.API.Test.IntegrationTests
             loadTestConfig.StrictJson = true;
             loadTestConfig.BaseURL = "SampleBaseURL";
             loadTestConfig.VerboseErrors = true;
-            loadTestConfig.Randomize = true;
+            loadTestConfig.Randomize = false;
             loadTestConfig.Timeout = 10;
             loadTestConfig.Server = new List<string>() { "www.yourprimaryserver.com", "www.yoursecondaryserver.com" };
             loadTestConfig.Tag = "Sample Tag";
             loadTestConfig.Sleep = 5;
-            loadTestConfig.RunLoop = true;
+            loadTestConfig.RunLoop = false;
             loadTestConfig.Duration = 60;
             loadTestConfig.MaxErrors = 10;
             loadTestConfig.DelayStart = 5;

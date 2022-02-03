@@ -15,14 +15,6 @@ namespace LodeRunner.Data.Interfaces
     public interface IClientStatusService : IBaseService<ClientStatus>
     {
         /// <summary>
-        /// Posts the update.
-        /// </summary>
-        /// <param name="clientStatus">The ClientStatus entity.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Updated clientStatus entity.</returns>
-        Task<ClientStatus> PostUpdate(ClientStatus clientStatus, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Terminates the service.
         /// </summary>
         /// <param name="clientStatus">The ClientStatus entity.</param>

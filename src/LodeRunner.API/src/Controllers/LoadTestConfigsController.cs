@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -48,8 +48,9 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `LoadTestConfig` documents.", typeof(LoadTestConfig[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.LoadTestConfigsFound, typeof(LoadTestConfig[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.LoadTestConfigsNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetLoadTestConfigs)]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of LoadTestConfig objects",
@@ -59,16 +60,10 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<LoadTestConfig> loadTestConfigs = (List<LoadTestConfig>)await loadTestConfigService.GetAll();
-            if (loadTestConfigs.Count == 0)
-            {
-                return await ResultHandler.CreateNoContent();
-            }
-
-            return await ResultHandler.CreateResult(loadTestConfigs, HttpStatusCode.OK);
+            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetAll, logger);
         }
 
         /// <summary>
@@ -91,7 +86,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
@@ -128,7 +123,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
@@ -178,7 +173,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
@@ -195,6 +190,7 @@ namespace LodeRunner.API.Controllers
             return deleteTaskResult switch
             {
                 HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
+                HttpStatusCode.NoContent => await ResultHandler.CreateNoContent(),
                 HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.NotFoundLoadTestConfig, HttpStatusCode.NotFound),
                 _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
             };
@@ -234,7 +230,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             // First get the object for verification

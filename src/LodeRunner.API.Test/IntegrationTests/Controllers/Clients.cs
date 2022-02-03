@@ -95,6 +95,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         [Trait("Category", "Integration")]
         public async Task CanGetClients()
         {
+            string action = "GET all Clients";
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
             using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanGetClients));
             string clientStatusId = l8rService.ClientStatusId;
@@ -103,20 +104,21 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId from LodeRunner (client mode) service.");
 
-            HttpResponseMessage httpResponse = await httpClient.GetAsync($"{ClientsUri}");
+            HttpResponseMessage httpResponse = await httpClient.GetRetryAsync(ClientsUri, action, this.output, 5);
 
             if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NoContent)
             {
-                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all Client\tResponse StatusCode: '{httpResponse.StatusCode}'");
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tResponse StatusCode: '{httpResponse.StatusCode}'");
             }
             else
             {
-                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all Client\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
             }
+
+            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
             List<Client> clients = await httpResponse.Content.ReadFromJsonAsync<List<Client>>(this.jsonOptions);
 
-            Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
             Assert.NotEmpty(clients);
 
             // TODO: Test for not found clients
@@ -138,7 +140,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId from LodeRunner (client mode) service.");
 
-            (HttpStatusCode readyStatusCode, Client readyClient) = httpClient.GetClientByIdRetries(ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
+            (HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
             Assert.Equal(HttpStatusCode.OK, readyStatusCode);
             Assert.NotNull(readyClient);
@@ -147,7 +149,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             l8rService.StopService();
             this.output.WriteLine($"Stopping LodeRunner (client mode) [ClientStatusId: {clientStatusId}]");
 
-            (HttpStatusCode terminatingStatusCode, Client terminatingClient) = httpClient.GetClientByIdRetries(ClientsUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
+            (HttpStatusCode terminatingStatusCode, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(ClientsUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
 
             Assert.Equal(HttpStatusCode.OK, terminatingStatusCode);
             Assert.NotNull(terminatingClient);

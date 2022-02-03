@@ -34,6 +34,17 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
+        /// Get TestRun Service Single using the WebApp factory.
+        /// </summary>
+        /// <param name="apiWebFactory">The API web factory.</param>
+        /// <returns>the HttpClient.</returns>
+        public static TestRunService GetTestRunService(ApiWebApplicationFactory<Startup> apiWebFactory)
+        {
+            var svc = apiWebFactory.Services.GetService(typeof(TestRunService)) as TestRunService;
+            return svc;
+        }
+
+        /// <summary>
         /// CreateAndStartLodeRunnerService Instance.
         /// </summary>
         /// <param name="callerName">The caller Name.</param>

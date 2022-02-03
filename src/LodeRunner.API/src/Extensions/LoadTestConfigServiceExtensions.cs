@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.Core.Models;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;

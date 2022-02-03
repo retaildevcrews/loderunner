@@ -16,19 +16,5 @@ namespace LodeRunner.Data.Interfaces
     /// </summary>
     public interface ILoadTestConfigService : IBaseService<LoadTestConfig>
     {
-        /// <summary>
-        /// Posts the specified load test configuration.
-        /// </summary>
-        /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Inserted LoadTestConfig entity.</returns>
-        Task<ApiResponse<LoadTestConfig>> Post(LoadTestConfig loadTestConfig, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Deletes the specified identifier.
-        /// </summary>
-        /// <param name="id">The identifier to delete.</param>
-        /// <returns>The delete request status code.</returns>
-        Task<HttpStatusCode> Delete(string id);
     }
 }

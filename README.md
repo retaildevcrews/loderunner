@@ -11,6 +11,8 @@
 - Bash shell
   - Tested on: Visual Studio Codespaces, Mac, Ubuntu, Windows with WSL2)
   - Not supported: WSL1 or Cloud Shell
+- jq: `sudo apt-get install jq`
+- tr: `sudo apt-get install translate`
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Docker CLI ([download](https://docs.docker.com/install/))
 - .NET 5.0 ([download](https://docs.microsoft.com/en-us/dotnet/core/install/))
@@ -31,12 +33,12 @@
 4. Set environmental variables with CosmosDB values for K8S generic secret
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
    - Set CosmosDB Collection: `export LR_COL=LodeRunner`
-   - Set CosmosDB URL: `export LR_URL=https://ngsa-dev-cosmos.documents.azure.com:443/`
+   - Set CosmosDB URL: `export LR_URL=https://ngsa-asb-dev-cosmos.documents.azure.com:443/`
    - Add Your IP Address To CosmosDB Firewall Allow List: [LodeRunner.Data](./src/LodeRunner.Data/README.md#solution)
    - Set Command to Get CosmosDB Key with Read-Write permissions
      - Log Into Azure: `az login --use-device-code`
      - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
-     - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-dev-cosmos -g ngsa-dev-shared-rg --query primaryMasterKey -o tsv)`
+     - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv)`
 5. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
 6. Start the k3d cluster `make create`
 7. Deploy pods

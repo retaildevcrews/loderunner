@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -14,44 +15,6 @@ namespace LodeRunner.API.Extensions
 {
     public static class ClientStatusServiceExtensions
     {
-        /// <summary>
-        /// Gets all clients.
-        /// </summary>
-        /// <param name="clientStatusService">The client status service.</param>
-        /// <param name="logger">The logger.</param>
-        /// <returns>The Task</returns>
-        public static async Task<List<Client>> GetClients(this ClientStatusService clientStatusService, ILogger logger)
-        {
-            List<Client> result = new ();
-            try
-            {
-                // client statuses
-                var clientStatusList = await clientStatusService.GetAll();
-                foreach (var item in clientStatusList)
-                {
-                    result.Add(new Client(item));
-                }
-            }
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    logger.LogWarning(new EventId((int)ce.StatusCode, nameof(GetClients)), $"Clients {SystemConstants.NotFoundError}");
-                }
-                else
-                {
-                    throw new Exception($"{nameof(GetClients)}: {ce.Message}", ce);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{nameof(GetClients)}: {ex.Message}", ex);
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// Gets the client by identifier.
         /// </summary>

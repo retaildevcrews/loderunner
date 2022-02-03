@@ -2,8 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Models;
+using LodeRunner.Core.Responses;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -41,11 +44,20 @@ namespace LodeRunner.Data.Interfaces
         Task<int> GetCount();
 
         /// <summary>
-        /// Posts the specified entity.
+        /// Posts the update.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="entity">The object to add to the database.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The Created or Updated Entity.</returns>
-        Task<TEntity> Save(TEntity model, CancellationToken cancellationToken);
+        /// <returns>The Updated clientStatus entity.</returns>
+        Task<ApiResponse<TEntity>> Post(TEntity entity, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The corresponding Entity.
+        /// </returns>
+        Task<HttpStatusCode> Delete(string id);
     }
 }

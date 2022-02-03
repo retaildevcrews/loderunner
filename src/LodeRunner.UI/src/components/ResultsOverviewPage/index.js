@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { A } from "hookrouter";
 import RefreshIcon from "../RefreshIcon";
+import TrashIcon from "../TrashIcon";
+import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
-import { getResults } from "../../services/results";
+import { getResults, deleteTestRun } from "../../services/results";
 import getMMMDYYYYhmma from "../../utilities/datetime";
-import { CLIENT, RESULT, TEST_RUN, CONFIG } from "../../models";
+import { RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
 
 const ResultsOverviewPage = () => {
@@ -12,88 +14,36 @@ const ResultsOverviewPage = () => {
   const [results, setResults] = useState([]);
   const { setIsPending } = useContext(AppContext);
 
+  const handleDeleteTestRun = (id, name) => (e) => {
+    e.stopPropagation();
+
+    // eslint-disable-next-line no-alert
+    const isDeleteTestRun = window.confirm(
+      `Delete load test run, ${name} (${id})?`
+    );
+
+    if (isDeleteTestRun) {
+      setIsPending(true);
+
+      deleteTestRun(id)
+        .catch((err) => {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Unable to delete load test run, ${name} (${id})\n\n${err.message}`
+          );
+        })
+        .finally(() => {
+          setFetchResultsTrigger(Date.now());
+          setIsPending(false);
+        });
+    }
+  };
+
   useEffect(() => {
     setIsPending(true);
     getResults()
       .then((r) => setResults(r))
-      .catch(() => {
-        setResults([
-          {
-            [TEST_RUN.id]: "001",
-            [TEST_RUN.name]: "Test Run 1",
-            [TEST_RUN.config]: {
-              [CONFIG.baseUrl]: "",
-              [CONFIG.dryRun]: false,
-              [CONFIG.duration]: 3000,
-              [CONFIG.files]: ["file001", "file002"],
-              [CONFIG.id]: "config-001",
-              [CONFIG.name]: "Config 1",
-              [CONFIG.maxErrors]: 10,
-              [CONFIG.strictJson]: true,
-              [CONFIG.verbose]: true,
-              [CONFIG.verboseErrors]: true,
-              [CONFIG.randomize]: false,
-              [CONFIG.runLoop]: false,
-              [CONFIG.servers]: ["server001", "server002"],
-              [CONFIG.sleep]: 0,
-              [CONFIG.tag]: "",
-              [CONFIG.timeout]: 1000,
-            },
-            [RESULT.client]: {
-              [CLIENT.loadClientId]: "001",
-              [CLIENT.name]: "Load Client 1",
-              [CLIENT.prometheus]: true,
-              [CLIENT.region]: "dev",
-              [CLIENT.tag]: "tag-001",
-              [CLIENT.version]: "verion-001",
-              [CLIENT.zone]: "dev",
-            },
-            [TEST_RUN.createdTime]: new Date("2021-01-01 9:00:00"),
-            [TEST_RUN.scheduledStartTime]: new Date("2021-01-02 9:00:00"),
-            [TEST_RUN.totalCompletionTime]: new Date("2021-01-02 10:30:00"),
-            [RESULT.requestCount]: 100,
-            [RESULT.successfulRequestCount]: 95,
-            [RESULT.failedRequestCount]: 5,
-          },
-          {
-            [TEST_RUN.id]: "002",
-            [TEST_RUN.name]: "Test Run 2",
-            [TEST_RUN.config]: {
-              [CONFIG.baseUrl]: "base-url-002",
-              [CONFIG.dryRun]: true,
-              [CONFIG.duration]: 3000,
-              [CONFIG.files]: ["file001", "file002"],
-              [CONFIG.id]: "config-002",
-              [CONFIG.name]: "Config 2",
-              [CONFIG.maxErrors]: 10,
-              [CONFIG.strictJson]: false,
-              [CONFIG.verbose]: false,
-              [CONFIG.verboseErrors]: false,
-              [CONFIG.randomize]: true,
-              [CONFIG.runLoop]: true,
-              [CONFIG.servers]: ["server001", "server002"],
-              [CONFIG.sleep]: 10,
-              [CONFIG.tag]: "tag-002",
-              [CONFIG.timeout]: 1000,
-            },
-            [RESULT.client]: {
-              [CLIENT.loadClientId]: "002",
-              [CLIENT.name]: "Load Client 2",
-              [CLIENT.prometheus]: false,
-              [CLIENT.region]: "dev",
-              [CLIENT.tag]: "",
-              [CLIENT.version]: "version-002",
-              [CLIENT.zone]: "dev",
-            },
-            [TEST_RUN.createdTime]: new Date("2021-01-02 9:00:00"),
-            [TEST_RUN.scheduledStartTime]: new Date("2021-01-03 9:00:00"),
-            [TEST_RUN.totalCompletionTime]: new Date("2021-01-03 10:30:00"),
-            [RESULT.requestCount]: 100,
-            [RESULT.successfulRequestCount]: 95,
-            [RESULT.failedRequestCount]: 5,
-          },
-        ]);
-      })
+      .catch(() => setResults([]))
       .finally(() => setIsPending(false));
   }, [fetchResultsTrigger]);
 
@@ -119,45 +69,92 @@ const ResultsOverviewPage = () => {
         ({
           [TEST_RUN.id]: testId,
           [TEST_RUN.name]: testName,
-          [TEST_RUN.createdTime]: testCreatedTime,
-          [TEST_RUN.scheduledStartTime]: testScheduledStartTime,
-          [TEST_RUN.totalCompletionTime]: testTotalCompletionTime,
-          [RESULT.requestCount]: testRequestCount,
-          [RESULT.successfulRequestCount]: testSuccessfulRequestCount,
-          [RESULT.failedRequestCount]: testFailedRequestCount,
-        }) => (
-          <A href={`/results/${testId}`} key={testId} className="unset card">
-            <div>
-              <div>
-                <span className="card-key">Name:</span> {testName}
+          [TEST_RUN.createdTime]: createdTime,
+          [TEST_RUN.scheduledStartTime]: scheduledStartTime,
+          [TEST_RUN.finalCompletionTime]: finalCompletionTime,
+          [TEST_RUN.results]: clientResults,
+        }) => {
+          let [totalRequest, totalSuccessfulRequest, totalFailedRequest] =
+            Array(3).fill("--");
+
+          if (clientResults.length > 0) {
+            [totalRequest, totalSuccessfulRequest, totalFailedRequest] =
+              clientResults.reduce(
+                (
+                  [aggTotal, aggSuccess, aggFail],
+                  {
+                    [RESULT.requestCount]: total,
+                    [RESULT.successfulRequestCount]: success,
+                    [RESULT.failedRequestCount]: fail,
+                  }
+                ) => [aggTotal + total, aggSuccess + success, aggFail + fail],
+                [0, 0, 0]
+              );
+
+            totalRequest = totalRequest.toString();
+            totalSuccessfulRequest = totalSuccessfulRequest.toString();
+            totalFailedRequest = totalFailedRequest.toString();
+          }
+
+          return (
+            <div key={testId} className="unset card">
+              <div className="resultsoverview-item-details">
+                <div>
+                  <span className="card-key">Name:</span> {testName}
+                </div>
+                <div>
+                  <span className="card-key">Creation Time:</span>&nbsp;
+                  {getMMMDYYYYhmma(createdTime)}
+                </div>
+                <div>
+                  <span className="card-key">Scheduled Start Time:</span>&nbsp;
+                  {getMMMDYYYYhmma(scheduledStartTime)}
+                </div>
+                <div>
+                  <span className="card-key">Final Completion Time:</span>&nbsp;
+                  {getMMMDYYYYhmma(finalCompletionTime) || "--"}
+                </div>
               </div>
-              <div>
-                <span className="card-key">Creation Time:</span>&nbsp;
-                {getMMMDYYYYhmma(testCreatedTime)}
+              <div className="resultsoverview-item-counts">
+                <div>
+                  <span className="card-key">Request Count:</span>&nbsp;
+                  {totalRequest}
+                </div>
+                <div>
+                  <span className="card-key">Successful Request Count:</span>
+                  &nbsp;
+                  {totalSuccessfulRequest}
+                </div>
+                <div>
+                  <span className="card-key">Failed Request Count:</span>&nbsp;
+                  {totalFailedRequest}
+                </div>
               </div>
-              <div>
-                <span className="card-key">Scheduled Start Time:</span>&nbsp;
-                {getMMMDYYYYhmma(testScheduledStartTime)}
-              </div>
-              <div>
-                <span className="card-key">Completion Time:</span>&nbsp;
-                {getMMMDYYYYhmma(testTotalCompletionTime)}
+              <div className="resultsoverview-item-options">
+                <A href={`/results/${testId}`}>
+                  <PencilIcon
+                    width="3em"
+                    fillColor="lightgrey"
+                    hoverColor="whitesmoke"
+                  />
+                </A>
+                <button
+                  className="unset deleterun"
+                  type="button"
+                  onClick={handleDeleteTestRun(testId, testName)}
+                  onKeyDown={handleDeleteTestRun(testId, testName)}
+                  aria-label="Delete Test Run"
+                >
+                  <TrashIcon
+                    width="2em"
+                    fillColor="lightgrey"
+                    hoverColor="whitesmoke"
+                  />
+                </button>
               </div>
             </div>
-            <div>
-              <span className="card-key">Request Count:</span>&nbsp;
-              {testRequestCount}
-            </div>
-            <div>
-              <span className="card-key">Successful Request Count:</span>&nbsp;
-              {testSuccessfulRequestCount}
-            </div>
-            <div>
-              <span className="card-key">Failed Request Count:</span>&nbsp;
-              {testFailedRequestCount}
-            </div>
-          </A>
-        )
+          );
+        }
       )}
     </div>
   );

@@ -10,6 +10,7 @@ using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
+using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -43,23 +44,22 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Array of `Client` documents.", typeof(Client[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, "`Data not found.`", null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.ClientsFound, typeof(Client[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.ClientsNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetClients)]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of Client objects",
             Description = "Returns an array of `Client` documents",
             OperationId = "GetClients")]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<IEnumerable<Client>>> GetClients([FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var result = await clientStatusService.GetClients(logger);
-
-            return await ResultHandler.HandleResult(result, logger);
+            return await ResultHandler.CreateGetResponse(clientStatusService.GetAll, logger);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace LodeRunner.API.Controllers
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
-                return await ResultHandler.CreateCancellationInProgressResult();
+                return ResultHandler.CreateServiceUnavailableResponse();
             }
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);

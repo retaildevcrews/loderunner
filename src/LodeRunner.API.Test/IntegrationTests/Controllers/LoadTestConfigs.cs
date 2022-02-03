@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using LodeRunner.API.Test.IntegrationTests.AutoMapper;
+using LodeRunner.Core.Automapper;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;

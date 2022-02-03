@@ -30,6 +30,8 @@ namespace LodeRunner.Data
         private Container container;
         private ContainerProperties containerProperties;
         private PropertyInfo partitionKeyPI;
+        private bool cosmosIsReady = false;
+        private bool cosmosCheckCompleted = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDBRepository"/> class.
@@ -50,6 +52,30 @@ namespace LodeRunner.Data
             if (!this.CreateClient().Result)
             {
                 throw new ApplicationException($"Repository test for {this.Id} failed.");
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the CosmosDB connection is ready for use or not.
+        /// </summary>
+        public bool IsCosmosDBReady
+        {
+            get
+            {
+                if (!this.cosmosCheckCompleted)
+                {
+                    try
+                    {
+                        this.cosmosIsReady = this.CosmosDBReadyCheck().GetAwaiter().GetResult();
+                        this.cosmosCheckCompleted = true;
+                    }
+                    catch
+                    {
+                        this.cosmosCheckCompleted = false;
+                    }
+                }
+
+                return this.cosmosIsReady;
             }
         }
 
@@ -201,7 +227,7 @@ namespace LodeRunner.Data
         /// <param name="id">The identifier.</param>
         /// <param name="partitionKey">The partition key.</param>
         /// <returns>An instance of the document or null.</returns>
-        public async Task<TEntity> DeleteDocumentAsync<TEntity>(string id, string partitionKey)
+        public async Task<ItemResponse<TEntity>> DeleteDocumentAsync<TEntity>(string id, string partitionKey)
         {
             return await this.Container<TEntity>().DeleteItemAsync<TEntity>(id, new PartitionKey(partitionKey)).ConfigureAwait(false);
         }
@@ -339,12 +365,12 @@ namespace LodeRunner.Data
         }
 
         /// <summary>
-        /// Determines whether [is cosmos database ready].
+        /// Determines whether the CosmosDB connection is ready to use.
         /// </summary>
         /// <returns>
-        /// True is Cosmos DB has not exceeded the number of request units per second, otherwise false.
+        /// True indicates that the connections has been made and the  database is accessible.
         /// </returns>
-        public async Task<bool> IsCosmosDBReady()
+        public async Task<bool> CosmosDBReadyCheck()
         {
             Database database = this.Client.GetDatabase(this.settings.DatabaseName);
             DatabaseResponse response = await database.ReadAsync();
