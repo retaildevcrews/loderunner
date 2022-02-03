@@ -45,9 +45,9 @@ namespace LodeRunner.Services
         /// <param name="logger">The logger.</param>
         public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
-            this.logger = logger;
+            Debug.WriteLine("* LodeRunnerService Constructor *");
 
-            this.logger.LogDebug("* LodeRunnerService Constructor *");
+            this.logger = logger;
 
             this.config = config ?? throw new Exception("CommandOptions is null");
 
@@ -181,7 +181,7 @@ namespace LodeRunner.Services
         {
             // TODO Move to proper location when merging with DAL
 
-            this.logger.LogInformation($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
+            Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
         }
 
         /// <summary>
@@ -229,9 +229,7 @@ namespace LodeRunner.Services
         {
             if (this.config.DelayStart > 0)
             {
-                this.logger.LogInformation($"Waiting {this.config.DelayStart} seconds to start test ...");
-
-                // TODO fix LogStatusChange implementation
+                Console.WriteLine($"Waiting {this.config.DelayStart} seconds to start test ...\n");
 
                 // wait to start the test run
                 await Task.Delay(this.config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);

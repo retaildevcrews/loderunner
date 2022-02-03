@@ -147,7 +147,7 @@ namespace LodeRunner
         {
             if (config == null)
             {
-                this.logger.LogError("RunOnce:Config is null");
+                Console.WriteLine("RunOnce:Config is null");
                 return Core.SystemConstants.ExitFail;
             }
 
@@ -164,7 +164,8 @@ namespace LodeRunner
                 {
                     if (ndx > 0)
                     {
-                        Console.WriteLine(); // TODO: do we need to write empty lines to console?
+                        // Note: We are separating console output.
+                        Console.WriteLine();
                         errorCount = 0;
                         validationFailureCount = 0;
                     }
@@ -230,19 +231,19 @@ namespace LodeRunner
                 // log validation failure count
                 if (validationFailureCount > 0)
                 {
-                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Validation Errors: {validationFailureCount}");
+                    Console.WriteLine($"Validation Errors: {validationFailureCount}");
                 }
 
                 // log error count
                 if (errorCount > 0)
                 {
-                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Failed: {errorCount} Errors");
+                    Console.WriteLine($"Failed: {errorCount} Errors");
                 }
 
                 // log MaxErrors exceeded
                 if (errorCount + validationFailureCount >= config.MaxErrors)
                 {
-                    this.logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Validation, nameof(RunOnce)), $"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
+                    Console.Write($"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
                 }
             }
 

@@ -16,8 +16,8 @@ namespace LodeRunner
     /// </summary>
     internal class TimerRequestState : IDisposable
     {
-        private readonly ILogger logger;
         private static Semaphore loopController;
+        private readonly ILogger logger;
         private System.Timers.Timer timer;
         private bool disposedValue;
 
@@ -139,7 +139,7 @@ namespace LodeRunner
             // verify http client
             if (this.Client == null)
             {
-                this.logger.LogError($"{ValidationTest.Now}\tError\tTimerState http client is null");
+                Console.WriteLine($"{ValidationTest.Now}\tError\tTimerState http client is null");
                 return;
             }
 

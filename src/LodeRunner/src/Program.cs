@@ -7,14 +7,14 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Core.NgsaLogger;
-using LodeRunner.Extensions;
 using LodeRunner.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +38,11 @@ namespace LodeRunner
         /// Gets cancellation token.
         /// </summary>
         private static readonly CancellationTokenSource CancelTokenSource = new ();
+
+        /// <summary>
+        /// The project name.
+        /// </summary>
+        private static readonly string ProjectName = Assembly.GetCallingAssembly().GetName().Name;
 
         /// <summary>
         /// Gets or sets json serialization options.
@@ -81,7 +86,7 @@ namespace LodeRunner
         {
             if (config == null)
             {
-                // Logger has not been created yet, so we use Console.
+                // Note: At this point of time the ILogger has not been created yet, so we use Console.
                 Console.WriteLine("CommandOptions is null");
                 return Core.SystemConstants.ExitFail;
             }
@@ -89,16 +94,12 @@ namespace LodeRunner
             //Note: config.IsClientMode does not get auto-populated by RootCommand since it does not get parsed, so we need to set it manually.
             config.IsClientMode = isClientMode;
 
-            // Register Services and System Objects.
-
             var services = new ServiceCollection();
 
+            // Register Services and System Objects.
             ConfigureServicesAndSystemObjects(services, config);
 
             using var serviceProvider = services.BuildServiceProvider();
-
-            // Get the logger to log the .
-            // logger = serviceProvider.GetService<ILogger<App>>();
 
             using var l8rService = serviceProvider.GetService<LodeRunnerService>();
 
@@ -138,7 +139,7 @@ namespace LodeRunner
                         })
                         .ConfigureLogging(logger =>
                         {
-                            logger.Setup(config);
+                            logger.Setup(config, ProjectName);
                         })
                         .UseConsoleLifetime()
                         .Build();
@@ -153,8 +154,7 @@ namespace LodeRunner
         {
             services.AddLogging(logger =>
                 {
-                    logger.Setup(config) // here we are creating our custom logger
-                        .AddConsole();
+                    logger.Setup(config, ProjectName);
                 })
                 .AddSingleton<Config>(config)
                 .AddSingleton<CancellationTokenSource>(CancelTokenSource)
@@ -197,7 +197,7 @@ namespace LodeRunner
                     {
                         string txt = File.ReadAllText(AsciiFile);
 
-                        // we use Console for Ascii Art.
+                        // Note: we use Console for Ascii Art.
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine(txt);
                         Console.ResetColor();

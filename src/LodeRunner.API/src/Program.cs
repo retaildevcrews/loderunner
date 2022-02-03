@@ -7,13 +7,14 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Core.NgsaLogger;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -154,6 +155,8 @@ namespace LodeRunner.API
         {
             int portNumber = AppConfigurationHelper.GetLoadRunnerApiPort(config.WebHostPort);
 
+            string projectName = Assembly.GetCallingAssembly().GetName().Name;
+
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
@@ -167,21 +170,7 @@ namespace LodeRunner.API
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>
                 {
-                    // log to XML
-                    // this can be replaced when the dotnet XML logger is available
-                    logger.ClearProviders();
-
-                    logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; });
-
-                    // if you specify the --log-level option, it will override the appsettings.json options
-                    // remove any or all of the code below that you don't want to override
-                    if (config.IsLogLevelSet)
-                    {
-                        logger.AddFilter("Microsoft", config.LogLevel)
-                        .AddFilter("System", config.LogLevel)
-                        .AddFilter("Default", config.LogLevel)
-                        .AddFilter("LodeRunner.API", config.LogLevel);
-                    }
+                    logger.Setup(config, projectName);
                 });
 
             // build the host
@@ -204,7 +193,7 @@ namespace LodeRunner.API
                 e.Cancel = true;
                 cancelTokenSource.Cancel();
 
-                GetLogger().LogInformation("Shutdown", "Shutting Down ...");
+                GetLogger().LogInformation("Shutting Down ...");
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method

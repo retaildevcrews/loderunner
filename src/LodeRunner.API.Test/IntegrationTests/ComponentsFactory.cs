@@ -5,11 +5,12 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
-using LodeRunner.Extensions;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Services;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -81,10 +82,10 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>The logger.</returns>
         private static ILogger<LodeRunnerService> CreateLodeRunnerServiceLogger(LodeRunner.Config config)
         {
+            string projectName = Assembly.GetCallingAssembly().GetName().Name;
             using var loggerFactory = LoggerFactory.Create(logger =>
                 {
-                    logger.Setup(config)
-                              .AddConsole();
+                    logger.Setup(config, projectName);
                 });
 
             return loggerFactory.CreateLogger<LodeRunnerService>();

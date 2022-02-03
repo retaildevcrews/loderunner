@@ -12,7 +12,7 @@ namespace LodeRunner
     /// <summary>
     /// Web Validation Test Configuration.
     /// </summary>
-    public class Config : ILRConfig, ICosmosConfig
+    public class Config : ILRConfig, ICosmosConfig, ICommonConfig
     {
         private LogLevel logLevel = LogLevel.Information;
 
@@ -187,6 +187,22 @@ namespace LodeRunner
         /// Gets or sets a value indicating whether the logLevel is set.
         /// </summary>
         public bool IsLogLevelSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the request log level.
+        /// </summary>
+        /// <value>
+        /// The request log level.
+        /// </value>
+        public LogLevel RequestLogLevel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the URL prefix.
+        /// </summary>
+        /// <value>
+        /// The URL prefix.
+        /// </value>
+        public string UrlPrefix { get; set; }
 
         /// <summary>
         /// Set the default config values.

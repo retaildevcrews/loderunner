@@ -23,6 +23,7 @@ namespace LodeRunner.Core.NgsaLogger
             configure(loggerConfig);
 
             builder.AddProvider(new NgsaLoggerProvider(loggerConfig));
+
             return builder;
         }
     }

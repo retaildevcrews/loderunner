@@ -37,7 +37,7 @@ namespace LodeRunner
                 // check for file exists
                 if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(ReadTestFile)), $"File Not Found: {file}");
+                    Console.WriteLine($"File Not Found: {file}");
 
                     return null;
                 }
@@ -48,7 +48,7 @@ namespace LodeRunner
                 // check for empty file
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(ReadTestFile)), $"Unable to read file {file}");
+                    Console.WriteLine($"Unable to read file {file}");
                     return null;
                 }
             }
@@ -65,7 +65,7 @@ namespace LodeRunner
                     // check for empty file
                     if (string.IsNullOrWhiteSpace(content))
                     {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(ReadTestFile)), $"Unable to read file {path}");
+                        Console.WriteLine($"Unable to read file {path}");
                         return null;
                     }
                 }
@@ -74,7 +74,7 @@ namespace LodeRunner
                     // display helper message on request exception
                     if (ex.InnerException is HttpRequestException hre)
                     {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(ReadTestFile)), "Verify you have permission to read the URL as well as the correctness of the URL");
+                        Console.WriteLine("Verify you have permission to read the URL as well as the correctness of the URL");
                     }
 
                     throw;
@@ -95,7 +95,7 @@ namespace LodeRunner
 
             if (string.IsNullOrWhiteSpace(json))
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(ReadTestFile)), $"Invalid json in file: {file}");
+                Console.WriteLine($"Invalid json in file: {file}");
                 return null;
             }
 
@@ -116,11 +116,6 @@ namespace LodeRunner
                 if (result.Failed)
                 {
                     Console.WriteLine($"Error: Invalid json\n\t{JsonSerializer.Serialize(r)}\n\t{string.Join("\n", result.ValidationErrors)}");
-
-                    //TODO:
-
-                    //this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(ReadTestFile)), $"Invalid json in file: {file}");
-
                     return false;
                 }
             }
@@ -242,7 +237,7 @@ namespace LodeRunner
                     return l2;
                 }
 
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Validation, nameof(LoadJson)), "Invalid JSON file");
+                Console.WriteLine("Invalid JSON file");
             }
             catch (Exception ex)
             {
