@@ -22,7 +22,7 @@ echo "Emulator Data Path ${COSMOS_EMUL_DATA_PATH}"
 
 # See https://docs.microsoft.com/en-us/azure/cosmos-db/linux-emulator?tabs=ssl-netstd21#run-on-linux
 # TODO: Push docker image with modified cosmos-docker-start.sh script
-docker run --rmd -it --restart always -v $(pwd)/.devcontainer/cosmosdb-emulator/cosmos-docker-start.sh:/usr/local/bin/cosmos/start.sh -v "${COSMOS_EMUL_DATA_PATH}":/tmp/cosmos/appdata -p 9090:8081 -p 10251:10251 -p 10252:10252 -p 10253:10253 -p 10254:10254 -m 3g --cpus=2.0 --name=${COSMOS_EMUL_NAME} -e AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10 -e AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true -e AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=${ipaddr}  mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator >/dev/null &
+docker run --rmd -it --restart always -v "${COSMOS_EMUL_DATA_PATH}":/tmp/cosmos/appdata -p 9090:8081 -p 10251:10251 -p 10252:10252 -p 10253:10253 -p 10254:10254 -m 3g --cpus=2.0 --name=${COSMOS_EMUL_NAME} -e AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10 -e AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true -e AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=${ipaddr}  mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator >/dev/null &
 
 # get install script and install node
 # [Choice] Node.js version: 16, 14, 12
