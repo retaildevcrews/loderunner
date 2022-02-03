@@ -28,7 +28,6 @@
    - Click on the clipboard icon to copy the local address
    - Open `src/LodeRunner.UI/.env.production`
    - Set `REACT_APP_SERVER` to copied LodeRunner.API URL
-   - **REMOVE TRAILING SLASH ON LODERUNNER.API URL OR LODERUNNER.UI WILL FAIL**
    - Prevent accidental commits with `git update-index --assume-unchanged src/LodeRunner.UI/.env.production`
 4. Set environmental variables with CosmosDB values for K8S generic secret
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
