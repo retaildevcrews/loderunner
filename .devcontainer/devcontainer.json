@@ -36,7 +36,12 @@
 		"32080": { "label": "LodeRunner UI" },
 		"32088": { "label": "LodeRunner API" },
 		"3000": { "label": "Local Dev LodeRunner UI"},
-		"8080": { "label": "Local Dev LodeRunner API"}
+		"8080": { "label": "Local Dev LodeRunner API"},
+		"9090": { "label": "CosmosDB Emulator"}
+	},
+	"containerEnv": {
+		"COSMOS_EMUL_NAME":"cosmos-linux-emulator",
+		"COSMOS_EMUL_DATA_PATH":"/workspaces/cosmos-emulator-data"
 	},
 
 	// Install extensions
