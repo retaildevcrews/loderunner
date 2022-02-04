@@ -171,7 +171,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var gottenHttpResponse = await httpClient.GetItemById<LoadTestConfig>(LoadTestConfigsUri, loadTestConfig.Id, this.output);
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
-            Assert.Contains("Requested data not found.", gottenMessage);
+            Assert.Contains("Not Found", gottenMessage);
         }
 
         /// <summary>
