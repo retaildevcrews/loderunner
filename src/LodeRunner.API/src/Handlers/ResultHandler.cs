@@ -8,6 +8,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 
@@ -20,9 +21,6 @@ namespace LodeRunner.API.Middleware
     {
         private const string JsonContentTypeApplicationJson = "application/json";
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
-
-        private const string DataRequest = "Data request.";
-        private const string DataNotFound = "Requested data not found.";
 
         /// <summary>
         /// Creates the response for GET (all) methods.
@@ -65,6 +63,82 @@ namespace LodeRunner.API.Middleware
                 // Log Error
                 await logger.LogError($"{methodName} > {nameof(CreateGetResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
                 return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates the response for GET by ID methods.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="getResult">Gets result from data storage by ID.</param>
+        /// <param name="id">TEntity ID to search by.</param>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="errorList">List of ValidationErrors.</param>
+        /// <param name="httpContext">HttpContext.</param>
+        /// <param name="httpRequest">HttpRequest.</param>
+        /// <param name="methodName">Caller member name to improve logging.</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, NgsaLog logger, IEnumerable<ValidationError> errorList, HttpContext httpContext, HttpRequest httpRequest, [CallerMemberName] string methodName = null)
+        {
+            try
+            {
+                if (errorList.Any())
+                {
+                    // Log Warning
+                    await logger.LogWarning($"{methodName} > {nameof(CreateGetByIdResponse)}", $"Unable to {methodName} with ID, {id}", NgsaLog.LogEvent400, httpContext);
+
+                    // Add info to response
+                    var path = RequestLogger.GetPathAndQuerystring(httpRequest);
+                    Dictionary<string, object> data = new ()
+                    {
+                        { "type", ValidationError.GetErrorLink(path) },
+                        { "title", "Parameter validation error" },
+                        { "detail", "One or more invalid parameters were specified." },
+                        { "status", (int)HttpStatusCode.BadRequest },
+                        { "instance", path },
+                        { "validationErrors", errorList },
+                    };
+
+                    return new JsonResult(data)
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ContentType = JsonContentTypeApplicationJson,
+                    };
+                }
+
+                var result = await getResult(id);
+
+                if (result == null)
+                {
+                    return new JsonResult(new ErrorResult { Error = HttpStatusCode.NotFound, Message = "Requested data not found." })
+                    {
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        ContentType = JsonContentTypeApplicationJson,
+                    };
+                }
+
+                return new OkObjectResult(result);
+            }
+            catch (CosmosException ce)
+            {
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Log Warning
+                    await logger.LogWarning($"{methodName} > {nameof(CreateGetByIdResponse)}", logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    return new NotFoundResult();
+                }
+                else
+                {
+                    // Log Error
+                    await logger.LogError($"{methodName} > {nameof(CreateGetByIdResponse)}", "CosmosException", NgsaLog.LogEvent400, ex: ce);
+                    return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log Error
+                await logger.LogError($"{methodName} > {nameof(CreateGetByIdResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
+                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > {ex.Message}");
             }
         }
 
@@ -155,7 +229,7 @@ namespace LodeRunner.API.Middleware
         {
             if (results == null)
             {
-                return await CreateErrorResult(DataNotFound, HttpStatusCode.NotFound);
+                return await CreateErrorResult("Requested data not found.", HttpStatusCode.NotFound);
             }
             else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
             {
