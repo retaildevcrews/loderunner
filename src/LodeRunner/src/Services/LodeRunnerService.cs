@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -16,6 +15,7 @@ using LodeRunner.Core.Models;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
+using LodeRunner.Subscribers;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -189,22 +189,6 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
-        /// Updates the cosmos status.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
-        public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
-        {
-            // TODO: do we need a lock here?
-            this.clientStatus.Message = args.Message;
-            this.clientStatus.Status = args.Status;
-
-            _ = await this.GetClientStatusService().Post(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
-
-            // TODO : Add try catch and write log , then exit App?
-        }
-
-        /// <summary>
         /// Validates the settings.
         /// </summary>
         /// <param name="provider">The provider.</param>
@@ -282,12 +266,15 @@ namespace LodeRunner.Services
 
             // Data connection not available yet, so we'll just update the stdout log
             ProcessingEventBus.StatusUpdate += this.LogStatusChange;
-            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})", this.cancellationTokenSource));
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
-            ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
 
-            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+            using var clientStatusUpdater = new ClientStatusUpdater(this.GetClientStatusService(), this.clientStatus);
+
+            ProcessingEventBus.StatusUpdate += clientStatusUpdater.UpdateCosmosStatus;
+
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})", this.cancellationTokenSource));
             try
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
@@ -298,7 +285,7 @@ namespace LodeRunner.Services
                     {
                         foreach (var testRun in testRuns)
                         {
-                            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})"));
+                            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
 
                             // Only execute TestRuns scheduled to run before the next minute
                             if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
@@ -307,7 +294,7 @@ namespace LodeRunner.Services
                             }
                         }
 
-                        this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+                        this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})", this.cancellationTokenSource));
                     }
 
                     await Task.Delay(this.config.PollingInterval * 1000, this.cancellationTokenSource.Token);
@@ -315,11 +302,11 @@ namespace LodeRunner.Services
             }
             catch (TaskCanceledException tce)
             {
-                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}", this.cancellationTokenSource));
             }
             catch (OperationCanceledException oce)
             {
-                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}", this.cancellationTokenSource));
             }
 
             return Core.SystemConstants.ExitSuccess;
@@ -483,7 +470,7 @@ namespace LodeRunner.Services
             // TODO: Add logic to convert TestRun to command line args for lode runner
             // TODO: Execute TestRun and provide LoadResult to cosmos
             // placeholder delay to simulate TestRun execution
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})"));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})", this.cancellationTokenSource));
             await Task.Delay(20000, this.cancellationTokenSource.Token);
         }
     }
