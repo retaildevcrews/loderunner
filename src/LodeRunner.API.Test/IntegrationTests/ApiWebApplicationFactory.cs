@@ -55,12 +55,9 @@ namespace LodeRunner.API.Test.IntegrationTests
             Secrets.LoadSecrets(config);
             CancellationTokenSource cancelTokenSource = new ();
 
-            NgsaLog ngsalog = new () { Name = typeof(ApiWebApplicationFactory<TStartup>).FullName };
-
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
-                services.AddSingleton<NgsaLog>(ngsalog);
                 services.AddSingleton<Config>(config);
                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 services.AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()));

@@ -11,6 +11,7 @@ using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -23,18 +24,15 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Read Clients")]
     public class ClientsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(ClientsController).FullName,
-            ErrorMessage = "ClientsControllerException",
-            NotFoundError = "Clients Not Found",
-        };
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientsController"/> class.
         /// </summary>
-        public ClientsController()
+        /// <param name="logger">The logger.</param>
+        public ClientsController(ILogger<ClientsController> logger)
         {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -59,7 +57,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(clientStatusService.GetAll, Logger);
+            return await ResultHandler.CreateGetResponse(clientStatusService.GetAll, logger);
         }
 
         /// <summary>
@@ -87,7 +85,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
 
-            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, Logger, errorlist, this.HttpContext, this.Request);
+            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, logger, errorlist, this.HttpContext, this.Request);
         }
     }
 }
