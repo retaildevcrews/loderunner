@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -25,6 +27,8 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The files.
         /// </value>
+        [Required]
+        [ValidateList(ErrorMessage = "Files list cannot be null or empty.")]
         public List<string> Files { get => this.loadTestConfig.Files; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
@@ -73,6 +77,8 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The server.
         /// </value>
+        [Required]
+        [ValidateList(ErrorMessage = "Server list cannot be null or empty.")]
         public List<string> Server { get => this.loadTestConfig.Server; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
@@ -121,6 +127,8 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The delay start.
         /// </value>
+        [Range(0, 86400, ErrorMessage = "Can only be between 0 .. 86400")]
+        [Description("--delay-start")]
         public int DelayStart { get => this.loadTestConfig.DelayStart; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
