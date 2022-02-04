@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -16,6 +15,7 @@ using LodeRunner.Core.Models;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
+using LodeRunner.Services.Extensions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +36,7 @@ namespace LodeRunner.Services
         private System.Timers.Timer statusUpdateTimer = default;
         private object lastStatusSender = default;
         private ClientStatusEventArgs lastStatusArgs = default;
+        private List<string> pendingTestRuns;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
@@ -57,6 +58,8 @@ namespace LodeRunner.Services
             };
 
             this.cancellationTokenSource = cancellationTokenSource;
+
+            this.pendingTestRuns = new List<string>();
         }
 
         /// <summary>
@@ -205,6 +208,38 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
+        /// Updates the TestRun with LoadResults.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
+        public async void UpdateTestRun(object sender, LoadResultEventArgs args)
+        {
+            // TODO: Handle Errors and exceptions
+            // get TestRun document to update
+            var testRun = await GetTestRunService().Get(args.TestRunId);
+
+            LoadResult loadResult = new ();
+            loadResult.CompletedTime = args.CompletedTime;
+            loadResult.FailedRequests = args.FailedRequests;
+            loadResult.SuccessfulRequests = args.SuccessfulRequests;
+            loadResult.TotalRequests = args.TotalRequests;
+            loadResult.LoadClient = this.loadClient;
+            loadResult.StartTime = testRun.StartTime;
+
+            testRun.ClientResults.Add(loadResult);
+
+            if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+            {
+                testRun.CompletedTime = args.CompletedTime;
+            }
+
+            // post updates
+            _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+
+            this.pendingTestRuns.Remove(testRun.Id);
+        }
+
+        /// <summary>
         /// Validates the settings.
         /// </summary>
         /// <param name="provider">The provider.</param>
@@ -243,8 +278,10 @@ namespace LodeRunner.Services
 
             if (this.config.RunLoop)
             {
+                var app = new App();
+
                 // build and run the web host
-                IHost host = App.BuildWebHost(this.config);
+                IHost host = app.BuildWebHost(this.config, this.cancellationTokenSource);
                 _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
@@ -288,6 +325,7 @@ namespace LodeRunner.Services
             ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
 
             this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+            ProcessingEventBus.TestRunComplete += this.UpdateTestRun;
             try
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
@@ -298,12 +336,16 @@ namespace LodeRunner.Services
                     {
                         foreach (var testRun in testRuns)
                         {
-                            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})"));
-
-                            // Only execute TestRuns scheduled to run before the next minute
-                            if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
+                            // skip tests that have been completed but not yet updated with results in cosmos
+                            if (!this.pendingTestRuns.Contains(testRun.Id))
                             {
-                                await this.ExecuteNewTestRunAsync(testRun);
+                                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})"));
+
+                                // Only execute TestRuns scheduled to run before the next minute
+                                if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
+                                {
+                                    await this.ExecuteNewTestRunAsync(testRun);
+                                }
                             }
                         }
 
@@ -480,11 +522,28 @@ namespace LodeRunner.Services
         /// <param name="testRun">TestRun configuration to execute.</param>
         private async Task ExecuteNewTestRunAsync(TestRun testRun)
         {
-            // TODO: Add logic to convert TestRun to command line args for lode runner
-            // TODO: Execute TestRun and provide LoadResult to cosmos
-            // placeholder delay to simulate TestRun execution
+            this.pendingTestRuns.Add(testRun.Id);
             this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})"));
-            await Task.Delay(20000, this.cancellationTokenSource.Token);
+
+            // convert TestRun object to command line args
+            string[] args = testRun.LoadTestConfig.GetArgs();
+
+            CancellationTokenSource cancel = new ();
+            int result = -1;
+            try
+            {
+                // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
+                // can be updated accordingly
+                result = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel);
+            }
+            catch (TaskCanceledException tce)
+            {
+                // TODO: Handle exceptions
+                // TODO: Figure out how to use/ where to raise the UpdateTestRun event when the test run fails with an exception
+                Console.WriteLine($"Eating exception for now {tce}");
+            }
+
+            Console.WriteLine($"TestResult: {result}");
         }
     }
 }
