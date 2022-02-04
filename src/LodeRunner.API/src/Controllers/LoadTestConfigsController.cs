@@ -7,11 +7,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -74,15 +72,15 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{loadTestConfigId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Single `LoadTestConfig` document by LoadTestConfigId.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.LoadTestConfigFound, typeof(LoadTestConfig), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidLoadTestConfigId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.LoadTestConfigNotFound, null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON LoadTestConfig by Parameter, loadTestConfigId.",
             Description = "Returns a single `LoadTestConfig` document by loadTestConfigId",
             OperationId = "GetLoadTestConfigByLoadTestConfigId")]
-        public async Task<ActionResult<LoadTestConfig>> GetLoadTestConfigById([FromRoute] string loadTestConfigId, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<LoadTestConfig>> GetLoadTestConfigById([FromRoute] string loadTestConfigId, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -91,16 +89,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
-            if (errorlist.Count > 0)
-            {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(GetLoadTestConfigById)), $"{SystemConstants.InvalidLoadTestConfigId}");
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var result = await loadTestConfigService.GetLoadTestConfigById(loadTestConfigId, logger);
-
-            return await ResultHandler.HandleResult(result, logger);
+            return await ResultHandler.CreateGetByIdResponse(loadTestConfigService.Get, loadTestConfigId, logger, errorlist, this.HttpContext, this.Request);
         }
 
         /// <summary>

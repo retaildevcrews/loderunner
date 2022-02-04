@@ -72,15 +72,15 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{testRunId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Single `TestRun` document by testRunId.", typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunFound, typeof(TestRun), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.TestRunNotFound, null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON TestRun by Parameter, testRunId.",
             Description = "Returns a single `TestRun` document by testRunId",
             OperationId = "GetTestRunByTestRunId")]
-        public async Task<ActionResult<TestRun>> GetTestRunById([FromRoute] string testRunId, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<TestRun>> GetTestRunById([FromRoute] string testRunId, [FromServices] ITestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -89,16 +89,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
-            if (errorlist.Count > 0)
-            {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(GetTestRunById)), $"{SystemConstants.InvalidTestRunId}");
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var result = await testRunService.GetTestRunById(testRunId, logger);
-
-            return await ResultHandler.HandleResult(result, logger);
+            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, logger, errorlist, this.HttpContext, this.Request);
         }
 
         /// <summary>
