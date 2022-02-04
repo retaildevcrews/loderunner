@@ -169,6 +169,7 @@ namespace LodeRunner
                 {
                     // increment
                     this.Count++;
+                    this.ErrorCount += p.ErrorCount;
                     this.Duration += p.Duration;
                 }
             }

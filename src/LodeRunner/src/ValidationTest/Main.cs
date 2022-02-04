@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Events;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
@@ -147,6 +148,7 @@ namespace LodeRunner
             PerfLog pl;
             int errorCount = 0;
             int validationFailureCount = 0;
+            int requestCount = 0;
 
             // loop through each server
             for (int ndx = 0; ndx < config.Server.Count; ndx++)
@@ -182,6 +184,8 @@ namespace LodeRunner
 
                         // execute the request
                         pl = await this.ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
+
+                        requestCount++;
 
                         if (pl.Failed)
                         {
@@ -236,6 +240,9 @@ namespace LodeRunner
                     Console.Write($"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
                 }
             }
+
+            // fire event
+            TestRunComplete(null, new LoadResultEventArgs(config.TestRunId, requestCount, validationFailureCount + errorCount));
 
             // return non-zero exit code on failure
             return errorCount > 0 || validationFailureCount >= config.MaxErrors ? errorCount + validationFailureCount : 0;
@@ -345,6 +352,17 @@ namespace LodeRunner
                 Console.WriteLine($"Exception: {ex}");
                 return Core.SystemConstants.ExitFail;
             }
+
+            long totalRequests = 0;
+            int totalFailures = 0;
+            foreach (var state in states)
+            {
+                totalFailures += state.ErrorCount;
+                totalRequests += state.Count;
+            }
+
+            // fire event
+            TestRunComplete(null, new LoadResultEventArgs(config.TestRunId, (int)totalRequests, totalFailures));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;
@@ -684,6 +702,16 @@ namespace LodeRunner
                 // Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
+        }
+
+        /// <summary>
+        /// Called when [test run complete].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
+        private void TestRunComplete(object sender, LoadResultEventArgs args)
+        {
+            ProcessingEventBus.OnTestRunComplete(sender, args);
         }
     }
 }
