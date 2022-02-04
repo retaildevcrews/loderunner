@@ -76,7 +76,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The error message success.
         /// </summary>
-        public const string ErrorMessageGuid = "value is not a valid GUID";
+        public const string ErrorMessageGuid = "Value is not a valid GUID.";
 
         /// <summary>
         /// The error message unknown.
