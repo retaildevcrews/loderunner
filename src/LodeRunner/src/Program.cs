@@ -103,8 +103,9 @@ namespace LodeRunner
         /// Builds the web host.
         /// </summary>
         /// <param name="config">The configuration.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>The Host.</returns>
-        internal static IHost BuildWebHost(Config config)
+        internal IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
         {
             int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
 
@@ -114,7 +115,7 @@ namespace LodeRunner
                         {
                             webBuilder.ConfigureServices(services =>
                             {
-                                services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
+                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
                                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                             });
                             webBuilder.UseStartup<Startup>();

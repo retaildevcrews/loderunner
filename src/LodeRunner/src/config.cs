@@ -170,6 +170,11 @@ namespace LodeRunner
         public string LoadClientId { get; set; }
 
         /// <summary>
+        /// gets or sets the guid for the TestRun being executed.
+        /// </summary>
+        public string TestRunId { get; set; }
+
+        /// <summary>
         /// Set the default config values.
         /// </summary>
         public void SetDefaultValues()

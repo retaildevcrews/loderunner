@@ -69,7 +69,7 @@ namespace LodeRunner.Core.CommandLine
             root.AddOption(new Option<int>(new string[] { "--summary-minutes" }, Parsers.ParseIntGTZero, true, "Display summary results (minutes)  (requires --run-loop)"));
             root.AddOption(new Option<int>(new string[] { "-t", "--timeout" }, Parsers.ParseIntGTZero, true, "Request timeout (seconds)"));
             root.AddOption(new Option<int>(new string[] { "--max-concurrent" }, Parsers.ParseIntGTZero, true, "Max concurrent requests"));
-            root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
+            root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGEZero, true, "Max validation errors"));
             root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGEZero, true, "Delay test start (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
             root.AddOption(new Option<string>(new string[] { "--secrets-volume" }, Parsers.ParseString, true, "Secrets Volume Path"));

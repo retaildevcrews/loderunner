@@ -288,7 +288,7 @@ namespace LodeRunner.Core.CommandLine
                 case "max-errors":
                     if (result.Parent.Parent.Children.FirstOrDefault(c => c.Symbol.Name == "run-loop") is OptionResult optRes && optRes.GetValueOrDefault<bool>())
                     {
-                        return 0;
+                        return 1;
                     }
 
                     return 10;
