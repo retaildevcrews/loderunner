@@ -113,7 +113,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The maximum errors.
         /// </value>
-        public int MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(this.loadTestConfig, value); }
+        public int? MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the delay start.

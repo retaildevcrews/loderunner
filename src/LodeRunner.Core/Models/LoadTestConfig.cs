@@ -126,7 +126,7 @@ namespace LodeRunner.Core.Models
         /// The maximum errors.
         /// </value>
         [Description("--max-errors")]
-        public virtual int MaxErrors { get; set; }
+        public virtual int? MaxErrors { get; set; }
 
         /// <summary>
         /// Gets or sets the delay start.
