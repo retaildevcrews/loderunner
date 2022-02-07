@@ -134,24 +134,25 @@ Table legend:
 | --delay-start          | DELAY_START          | positive integer | 0       |               |            |
 | --dry-run              | N/A                  | bool             | false   | Validates arguments, but does not start the app. |            |
 | --duration             | DURATION             | positive integer | 0       | Only valid if --run-loop is specified. Runs the test for specified number of seconds then exits. | Runs until OS signal when set to 0. |
-| --files (-f)           | FILES                | file1 [file2 file3 ...]    | N/A   | One or more json test files   | Default test file location is the current directory |
-| --help (-h)            | N/A                  | none             | N/A     | Display LodeRunner command line options  | If passed all other parameters are ignored. |
-| --max-errors           | MAX_ERRORS           | positive integer | 10      | End test after max-errors              | If --max-errors is exceeded, Loderunner will exit with non-zero exit code           |
-| --prometheus           | PROMETHEUS           | bool             | false   | Expose the /metrics end point for Prometheus |            |
+| --files (-f)           | FILES                | file1 [file2 file3 ...]    | N/A   | One or more json test files   | Default test file location is the current directory. |
+| --help (-h)            | N/A                  | none             | N/A     | Display LodeRunner command line options.  | If passed all other parameters are ignored. |
+| --max-concurrent       | N/A                  | positive integer | 100     | Maximum concurrent requests.            |         |
+| --max-errors           | MAX_ERRORS           | positive integer | 10      | End test after max-errors.              | If --max-errors is exceeded, Loderunner will exit with non-zero exit code. Default value is 0 when --run-loop flag is set to true. |
+| --prometheus           | PROMETHEUS           | bool             | false   | Expose the /metrics end point for Prometheus. |            |
 | --random               | RANDOM               | bool             | false   | Only valid if --run-loop is specified. Randomize requests when running the test. |            |
-| --region               | REGION               | string           | "Unknown" | Deployment region for logging (user defined) |            |
-| --run-loop (-r)        | RUN_LOOP             | bool             | false   | Runs the test in a continuous loop              |            |
-| --secrets-volume       | SECRETS_VOLUME       | string           | "secrets" | Secrets location (directory name)      | If --secrets-volume is set then secrets directory must exist.   |
-| --server (-s)          | SERVER               | string1 [string2 string3 ...] | N/A   | Server URL(s) to test (i.e. `https://MyServerDomainName.com`) |            |
-| --sleep (-l)           | SLEEP                | positive integer | 1000    | Number of milliseconds to sleep between requests | Default value is 0 when --run-loop is false |
-| --strict-json (-j)     | STRICT_JSON          | bool             | false   | Use strict RFC rules when parsing json | Json property names are case sensitive, exceptions will occur for trailing commas in json arrays and comments in json           |
-| --summary-minutes      | SUMMARY-MINUTES      | positive integer | N/A     | Display summary results (minutes)   | Only valid if --run-loop is specified. Not implemented yet. |
+| --region               | REGION               | string           | "Unknown" | Deployment region for logging (user defined). |            |
+| --run-loop (-r)        | RUN_LOOP             | bool             | false   | Runs the test in a continuous loop.              |            |
+| --secrets-volume       | SECRETS_VOLUME       | string           | "secrets" | Secrets location (directory name).      | If --secrets-volume is set then secrets directory must exist.   |
+| --server (-s)          | SERVER               | string1 [string2 string3 ...] | N/A   | Server URL(s) to test (i.e. `https://MyServerDomainName.com`). |            |
+| --sleep (-l)           | SLEEP                | positive integer | 0    | Number of milliseconds to sleep between requests. | Default value is 1000 when --run-loop flag is set to true. |
+| --strict-json (-j)     | STRICT_JSON          | bool             | false   | Use strict RFC rules when parsing json. | Json property names are case sensitive, exceptions will occur for trailing commas in json arrays and comments in json. |
+| --summary-minutes      | SUMMARY-MINUTES      | positive integer | N/A     | Display summary results (minutes).   | Only valid if --run-loop is specified. Not implemented yet. |
 | --tag                  | TAG                  | string           | null    |               |            |
-| --timeout (-t)         | TIMEOUT              | int              | 30 seconds | HTTP request timeout in seconds  |            |
-| --verbose              | VERBOSE              | bool             | false   | Log 200 and 300 results as well as errors | Not implemented yet. |
-| --verbose-errors        | VERBOSE_ERRORS       | bool             | false   | Display validation error messages   |            |
-| --version              | N/A                  | none             | N/A     | Display LodeRunner version               | If passed all other parameters are ignored. |
-| --zone                 | ZONE                 | string           | "Unknown" | Deployment zone for logging (user defined) |            |
+| --timeout (-t)         | TIMEOUT              | int              | 30 seconds | HTTP request timeout in seconds.  |            |
+| --verbose              | VERBOSE              | bool             | false   | Log 200 and 300 results as well as errors. | Not implemented yet. |
+| --verbose-errors       | VERBOSE_ERRORS       | bool             | false   | Display validation error messages.   |            |
+| --version              | N/A                  | none             | N/A     | Display LodeRunner version.               | If passed all other parameters are ignored. |
+| --zone                 | ZONE                 | string           | "Unknown" | Deployment zone for logging (user defined). |            |
 
 
 ### Port configuration
