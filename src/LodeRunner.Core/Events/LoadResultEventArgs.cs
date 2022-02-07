@@ -17,14 +17,23 @@ namespace LodeRunner.Core.Events
         /// <param name="testRunId">Id of the TestRun.</param>
         /// <param name="total">Number of total requests.</param>
         /// <param name="failed">Number of failed requests.</param>
-        public LoadResultEventArgs(string testRunId, int total, int failed)
+        public LoadResultEventArgs(DateTime startTime, string testRunId, int total, int failed)
         {
+            this.StartTime = startTime;
             this.CompletedTime = DateTime.UtcNow;
             this.TestRunId = testRunId;
             this.TotalRequests = total;
             this.FailedRequests = failed;
             this.SuccessfulRequests = total - failed;
         }
+
+        /// <summary>
+        /// Gets or sets the time the load test on the LoadClient started.
+        /// </summary>
+        /// <value>
+        /// StartTime.
+        /// </value>
+        public DateTime StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the time the load test on the LoadClient completed.

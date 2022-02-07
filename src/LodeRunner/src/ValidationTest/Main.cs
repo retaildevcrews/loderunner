@@ -150,6 +150,8 @@ namespace LodeRunner
             int validationFailureCount = 0;
             int requestCount = 0;
 
+            DateTime startTime = DateTime.UtcNow;
+
             // loop through each server
             for (int ndx = 0; ndx < config.Server.Count; ndx++)
             {
@@ -242,7 +244,7 @@ namespace LodeRunner
             }
 
             // fire event
-            TestRunComplete(null, new LoadResultEventArgs(config.TestRunId, requestCount, validationFailureCount + errorCount));
+            TestRunComplete(null, new LoadResultEventArgs(startTime, config.TestRunId, requestCount, validationFailureCount + errorCount));
 
             // return non-zero exit code on failure
             return errorCount > 0 || validationFailureCount >= config.MaxErrors ? errorCount + validationFailureCount : 0;
@@ -260,6 +262,8 @@ namespace LodeRunner
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             DateTime dtMax = DateTime.MaxValue;
+
+            DateTime startTime = DateTime.UtcNow;
 
             // only run for duration (seconds)
             if (config.Duration > 0)
@@ -362,7 +366,7 @@ namespace LodeRunner
             }
 
             // fire event
-            TestRunComplete(null, new LoadResultEventArgs(config.TestRunId, (int)totalRequests, totalFailures));
+            TestRunComplete(null, new LoadResultEventArgs(startTime, config.TestRunId, (int)totalRequests, totalFailures));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;

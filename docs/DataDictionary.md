@@ -171,7 +171,8 @@ This object is utilized as the Test Run payload data. It inherits from BasePaylo
 | LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
 | LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
-| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
+| StartTime       |   DateTime     | When to start the test run (default current time to start immediately) | No | |
+| CompletedTime   |   DateTime     | Time at which all LoadClients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime` |
 
 `Table 08: TestRun Payload Properties`
 
@@ -182,8 +183,8 @@ This entity is still TBD
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
-| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| StartTime       |   DateTime     | When the TestRun actually started | Yes  | |
+| CompletedTime   |   DateTime     | Time at which the LoadClient completed its execution and reported results | No |  |
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
