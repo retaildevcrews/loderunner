@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using FluentValidation.Results;
+using System.Collections.Generic;
 
 namespace LodeRunner.Core.Interfaces
 {
@@ -12,12 +13,12 @@ namespace LodeRunner.Core.Interfaces
     public interface IModelValidator<TEntity>
     {
         /// <summary>
-        /// Gets the error message.
+        /// Gets list of error messages.
         /// </summary>
         /// <value>
-        /// The error message.
+        /// The error messages.
         /// </value>
-        string ErrorMessage { get;  }
+        IEnumerable<string> ErrorMessages { get;  }
 
         /// <summary>
         /// Gets a value indicating whether validation succeeded.

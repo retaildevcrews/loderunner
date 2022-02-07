@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -8,8 +9,6 @@ using System.Threading.Tasks;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-using LodeRunner.Core.Models.Validators;
-using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 
 namespace LodeRunner.Services
@@ -116,33 +115,15 @@ namespace LodeRunner.Services
         /// <param name="entityToCreate">New object.</param>
         /// <param name="cancellationToken">So operation may be cancelled.</param>
         /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
-        public virtual async Task<ApiResponse<TEntity>> Post(TEntity entityToCreate, CancellationToken cancellationToken)
+        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken)
         {
-            var returnValue = new ApiResponse<TEntity>();
-
-            if (entityToCreate != null && !cancellationToken.IsCancellationRequested && this.CosmosDBRepository.IsCosmosDBReady)
+            // Update Entity if CosmosDB connection is ready
+            if (this.CosmosDBRepository.IsCosmosDBReady)
             {
-                // Update Entity if CosmosDB connection is ready and the object is valid
-                if (this.Validator.ValidateEntity(entityToCreate))
-                {
-                    returnValue.Model = await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
-                    returnValue.StatusCode = HttpStatusCode.OK;
-                }
-                else
-                {
-                    // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
-                    // TODO: log validation errors is any  if not  this.validator.IsValid => this.validator.ErrorMessage
-                    returnValue.Errors = this.Validator.ErrorMessage;
-                    returnValue.StatusCode = HttpStatusCode.BadRequest;
-                }
-            }
-            else
-            {
-                returnValue.Errors += $"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}";
-                returnValue.StatusCode = HttpStatusCode.ServiceUnavailable;
+                return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
             }
 
-            return returnValue;
+            throw new Exception($"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}");
         }
     }
 }

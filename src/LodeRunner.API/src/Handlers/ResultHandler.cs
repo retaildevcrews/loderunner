@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
+using LodeRunner.Core.Interfaces;
+using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -20,7 +23,6 @@ namespace LodeRunner.API.Middleware
     /// </summary>
     public static class ResultHandler
     {
-        private const string JsonContentTypeApplicationJson = "application/json";
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
 
         /// <summary>
@@ -37,15 +39,18 @@ namespace LodeRunner.API.Middleware
             {
                 var result = await getResult();
 
+                // No content response
                 if (!(result as IEnumerable<object>).Any())
                 {
                     return new NoContentResult();
                 }
 
+                // OK response
                 return new OkObjectResult(result);
             }
             catch (CosmosException ce)
             {
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
                     // Log Warning
@@ -137,13 +142,79 @@ namespace LodeRunner.API.Middleware
                     logger.LogError(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ce, "CosmosException");
                     return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
                 }
+        /// Creates the response for POST methods.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="getResult">Gets result from data storage by ID.</param>
+        /// <param name="payload">Payload.</param>
+        /// <param name="validator">Payload validator.</param>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="httpRequest">HttpRequest.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="methodName">Caller member name to improve logging.</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> getResult, TEntity payload, string path, IEnumerable<string> errorList, NgsaLog logger, httpRequest, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        {
+            try
+            {
+                // Bad request response due to invalid payload
+                if (errorList.Any())
+                {
+                    // TODO: log specific case scenario, even if IsCosmosDBReady() already will do its own logging.
+                    // TODO: log validation errors is any if not this.validator.IsValid => this.validator.ErrorMessage
+                    return CreateValidationErrorResponse("Payload", path, errorList);
+                }
+
+                var result = await getResult(payload, cancellationToken);
+
+                // Internal server error response due to no returned value from storage create
+                if (result == null)
+                {
+                    await logger.LogError($"{methodName} > {nameof(CreatePostResponse)}", "Upsert did not return a model.", NgsaLog.LogEvent500);
+                    return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > Upsert did not return a model.");
+                }
+
+                // Created response
+                return new CreatedResult(path, result);
+            }
+            catch (CosmosException ce)
+            {
+                // Log Error
+                await logger.LogError($"{methodName} > {nameof(CreatePostResponse)}", "CosmosException", NgsaLog.LogEvent400, ex: ce);
+
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
+                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
             }
             catch (Exception ex)
             {
                 // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > {ex.Message}");
+                await logger.LogError($"{methodName} > {nameof(CreatePostResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
+                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > {ex.Message}");
             }
+        }
+
+
+        public static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
+        {
+            Dictionary<string, object> data = new ()
+            {
+                { "title", $"{type} Error" },
+                { "detail", $"{type} did not pass validation." },
+                { "status", (int)HttpStatusCode.BadRequest },
+                { "instance", path },
+                { "validationErrors", errorList },
+            };
+
+            if (type.ToUpperInvariant().Contains("PARAMETER"))
+            {
+                data["type"] = ValidationError.GetErrorLink(path);
+            }
+
+            return new JsonResult(data)
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                ContentType = JsonContentTypeApplicationJsonProblem,
+            };
         }
 
         /// <summary>
@@ -156,7 +227,7 @@ namespace LodeRunner.API.Middleware
             return new JsonResult(new ErrorResult { Error = HttpStatusCode.ServiceUnavailable, Message = $"{SystemConstants.Terminating} - {SystemConstants.TerminationDescription}" })
             {
                 StatusCode = (int)HttpStatusCode.ServiceUnavailable,
-                ContentType = JsonContentTypeApplicationJson,
+                ContentType = JsonContentTypeApplicationJsonProblem,
             };
         }
 
@@ -267,7 +338,7 @@ namespace LodeRunner.API.Middleware
             return new JsonResult(new ErrorResult { Error = HttpStatusCode.InternalServerError, Message = $"Internal Server Error: {message}" })
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
-                ContentType = JsonContentTypeApplicationJson,
+                ContentType = JsonContentTypeApplicationJsonProblem,
             };
         }
     }

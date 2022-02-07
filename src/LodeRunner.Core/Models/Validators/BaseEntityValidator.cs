@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
@@ -17,26 +18,24 @@ namespace LodeRunner.Core.Models.Validators
     where TEntity : class
     {
         /// <summary>
-        /// Gets the error message as string including the Entity Property-ErroeMessage.
+        /// Gets the error message as a list of strings including the Entity Property-ErrorMessage.
         /// </summary>
         /// <value>
         /// The error message.
         /// </value>
-        public string ErrorMessage
+        public IEnumerable<string> ErrorMessages
         {
             get
             {
-                string errorMsg = string.Empty;
-
                 var errors = this.ValidationResult?.Errors.ToList();
+                List<string> errorMessages = new ();
 
                 if (errors.Count > 0)
                 {
-                    var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
-                    errorMsg = string.Join('\n', errorsList);
+                    errorMessages = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
                 }
 
-                return errorMsg;
+                return errorMessages;
             }
         }
 

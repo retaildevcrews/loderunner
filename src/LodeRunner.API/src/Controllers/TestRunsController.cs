@@ -47,9 +47,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunsFound, typeof(TestRun[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.TestRunsNotFound, null, "text/plain")]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetTestRuns)]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.AllTestRunsFound, typeof(TestRun[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.NoTestRunsFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetTestRuns, typeof(ErrorResult), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a JSON array of TestRun objects",
             Description = "Returns an array of `TestRun` documents",
@@ -72,9 +73,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{testRunId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunFound, typeof(TestRun), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.TestRunNotFound, null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunItemFound, typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Dictionary<string, object>), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.TestRunItemNotFound, null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetTestRunItem, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON TestRun by Parameter, testRunId.",
@@ -100,10 +102,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.Created, "`TestRun` was created.", typeof(TestRun), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData)]
+        [SwaggerResponse((int)HttpStatusCode.Created, SystemConstants.CreatedTestRun, typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidPayloadData, typeof(Dictionary<string, object>), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateTestRun, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToCreateTestRun)]
         [SwaggerOperation(
             Summary = "Creates a new TestRun item",
             Description = "Requires Test Run payload. It will not accept overall CompletedTime or ClientResults, which should only be created by the LoadClient internally",
@@ -118,7 +120,14 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
             var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
 
-            var insertedTestRunResponse = await testRunService.Post(newTestRun, cancellationTokenSource.Token);
+            testRunService.Validator.ValidateEntity(newTestRun);
+            var payloadErrorList = testRunService.Validator.ErrorMessages;
+            var flagErrorList = newLoadTestConfig.FlagValidator(loadTestConfigPayload.PropertiesChanged);
+
+            var path = RequestLogger.GetPathAndQuerystring(this.Request);
+
+            return await ResultHandler.CreatePostResponse(testRunService.Post, newTestRun, path, flagErrorList.Concat<string>(payloadErrorList), Logger, cancellationTokenSource.Token);
+        }
 
             if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
             {
@@ -142,12 +151,12 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <returns>IActionResult.</returns>
         [HttpDelete("{testRunId}")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.DeletedTestRun)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.NotFoundTestRun)]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.DeletedTestRun, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Dictionary<string, object>), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.UnableToDeleteLoadTestConfigNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, SystemConstants.UnableToDeleteTestRunRunning, typeof(ErrorResult), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteTestRun, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteTestRun)]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.Unknown)]
-        [SwaggerResponse((int)HttpStatusCode.Conflict, SystemConstants.UnableToDeleteRunNotCompleted)]
         [SwaggerOperation(
             Summary = "Deletes a TestRun item",
             Description = "Requires Test Run id",

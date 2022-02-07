@@ -49,7 +49,7 @@ namespace LodeRunner.Data.Interfaces
         /// <param name="entity">The object to add to the database.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The Updated clientStatus entity.</returns>
-        Task<ApiResponse<TEntity>> Post(TEntity entity, CancellationToken cancellationToken);
+        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the specified identifier.

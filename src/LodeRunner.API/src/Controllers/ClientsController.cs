@@ -42,10 +42,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.ClientsFound, typeof(Client[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.ClientsNotFound, null, "text/plain")]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetClients)]
-        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.AllClientsFound, typeof(Client[]), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.NoClientsFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetClients, typeof(ErrorResult), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription, typeof(ErrorResult), "application/problem+json")]
         [SwaggerOperation(
             Summary = "Gets a JSON array of Client objects",
             Description = "Returns an array of `Client` documents",
@@ -68,9 +68,10 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.ClientFound, typeof(Client), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.ClientNotFound, null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.ClientItemFound, typeof(Client), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Dictionary<string, object>), "application/problem+json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.ClientItemNotFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetClientItem, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON Client by Parameter, clientStatusId.",
