@@ -149,7 +149,7 @@ Table legend:
 | --tag                  | TAG                  | string           | null    |               |            |
 | --timeout (-t)         | TIMEOUT              | int              | 30 seconds | HTTP request timeout in seconds  |            |
 | --verbose              | VERBOSE              | bool             | false   | Log 200 and 300 results as well as errors | Not implemented yet. |
-| --verbose-error        | VERBOSE_ERRORS       | bool             | false   | Display validation error messages   |            |
+| --verbose-errors        | VERBOSE_ERRORS       | bool             | false   | Display validation error messages   |            |
 | --version              | N/A                  | none             | N/A     | Display LodeRunner version               | If passed all other parameters are ignored. |
 | --zone                 | ZONE                 | string           | "Unknown" | Deployment zone for logging (user defined) |            |
 
