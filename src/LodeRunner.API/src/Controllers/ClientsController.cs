@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -11,8 +10,8 @@ using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -25,18 +24,15 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Read Clients")]
     public class ClientsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(ClientsController).FullName,
-            ErrorMessage = "ClientsControllerException",
-            NotFoundError = "Clients Not Found",
-        };
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientsController"/> class.
         /// </summary>
-        public ClientsController()
+        /// <param name="logger">The logger.</param>
+        public ClientsController(ILogger<ClientsController> logger)
         {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -61,7 +57,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(clientStatusService.GetAll, Logger);
+            return await ResultHandler.CreateGetResponse(clientStatusService.GetAll, logger);
         }
 
         /// <summary>
@@ -72,15 +68,15 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{clientStatusId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Single `Client` document by clientStatusId.", typeof(Client), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.ClientFound, typeof(Client), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidClientStatusId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.ClientNotFound, null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON Client by Parameter, clientStatusId.",
             Description = "Returns a single `Client` document by clientStatusId",
             OperationId = "GetClientByClientStatusId")]
-        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] ClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<Client>> GetClientByClientStatusId([FromRoute] string clientStatusId, [FromServices] IClientStatusService clientStatusService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -89,16 +85,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
 
-            if (errorlist.Count > 0)
-            {
-                await Logger.LogWarning(nameof(GetClientByClientStatusId), SystemConstants.InvalidClientStatusId, NgsaLog.LogEvent400, this.HttpContext);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var result = await clientStatusService.GetClientByClientStatusId(clientStatusId, Logger);
-
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, logger, errorlist, this.HttpContext, this.Request);
         }
     }
 }

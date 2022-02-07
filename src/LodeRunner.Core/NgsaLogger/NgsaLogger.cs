@@ -8,8 +8,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
+using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
-namespace LodeRunner.API.Middleware
+namespace LodeRunner.Core.NgsaLogger
 {
     /// <summary>
     /// Simple aspnet core middleware that logs requests to the console.
@@ -79,6 +80,7 @@ namespace LodeRunner.API.Middleware
 
             Dictionary<string, object> d = new ()
             {
+                { "date", DateTime.UtcNow },
                 { "logName", this.name },
                 { "logLevel", logLevel.ToString() },
                 { "eventId", eventId.Id },
@@ -150,12 +152,13 @@ namespace LodeRunner.API.Middleware
             if (logLevel >= LogLevel.Error)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine(JsonSerializer.Serialize(d));
+
+                Console.Error.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(d));
             }
             else
             {
                 Console.ForegroundColor = logLevel == LogLevel.Warning ? ConsoleColor.Yellow : Console.ForegroundColor;
-                Console.WriteLine(JsonSerializer.Serialize(d));
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(d));
             }
 
             Console.ResetColor();

@@ -32,7 +32,9 @@ namespace LodeRunner.API.Middleware.Validation
         {
             return fieldName.ToUpperInvariant() switch
             {
-                SystemConstants.ClientStatusID => SystemConstants.ErrorMessageSuccess,
+                SystemConstants.ClientStatusID => $"'clientStatusId' {SystemConstants.ErrorMessageGuid}",
+                SystemConstants.LoadTestConfigID => $"'loadTestConfigId' {SystemConstants.ErrorMessageGuid}",
+                SystemConstants.TestRunID => $"'testRunId' {SystemConstants.ErrorMessageGuid}",
                 _ => $"{SystemConstants.ErrorMessageUnknownParameter} {fieldName}",
             };
         }

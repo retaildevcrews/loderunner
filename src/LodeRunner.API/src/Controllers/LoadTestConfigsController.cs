@@ -7,13 +7,12 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -26,22 +25,18 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update LoadTest Configurations")]
     public class LoadTestConfigsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(LoadTestConfigsController).FullName,
-            ErrorMessage = "LoadTestConfigsControllerException",
-            NotFoundError = "Load Test Configs Not Found",
-        };
-
+        private readonly ILogger logger;
         private readonly IMapper autoMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadTestConfigsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public LoadTestConfigsController(IMapper mapper)
+        /// <param name="logger">The logger.</param>
+        public LoadTestConfigsController(IMapper mapper, ILogger<LoadTestConfigsController> logger)
         {
             this.autoMapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -66,7 +61,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetAll, Logger);
+            return await ResultHandler.CreateGetResponse(loadTestConfigService.GetAll, logger);
         }
 
         /// <summary>
@@ -77,15 +72,15 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{loadTestConfigId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Single `LoadTestConfig` document by LoadTestConfigId.", typeof(LoadTestConfig), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.LoadTestConfigFound, typeof(LoadTestConfig), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidLoadTestConfigId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.LoadTestConfigNotFound, null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON LoadTestConfig by Parameter, loadTestConfigId.",
             Description = "Returns a single `LoadTestConfig` document by loadTestConfigId",
             OperationId = "GetLoadTestConfigByLoadTestConfigId")]
-        public async Task<ActionResult<LoadTestConfig>> GetLoadTestConfigById([FromRoute] string loadTestConfigId, [FromServices] LoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<LoadTestConfig>> GetLoadTestConfigById([FromRoute] string loadTestConfigId, [FromServices] ILoadTestConfigService loadTestConfigService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -94,16 +89,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
-            if (errorlist.Count > 0)
-            {
-                await Logger.LogWarning(nameof(GetLoadTestConfigById), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var result = await loadTestConfigService.GetLoadTestConfigById(loadTestConfigId, Logger);
-
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.CreateGetByIdResponse(loadTestConfigService.Get, loadTestConfigId, logger, errorlist, this.HttpContext, this.Request);
         }
 
         /// <summary>
@@ -183,7 +169,7 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                await Logger.LogWarning(nameof(DeleteLoadTestConfig), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400, this.HttpContext);
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), $"{SystemConstants.InvalidLoadTestConfigId}");
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }

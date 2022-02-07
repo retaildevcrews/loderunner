@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Prometheus;
 
 namespace LodeRunner
@@ -52,6 +53,8 @@ namespace LodeRunner
 
             CancellationTokenSource cancellationTokenSource = app.ApplicationServices.GetRequiredService<CancellationTokenSource>();
 
+            var logger = app.ApplicationServices.GetRequiredService<ILogger<App>>();
+
             // signal run loop
             life.ApplicationStopping.Register(() =>
             {
@@ -63,11 +66,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                Console.WriteLine(JsonSerializer.Serialize(new Dictionary<string, object>
-                {
-                    { "Date", DateTime.UtcNow },
-                    { "EventType", "Shutdown" },
-                }));
+                logger.LogInformation("Shutdown");
             });
 
             // version handler

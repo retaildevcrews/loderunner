@@ -31,13 +31,15 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="expected">The expected.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(SystemConstants.ClientStatusID, SystemConstants.ErrorMessageSuccess)]
+        [InlineData(SystemConstants.ClientStatusID, SystemConstants.ErrorMessageGuid)]
+        [InlineData(SystemConstants.LoadTestConfigID, SystemConstants.ErrorMessageGuid)]
+        [InlineData(SystemConstants.TestRunID, SystemConstants.ErrorMessageGuid)]
         [InlineData(InvalidFieldName, SystemConstants.ErrorMessageUnknownParameter)]
         public void GetErrorMessage_Success(string input, string expected)
         {
             string result = ValidationError.GetErrorMessage(input);
 
-            Assert.StartsWith(expected, result);
+            Assert.Contains(expected, result);
         }
 
         /// <summary>
@@ -47,8 +49,10 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="expected">The expected.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(InvalidFieldName, SystemConstants.ErrorMessageSuccess)]
+        [InlineData(InvalidFieldName, SystemConstants.ErrorMessageGuid)]
         [InlineData(SystemConstants.ClientStatusID, SystemConstants.ErrorMessageUnknownParameter)]
+        [InlineData(SystemConstants.LoadTestConfigID, SystemConstants.ErrorMessageUnknownParameter)]
+        [InlineData(SystemConstants.TestRunID, SystemConstants.ErrorMessageUnknownParameter)]
         public void GetErrorMessage_Failure(string input, string expected)
         {
             string result = ValidationError.GetErrorMessage(input);

@@ -13,6 +13,7 @@ using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -25,22 +26,18 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update, delete Test Runs")]
     public class TestRunsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(TestRunsController).FullName,
-            ErrorMessage = "TestRunsControllerException",
-            NotFoundError = "Test Runs Not Found",
-        };
-
+        private readonly ILogger logger;
         private readonly IMapper autoMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public TestRunsController(IMapper mapper)
+        /// <param name="logger">The logger.</param>
+        public TestRunsController(IMapper mapper, ILogger<LoadTestConfigsController> logger)
         {
             this.autoMapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(testRunService.GetAll, Logger);
+            return await ResultHandler.CreateGetResponse(testRunService.GetAll, logger);
         }
 
         /// <summary>
@@ -75,15 +72,15 @@ namespace LodeRunner.API.Controllers
         /// <param name="cancellationTokenSource">The cancellation Token Source.</param>
         /// <returns>IActionResult.</returns>
         [HttpGet("{testRunId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, "Single `TestRun` document by testRunId.", typeof(TestRun), "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.TestRunFound, typeof(TestRun), "application/json")]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, SystemConstants.InvalidTestRunId, typeof(Middleware.Validation.ValidationError), "application/problem+json")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, "`Data not found.`", null, "application/json")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, SystemConstants.TestRunNotFound, null, "application/json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
             Summary = "Gets a single JSON TestRun by Parameter, testRunId.",
             Description = "Returns a single `TestRun` document by testRunId",
             OperationId = "GetTestRunByTestRunId")]
-        public async Task<ActionResult<TestRun>> GetTestRunById([FromRoute] string testRunId, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
+        public async Task<ActionResult<TestRun>> GetTestRunById([FromRoute] string testRunId, [FromServices] ITestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
         {
             if (cancellationTokenSource != null && cancellationTokenSource.IsCancellationRequested)
             {
@@ -92,16 +89,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
-            if (errorlist.Count > 0)
-            {
-                await Logger.LogWarning(nameof(GetTestRunById), SystemConstants.InvalidTestRunId, NgsaLog.LogEvent400, this.HttpContext);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var result = await testRunService.GetTestRunById(testRunId, Logger);
-
-            return await ResultHandler.HandleResult(result, Logger);
+            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, logger, errorlist, this.HttpContext, this.Request);
         }
 
         /// <summary>

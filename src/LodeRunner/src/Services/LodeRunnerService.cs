@@ -13,12 +13,14 @@ using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Services
 {
@@ -33,6 +35,7 @@ namespace LodeRunner.Services
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly ClientStatus clientStatus;
+        private readonly ILogger logger;
         private System.Timers.Timer statusUpdateTimer = default;
         private object lastStatusSender = default;
         private ClientStatusEventArgs lastStatusArgs = default;
@@ -42,9 +45,12 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="config">The config.</param>
         /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
-        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
+        /// <param name="logger">The logger.</param>
+        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
             Debug.WriteLine("* LodeRunnerService Constructor *");
+
+            this.logger = logger;
 
             this.config = config ?? throw new Exception("CommandOptions is null");
 
@@ -128,7 +134,8 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    Console.WriteLine($"Exception: {tce}");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, "Exception");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -137,7 +144,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nException:{ex.Message}");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, "Exception");
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -185,6 +192,7 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
+
             Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
         }
 
@@ -239,7 +247,7 @@ namespace LodeRunner.Services
                 await Task.Delay(this.config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
 
-            ValidationTest lrt = new (this.config);
+            ValidationTest lrt = new (this.config, this.logger);
 
             if (this.config.RunLoop)
             {

@@ -64,9 +64,19 @@ namespace LodeRunner.API
         public const string ClientStatusID = "CLIENTSTATUSID";
 
         /// <summary>
+        /// The load test config identifier.
+        /// </summary>
+        public const string LoadTestConfigID = "LOADTESTCONFIGID";
+
+        /// <summary>
+        /// The test run identifier.
+        /// </summary>
+        public const string TestRunID = "TESTRUNID";
+
+        /// <summary>
         /// The error message success.
         /// </summary>
-        public const string ErrorMessageSuccess = "'clientStatusId' value is not a valid GUID";
+        public const string ErrorMessageGuid = "Value is not a valid GUID.";
 
         /// <summary>
         /// The error message unknown.
@@ -184,6 +194,16 @@ namespace LodeRunner.API
         public const string UnableToGetClients = "Unable to get Clients.";
 
         /// <summary>
+        /// The client item was found.
+        /// </summary>
+        public const string ClientFound = "Single `Client` document by clientStatusId.";
+
+        /// <summary>
+        /// The client item was not found.
+        /// </summary>
+        public const string ClientNotFound = "Single `Client` document not found by clientStatusId.";
+
+        /// <summary>
         /// The client identifier cannot be empty.
         /// </summary>
         public const string ClientIdCannotBeEmpty = "ClientStatusId cannot be empty.";
@@ -207,6 +227,16 @@ namespace LodeRunner.API
         /// The unable to get load test configurations.
         /// </summary>
         public const string UnableToGetLoadTestConfigs = "Unable to get LoadTestConfigs.";
+
+        /// <summary>
+        /// The load test config item was found.
+        /// </summary>
+        public const string LoadTestConfigFound = "Single `LoadTestConfig` document by loadTestConfigId.";
+
+        /// <summary>
+        /// The load test configuration item was not found.
+        /// </summary>
+        public const string LoadTestConfigNotFound = "Single `LoadTestConfig` document not found by loadTestConfigId.";
 
         /// <summary>
         /// The invalid load identifier.
@@ -264,9 +294,19 @@ namespace LodeRunner.API
         public const string InvalidPayloadData = "Invalid Payload data.";
 
         /// <summary>
+        /// The test run item was found.
+        /// </summary>
+        public const string TestRunFound = "Single `TestRun` document by testRunId.";
+
+        /// <summary>
         /// The invalid test run identifier.
         /// </summary>
         public const string InvalidTestRunId = "Invalid Test Run Id.";
+
+        /// <summary>
+        /// The test run item was not found.
+        /// </summary>
+        public const string TestRunNotFound = "Single `TestRun` document not found by testRunId.";
 
         /// <summary>
         /// The unable to create test run.
@@ -297,6 +337,11 @@ namespace LodeRunner.API
         /// The unable to get test run.
         /// </summary>
         public const string UnableToGetTestRun = "Unable to get Test Run item.";
+
+        /// <summary>
+        /// Generic not found error message.
+        /// </summary>
+        public const string NotFoundError = "Not Found.";
 
         /// <summary>
         /// The unable to delete the test run because its running.
