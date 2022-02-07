@@ -13,7 +13,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | Type Name       |  Description    |  Notes                             |     LodeRunner.API  | LodeRunner | LodeRunner.UI |
 | :-------------- | :-------------- | :--------------------------------- | :----------| :----------| :----------|
 | BaseEntity      | Used as the parent for the data classes  | | xxxx | xxxx | xxxx |
-| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx |
+| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by LRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the LRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx |
 | LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD | xRxx |
 | LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
@@ -158,7 +158,7 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | ClientResults   |  LoadResult[]  | This is an array of the result output from each client | No | |
 
 `Table 07: TestRun Properties`
@@ -185,7 +185,7 @@ This entity is still TBD
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
