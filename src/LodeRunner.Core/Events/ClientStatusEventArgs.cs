@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Threading;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.Core.Events
@@ -17,11 +18,13 @@ namespace LodeRunner.Core.Events
         /// </summary>
         /// <param name="status">The status.</param>
         /// <param name="message">The message.</param>
-        public ClientStatusEventArgs(ClientStatusType status, string message)
+        /// <param name="cancellationTokenSource">The cancellation Token source.</param>
+        public ClientStatusEventArgs(ClientStatusType status, string message, CancellationTokenSource cancellationTokenSource)
         {
             this.LastUpdated = DateTime.UtcNow;
             this.Status = status;
             this.Message = message;
+            this.CancelTokenSource = cancellationTokenSource;
         }
 
         /// <summary>
@@ -47,5 +50,13 @@ namespace LodeRunner.Core.Events
         /// The message.
         /// </value>
         public string Message { get; set; }
+
+        /// <summary>
+        /// Gets the cancel token source.
+        /// </summary>
+        /// <value>
+        /// The cancel token source.
+        /// </value>
+        public CancellationTokenSource CancelTokenSource { get; private set; }
     }
 }
