@@ -10,6 +10,7 @@ using System.Timers;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Data;
@@ -224,10 +225,11 @@ namespace LodeRunner.Services
             loadResult.SuccessfulRequests = args.SuccessfulRequests;
             loadResult.TotalRequests = args.TotalRequests;
             loadResult.LoadClient = this.loadClient;
-            loadResult.StartTime = testRun.StartTime;
+            loadResult.StartTime = args.StartTime;
 
             testRun.ClientResults.Add(loadResult);
 
+            // update TestRun CompletedTime if last client to report results
             if (testRun.ClientResults.Count == testRun.LoadClients.Count)
             {
                 testRun.CompletedTime = args.CompletedTime;
@@ -526,7 +528,7 @@ namespace LodeRunner.Services
             this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})"));
 
             // convert TestRun object to command line args
-            string[] args = testRun.LoadTestConfig.GetArgs();
+            string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
 
             CancellationTokenSource cancel = new ();
             int result = -1;
@@ -536,14 +538,12 @@ namespace LodeRunner.Services
                 // can be updated accordingly
                 result = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel);
             }
-            catch (TaskCanceledException tce)
+            catch (Exception ex)
             {
                 // TODO: Handle exceptions
-                // TODO: Figure out how to use/ where to raise the UpdateTestRun event when the test run fails with an exception
+                // TODO: Figure out how to use/where to raise the UpdateTestRun event when the test run fails with an exception
                 Console.WriteLine($"Eating exception for now {tce}");
             }
-
-            Console.WriteLine($"TestResult: {result}");
         }
     }
 }
