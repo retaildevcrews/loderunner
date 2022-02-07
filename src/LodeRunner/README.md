@@ -141,7 +141,7 @@ Table legend:
 | --random               | RANDOM               | bool             | false   | Only valid if --run-loop is specified. Randomize requests when running the test. |            |
 | --region               | REGION               | string           | "Unknown" | Deployment region for logging (user defined) |            |
 | --run-loop (-r)        | RUN_LOOP             | bool             | false   | Runs the test in a continuous loop              |            |
-| --secrets-volume       | SECRETS_VOLUME       | string           | secrets | Secrets location (directory name)      | If --secrets-volume is set then secrets directory must exist.   |
+| --secrets-volume       | SECRETS_VOLUME       | string           | "secrets" | Secrets location (directory name)      | If --secrets-volume is set then secrets directory must exist.   |
 | --server (-s)          | SERVER               | string1 [string2 string3 ...] | N/A   | Server URL(s) to test (i.e. `https://MyServerDomainName.com`) |            |
 | --sleep (-l)           | SLEEP                | positive integer | 1000    | Number of milliseconds to sleep between requests | Default value is 0 when --run-loop is false |
 | --strict-json (-j)     | STRICT_JSON          | bool             | false   | Use strict RFC rules when parsing json | Json property names are case sensitive, exceptions will occur for trailing commas in json arrays and comments in json           |
