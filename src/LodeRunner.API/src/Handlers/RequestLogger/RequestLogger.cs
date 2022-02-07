@@ -7,13 +7,14 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
-using LodeRunner.API;
 using LodeRunner.API.Middleware.Validation;
+using LodeRunner.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Prometheus;
+using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
 namespace LodeRunner.API.Middleware
 {

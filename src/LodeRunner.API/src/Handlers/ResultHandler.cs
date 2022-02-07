@@ -11,6 +11,7 @@ using LodeRunner.API.Middleware.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API.Middleware
 {
@@ -27,10 +28,10 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="getResult">Async task to retrieve results from data storage.</param>
-        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="logger">The Logger.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<IEnumerable<TEntity>>> getResult, NgsaLog logger, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<IEnumerable<TEntity>>> getResult, ILogger logger, [CallerMemberName] string methodName = null)
         {
             try
             {
@@ -48,20 +49,21 @@ namespace LodeRunner.API.Middleware
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
                     // Log Warning
-                    await logger.LogWarning($"{methodName} > {nameof(CreateGetResponse)}", logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetResponse)}"), $"{SystemConstants.NotFoundError}");
+
                     return new NoContentResult();
                 }
                 else
                 {
                     // Log Error
-                    await logger.LogError($"{methodName} > {nameof(CreateGetResponse)}", "CosmosException", NgsaLog.LogEvent400, ex: ce);
+                    logger.LogError(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetResponse)}"), ce, "CosmosException");
                     return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
                 }
             }
             catch (Exception ex)
             {
                 // Log Error
-                await logger.LogError($"{methodName} > {nameof(CreateGetResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
+                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetResponse)}"), ex, "Exception");
                 return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > {ex.Message}");
             }
         }
@@ -78,14 +80,16 @@ namespace LodeRunner.API.Middleware
         /// <param name="httpRequest">HttpRequest.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, NgsaLog logger, IEnumerable<ValidationError> errorList, HttpContext httpContext, HttpRequest httpRequest, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, ILogger logger, IEnumerable<ValidationError> errorList, HttpContext httpContext, HttpRequest httpRequest, [CallerMemberName] string methodName = null)
         {
+            string entityName = typeof(TEntity).Name;
+
             try
             {
                 if (errorList.Any())
                 {
                     // Log Warning
-                    await logger.LogWarning($"{methodName} > {nameof(CreateGetByIdResponse)}", $"Unable to {methodName} with ID, {id}", NgsaLog.LogEvent400, httpContext);
+                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"Unable to {methodName} with ID, {id}");
 
                     // Add info to response
                     var path = RequestLogger.GetPathAndQuerystring(httpRequest);
@@ -124,20 +128,20 @@ namespace LodeRunner.API.Middleware
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
                     // Log Warning
-                    await logger.LogWarning($"{methodName} > {nameof(CreateGetByIdResponse)}", logger.NotFoundError, new LogEventId((int)ce.StatusCode, string.Empty));
+                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"{entityName}s {SystemConstants.NotFoundError}");
                     return new NotFoundResult();
                 }
                 else
                 {
                     // Log Error
-                    await logger.LogError($"{methodName} > {nameof(CreateGetByIdResponse)}", "CosmosException", NgsaLog.LogEvent400, ex: ce);
+                    logger.LogError(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ce, "CosmosException");
                     return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
                 }
             }
             catch (Exception ex)
             {
                 // Log Error
-                await logger.LogError($"{methodName} > {nameof(CreateGetByIdResponse)}", "Exception", NgsaLog.LogEvent500, ex: ex);
+                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ex, "Exception");
                 return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > {ex.Message}");
             }
         }
@@ -225,7 +229,7 @@ namespace LodeRunner.API.Middleware
         /// <param name="results">The results.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The Action Result.</returns>
-        public static async Task<ActionResult> HandleResult(object results, NgsaLog logger)
+        public static async Task<ActionResult> HandleResult(object results, ILogger logger)
         {
             if (results == null)
             {
@@ -245,7 +249,7 @@ namespace LodeRunner.API.Middleware
                 catch (Exception ex)
                 {
                     // log and return exception
-                    await logger.LogError(nameof(HandleResult), "Exception", NgsaLog.LogEvent500, ex: ex);
+                    logger.LogError(new EventId((int)(int)HttpStatusCode.InternalServerError, nameof(HandleResult)), ex, "Exception");
 
                     // return 500 error
                     return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);

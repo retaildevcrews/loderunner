@@ -41,7 +41,7 @@ namespace LodeRunner.Core.SchemaFilters
                     ["strictJson"] = new OpenApiBoolean(true),
                     ["baseURL"] = new OpenApiString("Sample BaseURL"),
                     ["verboseErrors"] = new OpenApiBoolean(true),
-                    ["randomize"] = new OpenApiBoolean(false),
+                    ["randomize"] = new OpenApiBoolean(true),
                     ["timeout"] = new OpenApiInteger(10),
                     ["server"] = new OpenApiArray
                     {
@@ -50,7 +50,7 @@ namespace LodeRunner.Core.SchemaFilters
                     },
                     ["tag"] = new OpenApiString("Sample Tag"),
                     ["sleep"] = new OpenApiInteger(5),
-                    ["runLoop"] = new OpenApiBoolean(false),
+                    ["runLoop"] = new OpenApiBoolean(true),
                     ["duration"] = new OpenApiInteger(60),
                     ["maxErrors"] = new OpenApiInteger(10),
                     ["delayStart"] = new OpenApiInteger(5),

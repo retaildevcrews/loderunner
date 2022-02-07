@@ -13,6 +13,7 @@ using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LodeRunner.API.Controllers
@@ -25,22 +26,18 @@ namespace LodeRunner.API.Controllers
     [SwaggerTag("Create, read, update, delete Test Runs")]
     public class TestRunsController : Controller
     {
-        private static readonly NgsaLog Logger = new ()
-        {
-            Name = typeof(TestRunsController).FullName,
-            ErrorMessage = "TestRunsControllerException",
-            NotFoundError = "Test Runs Not Found",
-        };
-
+        private readonly ILogger logger;
         private readonly IMapper autoMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunsController"/> class.
         /// </summary>
         /// <param name="mapper">The mapper.</param>
-        public TestRunsController(IMapper mapper)
+        /// <param name="logger">The logger.</param>
+        public TestRunsController(IMapper mapper, ILogger<LoadTestConfigsController> logger)
         {
             this.autoMapper = mapper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse(testRunService.GetAll, Logger);
+            return await ResultHandler.CreateGetResponse(testRunService.GetAll, logger);
         }
 
         /// <summary>
@@ -92,7 +89,7 @@ namespace LodeRunner.API.Controllers
 
             List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
-            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, Logger, errorlist, this.HttpContext, this.Request);
+            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, logger, errorlist, this.HttpContext, this.Request);
         }
 
         /// <summary>
