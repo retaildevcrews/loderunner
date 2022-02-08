@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -22,7 +21,7 @@ namespace LodeRunner.Core.Extensions
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="payloadPropertiesChanged">Changed properties list.</param>
-        /// <returns>the args.</returns>
+        /// <returns>The command line arguments.</returns>
         public static string[] GetArgs(LoadTestConfig loadTestConfig, List<string> payloadPropertiesChanged = null)
         {
             var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));

@@ -529,7 +529,7 @@ namespace LodeRunner.Services
             this.pendingTestRuns.Add(testRun.Id);
             this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})", this.cancellationTokenSource));
 
-            // convert TestRun object to command line args
+            // convert TestRun LoadTestConfig object to command line args
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
 
             CancellationTokenSource cancel = new ();
