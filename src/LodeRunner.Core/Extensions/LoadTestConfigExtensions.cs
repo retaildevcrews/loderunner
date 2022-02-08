@@ -17,7 +17,8 @@ namespace LodeRunner.Core.Extensions
     public static class LoadTestConfigExtensions
     {
         /// <summary>
-        /// Gets the arguments from properties that exist in changedProperties list.
+        /// Gets the command line arguments from LoadTestConfig properties.
+        /// If payloadPropertiesChanged list exists, only the listed properties are converted.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="payloadPropertiesChanged">Changed properties list.</param>
@@ -30,8 +31,7 @@ namespace LodeRunner.Core.Extensions
 
             foreach (var prop in properties)
             {
-                // NOTE: Only convert properties to arguments if the property exists in the changedProperties list
-                // This list represents the Json data sent as Payload
+                // only convert properties in the payloadPropertiesChanged list (if it exists)
                 if (payloadPropertiesChanged == null || payloadPropertiesChanged.Contains(prop.Name))
                 {
                     var descriptionAttributes = (DescriptionAttribute[])prop.GetCustomAttributes(typeof(DescriptionAttribute), false);
