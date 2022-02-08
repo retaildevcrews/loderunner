@@ -58,12 +58,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
 
         /// <summary>
-        /// Gets a value indicating whether this instance is running.
+        /// Gets a value indicating whether this instance started.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is running; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance started; otherwise, <c>false</c>.
         /// </value>
-        public bool IsRunning { get; private set; } = false;
+        public bool Started { get; private set; } = false;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -82,7 +82,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         {
             string currentDir = Directory.GetCurrentDirectory();
 
-            if (!this.IsRunning)
+            if (!this.Started)
             {
                 this.currentProcess = new Process
                 {
@@ -102,15 +102,13 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 this.currentProcess.StartInfo.RedirectStandardError = true;
                 this.currentProcess.ErrorDataReceived += this.CurrentProcess_ErrorDataReceived;
 
-                this.IsRunning = this.currentProcess.Start();
+                this.Started = this.currentProcess.Start();
 
                 this.currentProcess.BeginOutputReadLine();
                 this.currentProcess.BeginErrorReadLine();
-
-                //this.currentProcess.WaitForExitAsync(this.cancelTokenSource.Token);
             }
 
-            return this.IsRunning;
+            return this.Started;
         }
 
         /// <summary>
@@ -118,8 +116,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// </summary>
         public void End()
         {
-            this.cancelTokenSource.Cancel();
-            //this.currentProcess.Kill(true);
+            this.Dispose();
         }
 
         private void Dispose(bool disposing)
