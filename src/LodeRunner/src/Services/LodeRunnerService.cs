@@ -542,7 +542,7 @@ namespace LodeRunner.Services
             catch (Exception ex)
             {
                 // TODO: Handle specific exceptions (as needed)
-                // TODO: Revisit how to use/where to raise the UpdateTestRun event when the test run fails with an exception
+                // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
                 ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
         }
