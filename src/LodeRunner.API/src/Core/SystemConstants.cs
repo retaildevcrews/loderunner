@@ -339,6 +339,11 @@ namespace LodeRunner.API
         public const string UnableToGetTestRun = "Unable to get Test Run item.";
 
         /// <summary>
+        /// Generic not found error message.
+        /// </summary>
+        public const string NotFoundError = "Not Found.";
+
+        /// <summary>
         /// The unable to delete the test run because its running.
         /// </summary>
         public const string UnableToDeleteRunNotCompleted = "Test is still running. Unable to delete the TestRun.";

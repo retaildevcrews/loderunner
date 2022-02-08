@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner
 {
@@ -36,6 +38,7 @@ namespace LodeRunner
                 if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
                 {
                     Console.WriteLine($"File Not Found: {file}");
+
                     return null;
                 }
 
@@ -238,7 +241,7 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(LoadJson)), ex, "Exception.");
             }
 
             // couldn't read the list

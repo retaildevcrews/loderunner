@@ -11,9 +11,11 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
+using Microsoft.Extensions.Logging;
 using Ngsa.Middleware;
 using Prometheus;
 
@@ -38,6 +40,9 @@ namespace LodeRunner
         private static SocketsHttpHandler httpSocketHandler;
 
         private readonly Dictionary<string, PerfTarget> targets = new ();
+
+        private readonly ILogger logger;
+
         private Config config;
 
         /// <summary>
@@ -45,12 +50,15 @@ namespace LodeRunner
         /// Constructor for ValidationTest.
         /// </summary>
         /// <param name="config">app config.</param>
-        public ValidationTest(Config config)
+        /// <param name="logger">the logger.</param>
+        public ValidationTest(Config config, ILogger logger)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
                 throw new ArgumentNullException(nameof(config));
             }
+
+            this.logger = logger;
 
             this.config = config;
 
@@ -160,6 +168,7 @@ namespace LodeRunner
                 {
                     if (ndx > 0)
                     {
+                        // Note: We are separating console output.
                         Console.WriteLine();
                         errorCount = 0;
                         validationFailureCount = 0;
@@ -219,7 +228,8 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        Console.WriteLine($"{Now}\tException: {ex.Message}");
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, "Exception");
+
                         errorCount++;
                     }
                 }
@@ -283,7 +293,7 @@ namespace LodeRunner
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new ()
+                TimerRequestState state = new (this.logger)
                 {
                     Server = svr,
                     Client = this.OpenHttpClient(svr),
@@ -332,8 +342,8 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    Console.WriteLine($"Exception: {tce}");
                     TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, "TaskCanceledException");
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -345,8 +355,8 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    Console.Write($"Exception: {oce}");
                     TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, "OperationCanceledException");
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -355,8 +365,8 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex}");
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
                 return Core.SystemConstants.ExitFail;
             }
 
@@ -708,7 +718,6 @@ namespace LodeRunner
                     logDict.Add("ErrorDetails", errors.Trim());
                 }
 
-                // Console.WriteLine($"{perfLog.StatusCode}\t{Math.Round(perfLog.Duration, 2)}\t{perfLog.ContentLength}\t{perfLog.Path}");
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
         }

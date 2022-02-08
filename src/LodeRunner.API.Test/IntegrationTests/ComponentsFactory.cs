@@ -5,11 +5,14 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Services;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace LodeRunner.API.Test.IntegrationTests
@@ -69,7 +72,9 @@ namespace LodeRunner.API.Test.IntegrationTests
                 // Initialize and Start LodeRunner Service
                 Secrets.LoadSecrets(lrConfig);
                 CancellationTokenSource cancelTokenSource = new ();
-                l8rService = new LodeRunnerService(lrConfig, cancelTokenSource);
+
+                var logger = CreateLodeRunnerServiceLogger(lrConfig);
+                l8rService = new LodeRunnerService(lrConfig, cancelTokenSource, logger);
 
                 Assert.NotNull(l8rService);
 
@@ -79,6 +84,22 @@ namespace LodeRunner.API.Test.IntegrationTests
             await rootClient.InvokeAsync(args).ConfigureAwait(true);
 
             return l8rService;
+        }
+
+        /// <summary>
+        ///  Create LodeRunnerService Logger.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns>The logger.</returns>
+        private static ILogger<LodeRunnerService> CreateLodeRunnerServiceLogger(LodeRunner.Config config)
+        {
+            string projectName = Assembly.GetCallingAssembly().GetName().Name;
+            using var loggerFactory = LoggerFactory.Create(logger =>
+                {
+                    logger.Setup(config, projectName);
+                });
+
+            return loggerFactory.CreateLogger<LodeRunnerService>();
         }
     }
 }

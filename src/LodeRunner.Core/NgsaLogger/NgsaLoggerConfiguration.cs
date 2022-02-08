@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace LodeRunner.API.Middleware
+namespace LodeRunner.Core.NgsaLogger
 {
     /// <summary>
     /// NGSA Logger Configuration.

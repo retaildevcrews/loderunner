@@ -84,7 +84,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>HttpResponseMessage after retries.</returns>
         public static async Task<HttpResponseMessage> GetRetryAsync(this HttpClient httpClient, string uri, string action, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
-            HttpResponseMessage httpResponse = new HttpResponseMessage();
+            HttpResponseMessage httpResponse = new ();
 
             for (int i = 1; i <= maxRetries; i++)
             {

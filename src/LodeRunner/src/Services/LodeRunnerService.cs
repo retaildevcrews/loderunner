@@ -13,13 +13,16 @@ using LodeRunner.Core.Events;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
 using LodeRunner.Services.Extensions;
+using LodeRunner.Subscribers;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Services
 {
@@ -34,6 +37,7 @@ namespace LodeRunner.Services
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly ClientStatus clientStatus;
+        private readonly ILogger logger;
         private System.Timers.Timer statusUpdateTimer = default;
         private object lastStatusSender = default;
         private ClientStatusEventArgs lastStatusArgs = default;
@@ -44,9 +48,12 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="config">The config.</param>
         /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
-        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource)
+        /// <param name="logger">The logger.</param>
+        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
             Debug.WriteLine("* LodeRunnerService Constructor *");
+
+            this.logger = logger;
 
             this.config = config ?? throw new Exception("CommandOptions is null");
 
@@ -132,7 +139,8 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    Console.WriteLine($"Exception: {tce}");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, "Exception");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -141,7 +149,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nException:{ex.Message}");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, "Exception");
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -189,23 +197,8 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
+
             Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
-        }
-
-        /// <summary>
-        /// Updates the cosmos status.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
-        public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
-        {
-            // TODO: do we need a lock here?
-            this.clientStatus.Message = args.Message;
-            this.clientStatus.Status = args.Status;
-
-            _ = await this.GetClientStatusService().Post(this.clientStatus, this.cancellationTokenSource.Token).ConfigureAwait(false);
-
-            // TODO : Add try catch and write log , then exit App?
         }
 
         /// <summary>
@@ -278,7 +271,7 @@ namespace LodeRunner.Services
                 await Task.Delay(this.config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
 
-            ValidationTest lrt = new (this.config);
+            ValidationTest lrt = new (this.config, this.logger);
 
             if (this.config.RunLoop)
             {
@@ -323,12 +316,15 @@ namespace LodeRunner.Services
 
             // Data connection not available yet, so we'll just update the stdout log
             ProcessingEventBus.StatusUpdate += this.LogStatusChange;
-            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})"));
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})", this.cancellationTokenSource));
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
-            ProcessingEventBus.StatusUpdate += this.UpdateCosmosStatus;
+            using var clientStatusUpdater = new ClientStatusUpdater(this.GetClientStatusService(), this.clientStatus);
 
-            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+            ProcessingEventBus.StatusUpdate += clientStatusUpdater.UpdateCosmosStatus;
+
+            this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})", this.cancellationTokenSource));
+
             ProcessingEventBus.TestRunComplete += this.UpdateTestRun;
             try
             {
@@ -343,17 +339,21 @@ namespace LodeRunner.Services
                             // skip tests that have been completed but not yet updated with results in cosmos
                             if (!this.pendingTestRuns.Contains(testRun.Id))
                             {
-                                this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})"));
-
                                 // Only execute TestRuns scheduled to run before the next minute
                                 if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
                                 {
-                                    await this.ExecuteNewTestRunAsync(testRun);
+                                    this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
+
+                                    // Only execute TestRuns scheduled to run before the next minute
+                                    if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
+                                    {
+                                        await this.ExecuteNewTestRunAsync(testRun);
+                                    }
                                 }
                             }
                         }
 
-                        this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})"));
+                        this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})", this.cancellationTokenSource));
                     }
 
                     await Task.Delay(this.config.PollingInterval * 1000, this.cancellationTokenSource.Token);
@@ -361,11 +361,11 @@ namespace LodeRunner.Services
             }
             catch (TaskCanceledException tce)
             {
-                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {tce.Message}", this.cancellationTokenSource));
             }
             catch (OperationCanceledException oce)
             {
-                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}"));
+                this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Terminating, $"Terminating Client ({this.ClientStatusId}) - {oce.Message}", this.cancellationTokenSource));
             }
 
             return Core.SystemConstants.ExitSuccess;
@@ -527,7 +527,7 @@ namespace LodeRunner.Services
         private async Task ExecuteNewTestRunAsync(TestRun testRun)
         {
             this.pendingTestRuns.Add(testRun.Id);
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})"));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})", this.cancellationTokenSource));
 
             // convert TestRun object to command line args
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
