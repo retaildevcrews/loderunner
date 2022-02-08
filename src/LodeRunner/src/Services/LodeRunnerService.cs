@@ -537,7 +537,7 @@ namespace LodeRunner.Services
             {
                 // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
                 // can be updated accordingly
-                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel);
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
             }
             catch (Exception ex)
             {

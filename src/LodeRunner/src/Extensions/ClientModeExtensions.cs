@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.CommandLine;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Services.Extensions
 {
@@ -17,8 +18,9 @@ namespace LodeRunner.Services.Extensions
         /// <param name="args">Command line args</param>
         /// <param name="testRunId">TestRun id</param>
         /// <param name="cancellationTokenSource">Cancellation token source</param>
+        /// <param name="logger">The logger.</param>
         /// <returns>LodeRunnerService.</returns>
-        public static async Task<int> CreateAndStartLodeRunnerCommandMode(string[] args, string testRunId, CancellationTokenSource cancellationTokenSource)
+        public static async Task<int> CreateAndStartLodeRunnerCommandMode(string[] args, string testRunId, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
             LodeRunner.Config lrConfig = new ();
             RootCommand rootClient = LRCommandLine.GetRootCommand(args);
@@ -28,7 +30,7 @@ namespace LodeRunner.Services.Extensions
             {
                 lrConfig.IsClientMode = false;
                 lrConfig.TestRunId = testRunId;
-                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource);
+                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource, logger);
 
                 return await l8rService.StartService();
             });
