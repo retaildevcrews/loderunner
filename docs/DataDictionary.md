@@ -13,7 +13,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | Type Name       |  Description    |  Notes                             |     LodeRunner.API  | LodeRunner | LodeRunner.UI |
 | :-------------- | :-------------- | :--------------------------------- | :----------| :----------| :----------|
 | BaseEntity      | Used as the parent for the data classes  | | xxxx | xxxx | xxxx |
-| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by RRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the RRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx |
+| ClientStatus    | This object is used to convey the state of any given LodeRunner client that is configured to use the same data store. | Status documents will be placed in the dabase by LodeRunner and read by LRAPI.  A TTL of **60 seconds will** be given to the records so that if the client doesn't regulary update status will not be visible to the LRAPI or the LodeRunner.UI (LRUI). | xRxx | CRUD | xRxx |
 | LoadClient      | Information about the LodeRunner instance | | xRxx | CRUD | xRxx |
 | LoadTestConfig  | Used to define the test execution context for the LodeRunner clients. | | CRUD | xxxx | CRUD |
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
@@ -29,7 +29,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 
 This entity is the parent of several objects and defines common fields
 
-#### BaseLoadEntity
+#### BaseEntityModel
 
 | Property        |      Type       | Description                        | Notes      |
 | :-------------- | :-------------- | :--------------------------------- | :----------|
@@ -63,7 +63,7 @@ This is an object that represents an instance of LodeRunner and it's initial sta
 | EntityType      |     String      | Entity type used for filtering     |  Yes     |            |
 | Version         |     String      | Version of LodeRunner being used   |  Yes     |            |
 | Id              |     String      | Unique Id generated at start-up to differentiate clients located in the same Region and Zone | Yes | |
-| Name            |   String   | Friendly name so that users may more easily identify a given LoadClient | No | |
+| Name            |     String      | Friendly name so that users may more easily identify a given LoadClient | No | |
 | Region          |     String      | The region in which the client is deployed | Yes | |
 | Zone            |     String      | The zone in which the client is deployed | Yes | |
 | Prometheus      |     Boolean     | Indicates whether or not this instance of LodeRunner is providing Prometheus metrics | No | default is `false` |
@@ -83,11 +83,13 @@ This object is primarily for conveying the curent status, time of that status, a
 | PartitionKey    |   String   | This value should be populated for `ClientStatus` objects and documents |  Yes | |
 | EntityType      |   String   | Entity type used for filtering     |    Yes   | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
 | Id              |   String   | GUID used to retrieve the object directly | Yes | |
+| Name            |   String   | Friendly name so that users may more easily identify a given ClientStatus | No | |
 | LastUpdated     |   DateTime | This shows the date and time the entity was last updated | Yes | |
 | LastStatusChange   |     DateTime    | This shows the date and time the status was last change | Yes | |
 | Status          |   String   | Current status of load client      |    Yes   | [`Unknown`, `Starting`, `Ready`, `Testing`, `Terminating`] |
 | Message         |   String   | Additional information conveyed as part of the status update | No | |
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
+| Ttl             |    Int     | Time to live in seconds | No | |
 
 `Table 04: ClientStatus Properties`
 
@@ -120,7 +122,7 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 
 `Table 05: LoadTestConfig Properties`
 
-#### 2.3.2 LoadTestConfig Payload
+#### 2.3.2 LoadTestConfigPayload
 
 This object is utilized as the Load Test Config payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating Load Test Configs and helps to identify deltas during payload deserialization.
 
@@ -142,7 +144,7 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | DelayStart      |    Int     | Delay test start.  Must be `-1` for LodeRunner as that sets LodeRunner into a wait mode | Yes | match to `--delay-start` CLI flag |
 | DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
 
-`Table 06: LoadTestConfig Payload Properties`
+`Table 06: LoadTestConfigPayload Properties`
 
 #### 2.3.3 TestRun Properties
 
@@ -156,12 +158,12 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | ClientResults   |  LoadResult[]  | This is an array of the result output from each client | No | |
 
 `Table 07: TestRun Properties`
 
-#### 2.3.4 TestRun Payload
+#### 2.3.4 TestRunPayload
 
 This object is utilized as the Test Run payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating TestRuns and helps to identify deltas during payload deserialization.
 
@@ -173,7 +175,7 @@ This object is utilized as the Test Run payload data. It inherits from BasePaylo
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
 
-`Table 08: TestRun Payload Properties`
+`Table 08: TestRunPayload Properties`
 
 #### 2.3.5 LoadResult
 
@@ -183,7 +185,7 @@ This entity is still TBD
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
 | StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the RRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
