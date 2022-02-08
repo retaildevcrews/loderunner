@@ -73,6 +73,10 @@ In order for a **TestRun** to be available for a LodeRunner client, it must:
 - include the clientId in its list of LoadClients
 - not have already been executed by the client
 
+#### Executing TestRuns
+
+To execute the TestRuns, the LodeRunner instance running in **Client** mode starts a new instance of LodeRunner running in **Command** mode. The **LoadTestConfig** specified in the **TestRun** is converted to command line arguments. Once a **TestRun** execution is complete, LodeRunner will update the **TestRun** document in CosmosDB with the summarized test results in a **LoadResult** object.
+
 #### Example Client Mode Arguments
 
 TODO: Describe the flags for each one, explain that -s and -f are ignored in **Client** mode
