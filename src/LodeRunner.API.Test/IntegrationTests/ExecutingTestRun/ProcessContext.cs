@@ -1,9 +1,15 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
@@ -13,24 +19,51 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     /// <seealso cref="System.IDisposable" />
     internal class ProcessContext : IDisposable
     {
-
-        private readonly string pathFileName;
+        private readonly string cmdLine;
         private readonly string args;
 
         private bool disposedValue = false;
-        private bool isRunning = false;
         private Process currentProcess;
+        private ITestOutputHelper output;
+        private CancellationTokenSource cancelTokenSource = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessContext"/> class.
         /// </summary>
-        /// <param name="pathFileName">Name of the path file.</param>
+        /// <param name="cmdLine">Command Line.</param>
         /// <param name="args">The arguments.</param>
-        public ProcessContext(string pathFileName, string args)
+        /// <param name="output">The output.</param>
+        public ProcessContext(string cmdLine, string args, ITestOutputHelper output)
         {
             this.args = args;
-            this.pathFileName = pathFileName;
+            this.cmdLine = cmdLine;
+            this.output = output;
         }
+
+        /// <summary>
+        /// Gets the errors.
+        /// </summary>
+        /// <value>
+        /// The errors.
+        /// </value>
+        public List<string> Errors { get; private set; } = new List<string>();
+
+        /// <summary>
+        /// Gets the output.
+        /// </summary>
+        /// <value>
+        /// The output.
+        /// </value>
+        public List<string> Output { get; private set; } = new List<string>();
+
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is running.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsRunning { get; private set; } = false;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -42,28 +75,42 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Starts this instance.
+        /// Starts the specified wait for exit.
         /// </summary>
         /// <returns>whether or not the process started.</returns>
         public bool Start()
         {
-            if (!this.isRunning)
-            {
-                var startInfo = new ProcessStartInfo()
-                {
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
+            string currentDir = Directory.GetCurrentDirectory();
 
-                    FileName = this.pathFileName,
-                    Arguments = this.args,
+            if (!this.IsRunning)
+            {
+                this.currentProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo()
+                    {
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+
+                        FileName = this.cmdLine,
+                        Arguments = this.args,
+                    },
                 };
 
-                this.currentProcess = Process.Start(startInfo);
+                this.currentProcess.StartInfo.RedirectStandardOutput = true;
+                this.currentProcess.OutputDataReceived += this.CurrentProcess_OutputDataReceived;
 
-                this.isRunning = this.currentProcess != null;
+                this.currentProcess.StartInfo.RedirectStandardError = true;
+                this.currentProcess.ErrorDataReceived += this.CurrentProcess_ErrorDataReceived;
+
+                this.IsRunning = this.currentProcess.Start();
+
+                this.currentProcess.BeginOutputReadLine();
+                this.currentProcess.BeginErrorReadLine();
+
+                //this.currentProcess.WaitForExitAsync(this.cancelTokenSource.Token);
             }
 
-            return this.currentProcess != null;
+            return this.IsRunning;
         }
 
         /// <summary>
@@ -71,7 +118,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// </summary>
         public void End()
         {
-            this.currentProcess.Kill(true);
+            this.cancelTokenSource.Cancel();
+            //this.currentProcess.Kill(true);
         }
 
         private void Dispose(bool disposing)
@@ -84,6 +132,35 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 }
 
                 this.disposedValue = true;
+            }
+        }
+
+        /// <summary>
+        /// Handles the ErrorDataReceived event of the CurrentProcess control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataReceivedEventArgs"/> instance containing the event data.</param>
+        private void CurrentProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+
+            if (!string.IsNullOrEmpty(e?.Data))
+            {
+                this.Errors.Add(e?.Data);
+                this.output.WriteLine(e?.Data);
+            }
+        }
+
+        /// <summary>
+        /// Handles the OutputDataReceived event of the CurrentProcess control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataReceivedEventArgs"/> instance containing the event data.</param>
+        private void CurrentProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e?.Data))
+            {
+                this.Output.Add(e?.Data);
+                this.output.WriteLine(e?.Data);
             }
         }
     }

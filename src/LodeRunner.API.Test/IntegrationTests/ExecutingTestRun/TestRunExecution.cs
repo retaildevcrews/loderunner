@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -12,7 +13,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.API.Test.IntegrationTests.Controllers;
-using LodeRunner.Core.Automapper;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,65 +63,99 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
+            // Execute dotnet run against LodeRunner project in Client Mode
+            string cmdLine = "dotnet";
 
-            //TODO : Start a LodeRunner Service using Process Start ?
-
-            // Create and Start LoadRunner Service - Client Mode
-            //using var l8rService = await ComponentsFactory.CreateAndStartLodeRunnerServiceInstance(nameof(this.CanCreateAndExecuteTestRun));
-            //string clientStatusId = l8rService.ClientStatusId;
-            //this.output.WriteLine($"Started LodeRunner (client mode) [ClientStatusId: {clientStatusId}]");
-
-            //Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId from LodeRunner (client mode) service.");
-
-            //(HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
-
-            //Assert.Equal(HttpStatusCode.OK, readyStatusCode);
-            //Assert.NotNull(readyClient);
-            //Assert.Equal(clientStatusId, readyClient.ClientStatusId);
-
-            //TODO: Build LoadRunner and get location
-
-
-            using var context = new ProcessContext("process info");
+            // string args = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Command -s http://localhost:8081 --files LodeRunner.Api-benchmark.json --run-loop true --duration 10";
+            string args = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
+            using var lodeRunnerAppContext = new ProcessContext(cmdLine, args, this.output);
 
             try
             {
-                context.Start();
 
-                // Create Test Run
-                TestRunPayload testRunPayload = new ();
+                if (lodeRunnerAppContext.Start())
+                {
+                    string clientStatusId = null;
+                    while (lodeRunnerAppContext.IsRunning)
+                    {
+                        if (string.IsNullOrEmpty(clientStatusId))
+                        {
+                            clientStatusId = this.GetClienStatusId(lodeRunnerAppContext.Output);
+                        }
+                        else
+                        {
+                            // Verify clientStatusId.
+                            (HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
-                testRunPayload.SetMockDataForLoadRunnerApi($"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
-
-                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
-                Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
-
-                var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
-
-                Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
-                var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-
-                Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
-
-                // TODO:
-
-                // Wait for test execution to complete
-                // Check expected results
+                            Assert.Equal(HttpStatusCode.OK, readyStatusCode);
+                            Assert.NotNull(readyClient);
+                            Assert.Equal(clientStatusId, readyClient.ClientStatusId);
 
 
-                //l8rService.StopService();
-                //this.output.WriteLine($"Stopping LodeRunner (client mode) [ClientStatusId: {clientStatusId}]");
+                            // TODO:
 
-                context.End();
+                            // Create Test Run
+                            TestRunPayload testRunPayload = new ();
+
+                            testRunPayload.SetMockDataForLoadRunnerApi($"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+
+                            HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
+                            Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
+
+                            var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+                            var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
+
+                            Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
+                            var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+
+                            Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+
+
+                            // TODO:
+                            // Wait for test execution to complete. what is the feedback from LodeRunner utilize   //var output = lodeRunnerAppContext.Output;
+
+                            // Check expected results
+
+                            //setup the mechanism to look for the TestRun to have results and be complete or fail(which you can test by manually updating the LoadResults
+
+                            // then terminate LodeRunner Context.
+                            lodeRunnerAppContext.End();
+
+                        }
+                    }
+
+                    //var errors = lodeRunnerAppContext.Errors;
+
+                    this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
             finally
             {
-                context?.Dispose();
+                lodeRunnerAppContext?.Dispose();
             }
 
             // TODO:  Delete the TestRun ? <<<<<<<<<<<<  this could be a different test since we need to check for Completed DateTime
             //await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRun.Id, this.output);
+        }
+
+        private string GetClienStatusId(List<string> output)
+        {
+            string targetOutputLine = output.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.ClientReady));
+            if (!string.IsNullOrEmpty(targetOutputLine))
+            {
+                return this.GetSubstringByString("(", ")", targetOutputLine);
+            }
+
+            return null;
+        }
+
+        private string GetSubstringByString(string openString, string closingString, string baseString)
+        {
+            return baseString.Substring(baseString.IndexOf(openString) + openString.Length, baseString.IndexOf(closingString) - baseString.IndexOf(openString) - openString.Length);
         }
     }
 }

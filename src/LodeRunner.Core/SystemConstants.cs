@@ -108,5 +108,25 @@ namespace LodeRunner.Core
         /// The LodeRunner Command mode.
         /// </summary>
         public const string LodeRunnerCommandMode = "Command";
+
+        /// <summary>
+        /// The initializing client
+        /// </summary>
+        public const string InitializingClient = "Initializing Client";
+
+        /// <summary>
+        /// The client ready
+        /// </summary>
+        public const string ClientReady = "Client Ready";
+
+        /// <summary>
+        /// The received new test run
+        /// </summary>
+        public const string ReceivedNewTestRun = "Received new TestRun";
+
+        /// <summary>
+        /// The terminating client
+        /// </summary>
+        public const string TerminatingClient = "Terminating Client";
     }
 }
