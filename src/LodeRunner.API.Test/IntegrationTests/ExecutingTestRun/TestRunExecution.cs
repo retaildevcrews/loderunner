@@ -76,9 +76,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 if (lodeRunnerAppContext.Start())
                 {
-                    string clientStatusId = this.ParseAndGetClientStatusId(lodeRunnerAppContext.Output);
+                    string clientStatusId = await this.ParseAndGetClientStatusId(lodeRunnerAppContext.Output);
 
-                    Assert.True(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
+                    Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
 
                     // We should not have any error at time we are going to Verify Id
                     Assert.True(lodeRunnerAppContext.Errors.Count == 0);
@@ -109,23 +109,17 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     gottenTestRunId = gottenTestRun.Id;
 
                     // Get TestRun with retries or until condition has met.
-                    //(HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetTestRunByIdRetries(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, 30, 1000);
-
-                    (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 30, 1000);
+                    (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 1000);
+                    
                     // Validate results
-                    Assert.NotNull(readyTestRun.CompletedTime);
-                    Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count);
+                    Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
+                    Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
 
                     // End LodeRunner Context.
                     lodeRunnerAppContext.End();
                     this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
 
                 }
-            }
-            catch (Exception ex)
-            {
-                this.output.WriteLine(ex.Message);
-                Assert.True(false, ex.Message);
             }
             finally
             {
@@ -153,11 +147,11 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>the ClientStatusId.</returns>
-        private string ParseAndGetClientStatusId(List<string> output, int maxRetries = 10, int timeBetweenTriesMs = 1000)
+        private async Task<string> ParseAndGetClientStatusId(List<string> output, int maxRetries = 10, int timeBetweenTriesMs = 1000)
         {
             for (int i = 1; i <= maxRetries; i++)
             {
-                Task.Delay(timeBetweenTriesMs); // Log Interval is 5 secs.
+                await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
 
                 string targetOutputLine = output.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.InitializingClient));
                 if (!string.IsNullOrEmpty(targetOutputLine))

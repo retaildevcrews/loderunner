@@ -386,56 +386,6 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <summary>
         /// Gets the test run by identifier retries asynchronous.
         /// </summary>
-        /// <param name="httpClient">The HTTP client.</param>
-        /// <param name="testRunsUri">The test runs URI.</param>
-        /// <param name="testRunId">The test run identifier.</param>
-        /// <param name="jsonOptions">The json options.</param>
-        /// <param name="output">The output.</param>
-        /// <param name="maxRetries">The maximum retries.</param>
-        /// <param name="timeBetweenRequestsMs">The time between requests ms.</param>
-        /// <returns>HttpStatusCode and Client from response.</returns>
-        public static async Task<(HttpStatusCode, TestRun)> GetTestRunByIdRetries(this HttpClient httpClient, string testRunsUri, string testRunId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
-        {
-            HttpResponseMessage httpResponse = new ();
-            TestRun testRun = null;
-
-            for (int i = 1; i <= maxRetries; i++)
-            {
-                httpResponse = await httpClient.GetAsync($"{testRunsUri}/{testRunId}");
-
-                if (httpResponse.StatusCode == HttpStatusCode.NotFound)
-                {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun by ID\tResponse StatusCode: 'NotFound'\tTestRunId: '{testRunId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
-                    Thread.Sleep(timeBetweenRequestsMs);
-                }
-                else if (httpResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    testRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
-
-                    if (testRun.CompletedTime != null)
-                    {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun by ID\tResponse StatusCode: 'OK'\tTestRunId: '{testRunId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tCompletedTime criteria met [{testRun.CompletedTime}]");
-                        break;
-                    }
-                    else
-                    {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun by ID\tResponse StatusCode: 'OK'\tTestRunId: '{testRunId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tCompletedTime criteria not met [expected: not null, received: {testRun.CompletedTime}]");
-                        Thread.Sleep(timeBetweenRequestsMs);
-                    }
-                }
-                else
-                {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
-                    break;
-                }
-            }
-
-            return (httpResponse.StatusCode, testRun);
-        }
-
-        /// <summary>
-        /// Gets the test run by identifier retries asynchronous.
-        /// </summary>
         /// <typeparam name="TEntity">The Entity type.</typeparam>
         /// <param name="httpClient">The httpClient.</param>
         /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
