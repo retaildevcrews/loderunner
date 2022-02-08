@@ -188,5 +188,6 @@ This entity is still TBD
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
+| ErrorMessage    |   String       | Error message of exception (if thrown) during test run | No | |
 
 `Table 09: LoadResult Properties`

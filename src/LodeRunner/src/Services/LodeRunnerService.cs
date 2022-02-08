@@ -215,7 +215,7 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            // TODO: Handle Errors and exceptions
+            // TODO: Define expected behavior and handle exceptions when cosmos update fails
             // get TestRun document to update
             var testRun = await GetTestRunService().Get(args.TestRunId);
 
@@ -226,6 +226,7 @@ namespace LodeRunner.Services
             loadResult.TotalRequests = args.TotalRequests;
             loadResult.LoadClient = this.loadClient;
             loadResult.StartTime = args.StartTime;
+            loadResult.ErrorMessage = args.ErrorMessage;
 
             testRun.ClientResults.Add(loadResult);
 
@@ -238,6 +239,7 @@ namespace LodeRunner.Services
             // post updates
             _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
 
+            // remove TestRun from pending list since upload is complete
             this.pendingTestRuns.Remove(testRun.Id);
         }
 
@@ -531,18 +533,17 @@ namespace LodeRunner.Services
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
 
             CancellationTokenSource cancel = new ();
-            int result = -1;
             try
             {
                 // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
                 // can be updated accordingly
-                result = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel);
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel);
             }
             catch (Exception ex)
             {
-                // TODO: Handle exceptions
-                // TODO: Figure out how to use/where to raise the UpdateTestRun event when the test run fails with an exception
-                Console.WriteLine($"Eating exception for now {tce}");
+                // TODO: Handle specific exceptions (as needed)
+                // TODO: Revisit how to use/where to raise the UpdateTestRun event when the test run fails with an exception
+                ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
         }
     }

@@ -244,7 +244,7 @@ namespace LodeRunner
             }
 
             // fire event
-            TestRunComplete(null, new LoadResultEventArgs(startTime, config.TestRunId, requestCount, validationFailureCount + errorCount));
+            TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
 
             // return non-zero exit code on failure
             return errorCount > 0 || validationFailureCount >= config.MaxErrors ? errorCount + validationFailureCount : 0;
@@ -333,6 +333,7 @@ namespace LodeRunner
                 if (!tce.Task.IsCompleted)
                 {
                     Console.WriteLine($"Exception: {tce}");
+                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -345,6 +346,7 @@ namespace LodeRunner
                 if (!token.IsCancellationRequested)
                 {
                     Console.Write($"Exception: {oce}");
+                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -354,8 +356,11 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex}");
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
                 return Core.SystemConstants.ExitFail;
             }
+
+            DateTime completedTime = DateTime.UtcNow;
 
             long totalRequests = 0;
             int totalFailures = 0;
@@ -366,7 +371,7 @@ namespace LodeRunner
             }
 
             // fire event
-            TestRunComplete(null, new LoadResultEventArgs(startTime, config.TestRunId, (int)totalRequests, totalFailures));
+            TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;
