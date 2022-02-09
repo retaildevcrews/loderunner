@@ -21,11 +21,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     {
         private readonly string cmdLine;
         private readonly string args;
+        private readonly ITestOutputHelper output;
 
         private bool disposedValue = false;
         private Process currentProcess;
-        private ITestOutputHelper output;
-        private CancellationTokenSource cancelTokenSource = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessContext"/> class.
@@ -55,7 +54,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// The output.
         /// </value>
         public List<string> Output { get; private set; } = new List<string>();
-
 
         /// <summary>
         /// Gets a value indicating whether this instance started.
@@ -139,7 +137,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="e">The <see cref="DataReceivedEventArgs"/> instance containing the event data.</param>
         private void CurrentProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-
             if (!string.IsNullOrEmpty(e?.Data))
             {
                 this.Errors.Add(e?.Data);

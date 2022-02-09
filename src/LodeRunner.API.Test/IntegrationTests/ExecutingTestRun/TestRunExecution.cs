@@ -76,18 +76,18 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 if (lodeRunnerAppContext.Start())
                 {
-                    string clientStatusId = await this.ParseAndGetClientStatusId(lodeRunnerAppContext.Output);
+                    string clientStatusId = await this.TryParseProcessOutputAndGetClientStatusId(lodeRunnerAppContext.Output);
 
                     Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
 
                     // We should not have any error at time we are going to Verify Id
-                    Assert.True(lodeRunnerAppContext.Errors.Count == 0);
+                    Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Process Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
 
                     // Verify that clientStatusId exist is Database.
-                    (HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
+                    (HttpStatusCode clientStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
 
-                    Assert.True(readyStatusCode == HttpStatusCode.OK, $"Invalid response status code: {readyStatusCode}");
-                    Assert.NotNull(readyClient);
+                    Assert.True(clientStatusCode == HttpStatusCode.OK, $"Invalid response status code: {clientStatusCode}");
+                    Assert.True(readyClient != null, "Unable to get Client entity.");
                     Assert.Equal(clientStatusId, readyClient.ClientStatusId);
 
                     // Create Test Run
@@ -109,22 +109,37 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     gottenTestRunId = gottenTestRun.Id;
 
                     // Get TestRun with retries or until condition has met.
-                    //(HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 1000);
+                    (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 1000);
 
                     // Validate results
-                    // Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
-                    //Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
+                    Assert.Equal(HttpStatusCode.OK, testRunStatusCode);
+                    Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
+                    Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
 
                     // End LodeRunner Context.
                     lodeRunnerAppContext.End();
                     this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
-
                 }
             }
             finally
             {
-                await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
+                var response = await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
+
+                // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
+                Assert.NotEqual(HttpStatusCode.Conflict, response.StatusCode);
             }
+        }
+
+        /// <summary>
+        /// Gets the substring by string.
+        /// </summary>
+        /// <param name="openString">The open string.</param>
+        /// <param name="closingString">The closing string.</param>
+        /// <param name="baseString">The base string.</param>
+        /// <returns>substring.</returns>
+        private static string GetSubstringByString(string openString, string closingString, string baseString)
+        {
+            return baseString.Substring(baseString.IndexOf(openString) + openString.Length, baseString.IndexOf(closingString) - baseString.IndexOf(openString) - openString.Length);
         }
 
         /// <summary>
@@ -141,13 +156,13 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Parses the and get client status identifier.
+        /// Parses the process output and to get client status id.
         /// </summary>
         /// <param name="outputList">The Process outputList.</param>
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>the ClientStatusId.</returns>
-        private async Task<string> ParseAndGetClientStatusId(List<string> outputList, int maxRetries = 10, int timeBetweenTriesMs = 2000)
+        private async Task<string> TryParseProcessOutputAndGetClientStatusId(List<string> outputList, int maxRetries = 10, int timeBetweenTriesMs = 2000)
         {
             string clientStatusId = null;
             for (int i = 1; i <= maxRetries; i++)
@@ -157,7 +172,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 string targetOutputLine = outputList.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.InitializingClient));
                 if (!string.IsNullOrEmpty(targetOutputLine))
                 {
-                    clientStatusId = this.GetSubstringByString("(", ")", targetOutputLine);
+                    clientStatusId = GetSubstringByString("(", ")", targetOutputLine);
                     this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
                     return clientStatusId;
                 }
@@ -168,18 +183,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             }
 
             return clientStatusId;
-        }
-
-        /// <summary>
-        /// Gets the substring by string.
-        /// </summary>
-        /// <param name="openString">The open string.</param>
-        /// <param name="closingString">The closing string.</param>
-        /// <param name="baseString">The base string.</param>
-        /// <returns>substring.</returns>
-        private string GetSubstringByString(string openString, string closingString, string baseString)
-        {
-            return baseString.Substring(baseString.IndexOf(openString) + openString.Length, baseString.IndexOf(closingString) - baseString.IndexOf(openString) - openString.Length);
         }
     }
 }
