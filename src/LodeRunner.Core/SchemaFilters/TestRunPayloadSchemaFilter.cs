@@ -86,6 +86,7 @@ namespace LodeRunner.Core.SchemaFilters
                 },
                 ["createdTime"] = new OpenApiDateTime(new DateTime(2022, 1, 7, 0, 0, 0)),
                 ["startTime"] = new OpenApiDateTime(new DateTime(2022, 1, 7, 0, 30, 0)),
+                ["completedTime"] = null,
             };
         }
     }
