@@ -66,7 +66,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             // Execute dotnet run against LodeRunner project in Client Mode
             string cmdLine = "dotnet";
 
-            // string args = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Command -s http://localhost:8081 --files LodeRunner.Api-benchmark.json --run-loop true --duration 10";
             string args = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
             using var lodeRunnerAppContext = new ProcessContext(cmdLine, args, this.output);
 
@@ -81,7 +80,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
 
                     // We should not have any error at time we are going to Verify Id
-                    Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Process Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
+                    Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
 
                     // Verify that clientStatusId exist is Database.
                     (HttpStatusCode clientStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
@@ -98,7 +97,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                     Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
-                    // Validate Test Run
+                    // Validate Test Run Entity
                     var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
                     var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
 
@@ -106,10 +105,11 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
                     Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+
                     gottenTestRunId = gottenTestRun.Id;
 
                     // Get TestRun with retries or until condition has met.
-                    (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 1000);
+                    (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, 2000);
 
                     // Validate results
                     Assert.Equal(HttpStatusCode.OK, testRunStatusCode);
@@ -120,13 +120,21 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     lodeRunnerAppContext.End();
                     this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
                 }
+                else
+                {
+                    Assert.True(false, "Unable to start LodeRunner App Context.");
+                }
             }
             finally
             {
-                var response = await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
+                // gottenTestRunId gets set only after successfully have gotten and validated the Test Run entity.
+                if (!string.IsNullOrEmpty(gottenTestRunId))
+                {
+                    var response = await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
 
-                // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
-                Assert.NotEqual(HttpStatusCode.Conflict, response.StatusCode);
+                    // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
+                    Assert.NotEqual(HttpStatusCode.Conflict, response.StatusCode);
+                }
             }
         }
 
