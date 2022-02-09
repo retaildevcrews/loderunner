@@ -27,11 +27,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Sets the load runner API mock data.
+        /// Sets the mock data to load test LodeRunner API.
         /// </summary>
         /// <param name="testRunPayload">The test run payload.</param>
         /// <param name="name">The name.</param>
-        public static void SetMockDataForLoadRunnerApi(this TestRunPayload testRunPayload, string name)
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name)
         {
             testRunPayload.SetNameAndTime(name);
 

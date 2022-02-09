@@ -92,7 +92,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     // Create Test Run
                     TestRunPayload testRunPayload = new ();
 
-                    testRunPayload.SetMockDataForLoadRunnerApi($"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+                    testRunPayload.SetMockDataToLoadTestLodeRunnerApi($"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
 
                     HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                     Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
