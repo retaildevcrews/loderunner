@@ -21,6 +21,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class Clients : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
+        /// <summary>
+        /// The clients URI.
+        /// </summary>
         public const string ClientsUri = "/api/Clients";
 
         private readonly ApiWebApplicationFactory<Startup> factory;
