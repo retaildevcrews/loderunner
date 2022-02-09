@@ -9,15 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="IntegrationTests\**" />
-    <Compile Remove="Mocks\**" />
-    <EmbeddedResource Remove="IntegrationTests\**" />
-    <EmbeddedResource Remove="Mocks\**" />
-    <None Remove="IntegrationTests\**" />
-    <None Remove="Mocks\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="stylecop.json" />
   </ItemGroup>
 

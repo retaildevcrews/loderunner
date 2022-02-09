@@ -6,15 +6,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Mocks\**" />
-    <EmbeddedResource Remove="Mocks\**" />
-    <None Remove="Mocks\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="stylecop.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
