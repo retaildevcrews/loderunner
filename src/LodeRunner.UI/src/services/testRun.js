@@ -14,7 +14,6 @@ const postTestRun = async (
     [TEST_RUN.createdTime]: new Date().toISOString(),
     [TEST_RUN.name]: testRunName,
   };
-  console.log(inputs);
   return writeApi("POST", "TestRuns")(inputs);
 };
 
