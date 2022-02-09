@@ -108,7 +108,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     gottenTestRunId = gottenTestRun.Id;
 
-                    // Get TestRun with retries or until condition has met.
+                    // Attempt to get TestRun for N retries or until condition has met.
                     (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, 2000);
 
                     // Validate results
