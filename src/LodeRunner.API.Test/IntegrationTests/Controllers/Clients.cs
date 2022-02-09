@@ -121,6 +121,18 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.NotEmpty(clients);
 
+            // Assert for all required fields
+            clients.ForEach((c) => {
+                Assert.NotNull(c.Version);
+                Assert.NotNull(c.Region);
+                Assert.NotNull(c.StartupArgs);
+                Assert.NotNull(c.ClientStatusId);
+                Assert.NotNull(c.LoadClientId);
+                Assert.True(c.StartTime.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
+                Assert.True(c.LastStatusChange.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
+                Assert.True(c.LastUpdated.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
+            });
+
             // TODO: Test for not found clients
         }
 
