@@ -19,6 +19,7 @@ using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
 using LodeRunner.Services.Extensions;
 using LodeRunner.Subscribers;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -275,10 +276,8 @@ namespace LodeRunner.Services
 
             if (this.config.RunLoop)
             {
-                var app = new App();
-
                 // build and run the web host
-                IHost host = app.BuildWebHost(this.config, this.cancellationTokenSource);
+                IHost host = BuildWebHost(this.config, this.cancellationTokenSource);
                 _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
@@ -339,7 +338,7 @@ namespace LodeRunner.Services
                             // skip tests that have been completed but not yet updated with results in cosmos
                             if (!this.pendingTestRuns.Contains(testRun.Id))
                             {
-                                // Only execute TestRuns scheduled to run before the next minute
+                                // only execute TestRuns scheduled to run before the next minute
                                 if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
                                 {
                                     this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
@@ -540,6 +539,36 @@ namespace LodeRunner.Services
                 // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
                 ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
+        }
+
+        /// <summary>
+        /// Builds the web host for RunLoop.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>The Host.</returns>
+        private IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
+        {
+            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
+
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.ConfigureServices(services =>
+                            {
+                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
+                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                            });
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:{portNumber}/");
+                        })
+                        .ConfigureLogging(logger =>
+                        {
+                            logger.Setup(config, App.ProjectName);
+                        })
+                        .UseConsoleLifetime()
+                        .Build();
         }
     }
 }

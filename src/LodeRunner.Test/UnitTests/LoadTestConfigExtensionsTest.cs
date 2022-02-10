@@ -17,10 +17,10 @@ namespace LodeRunner.Test.UnitTests
     public class LoadTestConfigExtensionsTest
     {
         /// <summary>
-        /// Creates MemberData parameter values for GetArgs Test Cases.
+        /// Creates MemberData parameter values for GetArgs test cases.
         /// </summary>
         /// <returns>Parameter values.</returns>
-        public static IEnumerable<object[]> GetLoadTestConfigParams()
+        public static IEnumerable<object[]> GetArgsLoadTestConfigParams()
         {
             yield return new object[] { new LoadTestConfig() { Server = new List<string> { "https://somerandomdomain.com" }, Files = new List<string> { "memory-baseline.json" }, Sleep = 1000 }, 6, "Validation for run once" };
             yield return new object[] { new LoadTestConfig() { Server = new List<string> { "https://somerandomdomain.com" }, Files = new List<string> { "memory-baseline.json" }, Duration = 1, RunLoop = true }, 8, "Validation for run loop" };
@@ -28,15 +28,15 @@ namespace LodeRunner.Test.UnitTests
         }
 
         /// <summary>
-        /// Test success cases of GetArgs Extension to ensure conversion works as expected.
+        /// Test GetArgs Extension method to ensure conversion works as expected.
         /// </summary>
         /// <param name="loadTestConfig">The LoadTestConfig to convert to command line arguments.</param>
         /// <param name="expectedArgsLength">The expected length of the generated args array.</param>
         /// <param name="messageifFailed">The message to display if test failed.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [MemberData(nameof(GetLoadTestConfigParams))]
-        public void GetArgs_Success(LoadTestConfig loadTestConfig, int expectedArgsLength, string messageifFailed)
+        [MemberData(nameof(GetArgsLoadTestConfigParams))]
+        public void GetArgs(LoadTestConfig loadTestConfig, int expectedArgsLength, string messageifFailed)
         {
             string[] args = LoadTestConfigExtensions.GetArgs(loadTestConfig);
 

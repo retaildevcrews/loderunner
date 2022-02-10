@@ -35,14 +35,19 @@ namespace LodeRunner
         public const string AsciiFile = "src/Core/ascii-art.txt";
 
         /// <summary>
+        /// The project name.
+        /// </summary>
+        internal static readonly string ProjectName = Assembly.GetCallingAssembly().GetName().Name;
+
+        /// <summary>
         /// Gets cancellation token.
         /// </summary>
         private static readonly CancellationTokenSource CancelTokenSource = new ();
 
         /// <summary>
-        /// The project name.
+        /// Private constructor to prevent instantiation.
         /// </summary>
-        private static readonly string ProjectName = Assembly.GetCallingAssembly().GetName().Name;
+        private App() { }
 
         /// <summary>
         /// Gets or sets json serialization options.
@@ -114,36 +119,6 @@ namespace LodeRunner
         public static bool CheckFileExists(string name)
         {
             return !string.IsNullOrWhiteSpace(name) && System.IO.File.Exists(name.Trim());
-        }
-
-        /// <summary>
-        /// Builds the web host.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <returns>The Host.</returns>
-        internal IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
-        {
-            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
-
-            // configure the web host builder
-            return Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.ConfigureServices(services =>
-                            {
-                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
-                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
-                            });
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:{portNumber}/");
-                        })
-                        .ConfigureLogging(logger =>
-                        {
-                            logger.Setup(config, ProjectName);
-                        })
-                        .UseConsoleLifetime()
-                        .Build();
         }
 
         /// <summary>
