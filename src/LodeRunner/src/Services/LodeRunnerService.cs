@@ -10,13 +10,16 @@ using System.Timers;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
+using LodeRunner.Services.Extensions;
 using LodeRunner.Subscribers;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +42,7 @@ namespace LodeRunner.Services
         private System.Timers.Timer statusUpdateTimer = default;
         private object lastStatusSender = default;
         private ClientStatusEventArgs lastStatusArgs = default;
+        private List<string> pendingTestRuns;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
@@ -63,6 +67,8 @@ namespace LodeRunner.Services
             };
 
             this.cancellationTokenSource = cancellationTokenSource;
+
+            this.pendingTestRuns = new List<string>();
         }
 
         /// <summary>
@@ -197,6 +203,41 @@ namespace LodeRunner.Services
         }
 
         /// <summary>
+        /// Updates the TestRun with LoadResults.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
+        public async void UpdateTestRun(object sender, LoadResultEventArgs args)
+        {
+            // TODO: Define expected behavior and handle exceptions when cosmos update fails
+            // get TestRun document to update
+            var testRun = await GetTestRunService().Get(args.TestRunId);
+
+            LoadResult loadResult = new ();
+            loadResult.CompletedTime = args.CompletedTime;
+            loadResult.FailedRequests = args.FailedRequests;
+            loadResult.SuccessfulRequests = args.SuccessfulRequests;
+            loadResult.TotalRequests = args.TotalRequests;
+            loadResult.LoadClient = this.loadClient;
+            loadResult.StartTime = args.StartTime;
+            loadResult.ErrorMessage = args.ErrorMessage;
+
+            testRun.ClientResults.Add(loadResult);
+
+            // update TestRun CompletedTime if last client to report results
+            if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+            {
+                testRun.CompletedTime = args.CompletedTime;
+            }
+
+            // post updates
+            _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+
+            // remove TestRun from pending list since upload is complete
+            this.pendingTestRuns.Remove(testRun.Id);
+        }
+
+        /// <summary>
         /// Validates the settings.
         /// </summary>
         /// <param name="provider">The provider.</param>
@@ -236,7 +277,7 @@ namespace LodeRunner.Services
             if (this.config.RunLoop)
             {
                 // build and run the web host
-                IHost host = App.BuildWebHost(this.config);
+                IHost host = BuildWebHost(this.config, this.cancellationTokenSource);
                 _ = host.StartAsync(this.cancellationTokenSource.Token);
 
                 // run in a loop
@@ -277,12 +318,13 @@ namespace LodeRunner.Services
             this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"Initializing Client ({this.ClientStatusId})", this.cancellationTokenSource));
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
-
             using var clientStatusUpdater = new ClientStatusUpdater(this.GetClientStatusService(), this.clientStatus);
 
             ProcessingEventBus.StatusUpdate += clientStatusUpdater.UpdateCosmosStatus;
 
             this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Ready, $"Client Ready ({this.ClientStatusId})", this.cancellationTokenSource));
+
+            ProcessingEventBus.TestRunComplete += this.UpdateTestRun;
             try
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
@@ -293,12 +335,15 @@ namespace LodeRunner.Services
                     {
                         foreach (var testRun in testRuns)
                         {
-                            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
-
-                            // Only execute TestRuns scheduled to run before the next minute
-                            if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
+                            // skip tests that have been completed but not yet updated with results in cosmos
+                            if (!this.pendingTestRuns.Contains(testRun.Id))
                             {
-                                await this.ExecuteNewTestRunAsync(testRun);
+                                // only execute TestRuns scheduled to run before the next minute
+                                if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
+                                {
+                                    this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
+                                    await this.ExecuteNewTestRunAsync(testRun);
+                                }
                             }
                         }
 
@@ -475,11 +520,55 @@ namespace LodeRunner.Services
         /// <param name="testRun">TestRun configuration to execute.</param>
         private async Task ExecuteNewTestRunAsync(TestRun testRun)
         {
-            // TODO: Add logic to convert TestRun to command line args for lode runner
-            // TODO: Execute TestRun and provide LoadResult to cosmos
-            // placeholder delay to simulate TestRun execution
+            this.pendingTestRuns.Add(testRun.Id);
             this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun ({testRun.Id})", this.cancellationTokenSource));
-            await Task.Delay(20000, this.cancellationTokenSource.Token);
+
+            // convert TestRun LoadTestConfig object to command line args
+            string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
+
+            CancellationTokenSource cancel = new ();
+            try
+            {
+                // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
+                // can be updated accordingly
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Handle specific exceptions (as needed)
+                // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
+                ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Builds the web host for RunLoop.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>The Host.</returns>
+        private IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
+        {
+            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
+
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.ConfigureServices(services =>
+                            {
+                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
+                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                            });
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:{portNumber}/");
+                        })
+                        .ConfigureLogging(logger =>
+                        {
+                            logger.Setup(config, App.ProjectName);
+                        })
+                        .UseConsoleLifetime()
+                        .Build();
         }
     }
 }

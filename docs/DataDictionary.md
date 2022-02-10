@@ -19,7 +19,7 @@ Below are the primary types of data for the LodeRunner.API (LRAPI).  Those are a
 | TestRun         | This is the point in time copy of a load test that serves as a historical record.  It will contain a LoadResults object and have a reference to it's original LoadTest. | | CRUD | xRUx | CRUD |
 | LoadResult     | This is the summary information from each client of used in a TestRun and will be a member of TestRun || xRxD | CRUx | xRxD |
 | LoadTestConfigPayload     | Used as the Load Test Configuration payload data sent to the server when you make an API request. || xxxx | xxxx | xxxx |
-| TestRunPayload     | Used as the Test Run payload data sent to the server when you make an API request. || xxxx | xxxx | xxxx |
+| TestRunPayload     | Used as the TestRun payload data sent to the server when you make an API request. || xxxx | xxxx | xxxx |
 
 `Table 01: Primary LodeRunner Entities`
 
@@ -154,26 +154,26 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | EntityType      |     String     | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
 | Id              |   String   | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
 | Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
-| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
-| LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
+| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the TestRun | Yes | |
+| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
-| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| StartTime       |   DateTime     | When to start the TestRun (default current time) | Yes | |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the last listed LoadClient to finish the test execution to update the TestRun with its `CompletedTime`  |
 | ClientResults   |  LoadResult[]  | This is an array of the result output from each client | No | |
 
 `Table 07: TestRun Properties`
 
 #### 2.3.4 TestRunPayload
 
-This object is utilized as the Test Run payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating TestRuns and helps to identify deltas during payload deserialization.
+This object is utilized as the TestRun payload data. It inherits from BasePayload that implements SetField method to support wire format for creating/updating TestRuns and helps to identify deltas during payload deserialization.
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
 | Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
-| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the test run | Yes | |
-| LoadClients     | LoadClient[]   | List of available load clients to use for the test run | Yes | |
+| LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the TestRun | Yes | |
+| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
-| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
+| StartTime       |   DateTime     | When to start the TestRun (default current time) | Yes | |
 | CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This shouldn't be set while creation of TestRun, this will be used to update the Time only after all tests and clients complete exections |
 
 `Table 08: TestRunPayload Properties`
@@ -184,11 +184,12 @@ This entity is still TBD
 
 | Property        |    Type        | Description             | Required  | Notes      |
 | :-------------- | :------------- | :---------------------- | :-------- | :----------|
-| LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
-| StartTime       |   DateTime     | When to start the test run (default empty to start immediately) | No | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the LRAPI to monitor running tests and look for all tests and clients to complete for the given `TestRun` so that it may update the `CompletedTime`  |
+| LoadClient      | `LoadClient`   | A nested object holding the information about the particular client in this status message | Yes | |
+| StartTime       |   DateTime     | When the TestRun actually started | Yes  | |
+| CompletedTime   |   DateTime     | Time at which the LoadClient completed its execution and reported results | Yes |  |
 | TotalRequests   |     Int        |                         | Yes | |
 | SuccessfulRequests   |     Int        |                         | Yes | |
 | FailedRequests  |     Int        |                         | Yes | |
+| ErrorMessage    |   String       | Error message of exception (if thrown) during TestRun | No | |
 
 `Table 09: LoadResult Properties`
