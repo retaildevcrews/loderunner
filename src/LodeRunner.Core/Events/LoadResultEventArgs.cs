@@ -32,59 +32,59 @@ namespace LodeRunner.Core.Events
         }
 
         /// <summary>
-        /// Gets or sets the time the load test on the LoadClient started.
+        /// Gets the time the load test on the LoadClient started.
         /// </summary>
         /// <value>
         /// StartTime.
         /// </value>
-        public DateTime StartTime { get; set; }
+        public DateTime StartTime { get; }
 
         /// <summary>
-        /// Gets or sets the time the load test on the LoadClient completed.
+        /// Gets the time the load test on the LoadClient completed.
         /// </summary>
         /// <value>
         /// CompletedTime.
         /// </value>
-        public DateTime CompletedTime { get; set; }
+        public DateTime CompletedTime { get; }
 
         /// <summary>
-        /// Gets or sets the TestRun id that was executed.
+        /// Gets the TestRun id that was executed.
         /// </summary>
         /// <value>
         /// TestRunId.
         /// </value>
-        public string TestRunId { get; set; }
+        public string TestRunId { get; }
 
         /// <summary>
-        /// Gets or sets the total number of requests.
+        /// Gets the total number of requests.
         /// </summary>
         /// <value>
         /// TotalRequests.
         /// </value>
-        public int TotalRequests { get; set; }
+        public int TotalRequests { get; }
 
         /// <summary>
-        /// Gets or sets the number of successful requests.
+        /// Gets the number of successful requests.
         /// </summary>
         /// <value>
         /// SuccessfulRequests.
         /// </value>
-        public int SuccessfulRequests { get; set; }
+        public int SuccessfulRequests { get; }
 
         /// <summary>
-        /// Gets or sets the number of failed requests.
+        /// Gets the number of failed requests.
         /// </summary>
         /// <value>
         /// FailedRequests.
         /// </value>
-        public int FailedRequests { get; set; }
+        public int FailedRequests { get; }
 
         /// <summary>
-        /// Gets or sets the error message (if exception occurred).
+        /// Gets the error message (if exception occurred).
         /// </summary>
         /// <value>
         /// ErrorMessage.
         /// </value>
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; }
     }
 }

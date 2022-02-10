@@ -343,12 +343,7 @@ namespace LodeRunner.Services
                                 if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
                                 {
                                     this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Received new TestRun ({testRun.Id})", this.cancellationTokenSource));
-
-                                    // Only execute TestRuns scheduled to run before the next minute
-                                    if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
-                                    {
-                                        await this.ExecuteNewTestRunAsync(testRun);
-                                    }
+                                    await this.ExecuteNewTestRunAsync(testRun);
                                 }
                             }
                         }

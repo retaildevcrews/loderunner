@@ -339,11 +339,13 @@ namespace LodeRunner
             }
             catch (TaskCanceledException tce)
             {
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
                     this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, "TaskCanceledException");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -352,11 +354,13 @@ namespace LodeRunner
             }
             catch (OperationCanceledException oce)
             {
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
+
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
                     this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, "OperationCanceledException");
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -367,6 +371,7 @@ namespace LodeRunner
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
                 this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
+
                 return Core.SystemConstants.ExitFail;
             }
 
