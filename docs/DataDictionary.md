@@ -174,6 +174,7 @@ This object is utilized as the TestRun payload data. It inherits from BasePayloa
 | LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | |
 | CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
 | StartTime       |   DateTime     | When to start the TestRun (default current time) | Yes | |
+| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This shouldn't be set while creation of TestRun, this will be used to update the Time only after all tests and clients complete exections |
 
 `Table 08: TestRunPayload Properties`
 
