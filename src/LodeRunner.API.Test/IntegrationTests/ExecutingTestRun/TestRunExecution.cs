@@ -66,15 +66,21 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             // Execute dotnet run against LodeRunner project in Client Mode
             string cmdLine = "dotnet";
 
-            string args = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
-            using var lodeRunnerAppContext = new ProcessContext(cmdLine, args, this.output);
+            string lodeRunnerArgs = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
+            using var lodeRunnerAppContext = new ProcessContext(cmdLine, lodeRunnerArgs, this.output);
+
+            string lodeRunnerAPIArgs = $"run --project ../../../../LodeRunner.API/LodeRunner.API.csproj";
+            using var lodeRunnerAPIContext = new ProcessContext(cmdLine, lodeRunnerAPIArgs, this.output);
 
             string gottenTestRunId = string.Empty;
 
             try
             {
-                if (lodeRunnerAppContext.Start())
+                if (lodeRunnerAppContext.Start() && lodeRunnerAPIContext.Start())
                 {
+                    int apiPort = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContext.Output);
+                    Assert.True(apiPort == 8080 || apiPort == 8081, "Unable to get ClientStatusId");
+
                     string clientStatusId = await this.TryParseProcessOutputAndGetClientStatusId(lodeRunnerAppContext.Output);
 
                     Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
@@ -92,7 +98,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     // Create Test Run
                     TestRunPayload testRunPayload = new ();
 
-                    testRunPayload.SetMockDataToLoadTestLodeRunnerApi($"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+                    string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+                    testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, apiPort);
 
                     HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                     Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
@@ -119,6 +126,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     // End LodeRunner Context.
                     lodeRunnerAppContext.End();
                     this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
+
+                    lodeRunnerAPIContext.End();
+                    this.output.WriteLine($"Stopping LodeRunner API.");
                 }
                 else
                 {
@@ -164,13 +174,49 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
+        /// Parses the process output and to get Port number that the API is listening on.
+        /// </summary>
+        /// <param name="outputList">The Process outputList.</param>
+        /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
+        /// <param name="maxRetries">The maximum retries.</param>
+        /// <returns>port number. 0 if not found.</returns>
+        private async Task<int> TryParseProcessOutputAndGetAPIListeningPort(List<string> outputList, int timeBetweenTriesMs = 1000, int maxRetries = 15)
+        {
+            int portNumber = 0;
+            for (int i = 1; i <= maxRetries; i++)
+            {
+                await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
+
+                string targetOutputLine = outputList.FirstOrDefault(s => s.Contains("Now listening on:"));
+                if (!string.IsNullOrEmpty(targetOutputLine))
+                {
+                    // the line should look like "Now listening on: http://[::]:8080",  since we are splitting on ":" last string in the list will be the port either 8080 (Production) or 8081 (Development)
+                    string portNumberString = targetOutputLine.Split(":").ToList().LastOrDefault();
+
+                    if (int.TryParse(portNumberString, out portNumber))
+                    {
+                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Found.\tPort: '{portNumber}'\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
+                    }
+
+                    return portNumber;
+                }
+                else
+                {
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Not Found.\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
+                }
+            }
+
+            return portNumber;
+        }
+
+        /// <summary>
         /// Parses the process output and to get client status id.
         /// </summary>
         /// <param name="outputList">The Process outputList.</param>
-        /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
+        /// <param name="maxRetries">The maximum retries.</param>
         /// <returns>the ClientStatusId.</returns>
-        private async Task<string> TryParseProcessOutputAndGetClientStatusId(List<string> outputList, int maxRetries = 10, int timeBetweenTriesMs = 2000)
+        private async Task<string> TryParseProcessOutputAndGetClientStatusId(List<string> outputList, int timeBetweenTriesMs = 500, int maxRetries = 10)
         {
             string clientStatusId = null;
             for (int i = 1; i <= maxRetries; i++)

@@ -31,7 +31,9 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// </summary>
         /// <param name="testRunPayload">The test run payload.</param>
         /// <param name="name">The name.</param>
-        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name)
+        /// <param name="clientStatusId">The clientStatusId.</param>
+        /// <param name="apiPort">The apiPort.</param>
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string clientStatusId, int apiPort)
         {
             testRunPayload.SetNameAndTime(name);
 
@@ -39,12 +41,12 @@ namespace LodeRunner.API.Test.IntegrationTests
             {
                 Name = $"Sample LoadTestConfig - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 Files = new List<string>() { "LodeRunner.Api-benchmark.json" },
-                Server = new List<string>() { "http://localhost:8081" },
+                Server = new List<string>() { $"http://localhost:{apiPort}" },
             };
 
             testRunPayload.LoadTestConfig = loadTestConfig;
 
-            testRunPayload.LoadClients = CreateLoadClients(1);
+            testRunPayload.LoadClients = CreateLoadClients(1, clientStatusId);
         }
 
         /// <summary>
@@ -74,14 +76,21 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// Creates the load clients.
         /// </summary>
         /// <param name="count">The count.</param>
+        /// <param name="clientStatusId">The clientStatusId.</param>
         /// <returns>List of N clients with mock data.</returns>
-        private static List<LoadClient> CreateLoadClients(int count)
+        private static List<LoadClient> CreateLoadClients(int count, string clientStatusId = null)
         {
             var result = new List<LoadClient>();
 
             for (int i = 1; i <= count; i++)
             {
                 var mockedLoadClient = new LoadClient();
+
+                if (!string.IsNullOrEmpty(clientStatusId))
+                {
+                    mockedLoadClient.Id = clientStatusId;
+                }
+
                 mockedLoadClient.SetMockData($"Sample LoadClient [{i}] - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
                 result.Add(mockedLoadClient);
             }
