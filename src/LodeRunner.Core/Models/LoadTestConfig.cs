@@ -34,7 +34,7 @@ namespace LodeRunner.Core.Models
         ///   <c>true</c> if [strict json]; otherwise, <c>false</c>.
         /// </value>
         [Description("-j")]
-        public virtual bool StrictJson { get; set; }
+        public virtual bool? StrictJson { get; set; }
 
         /// <summary>
         /// Gets or sets the base URL.
@@ -43,7 +43,7 @@ namespace LodeRunner.Core.Models
         /// The base URL.
         /// </value>
         [Description("--base-url")]
-        public virtual string BaseURL { get; set; }
+        public virtual string? BaseURL { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [verbose errors].
@@ -52,7 +52,7 @@ namespace LodeRunner.Core.Models
         ///   <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
         /// </value>
         [Description("--verbose-errors")]
-        public virtual bool VerboseErrors { get; set; }
+        public virtual bool? VerboseErrors { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LoadTestConfig"/> is randomize.
@@ -61,7 +61,7 @@ namespace LodeRunner.Core.Models
         ///   <c>true</c> if randomize; otherwise, <c>false</c>.
         /// </value>
         [Description("--random")]
-        public virtual bool Randomize { get; set; }
+        public virtual bool? Randomize { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout.
@@ -70,7 +70,7 @@ namespace LodeRunner.Core.Models
         /// The timeout.
         /// </value>
         [Description("--timeout")]
-        public virtual int Timeout { get; set; }
+        public virtual int? Timeout { get; set; }
 
         /// <summary>
         /// Gets or sets the server.
@@ -90,7 +90,7 @@ namespace LodeRunner.Core.Models
         /// The tag.
         /// </value>
         [Description("--tag")]
-        public virtual string Tag { get; set; }
+        public virtual string? Tag { get; set; }
 
         /// <summary>
         /// Gets or sets the sleep.
@@ -99,7 +99,7 @@ namespace LodeRunner.Core.Models
         /// The sleep.
         /// </value>
         [Description("--sleep")]
-        public virtual int Sleep { get; set; }
+        public virtual int? Sleep { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [run loop].
@@ -108,7 +108,7 @@ namespace LodeRunner.Core.Models
         ///   <c>true</c> if [run loop]; otherwise, <c>false</c>.
         /// </value>
         [Description("--run-loop")]
-        public virtual bool RunLoop { get; set; }
+        public virtual bool? RunLoop { get; set; }
 
         /// <summary>
         /// Gets or sets the duration.
@@ -117,7 +117,7 @@ namespace LodeRunner.Core.Models
         /// The duration.
         /// </value>
         [Description("--duration")]
-        public virtual int Duration { get; set; }
+        public virtual int? Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum errors.
@@ -126,7 +126,7 @@ namespace LodeRunner.Core.Models
         /// The maximum errors.
         /// </value>
         [Description("--max-errors")]
-        public virtual int MaxErrors { get; set; }
+        public virtual int? MaxErrors { get; set; }
 
         /// <summary>
         /// Gets or sets the delay start.
@@ -136,7 +136,7 @@ namespace LodeRunner.Core.Models
         /// </value>
         [Range(0, 86400, ErrorMessage = "Can only be between 0 .. 86400")]
         [Description("--delay-start")]
-        public virtual int DelayStart { get; set; }
+        public virtual int? DelayStart { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [dry run].
@@ -145,6 +145,6 @@ namespace LodeRunner.Core.Models
         ///   <c>true</c> if [dry run]; otherwise, <c>false</c>.
         /// </value>
         [Description("--dry-run")]
-        public virtual bool DryRun { get; set; }
+        public virtual bool? DryRun { get; set; }
     }
 }

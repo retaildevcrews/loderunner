@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Events;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
@@ -155,6 +156,9 @@ namespace LodeRunner
             PerfLog pl;
             int errorCount = 0;
             int validationFailureCount = 0;
+            int requestCount = 0;
+
+            DateTime startTime = DateTime.UtcNow;
 
             // loop through each server
             for (int ndx = 0; ndx < config.Server.Count; ndx++)
@@ -191,6 +195,8 @@ namespace LodeRunner
 
                         // execute the request
                         pl = await this.ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
+
+                        requestCount++;
 
                         if (pl.Failed)
                         {
@@ -247,6 +253,9 @@ namespace LodeRunner
                 }
             }
 
+            // fire event
+            TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
+
             // return non-zero exit code on failure
             return errorCount > 0 || validationFailureCount >= config.MaxErrors ? errorCount + validationFailureCount : 0;
         }
@@ -263,6 +272,8 @@ namespace LodeRunner
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
             DateTime dtMax = DateTime.MaxValue;
+
+            DateTime startTime = DateTime.UtcNow;
 
             // only run for duration (seconds)
             if (config.Duration > 0)
@@ -328,6 +339,8 @@ namespace LodeRunner
             }
             catch (TaskCanceledException tce)
             {
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
@@ -341,6 +354,8 @@ namespace LodeRunner
             }
             catch (OperationCanceledException oce)
             {
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
+
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
@@ -354,10 +369,24 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
                 this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
 
                 return Core.SystemConstants.ExitFail;
             }
+
+            DateTime completedTime = DateTime.UtcNow;
+
+            long totalRequests = 0;
+            int totalFailures = 0;
+            foreach (var state in states)
+            {
+                totalFailures += state.ErrorCount;
+                totalRequests += state.Count;
+            }
+
+            // fire event
+            TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;
@@ -696,6 +725,16 @@ namespace LodeRunner
 
                 Console.WriteLine(JsonSerializer.Serialize(logDict, JsonOptions));
             }
+        }
+
+        /// <summary>
+        /// Called when [test run complete].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
+        private void TestRunComplete(object sender, LoadResultEventArgs args)
+        {
+            ProcessingEventBus.OnTestRunComplete(sender, args);
         }
     }
 }

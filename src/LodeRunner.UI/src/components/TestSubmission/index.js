@@ -42,6 +42,7 @@ const TestSubmission = () => {
 
   const [isScheduledForNow, setIsScheduledForNow] = useState(true);
   const scheduledStartTimeRef = useRef();
+  const testRunNameRef = useRef();
 
   const handleEditConfig = (configId) => () => {
     setOpenedConfigId(configId);
@@ -59,6 +60,8 @@ const TestSubmission = () => {
         return testRunClientIds[clientId].current.checked;
       }
     );
+    const testRunName = testRunNameRef.current.value;
+
     const hasScheduledStartTime =
       isScheduledForNow ||
       (scheduledStartTimeRef.current && scheduledStartTimeRef.current.value);
@@ -82,7 +85,12 @@ const TestSubmission = () => {
         ? now.toISOString()
         : scheduledStartTimeRef.current.value;
 
-      postTestRun(testRunConfig, testRunClients, scheduledStartTime)
+      postTestRun(
+        testRunConfig,
+        testRunClients,
+        scheduledStartTime,
+        testRunName
+      )
         .then(() => {
           // eslint-disable-next-line no-alert
           alert("Successfully submitted load test run request");
@@ -343,7 +351,7 @@ const TestSubmission = () => {
                   <span className="testsubmission-clients-item-label">
                     Prometheus Enabled:&nbsp;
                   </span>
-                  {prometheus.toString()}
+                  {prometheus?.toString()}
                 </div>
                 <div>
                   <span className="testsubmission-clients-item-label">
@@ -378,7 +386,7 @@ const TestSubmission = () => {
         <h2>Load Test Settings</h2>
         <label htmlFor="testRunName">
           <span className="testsubmission-settings-label">Name:</span>
-          <input type="text" id="testRunName" />
+          <input type="text" id="testRunName" ref={testRunNameRef} />
         </label>
         <label htmlFor="testRunSchedule">
           <span className="testsubmission-settings-schedule-text">

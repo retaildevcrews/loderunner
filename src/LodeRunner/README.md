@@ -73,6 +73,10 @@ In order for a **TestRun** to be available for a LodeRunner client, it must:
 - include the clientId in its list of LoadClients
 - not have already been executed by the client
 
+#### Executing TestRuns
+
+To execute the TestRuns, the LodeRunner instance running in **Client** mode starts a new instance of LodeRunner running in **Command** mode. The **LoadTestConfig** specified in the **TestRun** is converted to command line arguments. Once a **TestRun** execution is complete, LodeRunner will update the **TestRun** document in CosmosDB with the summarized test results in a **LoadResult** object.
+
 #### Example Client Mode Arguments
 
 TODO: Describe the flags for each one, explain that -s and -f are ignored in **Client** mode
@@ -120,124 +124,40 @@ Table legend:
 | --prometheus      | O           | O          | Requires --run-loop in Command mode, but not in Client mode.   |
 | --duration        | O           | N          | Requires --run-loop.                                           |
 | --random          | O           | N          | Requires --run-loop.                                           |
-| --sleep           | O           | N          | Requires --run-loop.                                           |
+| --sleep           | O           | N          |                                                                |
 
 ### Command Line Parameter Descriptions
 
-> Includes short flags and environment variable names where applicable.
->
-> Command Line args take precedent over environment variables
 
-- --version
-  - other parameters are ignored
-  - environment variables are ignored
-- --help
-  - -h
-  - other parameters are ignored
-  - environment variables are ignored
-- --dry-run bool
-  - -d
-    - validate parameters but do not execute tests
-- --mode [**command** || client]
-  - command - execute a load test based on the arguments passed on the command line
-  - client - execute as a daemon awaiting jobs that are scheduled through a configured CosmosDB
-  - default: `command`
-- --server string1 [string2 string3]
-  - -s
-  - SERVER
-    - server Url (i.e. `https://MyServerDomainName.com`)
-- --files file1 [file2 file3 ...]
-  - -f
-  - FILES
-    - one or more json test files
-    - default location current directory
-- --base-url string
-  - -u
-  - BASE_URL
-    - base URL and optional path to the test files (http or https)
-- --delay-start int
-  - DELAY_START
-    - delay starting the validation test for int seconds
-    - default 0
-- --secrets-volume string
-  - SECRETS_VOLUME
-    - secrets location
-    - if --secrets-volume is present then secrets directory must exist.
-    - default `secrets`
-- --max-errors int
-  - MAX_ERRORS
-    - end test after max-errors
-    - if --max-errors is exceeded, Loderunner will exit with non-zero exit code
-    - default `10`
-- --region string
-  - REGION
-    - deployment Region for logging (user defined)
-    - default: `unknown`
-- --sleep int
-  - -l
-  - SLEEP
-    - number of milliseconds to sleep between requests
-    - default `0`
-- --strict-json bool
-  - -j
-  - STRICT_JSON
-    - use strict RFC rules when parsing json
-    - json property names are case sensitive
-    - exceptions will occur for
-      - trailing commas in json arrays
-      - comments in json
-    - default `false`
-- --summary-minutes
-  - SUMMARY-MINUTES
-    - Display summary results (minutes)  (requires --run-loop)
-- --tag string
-  - TAG
-    - user defined tag to include in logs and App Insights
-      - can be used to identify location, instance, etc.
-- --timeout int
-  - -t
-  - TIMEOUT
-    - HTTP request timeout in seconds
-    - default `30 sec`
-- --verbose bool
-  - VERBOSE
-    - log 200 and 300 results as well as errors
-    - default `false`
-- --verbose-errors bool
-  - VERBOSE_ERRORS
-    - display validation error messages
-    - default `false`
-- --zone string
-  - ZONE
-    - deployment Zone for logging (user defined)
-    - default: `unknown`
+> NOTE: Command line arguments take precedence over environment variables
 
-### RunLoop Mode Parameters
 
-- Some parameters are only valid if `--run-loop` is specified
-- Some parameters have different defaults if `--run-loop` is specified
+| Parameter (short flag) | Environment Variable | Argument Type(s) | Default | Description                              | Notes      |
+|------------------------|----------------------|------------------|---------|------------------------------------------|------------|
+| --base-url (-u)        | BASE_URL             | string           | null    | Base URL and optional path to the test files (http or https). |            |
+| --delay-start          | DELAY_START          | positive integer | 0       |               |            |
+| --dry-run              | N/A                  | bool             | false   | Validates arguments, but does not start the app. |            |
+| --duration             | DURATION             | positive integer | 0       | Only valid if --run-loop is specified. Runs the test for specified number of seconds then exits. | Runs until OS signal when set to 0. |
+| --files (-f)           | FILES                | file1 [file2 file3 ...]    | N/A   | One or more json test files   | Default test file location is the current directory. |
+| --help (-h)            | N/A                  | none             | N/A     | Display LodeRunner command line options.  | If passed all other parameters are ignored. |
+| --max-concurrent       | N/A                  | positive integer | 100     | Maximum concurrent requests.            |         |
+| --max-errors           | MAX_ERRORS           | positive integer | 10      | End test after max-errors.              | If --max-errors is exceeded, Loderunner will exit with non-zero exit code. Default value is 0 when --run-loop flag is set to true. |
+| --prometheus           | PROMETHEUS           | bool             | false   | Expose the /metrics end point for Prometheus. |            |
+| --random               | RANDOM               | bool             | false   | Only valid if --run-loop is specified. Randomize requests when running the test. |            |
+| --region               | REGION               | string           | "Unknown" | Deployment region for logging (user defined). |            |
+| --run-loop (-r)        | RUN_LOOP             | bool             | false   | Runs the test in a continuous loop.              |            |
+| --secrets-volume       | SECRETS_VOLUME       | string           | "secrets" | Secrets location (directory name).      | If --secrets-volume is set then secrets directory must exist.   |
+| --server (-s)          | SERVER               | string1 [string2 string3 ...] | N/A   | Server URL(s) to test (i.e. `https://MyServerDomainName.com`). |            |
+| --sleep (-l)           | SLEEP                | positive integer | 0    | Number of milliseconds to sleep between requests. | Default value is 1000 when --run-loop flag is set to true. |
+| --strict-json (-j)     | STRICT_JSON          | bool             | false   | Use strict RFC rules when parsing json. | Json property names are case sensitive, exceptions will occur for trailing commas in json arrays and comments in json. |
+| --summary-minutes      | SUMMARY-MINUTES      | positive integer | N/A     | Display summary results (minutes).   | Only valid if --run-loop is specified. Not implemented yet. |
+| --tag                  | TAG                  | string           | null    |               |            |
+| --timeout (-t)         | TIMEOUT              | int              | 30 seconds | HTTP request timeout in seconds.  |            |
+| --verbose              | VERBOSE              | bool             | false   | Log 200 and 300 results as well as errors. | Not implemented yet. |
+| --verbose-errors       | VERBOSE_ERRORS       | bool             | false   | Display validation error messages.   |            |
+| --version              | N/A                  | none             | N/A     | Display LodeRunner version.               | If passed all other parameters are ignored. |
+| --zone                 | ZONE                 | string           | "Unknown" | Deployment zone for logging (user defined). |            |
 
-- --run-loop bool
-  - -r
-  - RUN_LOOP
-    - runs the test in a continuous loop
-- --duration int
-  - DURATION
-    - run test for duration seconds then exit
-    - default `0 (run until OS signal)`
-- --prometheus bool
-  - PROMETHEUS
-    - expose the /metrics end point for Prometheus
-    - default: `false`
-- --random bool
-  - RANDOM
-    - randomize requests
-    - default `false`
-- --sleep int
-  - -l
-  - SLEEP
-    - number of milliseconds to sleep between requests
-    - default `1000`
 
 ### Port configuration
 

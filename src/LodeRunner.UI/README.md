@@ -14,7 +14,6 @@ LodeRunner.UI is intended to facility testing in controlled environments by prov
    - Click on the clipboard icon to copy the local address
    - Open `.env.development`
    - Set `REACT_APP_SERVER` to copied LodeRunner.API URL
-   - **REMOVE TRAILING SLASH ON LODERUNNER.API URL OR LODERUNNER.UI WILL FAIL**
    - Prevent accidental commits with `git update-index --assume-unchanged .env.development`
 4. Install node dependencies in `npm install`
 5. Start the client `npm start`

@@ -173,6 +173,11 @@ namespace LodeRunner
         public string LoadClientId { get; set; }
 
         /// <summary>
+        /// gets or sets the guid for the TestRun being executed.
+        /// </summary>
+        public string TestRunId { get; set; }
+
+        /// <summary>
         /// Gets or sets the logLevel.
         /// </summary>
         public LogLevel LogLevel
