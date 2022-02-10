@@ -125,7 +125,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.NotEmpty(clients);
 
             // Assert for all required fields
-            clients.ForEach((c) => {
+            clients.ForEach((c) =>
+            {
                 Assert.NotNull(c.Version);
                 Assert.NotNull(c.Region);
                 Assert.NotNull(c.StartupArgs);

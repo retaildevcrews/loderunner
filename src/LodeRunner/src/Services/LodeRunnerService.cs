@@ -39,10 +39,10 @@ namespace LodeRunner.Services
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly ClientStatus clientStatus;
         private readonly ILogger logger;
+        private readonly List<string> pendingTestRuns;
         private System.Timers.Timer statusUpdateTimer = default;
         private object lastStatusSender = default;
         private ClientStatusEventArgs lastStatusArgs = default;
-        private List<string> pendingTestRuns;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LodeRunnerService"/> class.
@@ -235,6 +235,36 @@ namespace LodeRunner.Services
 
             // remove TestRun from pending list since upload is complete
             this.pendingTestRuns.Remove(testRun.Id);
+        }
+
+        /// <summary>
+        /// Builds the web host for RunLoop.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        /// <returns>The Host.</returns>
+        private static IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
+        {
+            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
+
+            // configure the web host builder
+            return Host.CreateDefaultBuilder()
+                        .ConfigureWebHostDefaults(webBuilder =>
+                        {
+                            webBuilder.ConfigureServices(services =>
+                            {
+                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
+                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                            });
+                            webBuilder.UseStartup<Startup>();
+                            webBuilder.UseUrls($"http://*:{portNumber}/");
+                        })
+                        .ConfigureLogging(logger =>
+                        {
+                            logger.Setup(config, App.ProjectName);
+                        })
+                        .UseConsoleLifetime()
+                        .Build();
         }
 
         /// <summary>
@@ -539,36 +569,6 @@ namespace LodeRunner.Services
                 // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
                 ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
-        }
-
-        /// <summary>
-        /// Builds the web host for RunLoop.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <returns>The Host.</returns>
-        private IHost BuildWebHost(Config config, CancellationTokenSource cancellationTokenSource)
-        {
-            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
-
-            // configure the web host builder
-            return Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.ConfigureServices(services =>
-                            {
-                                services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
-                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
-                            });
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:{portNumber}/");
-                        })
-                        .ConfigureLogging(logger =>
-                        {
-                            logger.Setup(config, App.ProjectName);
-                        })
-                        .UseConsoleLifetime()
-                        .Build();
         }
     }
 }
