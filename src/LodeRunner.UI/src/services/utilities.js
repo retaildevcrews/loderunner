@@ -1,7 +1,7 @@
 const STATUS_CODE_NO_CONTENT = 204;
 
 let { REACT_APP_SERVER } = process.env;
-if (REACT_APP_SERVER.endsWith("/")) {
+if (REACT_APP_SERVER && REACT_APP_SERVER.endsWith("/")) {
   REACT_APP_SERVER = REACT_APP_SERVER.slice(0, -1);
 }
 
