@@ -14,7 +14,7 @@ using LodeRunner.Data.Interfaces;
 namespace LodeRunner.Services
 {
     /// <summary>
-    ///   Client Status Service.
+    /// Entity Service.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public abstract class BaseService<TEntity> : IBaseService<TEntity>

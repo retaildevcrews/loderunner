@@ -50,9 +50,17 @@ namespace LodeRunner.API.Middleware.Validation
 
             path = path.ToLowerInvariant();
 
-            if (path.StartsWith(SystemConstants.ErrorLinkPath))
+            if (path.StartsWith(SystemConstants.DirectClientsPath))
             {
-                result += SystemConstants.ErrorLinkPathAnchor;
+                result += SystemConstants.ErrorLinkDirectClientsPathAnchor;
+            }
+            else if (path.StartsWith(SystemConstants.DirectLoadTestConfigsPath))
+            {
+                result += SystemConstants.ErrorLinkDirectLoadTestConfigsPathAnchor;
+            }
+            else if (path.StartsWith(SystemConstants.DirectTestRunsPath))
+            {
+                result += SystemConstants.ErrorLinkDirectTestRunsPathAnchor;
             }
 
             return result;
@@ -62,54 +70,56 @@ namespace LodeRunner.API.Middleware.Validation
         /// Gets category.
         /// </summary>
         /// <param name="context">HttpContext.</param>
-        /// <param name="subCategory">subCategory.</param>
         /// <param name="mode">Mode.</param>
         /// <returns>Category.</returns>
-        public static string GetCategory(HttpContext context, out string subCategory, out string mode)
+        public static string GetCategory(HttpContext context, out string mode)
         {
             string path = RequestLogger.GetPathAndQuerystring(context.Request).ToLowerInvariant();
 
-            return GetCategory(path, out subCategory, out mode);
-        }
-
-        /// <summary>
-        /// Gets the category.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="subCategory">The sub category.</param>
-        /// <param name="mode">The mode.</param>
-        /// <returns>The Category.</returns>
-        public static string GetCategory(string path, out string subCategory, out string mode)
-        {
             string category;
-            if (path.StartsWith(SystemConstants.CategoryPathClientWithSlash))
+            if (path.StartsWith(SystemConstants.DirectClientsPath))
             {
                 category = SystemConstants.CategoryClient;
-                subCategory = SystemConstants.CategorySubCategoryClient;
                 mode = SystemConstants.CategoryModeDirect;
             }
-            else if (path.StartsWith(SystemConstants.CategoryPathClientWithoutSlash))
+            else if (path.StartsWith(SystemConstants.DirectLoadTestConfigsPath))
             {
-                category = SystemConstants.CategoryClient;
-                subCategory = SystemConstants.CategorySubCategoryClient;
-                mode = SystemConstants.CategoryModeStatic;
+                category = SystemConstants.CategoryLoadTestConfig;
+                mode = SystemConstants.CategoryModeDirect;
             }
-            else if (path.StartsWith(SystemConstants.CategoryPathHealthz))
+            else if (path.StartsWith(SystemConstants.DirectTestRunsPath))
             {
-                category = SystemConstants.CategoryHealthz;
-                subCategory = SystemConstants.CategorySubCategoryHealthz;
-                mode = SystemConstants.CategoryModeHealthz;
+                category = SystemConstants.CategoryTestRun;
+                mode = SystemConstants.CategoryModeDirect;
             }
-            else if (path.StartsWith(SystemConstants.CategoryPathMetrics))
+            else if (path.StartsWith(SystemConstants.CategoryMetricsPath))
             {
                 category = SystemConstants.CategoryMetrics;
-                subCategory = SystemConstants.CategorySubCategoryMetrics;
                 mode = SystemConstants.CategoryModeMetrics;
+            }
+            else if (path.StartsWith(SystemConstants.CategoryHealthzPath))
+            {
+                category = SystemConstants.CategoryHealthz;
+                mode = SystemConstants.CategoryModeHealthz;
+            }
+            else if (path.StartsWith(SystemConstants.CategoryClientsPath))
+            {
+                category = SystemConstants.CategoryClient;
+                mode = SystemConstants.CategoryModeStatic;
+            }
+            else if (path.StartsWith(SystemConstants.CategoryLoadTestConfigsPath))
+            {
+                category = SystemConstants.CategoryLoadTestConfig;
+                mode = SystemConstants.CategoryModeStatic;
+            }
+            else if (path.StartsWith(SystemConstants.CategoryTestRunsPath))
+            {
+                category = SystemConstants.CategoryTestRun;
+                mode = SystemConstants.CategoryModeStatic;
             }
             else
             {
                 category = SystemConstants.CategoryStatic;
-                subCategory = SystemConstants.CategorySubCategoryStatic;
                 mode = SystemConstants.CategoryModeStatic;
             }
 

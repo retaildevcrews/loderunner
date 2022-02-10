@@ -84,9 +84,11 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<Middleware.Validation.ValidationError> errorlist = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
+            List<string> errorList = ParametersValidator<ClientStatus>.ValidateEntityId(clientStatusId);
 
-            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, logger, errorlist, this.HttpContext, this.Request);
+            var path = RequestLogger.GetPathAndQuerystring(this.Request);
+
+            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, path, errorList, Logger);
         }
     }
 }

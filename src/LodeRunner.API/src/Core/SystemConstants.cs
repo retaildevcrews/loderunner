@@ -194,6 +194,31 @@ namespace LodeRunner.API
         public const string CategoryModeHealthz = "Healthz";
 
         /// <summary>
+        /// Generic not found error message.
+        /// </summary>
+        public const string NotFoundError = "Not Found.";
+
+        /// <summary>
+        /// Generic bad request message.
+        /// </summary>
+        public const string BadRequest = "Bad Request.";
+
+        /// <summary>
+        /// Generic parameter data message.
+        /// </summary>
+        public const string InvalidParameter = "Invalid parameter data.";
+
+        /// <summary>
+        /// Generic payload data message.
+        /// </summary>
+        public const string InvalidPayload = "Invalid payload data.";
+
+        /// <summary>
+        /// Generic no returned value from upsert message.
+        /// </summary>
+        public const string UpsertError = "Upsert did not return a model.";
+
+        /// <summary>
         /// Found all existing clients.
         /// </summary>
         public const string AllClientsFound = "Array of `Client` items.";
@@ -407,10 +432,5 @@ namespace LodeRunner.API
         /// The invalid testRunId.
         /// </summary>
         public const string InvalidTestRunId = "Invalid `testRunId`.";
-
-        /// <summary>
-        /// Invalid payload data.
-        /// </summary>
-        public const string InvalidPayloadData = "Invalid payload data.";
     }
 }
