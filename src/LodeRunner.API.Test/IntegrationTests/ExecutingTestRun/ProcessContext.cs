@@ -73,10 +73,11 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Starts the specified wait for exit.
+        /// Starts the specified Process.
         /// </summary>
+        /// <param name="delayReturn">delay Return (ms).</param>
         /// <returns>whether or not the process started.</returns>
-        public bool Start()
+        public bool Start(int delayReturn = 0)
         {
             string currentDir = Directory.GetCurrentDirectory();
 
@@ -105,6 +106,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 this.currentProcess.BeginOutputReadLine();
                 this.currentProcess.BeginErrorReadLine();
             }
+
+            Task.Delay(delayReturn).ConfigureAwait(false); // Let the APIs run for some time
 
             return this.Started;
         }

@@ -153,8 +153,6 @@ namespace LodeRunner.API
         // Build the web host
         private static IWebHost BuildHost(Config config)
         {
-            int portNumber = AppConfigurationHelper.GetLoadRunnerApiPort(config.WebHostPort);
-
             string projectName = Assembly.GetCallingAssembly().GetName().Name;
 
             // configure the web host builder
@@ -165,7 +163,7 @@ namespace LodeRunner.API
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
-                .UseUrls($"http://*:{portNumber}/")
+                .UseUrls($"http://*:{config.Port}/")
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>

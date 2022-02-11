@@ -128,5 +128,10 @@ namespace LodeRunner.Core
         /// The terminating client.
         /// </summary>
         public const string TerminatingClient = "Terminating Client";
+
+        /// <summary>
+        /// The default API web host port.
+        /// </summary>
+        public const int DefaultApiWebHostPort = 8080;
     }
 }

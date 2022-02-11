@@ -66,10 +66,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             // Execute dotnet run against LodeRunner project in Client Mode
             string cmdLine = "dotnet";
 
-            string lodeRunnerArgs = $"run --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
+            int apiPortNumber = 8085;
+
+            string lodeRunnerArgs = $"run --no-build --project ../../../../LodeRunner/LodeRunner.csproj --mode Client --secrets-volume secrets";
             using var lodeRunnerAppContext = new ProcessContext(cmdLine, lodeRunnerArgs, this.output);
 
-            string lodeRunnerAPIArgs = $"run --project ../../../../LodeRunner.API/LodeRunner.API.csproj";
+            string lodeRunnerAPIArgs = $"run --no-build --project ../../../../LodeRunner.API/LodeRunner.API.csproj --port {apiPortNumber}";
             using var lodeRunnerAPIContext = new ProcessContext(cmdLine, lodeRunnerAPIArgs, this.output);
 
             string gottenTestRunId = string.Empty;
@@ -82,8 +84,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 if (lodeRunnerAppContext.Start() && lodeRunnerAPIContext.Start())
                 {
-                    int apiPort = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContext.Output);
-                    Assert.True(apiPort == 8080 || apiPort == 8081, "Unable to get ClientStatusId");
+                    int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContext.Output);
+
+                    Assert.True(apiListeningOnPort == apiPortNumber, "Unable to get Port Number");
 
                     string clientStatusId = await this.TryParseProcessOutputAndGetClientStatusId(lodeRunnerAppContext.Output);
 
@@ -93,17 +96,15 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
 
                     // Verify that clientStatusId exist is Database.
-                    (HttpStatusCode clientStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
-
-                    Assert.True(clientStatusCode == HttpStatusCode.OK, $"Invalid response status code: {clientStatusCode}");
-                    Assert.True(readyClient != null, "Unable to get Client entity.");
-                    Assert.Equal(clientStatusId, readyClient.ClientStatusId);
+                    await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
 
                     // Create Test Run
                     TestRunPayload testRunPayload = new ();
 
                     string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
-                    testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, apiPort);
+
+                    int loadClientCount = 1;
+                    testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, apiListeningOnPort, loadClientCount);
 
                     HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                     Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
@@ -125,7 +126,15 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     // Validate results
                     Assert.Equal(HttpStatusCode.OK, testRunStatusCode);
                     Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
+                    Assert.True(readyTestRun.LoadClients.Count == loadClientCount, $"LoadClients.Count do not match the expected value [{loadClientCount}]");
                     Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
+                    var clientResult = readyTestRun.ClientResults[0];
+                    Assert.True(clientResult.TotalRequests == clientResult.FailedRequests + clientResult.SuccessfulRequests, $"TotalRequests {clientResult.TotalRequests} does not match expected value {clientResult.FailedRequests + clientResult.SuccessfulRequests}");
+
+                    this.output.WriteLine($"TestRun passed validation.");
+
+                    // Verify that ClientStatus is Ready again.
+                    await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
 
                     // End LodeRunner Context.
                     lodeRunnerAppContext.End();
@@ -162,6 +171,21 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         private static string GetSubstringByString(string openString, string closingString, string baseString)
         {
             return baseString.Substring(baseString.IndexOf(openString) + openString.Length, baseString.IndexOf(closingString) - baseString.IndexOf(openString) - openString.Length);
+        }
+
+        /// <summary>
+        /// Verifies the lode runner client status is ready.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="clientStatusId">The client status identifier.</param>
+        private async Task VerifyLodeRunnerClientStatusIsReady(HttpClient httpClient, string clientStatusId)
+        {
+            (HttpStatusCode currentClientStatusCode, Client currentClient) = await httpClient.GetClientByIdRetriesAsync(Clients.ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
+
+            Assert.True(currentClientStatusCode == HttpStatusCode.OK, $"Invalid response status code: {currentClientStatusCode}");
+            Assert.True(currentClient != null, "Unable to get Client entity.");
+            Assert.Equal(clientStatusId, currentClient.ClientStatusId);
+            Assert.Equal(ClientStatusType.Ready, currentClient.Status);
         }
 
         /// <summary>

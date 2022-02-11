@@ -7,6 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using LodeRunner.Core;
 using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.API
@@ -32,11 +33,15 @@ namespace LodeRunner.API
                 TreatUnmatchedTokensAsErrors = true,
             };
 
+            // We are getting the port number from appsettings, and using that as default value for rootCommand in case --port is not set.
+            // if we cannot read it from appsettings. we use DefaultApiWebHostPort
+            int defaultApiPortNumber = AppConfigurationHelper.GetLoadRunnerApiPort(SystemConstants.DefaultApiWebHostPort);
+
             // add the options
             // first option name must be formatted `--[a-z]+`
             // rest of the option names must be formatted `-[a-z]`
             root.AddOption(GetOption(new string[] { "--url-prefix" }, "URL prefix for ingress mapping", string.Empty));
-            root.AddOption(GetOption(new string[] { "--port" }, "Listen Port", 8080, 1, (64 * 1024) - 1));
+            root.AddOption(GetOption(new string[] { "--port" }, "Listen Port", defaultApiPortNumber, 1, (64 * 1024) - 1));
             root.AddOption(GetOption(new string[] { "--retries" }, "Cosmos 429 retries", 10, 0));
             root.AddOption(GetOption(new string[] { "--timeout" }, "Request timeout", 10, 1));
             root.AddOption(GetOption(new string[] { "--secrets-volume", "-v" }, "Secrets Volume Path", "secrets"));
