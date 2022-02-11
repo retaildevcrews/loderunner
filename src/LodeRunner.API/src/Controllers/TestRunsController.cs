@@ -10,7 +10,6 @@ using AutoMapper;
 using LodeRunner.API.Extensions;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
-using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -92,7 +91,9 @@ namespace LodeRunner.API.Controllers
 
             var errorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
 
-            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, logger, errorList, this.HttpContext, this.Request);
+            var path = RequestLogger.GetPathAndQuerystring(this.Request);
+
+            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, path, errorList, logger);
         }
 
         /// <summary>

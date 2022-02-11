@@ -13,6 +13,7 @@ using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -191,12 +192,11 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<Middleware.Validation.ValidationError> errorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
+            var errorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
             if (errorList.Count > 0)
             {
-                await Logger.LogWarning(nameof(DeleteLoadTestConfig), SystemConstants.InvalidLoadTestConfigId, NgsaLog.LogEvent400);
-
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{nameof(DeleteLoadTestConfig)}"), SystemConstants.InvalidLoadTestConfigId);
                 return await ResultHandler.CreateBadRequestResult(errorList, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
