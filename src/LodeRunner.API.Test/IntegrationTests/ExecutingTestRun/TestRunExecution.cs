@@ -76,6 +76,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             try
             {
+                this.output.WriteLine($"Starting LodeRunner Application (client mode)");
+
+                this.output.WriteLine($"Starting LodeRunner API.");
+
                 if (lodeRunnerAppContext.Start() && lodeRunnerAPIContext.Start())
                 {
                     int apiPort = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContext.Output);
@@ -169,7 +173,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         {
             return await Task.Run(() =>
             {
-                return (testRun.CompletedTime != null, "CompletedTime", testRun.CompletedTime.ToString());
+                return (testRun.CompletedTime != null, "CompletedTime", testRun.CompletedTime == null ? "null" : testRun.CompletedTime.ToString());
             });
         }
 
