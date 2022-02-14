@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware.Validation;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -182,11 +183,9 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Creates the response for PUT methods.
         /// </summary>
-        /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <typeparam name="TPayload">Payload entity.</typeparam>
         /// <param name="service">Storage service for TEntity.</param>
         /// <param name="id">ID for item to update.</param>
-        /// <param name="payload">Payload.</param>
+        /// <param name="entity">Payload.</param>
         /// <param name="path">Request path.</param>
         /// <param name="parameterErrorList">List of parameter validation error messages.</param>
         /// <param name="logger">NGSA Logger.</param>
@@ -195,7 +194,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         // public static async Task<ActionResult> CreatePutResponse<TEntity>(IBaseService<TEntity> service, string id, TEntity payload, string path, IEnumerable<string> parameterErrorList, IEnumerable<string> payloadErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         // TODO: replace getbyid, post, and validateentity with service
-        public static async Task<ActionResult> CreatePutResponse<TEntity, TPayload>(IBaseService<TEntity> service, string id, TPayload payload, string path, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse(IBaseService<BaseEntityModel> service, string id, BaseEntityModel entity, string path, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
             try
             {
@@ -206,35 +205,23 @@ namespace LodeRunner.API.Middleware
                 }
 
                 // First get the object for verification
-                ActionResult existingItemResponse = await CreateGetByIdResponse<TEntity>(service.Get, id, path, null, logger);
+                ActionResult existingItemResponse = await CreateGetByIdResponse(service.Get, id, path, null, logger);
                 return existingItemResponse;
 
-                // if (existingItemResponse.StatusCode != HttpStatusCode.OK)
-                // {
-                //     return existingItemResponse;
-                // }
+                if (existingItemResponse.GetType() == typeof(OkObjectResult))
+                {
+                     return existingItemResponse;
+                }
 
-                // // Map payload to existing entity.
-                // TEntity existingEntity = existingItemResponse;
-                // this.autoMapper.Map<TPayload, TEntity>(payload, existingEntity);
+                ActionResult updatedItemResponse = await CreatePostResponse(service.Post, entity, path, null, logger, cancellationToken);
 
-                // var payloadErrorList = service.Validator.ValidateEntity(existingEntity);
+                // Internal server error response due to no returned value from storage create
+                if (updatedItemResponse.GetType() == typeof(OkObjectResult))
+                {
+                    return new NoContentResult();
+                }
 
-                // if (payloadErrorList.Any())
-                // {
-                //     logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreatePutResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
-                //     return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, payloadErrorList);
-                // }
-
-                // ActionResult updatedItemResponse = await CreatePostResponse(service.Post, payload, path, null, logger, cancellationToken);
-
-                // // Internal server error response due to no returned value from storage create
-                // if (updatedItemResponse.StatusCode == HttpStatusCode.OK)
-                // {
-                //     return new NoContentResult();
-                // }
-
-                // return updatedItemResponse;
+                return updatedItemResponse;
             }
             catch (CosmosException ce)
             {

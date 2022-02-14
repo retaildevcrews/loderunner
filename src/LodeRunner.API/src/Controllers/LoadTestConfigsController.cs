@@ -165,7 +165,7 @@ namespace LodeRunner.API.Controllers
             List<string> parameterErrorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigService, loadTestConfigId, loadTestConfigPayload, path, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse((IBaseService<BaseEntityModel>)loadTestConfigService, loadTestConfigId, newLoadTestConfig, path, parameterErrorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>

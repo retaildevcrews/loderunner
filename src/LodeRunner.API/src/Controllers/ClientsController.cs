@@ -88,7 +88,7 @@ namespace LodeRunner.API.Controllers
 
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, path, errorList, Logger);
+            return await ResultHandler.CreateGetByIdResponse(clientStatusService.GetClientByClientStatusId, clientStatusId, path, errorList, logger);
         }
     }
 }
