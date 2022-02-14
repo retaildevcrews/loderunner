@@ -133,7 +133,7 @@ namespace LodeRunner.API.Middleware
         /// Creates the response for POST methods.
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <param name="getResult">Posts payload to data storage.</param>
+        /// <param name="postResult">Posts payload to data storage.</param>
         /// <param name="payload">Payload.</param>
         /// <param name="path">Request path.</param>
         /// <param name="errorList">List of ValidationErrors.</param>
@@ -141,7 +141,7 @@ namespace LodeRunner.API.Middleware
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> getResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> postResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
             try
             {
@@ -152,7 +152,7 @@ namespace LodeRunner.API.Middleware
                     return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, errorList);
                 }
 
-                var result = await getResult(payload, cancellationToken);
+                var result = await postResult(payload, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (result == null)
@@ -206,9 +206,8 @@ namespace LodeRunner.API.Middleware
 
                 // First get the object for verification
                 ActionResult existingItemResponse = await CreateGetByIdResponse(service.Get, id, path, null, logger);
-                return existingItemResponse;
 
-                if (existingItemResponse.GetType() == typeof(OkObjectResult))
+                if (existingItemResponse.GetType() != typeof(OkObjectResult))
                 {
                      return existingItemResponse;
                 }
@@ -216,7 +215,7 @@ namespace LodeRunner.API.Middleware
                 ActionResult updatedItemResponse = await CreatePostResponse(service.Post, entity, path, null, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
-                if (updatedItemResponse.GetType() == typeof(OkObjectResult))
+                if (updatedItemResponse.GetType() != typeof(OkObjectResult))
                 {
                     return new NoContentResult();
                 }
