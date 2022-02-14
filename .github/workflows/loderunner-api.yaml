@@ -80,7 +80,7 @@ jobs:
         echo -n ${{ secrets.cosmos_url }} > temp/secrets/CosmosUrl
         echo -n 'LodeRunner' > temp/secrets/CosmosCollection
         echo -n 'LodeRunnerTestDB' > temp/secrets/CosmosDatabase
-        dotnet test --filter "Category=Integration" -o temp
+        dotnet test --filter "Category=Integration"
 
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}    
