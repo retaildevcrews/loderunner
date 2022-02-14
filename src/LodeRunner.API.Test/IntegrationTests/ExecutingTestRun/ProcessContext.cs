@@ -87,7 +87,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                         FileName = this.processContextParams.CommandLine,
                         Arguments = this.BuildAndGetArguments(),
-                        WorkingDirectory = System.Environment.CurrentDirectory,
                     },
                 };
 
@@ -117,16 +116,19 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Gets the project path by referencing parent directory name from CurrentDirectory.
+        /// Gets the project relative path by referencing parent directory name from CurrentDirectory.
         /// </summary>
         /// <param name="baseProjectPath">The base project path.</param>
         /// <param name="parentDirectoryName">The source Directory Name.</param>
         /// <returns>the relative project path.</returns>
-        private static string GetRelativeProjectPathByReferencingParentDirName(string baseProjectPath, string parentDirectoryName)
+        private string GetProjectRelativePathByReferencingParentDirName(string baseProjectPath, string parentDirectoryName)
         {
             string result;
 
             List<string> subDirList;
+
+            string dirName = System.Environment.CurrentDirectory;
+            this.output.WriteLine($"CurrentDirectory: {dirName}");
 
             // Identifies how many folder above is "sourceDirectoryName" are and replace them with relative path "../"
             if (System.OperatingSystem.IsLinux())
@@ -155,6 +157,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 result = $"/{baseProjectPath.TrimStart(new char[] { '/' })}";
             }
 
+            this.output.WriteLine($"Relative Path: {result}");
+
             return result;
         }
 
@@ -177,7 +181,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns>the arguments string.</returns>
         private string BuildAndGetArguments()
         {
-            string result = $"{this.processContextParams.CommandLineArgs} {GetRelativeProjectPathByReferencingParentDirName(this.processContextParams.ProjectBasePath, this.processContextParams.ProjectBaseParentDirectoryName)} {this.processContextParams.ProjectArgs}";
+            string result = $"{this.processContextParams.CommandLineArgs} {GetProjectRelativePathByReferencingParentDirName(this.processContextParams.ProjectBasePath, this.processContextParams.ProjectBaseParentDirectoryName)} {this.processContextParams.ProjectArgs}";
 
             return result;
         }
