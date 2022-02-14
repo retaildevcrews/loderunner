@@ -87,6 +87,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                         FileName = this.processContextParams.CommandLine,
                         Arguments = this.BuildAndGetArguments(),
+                        WorkingDirectory = System.Environment.CurrentDirectory,
                     },
                 };
 
