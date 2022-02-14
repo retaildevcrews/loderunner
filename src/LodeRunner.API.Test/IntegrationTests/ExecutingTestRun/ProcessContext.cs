@@ -19,8 +19,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     /// <seealso cref="System.IDisposable" />
     internal class ProcessContext : IDisposable
     {
-        private readonly string cmdLine;
-        private readonly string args;
+        private readonly ProcessContextParams processContextParams;
         private readonly ITestOutputHelper output;
 
         private bool disposedValue = false;
@@ -29,13 +28,11 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessContext"/> class.
         /// </summary>
-        /// <param name="cmdLine">Command Line.</param>
-        /// <param name="args">The arguments.</param>
+        /// <param name="processContextParams">The Process Context Params.</param>
         /// <param name="output">The output.</param>
-        public ProcessContext(string cmdLine, string args, ITestOutputHelper output)
+        public ProcessContext(ProcessContextParams processContextParams, ITestOutputHelper output)
         {
-            this.args = args;
-            this.cmdLine = cmdLine;
+            this.processContextParams = processContextParams;
             this.output = output;
         }
 
@@ -88,8 +85,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                         CreateNoWindow = true,
                         UseShellExecute = false,
 
-                        FileName = this.cmdLine,
-                        Arguments = this.args,
+                        FileName = this.processContextParams.CommandLine,
+                        Arguments = this.BuildAndGetArguments(),
                     },
                 };
 
@@ -118,6 +115,48 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             this.Dispose();
         }
 
+        /// <summary>
+        /// Gets the project path by referencing parent directory name from CurrentDirectory.
+        /// </summary>
+        /// <param name="baseProjectPath">The base project path.</param>
+        /// <param name="parentDirectoryName">The source Directory Name.</param>
+        /// <returns>the relative project path.</returns>
+        private static string GetRelativeProjectPathByReferencingParentDirName(string baseProjectPath, string parentDirectoryName)
+        {
+            string result;
+
+            List<string> subDirList;
+
+            // Identifies how many folder above is "sourceDirectoryName" are and replace them with relative path "../"
+            if (System.OperatingSystem.IsLinux())
+            {
+                subDirList = System.Environment.CurrentDirectory.Split("/").ToList();
+            }
+            else
+            {
+                subDirList = System.Environment.CurrentDirectory.Split("\\").ToList();
+            }
+
+            int parentDirIndx = subDirList.IndexOf(parentDirectoryName);
+
+            if (parentDirIndx > 0)
+            {
+                // We need to subtract 1 since we do not want to include the parentDirName in the relative path building process.
+                int realtivePathSeparatorCount = subDirList.Count - parentDirIndx - 1;
+
+                string relativePathPrefix = string.Concat(Enumerable.Repeat("../", realtivePathSeparatorCount));
+
+                result = $"{relativePathPrefix}{baseProjectPath.TrimStart(new char[] { '/' })}";
+            }
+            else
+            {
+                // return basePath with a '/' prefix.
+                result = $"/{baseProjectPath.TrimStart(new char[] { '/' })}";
+            }
+
+            return result;
+        }
+
         private void Dispose(bool disposing)
         {
             if (!this.disposedValue)
@@ -129,6 +168,17 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 this.disposedValue = true;
             }
+        }
+
+        /// <summary>
+        /// Builds and Gets the arguments from processContextParams.
+        /// </summary>
+        /// <returns>the arguments string.</returns>
+        private string BuildAndGetArguments()
+        {
+            string result = $"{this.processContextParams.CommandLineArgs} {GetRelativeProjectPathByReferencingParentDirName(this.processContextParams.ProjectBasePath, this.processContextParams.ProjectBaseParentDirectoryName)} {this.processContextParams.ProjectArgs}";
+
+            return result;
         }
 
         /// <summary>
