@@ -79,8 +79,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns>whether or not the process started.</returns>
         public bool Start(int delayReturn = 0)
         {
-            string currentDir = Directory.GetCurrentDirectory();
-
             if (!this.Started)
             {
                 this.currentProcess = new Process
