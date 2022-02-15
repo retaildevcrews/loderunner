@@ -158,35 +158,14 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var canGetExistingTestRunResponse = await testRunService.GetTestRun(testRunId);
+            // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
+            var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
 
-            switch (canGetExistingTestRunResponse.StatusCode)
-            {
-                case HttpStatusCode.InternalServerError:
-                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.InternalServerError);
-                    break;
-                case HttpStatusCode.NotFound:
-                    await ResultHandler.CreateErrorResult(canGetExistingTestRunResponse.Errors, HttpStatusCode.NotFound);
-                    break;
-            }
+            var errorList = testRunService.Validator.ValidateEntity(newTestRun);
 
-            // Map TestRunPayload to existing TestRun.
-            this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload, canGetExistingTestRunResponse.Model);
+            var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            var insertedTestRunResponse = await testRunService.Post(canGetExistingTestRunResponse.Model, cancellationTokenSource.Token);
-
-            if (insertedTestRunResponse.Model != null && insertedTestRunResponse.StatusCode == HttpStatusCode.OK)
-            {
-                return await ResultHandler.CreateNoContent();
-            }
-            else if (insertedTestRunResponse.StatusCode == HttpStatusCode.BadRequest)
-            {
-                return await ResultHandler.CreateBadRequestResult(insertedTestRunResponse.Errors, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-            else
-            {
-                return await ResultHandler.CreateErrorResult(SystemConstants.UnableToCreateTestRun, HttpStatusCode.InternalServerError);
-            }
+            return await ResultHandler.CreatePutResponse((IBaseService<BaseEntityModel>)testRunService, testRunId, newTestRun, path, errorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
