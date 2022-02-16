@@ -121,6 +121,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.NotEmpty(clients);
 
+            var minDate = new DateTime(1900, 1, 1);
+
             // Assert for all required fields
             clients.ForEach((c) => {
                 Assert.NotNull(c.Version);
@@ -128,9 +130,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
                 Assert.NotNull(c.StartupArgs);
                 Assert.NotNull(c.ClientStatusId);
                 Assert.NotNull(c.LoadClientId);
-                Assert.True(c.StartTime.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
-                Assert.True(c.LastStatusChange.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
-                Assert.True(c.LastUpdated.CompareTo(new DateTime(1990, 1, 1, 00, 00, 00)) > 0);
+                Assert.True(c.StartTime >= minDate);
+                Assert.True(c.LastStatusChange >= minDate);
+                Assert.True(c.LastUpdated >= minDate);
             });
 
             // TODO: Test for not found clients
