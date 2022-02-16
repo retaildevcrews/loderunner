@@ -222,12 +222,6 @@ namespace LodeRunner.API.Middleware
 
                 return updatedItemResponse;
             }
-            catch (CosmosException ce)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreatePutResponse)}"), ce, "CosmosException");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePutResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
             catch (Exception ex)
             {
                 // Log Error
