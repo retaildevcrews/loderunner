@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.API.Test.IntegrationTests.Controllers;
+using LodeRunner.API.Test.IntegrationTests.Extensions;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -65,23 +66,24 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             // Execute dotnet run against LodeRunner project in Client Mode
+            string secretsVolume = "secrets".GetSecretVolume();
             using var lodeRunnerAppContext = new ProcessContext(
                 new ProcessContextParams()
-            {
-                ProjectBasePath = "LodeRunner/LodeRunner.csproj",
-                ProjectArgs = "--mode Client --secrets-volume secrets",
-                ProjectBaseParentDirectoryName = "src",
-            }, this.output);
+                {
+                    ProjectBasePath = "LodeRunner/LodeRunner.csproj",
+                    ProjectArgs = $"--mode Client --secrets-volume {secretsVolume}",
+                    ProjectBaseParentDirectoryName = "src",
+                }, this.output);
 
             int apiPortNumber = 8085;
 
             using var lodeRunnerAPIContext = new ProcessContext(
                 new ProcessContextParams()
-            {
-                ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
-                ProjectArgs = $"--port {apiPortNumber}",
-                ProjectBaseParentDirectoryName = "src",
-            }, this.output);
+                {
+                    ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
+                    ProjectArgs = $"--port {apiPortNumber} --secrets-volume {secretsVolume}",
+                    ProjectBaseParentDirectoryName = "src",
+                }, this.output);
 
             string gottenTestRunId = string.Empty;
 
@@ -95,14 +97,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 {
                     int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContext.Output);
 
+                    // We should not have any error at time we are going to Verify Id
+                    Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
+
                     Assert.True(apiListeningOnPort == apiPortNumber, "Unable to get Port Number");
 
                     string clientStatusId = await this.TryParseProcessOutputAndGetClientStatusId(lodeRunnerAppContext.Output);
 
-                    Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
+                    Assert.True(lodeRunnerAPIContext.Errors.Count == 0, $"Errors found in LodeRunner API Output.{Environment.NewLine}{string.Join(",", lodeRunnerAPIContext.Errors)}");
 
-                    // We should not have any error at time we are going to Verify Id
-                    Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
+                    Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
 
                     // Verify that clientStatusId exist is Database.
                     await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
