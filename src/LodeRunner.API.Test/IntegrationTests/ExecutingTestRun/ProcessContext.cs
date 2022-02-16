@@ -181,7 +181,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns>the arguments string.</returns>
         private string BuildAndGetArguments()
         {
-            string result = $"{this.processContextParams.CommandLineArgs} {GetProjectRelativePathByReferencingParentDirName(this.processContextParams.ProjectBasePath, this.processContextParams.ProjectBaseParentDirectoryName)} {this.processContextParams.ProjectArgs}";
+            string result = $"{this.processContextParams.CommandLineArgs} {this.GetProjectRelativePathByReferencingParentDirName(this.processContextParams.ProjectBasePath, this.processContextParams.ProjectBaseParentDirectoryName)} {this.processContextParams.ProjectArgs}";
 
             return result;
         }

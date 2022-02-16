@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.API.Test.IntegrationTests.Extensions;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Extensions;
