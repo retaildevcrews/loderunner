@@ -50,6 +50,7 @@ namespace LodeRunner.Subscribers
             try
             {
                 _ = await this.clientStatusService.Post(this.clientStatus, args.CancelTokenSource.Token).ConfigureAwait(false);
+
                 // reset failure count on success
                 failures = 0;
             }

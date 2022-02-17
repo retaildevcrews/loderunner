@@ -41,13 +41,5 @@ namespace LodeRunner.Core.Interfaces
         /// The URL prefix.
         /// </value>
         string UrlPrefix { get; }
-
-        /// <summary>
-        /// Gets or sets the web host port.
-        /// </summary>
-        /// <value>
-        /// The web host port.
-        /// </value>
-        int WebHostPort { get; set; }
     }
 }

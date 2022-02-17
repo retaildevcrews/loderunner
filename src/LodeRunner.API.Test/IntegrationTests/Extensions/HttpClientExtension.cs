@@ -38,14 +38,15 @@ namespace LodeRunner.API.Test.IntegrationTests
             HttpResponseMessage httpResponse = new ();
             Client client = null;
 
-            for (int i = 1; i <= maxRetries; i++)
+            var taskSource = new CancellationTokenSource();
+
+            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{clientsUri}/{clientStatusId}");
 
                 if (httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'NotFound'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
-                    Thread.Sleep(timeBetweenRequestsMs);
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'NotFound'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
                 }
                 else if (httpResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -53,21 +54,20 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                     if (client.Status == clientStatusType)
                     {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria met [{client.Status}]");
-                        break;
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria met [{client.Status}]");
+                        taskSource.Cancel();
                     }
                     else
                     {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria not met [expected: {clientStatusType}, received: {client.Status}]");
-                        Thread.Sleep(timeBetweenRequestsMs);
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tResponse StatusCode: 'OK'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\tStatusType criteria not met [expected: {clientStatusType}, received: {client.Status}]");
                     }
                 }
                 else
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenRequestsMs}ms between requests]");
-                    break;
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                    taskSource.Cancel();
                 }
-            }
+            });
 
             return (httpResponse.StatusCode, client);
         }
@@ -86,20 +86,21 @@ namespace LodeRunner.API.Test.IntegrationTests
         {
             HttpResponseMessage httpResponse = new ();
 
-            for (int i = 1; i <= maxRetries; i++)
+            var taskSource = new CancellationTokenSource();
+
+            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{uri}");
 
                 if (httpResponse.StatusCode == HttpStatusCode.NoContent)
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tResponse StatusCode: '{httpResponse.StatusCode}'\tAttempts: {i + 1} [{timeBetweenRequestsMs}ms between requests]");
-                    Thread.Sleep(timeBetweenRequestsMs * i);
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: {action}\tResponse StatusCode: '{httpResponse.StatusCode}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
                 }
                 else
                 {
-                    break;
+                    taskSource.Cancel();
                 }
-            }
+            });
 
             return httpResponse;
         }
@@ -381,6 +382,86 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
 
             return httpResponse;
+        }
+
+        /// <summary>
+        /// Gets the test run by identifier retries asynchronous.
+        /// </summary>
+        /// <typeparam name="TEntity">The Entity type.</typeparam>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="baseEntityUri">The endpoint Uri to the GetItem.</param>
+        /// <param name="itemId">The LoadTestConfig ID.</param>
+        /// <param name="jsonOptions">The json options.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="validateCondition">validateCondition delegate.</param>
+        /// <param name="maxRetries">The maximum retries.</param>
+        /// <param name="timeBetweenRequestsMs">The time between requests ms.</param>
+        /// <returns>HttpStatusCode and TEntity from response.</returns>
+        public static async Task<(HttpStatusCode, TEntity)> GetEntityByIdRetries<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, Func<TEntity, Task<(bool result, string fieldName, string conditionalValue)>> validateCondition, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
+            where TEntity : BaseEntityModel
+        {
+            string entityName = typeof(TEntity).Name;
+
+            HttpResponseMessage httpResponse = new ();
+            TEntity testRun = null;
+
+            var taskSource = new CancellationTokenSource();
+
+            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            {
+                httpResponse = await httpClient.GetAsync($"{baseEntityUri}/{itemId}");
+
+                if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+                {
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tResponse StatusCode: 'NotFound'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                }
+                else if (httpResponse.StatusCode == HttpStatusCode.OK)
+                {
+                    testRun = await httpResponse.Content.ReadFromJsonAsync<TEntity>(jsonOptions);
+
+                    (bool validationResult, string fieldName, string actualValue) = await validateCondition(testRun);
+
+                    if (validationResult)
+                    {
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tResponse StatusCode: 'OK'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\t{fieldName} criteria met [{actualValue}]");
+                        taskSource.Cancel();
+                    }
+                    else
+                    {
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tResponse StatusCode: 'OK'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\t{fieldName} criteria not met [expected: not null, received: {actualValue}]");
+                    }
+                }
+                else
+                {
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                    taskSource.Cancel();
+                }
+            });
+
+            return (httpResponse.StatusCode, testRun);
+        }
+
+        /// <summary>
+        /// Runs and retry.
+        /// </summary>
+        /// <param name="maxRetries">The maximum retries.</param>
+        /// <param name="maxDelay">The maximum delay.</param>
+        /// <param name="taskSource">Task cancelationSource.</param>
+        /// <param name="taskToExecute">The task to execute.</param>
+        /// <returns>the task.</returns>
+        private static async Task RunAndRetry(int maxRetries, int maxDelay, CancellationTokenSource taskSource, Func<int, Task> taskToExecute)
+        {
+            for (int i = 1; i <= maxRetries; i++)
+            {
+                await taskToExecute(i);
+
+                if (taskSource.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                await Task.Delay(maxDelay).ConfigureAwait(false);
+            }
         }
     }
 }

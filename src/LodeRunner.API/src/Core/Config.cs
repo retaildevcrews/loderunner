@@ -108,9 +108,9 @@ namespace LodeRunner.API
         public ISecrets Secrets { get; set; }
 
         /// <summary>
-        /// Gets or sets WebHostPort.
+        /// Gets or sets Port.
         /// </summary>
-        public int WebHostPort { get; set; } = 8080;
+        public int Port { get; set; } = LodeRunner.Core.SystemConstants.DefaultApiWebHostPort;
 
         /// <summary>
         /// Gets or sets Cosmos max retries.
