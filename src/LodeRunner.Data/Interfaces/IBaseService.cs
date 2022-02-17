@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -14,7 +15,16 @@ namespace LodeRunner.Data.Interfaces
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public interface IBaseService<TEntity>
+        where TEntity : notnull
     {
+        /// <summary>
+        /// Gets the validator.
+        /// </summary>
+        /// <value>
+        /// The validator.
+        /// </value>
+        IModelValidator<TEntity> Validator { get; }
+
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>

@@ -211,7 +211,7 @@ namespace LodeRunner.API.Controllers
         {
             return await Task.Run(() =>
             {
-                var payloadErrorList = ((LoadTestConfigService)service).Validator.ValidateEntity(newLoadTestConfig);
+                var payloadErrorList = service.Validator.ValidateEntity(newLoadTestConfig);
                 var flagErrorList = newLoadTestConfig.FlagValidator(payload.PropertiesChanged);
                 var errorList = flagErrorList.Concat<string>(payloadErrorList);
                 return errorList;
