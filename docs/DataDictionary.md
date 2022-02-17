@@ -155,7 +155,7 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 | Id              | String         | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
 | Name            | String         | Friendly name so that users may more easily identify TestRuns | No | |
 | LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the TestRun | Yes | |
-| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | |
+| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | Duplicate Load Clients Not Allowed |
 | CreatedTime     | DateTime       | Time the TestRun was created | Yes | |
 | StartTime       | DateTime       | When to start the TestRun (default current time) | Yes | Cannot occur before CreatedTime |
 | CompletedTime   | DateTime       | Time at which all clients completed their executions and reported results | No | This will require the last listed LoadClient to finish the test execution to update the TestRun with its `CompletedTime`. Cannot occur before StartTime |

@@ -163,5 +163,29 @@ namespace LodeRunner.Test.UnitTests
             this.output.WriteLine($"Errors: {response.Errors}");
             Assert.NotEmpty(response.Errors);
         }
+
+        [Fact]
+        [Trait("Category", "Unit")]
+        public async void FailedTestRunPostDuplicateLoadClients()
+        {
+            var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
+            invalidTestRun.LoadClients.Add(invalidTestRun.LoadClients[0]);
+            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
+            this.output.WriteLine($"Errors: {response.Errors}");
+            Assert.NotEmpty(response.Errors);
+        }
+
+        [Fact]
+        [Trait("Category", "Unit")]
+        public async void SuccessfulTestRunPostDistinctLoadClients()
+        {
+            var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
+            LoadClient distinctLoadClient = JsonSerializer.Deserialize<LoadClient>(JsonSerializer.Serialize(invalidTestRun.LoadClients[0]));
+            distinctLoadClient.Id = Guid.NewGuid().ToString();
+            invalidTestRun.LoadClients.Add(distinctLoadClient);
+            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
+            this.output.WriteLine($"Errors: {response.Errors}");
+            Assert.Null(response.Errors);
+        }
     }
 }
