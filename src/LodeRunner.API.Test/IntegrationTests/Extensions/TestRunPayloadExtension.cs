@@ -33,8 +33,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="name">The name.</param>
         /// <param name="clientStatusId">The clientStatusId.</param>
         /// <param name="apiPort">The apiPort.</param>
-        /// <param name="loadClientCount">The number of loadClients to include in Test Run.</param>
-        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string clientStatusId, int apiPort, int loadClientCount = 1)
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string clientStatusId, int apiPort)
         {
             testRunPayload.SetNameAndTime(name);
 
@@ -47,7 +46,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             testRunPayload.LoadTestConfig = loadTestConfig;
 
-            testRunPayload.LoadClients = CreateLoadClients(loadClientCount, clientStatusId);
+            testRunPayload.LoadClients = CreateLoadClients(1, clientStatusId);
         }
 
         /// <summary>

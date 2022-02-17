@@ -21,11 +21,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class Clients : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
-        /// <summary>
-        /// The clients URI.
-        /// </summary>
-        public const string ClientsUri = "/api/Clients";
-
         private readonly ApiWebApplicationFactory<Startup> factory;
 
         private readonly JsonSerializerOptions jsonOptions;
@@ -107,7 +102,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId from LodeRunner (client mode) service.");
 
-            HttpResponseMessage httpResponse = await httpClient.GetRetryAsync(ClientsUri, action, this.output, 5);
+            HttpResponseMessage httpResponse = await httpClient.GetRetryAsync(LodeRunner.Core.SystemConstants.IntegrationClientsUri, action, this.output, 5);
 
             if (httpResponse.StatusCode == HttpStatusCode.OK || httpResponse.StatusCode == HttpStatusCode.NoContent)
             {
@@ -156,7 +151,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to retrieve ClientStatusId from LodeRunner (client mode) service.");
 
-            (HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(ClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
+            (HttpStatusCode readyStatusCode, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(LodeRunner.Core.SystemConstants.IntegrationClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
             Assert.Equal(HttpStatusCode.OK, readyStatusCode);
             Assert.NotNull(readyClient);
@@ -165,7 +160,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             l8rService.StopService();
             this.output.WriteLine($"Stopping LodeRunner (client mode) [ClientStatusId: {clientStatusId}]");
 
-            (HttpStatusCode terminatingStatusCode, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(ClientsUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
+            (HttpStatusCode terminatingStatusCode, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(LodeRunner.Core.SystemConstants.IntegrationClientsUri, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
 
             Assert.Equal(HttpStatusCode.OK, terminatingStatusCode);
             Assert.NotNull(terminatingClient);

@@ -133,5 +133,15 @@ namespace LodeRunner.Core
         /// The default API web host port.
         /// </summary>
         public const int DefaultApiWebHostPort = 8080;
+
+        /// <summary>
+        /// The integration clients URI path.
+        /// </summary>
+        public const string IntegrationClientsUri = "/api/Clients";
+
+        /// <summary>
+        /// The integration test runs URI path.
+        /// </summary>
+        public const string IntegrationTestRunsUri = "/api/TestRuns";
     }
 }

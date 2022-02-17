@@ -48,7 +48,6 @@ namespace LodeRunner
         /// Prevents a default instance of the <see cref="App"/> class from being created.
         /// Private constructor to prevent instantiation.
         /// </summary>
-        /// </summary>
         private App()
         {
         }
