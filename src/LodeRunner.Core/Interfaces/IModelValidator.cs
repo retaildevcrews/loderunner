@@ -15,9 +15,8 @@ namespace LodeRunner.Core.Interfaces
         /// <summary>
         /// Validates entity and returns a list of error messages.
         /// </summary>
-        /// <value>
-        /// The error messages from validation.
-        /// </value>
+        /// <param name="entity"> Entity. </param>
+        /// <returns> The error messages from validation. </returns>
         IEnumerable<string> ValidateEntity(TEntity entity);
     }
 }

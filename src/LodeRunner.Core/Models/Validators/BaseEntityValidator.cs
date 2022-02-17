@@ -20,9 +20,8 @@ namespace LodeRunner.Core.Models.Validators
         /// <summary>
         /// Validates entity and returns a list of error messages.
         /// </summary>
-        /// <value>
-        /// </value>
-        /// <returns></returns>
+        /// <param name="entity"> Entity. </param>
+        /// <returns> The error messages from validation. </returns>
         public IEnumerable<string> ValidateEntity(TEntity entity)
         {
             var errors = this.Validate(entity)?.Errors.ToList();

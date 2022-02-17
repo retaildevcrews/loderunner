@@ -217,6 +217,10 @@ namespace LodeRunner.API.Middleware
                 // Compile errors
                 var errorList = await compileErrors(payload, service, existingItem);
 
+                // Validate entity before post
+                service.Validator.ValidateEntity(existingItem);
+
+                // Get POST response
                 ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create

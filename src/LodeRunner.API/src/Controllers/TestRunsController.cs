@@ -159,13 +159,10 @@ namespace LodeRunner.API.Controllers
             }
 
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
-            var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
-
-            var errorList = testRunService.Validator.ValidateEntity(newTestRun);
-
+            List<string> parameterErrorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, testRunId, testRunPayload, path, this.autoMapper, errorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, testRunId, testRunPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -240,7 +237,7 @@ namespace LodeRunner.API.Controllers
         {
             return await Task.Run(() =>
             {
-                var errorList = ((TestRunService)service).Validator.ValidateEntity(testRun);
+                var errorList = service.Validator.ValidateEntity(testRun);
                 return errorList;
             });
         }

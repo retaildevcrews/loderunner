@@ -51,7 +51,7 @@ namespace LodeRunner.API.Extensions
             {
                 // We don't have the item with specified ID, throw error
                 result.StatusCode = HttpStatusCode.NotFound;
-                // result.Errors = SystemConstants.UnableToGetTestRun;
+                result.Errors = SystemConstants.TestRunItemNotFound;
             }
 
             return result;

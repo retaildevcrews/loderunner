@@ -76,6 +76,17 @@ namespace LodeRunner.API.Middleware.Validation
         {
             string path = RequestLogger.GetPathAndQuerystring(context.Request).ToLowerInvariant();
 
+            return GetCategory(path, out mode);
+        }
+
+        /// <summary>
+        /// Returns category
+        /// </summary>
+        /// <param name="path">path</param>
+        /// <param name="mode">mode</param>
+        /// <returns>category</returns>
+        public static string GetCategory(string path, out string mode)
+        {
             string category;
             if (path.StartsWith(SystemConstants.DirectClientsPath))
             {
