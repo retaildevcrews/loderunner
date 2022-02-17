@@ -124,9 +124,7 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
             var newLoadTestConfig = this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload);
 
-            var payloadErrorList = loadTestConfigService.Validator.ValidateEntity(newLoadTestConfig);
-            var flagErrorList = newLoadTestConfig.FlagValidator(loadTestConfigPayload.PropertiesChanged);
-            var errorList = flagErrorList.Concat<string>(payloadErrorList);
+            var errorList = await CompileErrorList(loadTestConfigPayload, loadTestConfigService, newLoadTestConfig);
 
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
@@ -160,12 +158,10 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
-            var newLoadTestConfig = this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload);
             List<string> parameterErrorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse((IBaseService<BaseEntityModel>)loadTestConfigService, loadTestConfigId, newLoadTestConfig, path, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, loadTestConfigId, loadTestConfigPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -209,6 +205,17 @@ namespace LodeRunner.API.Controllers
                 HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.LoadTestConfigItemNotFound, HttpStatusCode.NotFound),
                 _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
             };
+        }
+
+        private async Task<IEnumerable<string>> CompileErrorList(LoadTestConfigPayload payload, IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
+        {
+            return await Task.Run(() =>
+            {
+                var payloadErrorList = ((LoadTestConfigService)service).Validator.ValidateEntity(newLoadTestConfig);
+                var flagErrorList = newLoadTestConfig.FlagValidator(payload.PropertiesChanged);
+                var errorList = flagErrorList.Concat<string>(payloadErrorList);
+                return errorList;
+            });
         }
     }
 }

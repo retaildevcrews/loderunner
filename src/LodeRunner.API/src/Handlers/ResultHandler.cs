@@ -8,10 +8,12 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using LodeRunner.API.Middleware.Validation;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -96,7 +98,7 @@ namespace LodeRunner.API.Middleware
                     return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
                 }
 
-                var result = await getResult(id);
+                var result = await GetEntityById<TEntity>(getResult, id);
 
                 // Not found response
                 if (result == null)
@@ -183,18 +185,20 @@ namespace LodeRunner.API.Middleware
         /// <summary>
         /// Creates the response for PUT methods.
         /// </summary>
+        /// <typeparam name="TEntityPayload">Payload entity.</typeparam>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="compileErrors">Delegate to compile errors</param>
         /// <param name="service">Storage service for TEntity.</param>
         /// <param name="id">ID for item to update.</param>
-        /// <param name="entity">Payload.</param>
+        /// <param name="payload">Payload.</param>
         /// <param name="path">Request path.</param>
+        /// <param name="autoMapper">Mapper.</param>
         /// <param name="parameterErrorList">List of parameter validation error messages.</param>
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        // public static async Task<ActionResult> CreatePutResponse<TEntity>(IBaseService<TEntity> service, string id, TEntity payload, string path, IEnumerable<string> parameterErrorList, IEnumerable<string> payloadErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
-        // TODO: replace getbyid, post, and validateentity with service
-        public static async Task<ActionResult> CreatePutResponse(IBaseService<BaseEntityModel> service, string id, BaseEntityModel entity, string path, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<TEntityPayload, IBaseService<TEntity>, TEntity, Task<IEnumerable<string>>> compileErrors, IBaseService<TEntity> service, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
             try
             {
@@ -205,14 +209,15 @@ namespace LodeRunner.API.Middleware
                 }
 
                 // First get the object for verification
-                ActionResult existingItemResponse = await CreateGetByIdResponse(service.Get, id, path, null, logger);
+                var existingItem = await GetEntityById(service.Get, id);
 
-                if (existingItemResponse.GetType() != typeof(OkObjectResult))
-                {
-                     return existingItemResponse;
-                }
+                // Map LoadTestConfigPayload to existing LoadTestConfig.
+                autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
 
-                ActionResult updatedItemResponse = await CreatePostResponse(service.Post, entity, path, null, logger, cancellationToken);
+                // Compile errors
+                var errorList = await compileErrors(payload, service, existingItem);
+
+                ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (updatedItemResponse.GetType() == typeof(OkObjectResult))
@@ -376,6 +381,18 @@ namespace LodeRunner.API.Middleware
                 StatusCode = (int)HttpStatusCode.InternalServerError,
                 ContentType = JsonContentTypeApplicationJsonProblem,
             };
+        }
+
+        /// <summary>
+        /// GET entity by ID.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="getResult">Gets result from data storage by ID.</param>
+        /// <param name="id">TEntity ID to search by.</param>
+        /// <returns>A task with the appropriate entity.</returns>
+        private static async Task<TEntity> GetEntityById<TEntity>(Func<string, Task<TEntity>> getResult, string id)
+        {
+            return await getResult(id);
         }
     }
 }

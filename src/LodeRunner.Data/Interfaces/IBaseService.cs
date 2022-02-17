@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core.Interfaces;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -13,7 +14,6 @@ namespace LodeRunner.Data.Interfaces
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public interface IBaseService<TEntity>
-        where TEntity : class
     {
         /// <summary>
         /// Gets the specified identifier.
