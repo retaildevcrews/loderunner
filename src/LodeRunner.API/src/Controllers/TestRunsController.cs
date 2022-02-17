@@ -165,7 +165,7 @@ namespace LodeRunner.API.Controllers
 
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse((IBaseService<BaseEntityModel>)testRunService, testRunId, newTestRun, path, errorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, testRunId, testRunPayload, path, this.autoMapper, errorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -234,6 +234,15 @@ namespace LodeRunner.API.Controllers
                 (_, _) => // For all other cases
                     await ResultHandler.CreateErrorResult($"{SystemConstants.Unknown}. TestRun ({testRunId}) GET Status: {existingTestRunResp.StatusCode}, DEL status: {delStatusCode}", HttpStatusCode.InternalServerError),
             };
+        }
+
+        private async Task<IEnumerable<string>> CompileErrorList(TestRunPayload payload, IBaseService<TestRun> service, TestRun testRun)
+        {
+            return await Task.Run(() =>
+            {
+                var errorList = ((TestRunService)service).Validator.ValidateEntity(testRun);
+                return errorList;
+            });
         }
     }
 }
