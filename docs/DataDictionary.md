@@ -148,17 +148,17 @@ This object is utilized as the Load Test Config payload data. It inherits from B
 
 #### 2.3.3 TestRun Properties
 
-| Property        |    Type        | Description             | Required  | Notes      |
-| :-------------- | :------------- | :---------------------- | :-------- | :----------|
-| PartitionKey    |     String     | This value should be populated for `TestRun` objects and documents | Yes | |
-| EntityType      |     String     | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
-| Id              |   String   | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
-| Name            |   String   | Friendly name so that users may more easily identify TestRuns | No | |
+| Property        |    Type        | Description             | Required  | Notes       |
+| :-------------- | :------------- | :---------------------- | :-------- | :---------- |
+| PartitionKey    | String         | This value should be populated for `TestRun` objects and documents | Yes | |
+| EntityType      | String         | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
+| Id              | String         | GUID used to retrieve the object directly.  Each new run gets a new Id. | Yes | |
+| Name            | String         | Friendly name so that users may more easily identify TestRuns | No | |
 | LoadTestConfig  | LoadTestConfig | Contains a full copy of the `LoadTestConfig` object to use for the TestRun | Yes | |
-| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | |
-| CreatedTime     |   DateTime     | Time the TestRun was created | Yes | |
-| StartTime       |   DateTime     | When to start the TestRun (default current time) | Yes | |
-| CompletedTime   |   DateTime     | Time at which all clients completed their executions and reported results | No | This will require the last listed LoadClient to finish the test execution to update the TestRun with its `CompletedTime`  |
+| LoadClients     | LoadClient[]   | List of available load clients to use for the TestRun | Yes | Duplicate Load Clients Not Allowed |
+| CreatedTime     | DateTime       | Time the TestRun was created | Yes | |
+| StartTime       | DateTime       | When to start the TestRun (default current time) | Yes | Cannot occur before CreatedTime |
+| CompletedTime   | DateTime       | Time at which all clients completed their executions and reported results | No | This will require the last listed LoadClient to finish the test execution to update the TestRun with its `CompletedTime`. Cannot occur before StartTime |
 | ClientResults   |  LoadResult[]  | This is an array of the result output from each client | No | |
 
 `Table 07: TestRun Properties`
