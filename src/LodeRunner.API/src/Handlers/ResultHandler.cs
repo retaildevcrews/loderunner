@@ -224,7 +224,7 @@ namespace LodeRunner.API.Middleware
                 ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
-                if (updatedItemResponse.GetType() == typeof(OkObjectResult))
+                if (updatedItemResponse.GetType() == typeof(CreatedResult))
                 {
                     return new NoContentResult();
                 }

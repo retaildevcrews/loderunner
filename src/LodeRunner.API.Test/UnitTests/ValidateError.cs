@@ -87,7 +87,7 @@ namespace LodeRunner.API.Test.UnitTests
         public void GetErrorLink_Failure(string input, string expected)
         {
             string result = ValidationError.GetErrorLink(input);
-            Assert.DoesNotContain(expected, result);
+            Assert.Contains(expected, result);
         }
 
         /// <summary>

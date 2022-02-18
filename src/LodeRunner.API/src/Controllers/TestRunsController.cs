@@ -195,7 +195,7 @@ namespace LodeRunner.API.Controllers
 
             if (existingTestRunResp.StatusCode == HttpStatusCode.OK)
             {
-                if (existingTestRunResp.Model.CompletedTime != null || (existingTestRunResp.Model.CompletedTime == null && existingTestRunResp.Model.StartTime > DateTime.Now))
+                if (existingTestRunResp.Model.CompletedTime != null || (existingTestRunResp.Model.CompletedTime == null && existingTestRunResp.Model.StartTime > DateTime.UtcNow))
                 {
                     delStatusCode = await testRunService.Delete(testRunId);
                 }

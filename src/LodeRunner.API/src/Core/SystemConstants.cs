@@ -116,7 +116,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The path for direct test run actions.
         /// </summary>
-        public const string DirectTestRunsPath = "/api/clients/";
+        public const string DirectTestRunsPath = "/api/testruns/";
 
         /// <summary>
         /// The path for category, metrics.
