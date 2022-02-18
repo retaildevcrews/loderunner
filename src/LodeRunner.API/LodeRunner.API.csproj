@@ -69,6 +69,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="src\Services\**" />
+    <Content Remove="src\Services\**" />
+    <EmbeddedResource Remove="src\Services\**" />
+    <None Remove="src\Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\AppSettings\appsettings.Development.json" Link="appsettings.Development.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -86,10 +93,6 @@
     <None Update="LodeRunnerApi.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Services\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

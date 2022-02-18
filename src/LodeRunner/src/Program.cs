@@ -45,9 +45,12 @@ namespace LodeRunner
         private static readonly CancellationTokenSource CancelTokenSource = new ();
 
         /// <summary>
+        /// Prevents a default instance of the <see cref="App"/> class from being created.
         /// Private constructor to prevent instantiation.
         /// </summary>
-        private App() { }
+        private App()
+        {
+        }
 
         /// <summary>
         /// Gets or sets json serialization options.

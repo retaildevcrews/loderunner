@@ -108,5 +108,40 @@ namespace LodeRunner.Core
         /// The LodeRunner Command mode.
         /// </summary>
         public const string LodeRunnerCommandMode = "Command";
+
+        /// <summary>
+        /// The initializing client.
+        /// </summary>
+        public const string InitializingClient = "Initializing Client";
+
+        /// <summary>
+        /// The client ready.
+        /// </summary>
+        public const string ClientReady = "Client Ready";
+
+        /// <summary>
+        /// The received new test run.
+        /// </summary>
+        public const string ReceivedNewTestRun = "Received new TestRun";
+
+        /// <summary>
+        /// The terminating client.
+        /// </summary>
+        public const string TerminatingClient = "Terminating Client";
+
+        /// <summary>
+        /// The default API web host port.
+        /// </summary>
+        public const int DefaultApiWebHostPort = 8080;
+
+        /// <summary>
+        /// The integration clients URI path.
+        /// </summary>
+        public const string IntegrationClientsUri = "/api/Clients";
+
+        /// <summary>
+        /// The integration test runs URI path.
+        /// </summary>
+        public const string IntegrationTestRunsUri = "/api/TestRuns";
     }
 }

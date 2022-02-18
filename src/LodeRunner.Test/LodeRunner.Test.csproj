@@ -35,11 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mocks\" />
-    <Folder Include="IntegrationTests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LodeRunner\LodeRunner.csproj" />
   </ItemGroup>
 
