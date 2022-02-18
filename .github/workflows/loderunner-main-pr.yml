@@ -9,10 +9,10 @@ on:
       - 'src/LodeRunner/Dockerfile'
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
-      - '.github/workflows/loderunner-main-pr.yaml'
-      - '.github/workflows/loderunner-api.yaml'
-      - '.github/workflows/loderunner-ui.yaml'
-      - '.github/workflows/loderunner-only.yaml'
+      - '.github/workflows/loderunner-main-pr.yml'
+      - '.github/workflows/loderunner-api.yml'
+      - '.github/workflows/loderunner-ui.yml'
+      - '.github/workflows/loderunner-only.yml'
 
       # API source
       - 'src/LodeRunner.API/Dockerfile'
@@ -76,7 +76,7 @@ jobs:
             echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
           fi
 
-          if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
+          if [[ "$FILES" == *".github/workflows/"*".yml"* ]]; then
             echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
             echo "LodeRunner Workflow changed!!"
           else
@@ -93,7 +93,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: .github/workflows/loderunner-only.yaml
+    uses: .github/workflows/loderunner-only.yml
     with:
       tag_and_push: false
       run_and_test: true    
@@ -105,7 +105,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: .github/workflows/loderunner-api.yaml
+    uses: .github/workflows/loderunner-api.yml
     with:
       tag_and_push: false
       run_and_test: true    
@@ -117,7 +117,7 @@ jobs:
     needs: evaluate-changes
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: .github/workflows/loderunner-ui.yaml
+    uses: .github/workflows/loderunner-ui.yml
     with:
       tag_and_push: false 
       run_and_test: true   
