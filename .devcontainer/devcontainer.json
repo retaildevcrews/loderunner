@@ -41,7 +41,7 @@
 	},
 	"containerEnv": {
 		"COSMOS_EMUL_NAME":"cosmos-linux-emulator",
-		"COSMOS_EMUL_DATA_PATH":"/workspaces/cosmos-emulator-data"
+		"COSMOS_EMUL_DATA_PATH":"workspaces/cosmos-emulator/data"
 	},
 
 	// Install extensions

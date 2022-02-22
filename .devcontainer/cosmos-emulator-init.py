@@ -1,10 +1,27 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*-
-import argparse
-from azure.cosmos import CosmosClient, PartitionKey, exceptions
+import subprocess
 import sys
+# try:
+#     from azure.cosmos import CosmosClient, PartitionKey, exceptions
+# except (ImportError, ModuleNotFoundError) as error:
+#     subprocess.check_call([sys.executable, "-m", "pip", "install", "azure-cosmos"])
+# finally:
+
+from azure.cosmos import CosmosClient, PartitionKey, exceptions
+import argparse
 import urllib3
+from contextlib import contextmanager
+
+@contextmanager
+def disable_ssl_warnings():
+    import warnings
+    import urllib3
+
+    with warnings.catch_warnings():
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        yield None
 
 """
 The code below disables SSL Cert verification
@@ -20,20 +37,20 @@ def arg_parser():
     return parser
 
 args = arg_parser().parse_args()
+print(args)
 
 KEY=args.key
 URL=args.url
-connection_verify=True
+connection_verify=not args.emulate
 
 # For local emulator
-if args.emulate is True:
+if connection_verify is False:
     
     warning="BEAWARE: SSL verification and warnings are disabled for emulator"
-    
     print(warning,file=sys.stderr)
-    connection_verify=False
-    urllib3.disable_warnings()
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+print(f"Url: {URL}, credential={KEY}, connection_verify={connection_verify}")
 client = CosmosClient(URL, credential=KEY, connection_verify=connection_verify)
 
 # Create LodeRunner db and container
