@@ -14,6 +14,8 @@ using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -144,6 +146,13 @@ namespace LodeRunner.API
                     services.AddSingleton<NgsaLog>(ngsalog);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                })
+                .ConfigureKestrel(serverOptions =>
+                {
+                    serverOptions.Limits.MinRequestBodyDataRate = new MinDataRate(
+                        bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                    serverOptions.Limits.MinResponseDataRate = new MinDataRate(
+                        bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                 })
                 .UseUrls($"http://*:{portNumber}/")
                 .UseStartup<Startup>()
