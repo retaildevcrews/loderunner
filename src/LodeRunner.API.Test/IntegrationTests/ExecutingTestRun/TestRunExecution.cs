@@ -117,7 +117,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
-                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, apiListeningOnPort);
+                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, new List<int>() { apiListeningOnPort });
 
                 HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                 Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
@@ -156,6 +156,144 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 lodeRunnerAPIContext.End();
                 this.output.WriteLine($"Stopping LodeRunner API.");
+            }
+            finally
+            {
+                // gottenTestRunId gets set only after successfully have gotten and validated the Test Run entity.
+                if (!string.IsNullOrEmpty(gottenTestRunId))
+                {
+                    var response = await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
+
+                    // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Determines whether this instance [can create and execute test run].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Trait("Category", "Integration")]
+        [Fact]
+        public async Task CanCreateAndExecuteTestRunWithTwoApiHosts()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Execute dotnet run against LodeRunner project in Client Mode
+            string secretsVolume = "secrets".GetSecretVolume();
+            using var lodeRunnerAppContext = new ProcessContext(
+                new ProcessContextParams()
+                {
+                    ProjectBasePath = "LodeRunner/LodeRunner.csproj",
+                    ProjectArgs = $"--mode Client --secrets-volume {secretsVolume}",
+                    ProjectBaseParentDirectoryName = "src",
+                }, this.output);
+
+            int apiPortNumberServ1 = 8086;
+
+            using var lodeRunnerAPIContextServ1 = new ProcessContext(
+                new ProcessContextParams()
+                {
+                    ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
+                    ProjectArgs = $"--port {apiPortNumberServ1} --secrets-volume {secretsVolume}",
+                    ProjectBaseParentDirectoryName = "src",
+                }, this.output);
+
+            int apiPortNumberServ2 = 8087;
+            using var lodeRunnerAPIContextServ2 = new ProcessContext(
+                new ProcessContextParams()
+                {
+                    ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
+                    ProjectArgs = $"--port {apiPortNumberServ2} --secrets-volume {secretsVolume}",
+                    ProjectBaseParentDirectoryName = "src",
+                }, this.output);
+
+
+            string gottenTestRunId = string.Empty;
+
+            try
+            {
+                this.output.WriteLine($"Starting LodeRunner Application (client mode)");
+
+                this.output.WriteLine($"Starting LodeRunner API for Server 1.");
+
+                this.output.WriteLine($"Starting LodeRunner API for Server 2.");
+
+                Assert.True(lodeRunnerAppContext.Start(), "Unable to start LodeRunner App Context.");
+                Assert.True(lodeRunnerAPIContextServ1.Start(), "Unable to start LodeRunner API Context for Host 1.");
+                Assert.True(lodeRunnerAPIContextServ2.Start(), "Unable to start LodeRunner API Context for Host 2.");
+
+                // We should not have any error at time we are going to Verify Id
+                Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
+
+                // Verify Api Server 1
+                int apiListeningOnPortServ1 = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContextServ1.Output);
+                Assert.True(apiListeningOnPortServ1 == apiPortNumberServ1, "Unable to get Port Number for API Host 1");
+
+                // Verify Api Server 2
+                int apiListeningOnPortServ2 = await this.TryParseProcessOutputAndGetAPIListeningPort(lodeRunnerAPIContextServ2.Output);
+                Assert.True(apiListeningOnPortServ2 == apiPortNumberServ2, "Unable to get Port Number for API Host 2");
+
+                // Get LodeRunner Client Status Id.
+                string clientStatusId = await this.TryParseProcessOutputAndGetClientStatusId(lodeRunnerAppContext.Output);
+
+                Assert.True(lodeRunnerAPIContextServ1.Errors.Count == 0, $"Errors found in LodeRunner API Output.{Environment.NewLine}{string.Join(",", lodeRunnerAPIContextServ1.Errors)}");
+
+                Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId");
+
+                // Verify that clientStatusId exist is Database.
+                await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
+
+                // Create Test Run
+                TestRunPayload testRunPayload = new ();
+
+                string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+
+                // TODO: need to pass both ports to test run
+                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, new List<int>() { apiPortNumberServ1, apiPortNumberServ2 });
+
+                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
+                Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
+
+                // Validate Test Run Entity
+                var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
+
+                Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
+                var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+
+                Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+
+                gottenTestRunId = gottenTestRun.Id;
+
+                // Attempt to get TestRun for N retries or until condition has met.
+                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, 2000);
+
+                // Validate results
+                int expectedLoadClientCount = 1;
+                Assert.Equal(HttpStatusCode.OK, testRunStatusCode);
+                Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
+                Assert.True(readyTestRun.LoadClients.Count == expectedLoadClientCount, $"LoadClients.Count do not match the expected value [{expectedLoadClientCount}]");
+                Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
+                var clientResult = readyTestRun.ClientResults[0];
+                Assert.True(clientResult.TotalRequests == clientResult.FailedRequests + clientResult.SuccessfulRequests, $"TotalRequests {clientResult.TotalRequests} does not match expected value {clientResult.FailedRequests + clientResult.SuccessfulRequests}");
+
+                this.output.WriteLine($"TestRun passed validation.");
+
+                // Verify that ClientStatus is Ready again.
+                await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
+
+                // End LodeRunner Context.
+                lodeRunnerAppContext.End();
+                this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
+
+                lodeRunnerAPIContextServ1.End();
+                this.output.WriteLine($"Stopping LodeRunner API for Host 1.");
+
+                lodeRunnerAPIContextServ2.End();
+                this.output.WriteLine($"Stopping LodeRunner API for Host 2.");
             }
             finally
             {
