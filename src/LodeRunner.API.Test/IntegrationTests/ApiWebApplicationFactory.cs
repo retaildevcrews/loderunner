@@ -25,6 +25,22 @@ namespace LodeRunner.API.Test.IntegrationTests
     public class ApiWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
+        private ApiPortPoolManager apiPortPoolManager = new ();
+
+        /// <summary>
+        /// Gets the get next available port.
+        /// </summary>
+        /// <value>
+        /// The get next available port.
+        /// </value>
+        public int NextAvailablePort
+        {
+            get
+            {
+                return this.apiPortPoolManager.GetNextAvailablePort();
+            }
+        }
+
         /// <summary>
         /// Creates a <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder" /> used to set up <see cref="T:Microsoft.AspNetCore.TestHost.TestServer" />.
         /// </summary>
