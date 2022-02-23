@@ -14,10 +14,10 @@ on:
       - 'src/LodeRunner/Dockerfile'
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
-      - '.github/workflows/loderunner-main-push.yml'
-      - '.github/workflows/loderunner-api.yml'
-      - '.github/workflows/loderunner-ui.yml'
-      - '.github/workflows/loderunner-only.yml'
+      - '.github/workflows/loderunner-main-push.yaml'
+      - '.github/workflows/loderunner-api.yaml'
+      - '.github/workflows/loderunner-ui.yaml'
+      - '.github/workflows/loderunner-only.yaml'
 
       # API source
       - 'src/LodeRunner.API/Dockerfile'
@@ -86,7 +86,7 @@ jobs:
 
   loderunner-only:
     needs: evaluate-changes
-    uses: ./.github/workflows/loderunner-only.yml
+    uses: ./.github/workflows/loderunner-only.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}
@@ -99,7 +99,7 @@ jobs:
 
   loderunner-api:
     needs: evaluate-changes
-    uses: ./.github/workflows/loderunner-api.yml
+    uses: ./.github/workflows/loderunner-api.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
@@ -109,7 +109,7 @@ jobs:
 
   loderunner-ui:
     needs: evaluate-changes
-    uses: ./.github/workflows/loderunner-ui.yml
+    uses: ./github/workflows/loderunner-ui.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
