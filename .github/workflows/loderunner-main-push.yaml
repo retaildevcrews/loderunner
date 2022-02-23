@@ -109,7 +109,7 @@ jobs:
 
   loderunner-ui:
     needs: evaluate-changes
-    uses: ./github/workflows/loderunner-ui.yaml
+    uses: ./.github/workflows/loderunner-ui.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
