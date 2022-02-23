@@ -36,6 +36,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The last updated.
         /// </value>
+        [Required]
         public DateTime LastUpdated { get; private set; }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The duration of the status.
         /// </value>
+        [Required]
         public DateTime LastStatusChange { get; private set; }
 
         /// <summary>
@@ -52,6 +54,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The status.
         /// </value>
+        [Required]
         public ClientStatusType Status
         {
             get
@@ -100,6 +103,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The load client.
         /// </value>
+        [Required]
         public LoadClient LoadClient
         {
             get
