@@ -32,7 +32,6 @@ def arg_parser():
     return parser
 
 args = arg_parser().parse_args()
-print(args)
 
 KEY=args.key
 URL=args.url
