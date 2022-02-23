@@ -102,9 +102,9 @@ Table legend:
 |                   | Mode        |            |                                                                |
 |-------------------|-------------|------------|----------------------------------------------------------------|
 | **Argument**      | **Command** | **Client** | **Notes**                                                      |
-| --version         | O           | O          | If passed all other parameters are ignored.                    |
-| --help            | O           | O          | If passed all other parameters are ignored.                    |
-| --dry-run         | O           | O          | Runs arguments through validation, but does not start the app. |
+| --version         | O           | N          | If passed all other parameters are ignored.                    |
+| --help            | O           | N          | If passed all other parameters are ignored.                    |
+| --dry-run         | O           | N          | Runs arguments through validation, but does not start the app. |
 | --server          | R           | N          |                                                                |
 | --files           | R           | N          |                                                                |
 | --base-url        | O           | N          |                                                                |
@@ -112,7 +112,7 @@ Table legend:
 | --secrets-volume  | N           | R          |                                                                |
 | --max-errors      | O           | N          | Not supported when --run-loop is set.                          |
 | --sleep           | O           | N          |                                                                |
-| --stric-json      | O           | N          |                                                                |
+| --strict-json     | O           | N          |                                                                |
 | --summary-minutes | O           | N          |                                                                |
 | --tag             | O           | O          |                                                                |
 | --timeout         | O           | N          |                                                                |
@@ -124,7 +124,6 @@ Table legend:
 | --prometheus      | O           | O          | Requires --run-loop in Command mode, but not in Client mode.   |
 | --duration        | O           | N          | Requires --run-loop.                                           |
 | --random          | O           | N          | Requires --run-loop.                                           |
-| --sleep           | O           | N          |                                                                |
 
 ### Command Line Parameter Descriptions
 

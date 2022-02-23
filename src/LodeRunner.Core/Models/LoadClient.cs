@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using LodeRunner.Core.Interfaces;
 
 namespace LodeRunner.Core.Models
@@ -18,6 +19,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The version.
         /// </value>
+        [Required]
         public string Version { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The region.
         /// </value>
+        [Required]
         public string Region { get; set; }
 
         /// <summary>
@@ -34,6 +37,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The zone.
         /// </value>
+        [Required]
         public string Zone { get; set; }
 
         /// <summary>
@@ -50,6 +54,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The startup arguments.
         /// </value>
+        [Required]
         public string StartupArgs { get; set; }
 
         /// <summary>
@@ -58,6 +63,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The start time.
         /// </value>
+        [Required]
         public DateTime StartTime { get; set; }
 
         /// <summary>
