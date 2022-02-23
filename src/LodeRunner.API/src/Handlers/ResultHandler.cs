@@ -98,7 +98,7 @@ namespace LodeRunner.API.Middleware
                     return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
                 }
 
-                var result = await GetEntityById<TEntity>(getResult, id);
+                var result = await getResult(id);
 
                 // Not found response
                 if (result == null)
@@ -209,7 +209,7 @@ namespace LodeRunner.API.Middleware
                 }
 
                 // First get the object for verification
-                var existingItem = await GetEntityById(service.Get, id);
+                var existingItem = await service.Get(id);
 
                 // Map LoadTestConfigPayload to existing LoadTestConfig.
                 autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
@@ -385,18 +385,6 @@ namespace LodeRunner.API.Middleware
                 StatusCode = (int)HttpStatusCode.InternalServerError,
                 ContentType = JsonContentTypeApplicationJsonProblem,
             };
-        }
-
-        /// <summary>
-        /// GET entity by ID.
-        /// </summary>
-        /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <param name="getResult">Gets result from data storage by ID.</param>
-        /// <param name="id">TEntity ID to search by.</param>
-        /// <returns>A task with the appropriate entity.</returns>
-        private static async Task<TEntity> GetEntityById<TEntity>(Func<string, Task<TEntity>> getResult, string id)
-        {
-            return await getResult(id);
         }
     }
 }
