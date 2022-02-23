@@ -14,7 +14,12 @@ using Xunit.Abstractions;
 
 namespace LodeRunner.Test.UnitTests
 {
-    public class TestRunServiceTest
+    /// <summary>
+    /// Unit tests for testRun Validator.
+    /// Input for the validator comes from autoMapper.
+    /// TestRun instances should be validated before Create and Update.
+    /// </summary>
+    public class TestRunValidatorTest
     {
         private readonly ITestOutputHelper output;
         private TestRunService service;
@@ -22,7 +27,12 @@ namespace LodeRunner.Test.UnitTests
         // Sample Test Run Is Serialized To Enable Passing Clones Instead Of References
         private string validSerializedTestRun;
 
-        public TestRunServiceTest(ITestOutputHelper output)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestRunValidatorTest"/> class.
+        /// Creates mock data set and repository.
+        /// </summary>
+        /// <param name="output">Test output handler.</param>
+        public TestRunValidatorTest(ITestOutputHelper output)
         {
             this.output = output;
             var mockedRepo = new Mock<ICosmosDBRepository>();
@@ -55,6 +65,9 @@ namespace LodeRunner.Test.UnitTests
             this.validSerializedTestRun = JsonSerializer.Serialize(validTestRun);
         }
 
+        /// <summary>
+        /// Test successful default validation.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void SuccessfulTestRunPost()
@@ -65,6 +78,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.Null(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Invalid ID.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidId()
@@ -76,6 +92,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Empty ID.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostEmptyId()
@@ -87,6 +106,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Empty "Name" field.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostEmptyName()
@@ -98,6 +120,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Invalid "CreatedTime" value.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidCreatedTime()
@@ -109,6 +134,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Invalid "StartTime" value.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidStartTime()
@@ -120,6 +148,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test successful validation: Valid "CompletedTime" value.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void SuccessfulTestRunPostValidCompletedTime()
@@ -131,6 +162,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.Null(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Invalid "CompletedTime" value.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidCompletedTime()
@@ -142,6 +176,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Null LoadTestConfig.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidNullLoadTestConfig()
@@ -153,6 +190,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.Null(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Null LoadClients.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostInvalidNullLoadClients()
@@ -164,6 +204,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test failed validation: Duplicate LoadClients.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void FailedTestRunPostDuplicateLoadClients()
@@ -175,6 +218,9 @@ namespace LodeRunner.Test.UnitTests
             Assert.NotEmpty(response.Errors);
         }
 
+        /// <summary>
+        /// Test successful validation: Distinct LoadClients.
+        /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
         public async void SuccessfulTestRunPostDistinctLoadClients()
