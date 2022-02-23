@@ -129,16 +129,6 @@ namespace LodeRunner.Core.Models
         public virtual int? MaxErrors { get; set; }
 
         /// <summary>
-        /// Gets or sets the delay start.
-        /// </summary>
-        /// <value>
-        /// The delay start.
-        /// </value>
-        [Range(0, 86400, ErrorMessage = "Can only be between 0 .. 86400")]
-        [Description("--delay-start")]
-        public virtual int? DelayStart { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether [dry run].
         /// </summary>
         /// <value>

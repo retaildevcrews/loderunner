@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -119,6 +120,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The TTL.
         /// </value>
+        [Required]
         public int Ttl
         {
             get

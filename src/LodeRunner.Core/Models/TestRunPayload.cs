@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;

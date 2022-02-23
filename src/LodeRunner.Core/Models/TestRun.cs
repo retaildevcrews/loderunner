@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -20,6 +21,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The load test configuration.
         /// </value>
+        [Required]
         public LoadTestConfig LoadTestConfig { get; set; }
 
         /// <summary>
@@ -28,6 +30,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The load clients.
         /// </value>
+        [Required]
         public List<LoadClient> LoadClients { get; set; }
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The created time.
         /// </value>
+        [Required]
         public DateTime CreatedTime { get; set; }
 
         /// <summary>
@@ -44,6 +48,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The start time.
         /// </value>
+        [Required]
         public DateTime StartTime { get; set; }
 
         /// <summary>
