@@ -12,7 +12,7 @@ sudo apt-get upgrade -y
 #sudo apt-get clean -y
 
 # Setup CosmosDB Emulator
-$(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
+source $(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
 
 # get install script and install node
 # [Choice] Node.js version: 16, 14, 12
@@ -25,6 +25,8 @@ pushd src/LodeRunner.UI
 npm install
 popd
 
+# Install Azure Cosmos SDK
+pip3 install azure-cosmos
 # Wait on the CosmosDB Emulator script
 fg
 

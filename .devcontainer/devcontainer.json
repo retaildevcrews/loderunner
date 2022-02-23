@@ -39,9 +39,11 @@
 		"8080": { "label": "Local Dev LodeRunner API"},
 		"9090": { "label": "CosmosDB Emulator"}
 	},
+	
 	"containerEnv": {
 		"COSMOS_EMUL_NAME":"cosmos-linux-emulator",
-		"COSMOS_EMUL_DATA_PATH":"workspaces/cosmos-emulator/data"
+		"COSMOS_EMUL_DATA_PATH":"workspaces/cosmos-emulator/data",
+		"NGINX_CONF_PATH":"workspaces/cosmos-emulator/nginx"
 	},
 
 	// Install extensions

@@ -50,7 +50,7 @@ if connection_verify is False:
     print(warning,file=sys.stderr)
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-print(f"Url: {URL}, credential={KEY}, connection_verify={connection_verify}")
+# print(f"Url: {URL}, credential={KEY}, connection_verify={connection_verify}")
 client = CosmosClient(URL, credential=KEY, connection_verify=connection_verify)
 
 # Create LodeRunner db and container
