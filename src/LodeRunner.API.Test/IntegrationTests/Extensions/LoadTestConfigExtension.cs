@@ -31,7 +31,6 @@ namespace LodeRunner.API.Test.IntegrationTests
             loadTestConfig.RunLoop = false;
             loadTestConfig.Duration = 60;
             loadTestConfig.MaxErrors = 10;
-            loadTestConfig.DelayStart = 5;
             loadTestConfig.DryRun = false;
         }
     }

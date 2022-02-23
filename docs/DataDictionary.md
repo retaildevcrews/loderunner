@@ -31,10 +31,10 @@ This entity is the parent of several objects and defines common fields
 
 #### BaseEntityModel
 
-| Property        |      Type       | Description                        | Notes      |
-| :-------------- | :-------------- | :--------------------------------- | :----------|
-| PartitionKey    |     String      | Calculated value used for CosmosDB to determine how to allocate and use partitions  | Initial implementation will use `EntityType` to keep all objects of a similar type in the same partition |
-| EntityType      |     String      | Entity type used for filtering  | |
+| Property        |      Type       | Description                        | Required | Notes      |
+| :-------------- | :-------------- | :--------------------------------- | :--------| :----------|
+| PartitionKey    |     String      | Calculated value used for CosmosDB to determine how to allocate and use partitions  | Yes | Initial implementation will use `EntityType` to keep all objects of a similar type in the same partition |
+| EntityType      |     String      | Entity type used for filtering  | Yes | |
 | Id              |   String   | GUID used to retrieve the object directly | Yes | |
 | Name            |   String   | Friendly name so that users may more easily identify a given entity | No | |
 
@@ -89,7 +89,7 @@ This object is primarily for conveying the curent status, time of that status, a
 | Status          |   String   | Current status of load client      |    Yes   | [`Unknown`, `Starting`, `Ready`, `Testing`, `Terminating`] |
 | Message         |   String   | Additional information conveyed as part of the status update | No | |
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
-| Ttl             |    Int     | Time to live in seconds | No | |
+| Ttl             |    Int     | Initial time to live in seconds | Yes |  [Expire data in Azure Cosmos DB with Time to Live Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/time-to-live) |
 
 `Table 04: ClientStatus Properties`
 
@@ -117,8 +117,9 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | RunLoop         |   Boolean  | Run test in an infinite loop (default: False) | No | match to `--run-loop` CLI flag |
 | Duration        |    Int     | Test duration (seconds) requires `RunLoop=True` (default: 0) | No | match to `--duration` CLI flag |
 | MaxErrors       |    Int     | Max validation errors (default: 10) | No | match to `--max-errors` CLI flag |
-| DelayStart      |    Int     | Delay test start.  Must be `-1` for LodeRunner as that sets LodeRunner into a wait mode | Yes | match to `--delay-start` CLI flag |
 | DryRun          |   Boolean  | Validate the settings with the target clients (default `false`) | No | match to `--dry-run` CLI flag |
+
+- Removed DelayStart property since StartTime covers intended use case (still flag for command mode).
 
 `Table 05: LoadTestConfig Properties`
 

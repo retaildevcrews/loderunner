@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 
@@ -24,6 +25,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The identifier.
         /// </value>
+        [Required]
         public virtual string Id { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
@@ -32,6 +34,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The partition key.
         /// </value>
+        [Required]
         public virtual string PartitionKey
         {
             get { return this.EntityType.ToString(); }
@@ -43,6 +46,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The type of the entity.
         /// </value>
+        [Required]
         public virtual EntityType EntityType
         {
             get
