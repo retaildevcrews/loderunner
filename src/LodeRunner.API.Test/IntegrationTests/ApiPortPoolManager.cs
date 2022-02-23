@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
+namespace LodeRunner.API.Test.IntegrationTests
 {
     /// <summary>
     /// Represents the Api Port Pool Manager class.
@@ -16,8 +16,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     {
         private readonly int lowerPortRange;
         private readonly int upperPortRange;
+        private readonly object getNextLock = new ();
         private Dictionary<int, bool> portPool = null;
-        private object getNextLock = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiPortPoolManager"/> class.

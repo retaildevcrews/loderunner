@@ -13,7 +13,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
-using LodeRunner.API.Test.IntegrationTests.Controllers;
 using LodeRunner.API.Test.IntegrationTests.Extensions;
 using LodeRunner.Core.Models;
 using Xunit;
@@ -26,8 +25,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     /// </summary>
     public class TestRunExecution : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
-        private const string TestRunsUri = "/api/TestRuns";
-
         private readonly ApiWebApplicationFactory<Startup> factory;
 
         private readonly JsonSerializerOptions jsonOptions;
@@ -78,8 +75,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     ProjectBaseParentDirectoryName = "src",
                 }, this.output);
 
-            // TODO: Create a ApiProcessContextDictionary Manager Disposable class 
-            Dictionary<int, ProcessContext> apiProcessContextList = this.CreateApiProcessContextDictionary(apiHostCount, secretsVolume);
+            using var apiProcessContextCollection = new ApiProcessContextCollection(apiHostCount, secretsVolume, this.output);
 
             string gottenTestRunId = string.Empty;
 
@@ -97,25 +93,23 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // We should not have any error at time we are going to Verify Id
                 Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
 
+                Assert.True(apiProcessContextCollection.Start(this.factory.GetNextAvailablePort), $"Api ProcessContext Collection.");
+
                 List<int> portList = new ();
 
-                int contextCount = 1;
-
-                foreach (var apiProcessContext in apiProcessContextList)
+                foreach (var apiProcessContext in apiProcessContextCollection)
                 {
-                    this.output.WriteLine($"Starting LodeRunner API for Host {contextCount}.");
+                    this.output.WriteLine($"Starting LodeRunner API for Host {apiProcessContext.hostId}.");
 
-                    Assert.True(apiProcessContext.Value.Start(), $"Unable to start LodeRunner API Context for Host {contextCount}.");
+                    Assert.True(apiProcessContext.apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {apiProcessContext.hostId}.");
 
-                    Assert.True(apiProcessContext.Value.Errors.Count == 0, $"Errors found in LodeRunner API - Host {contextCount} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Value.Errors)}");
+                    Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
 
-                    int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.Value.Output);
+                    int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.apiProcessContext.Output);
 
-                    Assert.True(apiListeningOnPort == apiProcessContext.Key, "Unable to get Port Number");
+                    Assert.True(apiListeningOnPort == apiProcessContext.portNumber, "Unable to get Port Number");
 
                     portList.Add(apiListeningOnPort);
-
-                    contextCount++;
                 }
 
                 // Verify that clientStatusId exist is Database.
@@ -128,12 +122,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, portList);
 
-                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
+                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, this.output);
                 Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
                 // Validate Test Run Entity
                 var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
+                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.output);
 
                 Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
                 var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
@@ -143,7 +137,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 gottenTestRunId = gottenTestRun.Id;
 
                 // Attempt to get TestRun for N retries or until condition has met.
-                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(TestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, 2000);
+                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 2000);
 
                 // Validate results
                 int expectedLoadClientCount = 1;
@@ -163,63 +157,25 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 lodeRunnerAppContext.End();
                 this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
 
-                contextCount = 1;
-                foreach (var apiProcessContext in apiProcessContextList)
+                foreach (var apiProcessContext in apiProcessContextCollection)
                 {
-                    Assert.True(apiProcessContext.Value.Errors.Count == 0, $"Errors found in LodeRunner API - Host {contextCount} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Value.Errors)}");
-                    this.output.WriteLine($"No errors found for API Host {contextCount}.");
-                    contextCount++;
+                    //Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
+                    this.output.WriteLine($"No errors found for API Host {apiProcessContext.hostId}.");
                 }
+
+                apiProcessContextCollection.End();
             }
             finally
             {
-                // We need to make sure we terminate the ApiProcess Context.
-                int contextCount = 1;
-                foreach (var apiProcessContext in apiProcessContextList)
-                {
-                    apiProcessContext.Value.End();
-                    this.output.WriteLine($"Stopping LodeRunner API for Host {contextCount}.");
-                    contextCount++;
-                }
-
-                // we remove any reference to the ApiProcess Context.
-                apiProcessContextList.Clear();
-
                 // gottenTestRunId gets set only after successfully have gotten and validated the Test Run entity.
                 if (!string.IsNullOrEmpty(gottenTestRunId))
                 {
-                    var response = await httpClient.DeleteItemById<TestRun>(TestRunsUri, gottenTestRunId, this.output);
+                    var response = await httpClient.DeleteItemById<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, gottenTestRunId, this.output);
 
                     // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
                     Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates the API process context list.
-        /// </summary>
-        /// <param name="apiHostCount">The API host count.</param>
-        /// <param name="secretsVolume">The secrets volume.</param>
-        /// <returns>Api ProcessContext Dictionary.</returns>
-        private Dictionary<int, ProcessContext> CreateApiProcessContextDictionary(int apiHostCount, string secretsVolume)
-        {
-            Dictionary<int, ProcessContext> apiProcessContextList = new ();
-            for (int i = 1; i <= apiHostCount; i++)
-            {
-                int apiPortNumber = this.factory.NextAvailablePort;
-                var lodeRunnerAPIContext = new ProcessContext(
-                new ProcessContextParams()
-                {
-                    ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
-                    ProjectArgs = $"--port {apiPortNumber} --secrets-volume {secretsVolume}",
-                    ProjectBaseParentDirectoryName = "src",
-                }, this.output);
-
-                apiProcessContextList.Add(apiPortNumber, lodeRunnerAPIContext);
-            }
-
-            return apiProcessContextList;
         }
 
         /// <summary>

@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Test.IntegrationTests.ExecutingTestRun;
 using LodeRunner.API.Test.IntegrationTests.Extensions;
@@ -25,20 +26,15 @@ namespace LodeRunner.API.Test.IntegrationTests
     public class ApiWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-        private ApiPortPoolManager apiPortPoolManager = new ();
+        private readonly ApiPortPoolManager apiPortPoolManager = new ();
 
         /// <summary>
-        /// Gets the get next available port.
+        /// Gets the next available port.
         /// </summary>
-        /// <value>
-        /// The get next available port.
-        /// </value>
-        public int NextAvailablePort
+        /// <returns>NextAvailablePort.</returns>
+        public int GetNextAvailablePort()
         {
-            get
-            {
-                return this.apiPortPoolManager.GetNextAvailablePort();
-            }
+            return this.apiPortPoolManager.GetNextAvailablePort();
         }
 
         /// <summary>
