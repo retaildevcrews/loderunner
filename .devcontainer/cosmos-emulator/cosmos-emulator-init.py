@@ -3,11 +3,6 @@
 # -*- coding: utf-8 -*-
 import subprocess
 import sys
-# try:
-#     from azure.cosmos import CosmosClient, PartitionKey, exceptions
-# except (ImportError, ModuleNotFoundError) as error:
-#     subprocess.check_call([sys.executable, "-m", "pip", "install", "azure-cosmos"])
-# finally:
 
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 import argparse
@@ -50,7 +45,6 @@ if connection_verify is False:
     print(warning,file=sys.stderr)
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# print(f"Url: {URL}, credential={KEY}, connection_verify={connection_verify}")
 client = CosmosClient(URL, credential=KEY, connection_verify=connection_verify)
 
 # Create LodeRunner db and container
