@@ -86,7 +86,7 @@ jobs:
 
   loderunner-only:
     needs: evaluate-changes
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-only.yaml@main
+    uses: ./.github/workflows/loderunner-only.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}
@@ -99,7 +99,7 @@ jobs:
 
   loderunner-api:
     needs: evaluate-changes
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-api.yaml@main
+    uses: ./.github/workflows/loderunner-api.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
@@ -109,7 +109,7 @@ jobs:
 
   loderunner-ui:
     needs: evaluate-changes
-    uses: retaildevcrews/loderunner/.github/workflows/loderunner-ui.yaml@main
+    uses: ./.github/workflows/loderunner-ui.yaml
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
