@@ -75,7 +75,7 @@ jobs:
       if: ${{ inputs.run_and_test }}
       run: |
         cd src/LodeRunner.API.Test
-        dotnet test --filter "Category=Integration" --logger "console;verbosity=diag"
+        dotnet test --filter "Category=Integration" --logger "console;verbosity=detailed"
         
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}    
