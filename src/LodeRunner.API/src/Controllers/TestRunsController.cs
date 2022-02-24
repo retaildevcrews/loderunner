@@ -180,7 +180,7 @@ namespace LodeRunner.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToDeleteTestRun, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
-            Summary = "Deletes a TestRun item",
+            Summary = "Deletes a TestRun item. Can only delete if TestRun item is Completed or StartTime is scheduled less than a minute from now",
             Description = "Requires Test Run id",
             OperationId = "DeleteTestRun")]
         public async Task<ActionResult> DeleteTestRun([FromRoute, SwaggerRequestBody("The Test Run id to delete", Required = true)] string testRunId, [FromServices] TestRunService testRunService, [FromServices] CancellationTokenSource cancellationTokenSource)
