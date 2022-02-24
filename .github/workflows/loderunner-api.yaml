@@ -18,6 +18,10 @@ on:
         required: true
       cosmos_url:
         required: true
+      ghcr_id:
+        required: true
+      ghcr_pat:
+        required: true
 
 jobs:
   build:
