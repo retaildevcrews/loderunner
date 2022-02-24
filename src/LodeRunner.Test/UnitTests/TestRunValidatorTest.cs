@@ -70,12 +70,12 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void SuccessfulTestRunPost()
+        public void SuccessfulTestRunValidation()
         {
             var validTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
-            var response = await this.service.Post(validTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.Null(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(validTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.Empty(errors);
         }
 
         /// <summary>
@@ -83,13 +83,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidId()
+        public void FailedTestRunValidationInvalidId()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.Id = "abc";
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -97,13 +97,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostEmptyId()
+        public void FailedTestRunValidationEmptyId()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.Id = string.Empty;
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -111,13 +111,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostEmptyName()
+        public void FailedTestRunValidationEmptyName()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.Name = string.Empty;
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -125,13 +125,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidCreatedTime()
+        public void FailedTestRunValidationInvalidCreatedTime()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.CreatedTime = DateTime.MinValue;
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -139,13 +139,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidStartTime()
+        public void FailedTestRunValidationInvalidStartTime()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.StartTime = invalidTestRun.CreatedTime.AddDays(-1);
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -153,13 +153,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void SuccessfulTestRunPostValidCompletedTime()
+        public void SuccessfulTestRunValidationValidCompletedTime()
         {
-            var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
-            invalidTestRun.CompletedTime = invalidTestRun.StartTime.AddDays(1);
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.Null(response.Errors);
+            var validTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
+            validTestRun.CompletedTime = validTestRun.StartTime.AddDays(1);
+            var errors = this.service.Validator.ValidateEntity(validTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.Empty(errors);
         }
 
         /// <summary>
@@ -167,13 +167,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidCompletedTime()
+        public void FailedTestRunValidationInvalidCompletedTime()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.CompletedTime = invalidTestRun.StartTime.AddDays(-1);
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -181,13 +181,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidNullLoadTestConfig()
+        public void FailedTestRunValidationInvalidNullLoadTestConfig()
         {
-            var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
-            invalidTestRun.LoadTestConfig = new LoadTestConfig();
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.Null(response.Errors);
+            var validTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
+            validTestRun.LoadTestConfig = new LoadTestConfig();
+            var errors = this.service.Validator.ValidateEntity(validTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.Empty(errors);
         }
 
         /// <summary>
@@ -195,13 +195,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostInvalidNullLoadClients()
+        public void FailedTestRunValidationInvalidNullLoadClients()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.LoadClients = new List<LoadClient>();
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -209,13 +209,13 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void FailedTestRunPostDuplicateLoadClients()
+        public void FailedTestRunValidationDuplicateLoadClients()
         {
             var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
             invalidTestRun.LoadClients.Add(invalidTestRun.LoadClients[0]);
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.NotEmpty(response.Errors);
+            var errors = this.service.Validator.ValidateEntity(invalidTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.NotEmpty(errors);
         }
 
         /// <summary>
@@ -223,15 +223,15 @@ namespace LodeRunner.Test.UnitTests
         /// </summary>
         [Fact]
         [Trait("Category", "Unit")]
-        public async void SuccessfulTestRunPostDistinctLoadClients()
+        public void SuccessfulTestRunValidationDistinctLoadClients()
         {
-            var invalidTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
-            LoadClient distinctLoadClient = JsonSerializer.Deserialize<LoadClient>(JsonSerializer.Serialize(invalidTestRun.LoadClients[0]));
+            var validTestRun = JsonSerializer.Deserialize<TestRun>(this.validSerializedTestRun);
+            LoadClient distinctLoadClient = JsonSerializer.Deserialize<LoadClient>(JsonSerializer.Serialize(validTestRun.LoadClients[0]));
             distinctLoadClient.Id = Guid.NewGuid().ToString();
-            invalidTestRun.LoadClients.Add(distinctLoadClient);
-            var response = await this.service.Post(invalidTestRun, default(CancellationToken));
-            this.output.WriteLine($"Errors: {response.Errors}");
-            Assert.Null(response.Errors);
+            validTestRun.LoadClients.Add(distinctLoadClient);
+            var errors = this.service.Validator.ValidateEntity(validTestRun);
+            this.output.WriteLine($"Errors: {string.Join(", ", errors)}");
+            Assert.Empty(errors);
         }
     }
 }

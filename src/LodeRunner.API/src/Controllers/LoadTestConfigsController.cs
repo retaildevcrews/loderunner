@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -188,7 +189,7 @@ namespace LodeRunner.API.Controllers
 
             if (errorlist.Count > 0)
             {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), $"{SystemConstants.InvalidLoadTestConfigId}");
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), SystemConstants.InvalidLoadTestConfigId);
 
                 return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
