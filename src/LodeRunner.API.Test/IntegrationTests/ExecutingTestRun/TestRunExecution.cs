@@ -137,7 +137,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 gottenTestRunId = gottenTestRun.Id;
 
                 // Attempt to get TestRun for N retries or until condition has met.
-                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 15, 2000);
+                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 2000);
 
                 // Validate results
                 int expectedLoadClientCount = 1;
@@ -159,7 +159,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 foreach (var apiProcessContext in apiProcessContextCollection)
                 {
-                    //Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
+                    Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
                     this.output.WriteLine($"No errors found for API Host {apiProcessContext.hostId}.");
                 }
 
