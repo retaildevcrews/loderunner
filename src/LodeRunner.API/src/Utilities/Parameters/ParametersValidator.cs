@@ -26,37 +26,12 @@ namespace LodeRunner.API.Middleware
 
             string entityIdFieldName = $"{typeof(TEntity).Name}Id";
 
-            if (!IsValid(entityId))
+            if (!Guid.TryParse(entityId, out _))
             {
                 errors.Add($"{entityIdFieldName} - {ValidationError.GetErrorMessage(entityIdFieldName)}");
             }
 
             return errors;
-        }
-
-        /// <summary>
-        /// Check if Entity ID is Valid.
-        /// </summary>
-        /// <param name="entityId">id to validate.</param>
-        /// <returns>true on valid.</returns>
-        private static bool IsValid(string entityId)
-        {
-            if (string.IsNullOrWhiteSpace(entityId))
-            {
-                return false;
-            }
-
-            Guid guidValue;
-            try
-            {
-                guidValue = Guid.Parse(entityId);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

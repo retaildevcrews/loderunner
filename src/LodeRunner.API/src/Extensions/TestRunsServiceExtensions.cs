@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Responses;
-using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,7 @@ namespace LodeRunner.API.Extensions
         /// <summary>
         /// Gets TestRunId.
         /// </summary>
-        /// <param name="testRunService">The client status service.</param>
+        /// <param name="testRunService">The test run service.</param>
         /// <param name="testRunId">The testRunId.</param>
         /// <returns>The Task</returns>
         public static async Task<ApiResponse<TestRun>> GetTestRun(this TestRunService testRunService, string testRunId)
@@ -29,10 +28,10 @@ namespace LodeRunner.API.Extensions
             TestRun existingTestRun = null;
             try
             {
-               existingTestRun = await testRunService.Get(testRunId);
+                existingTestRun = await testRunService.Get(testRunId);
 
-               result.Model = existingTestRun;
-               result.StatusCode = HttpStatusCode.OK;
+                result.Model = existingTestRun;
+                result.StatusCode = HttpStatusCode.OK;
             }
             catch (CosmosException cex)
             {

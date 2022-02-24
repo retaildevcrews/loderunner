@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -11,11 +9,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core.Models;
-using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -51,7 +47,7 @@ namespace LodeRunner.API.Controllers
         /// <returns>IActionResult.</returns>
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, SystemConstants.AllLoadTestConfigsFound, typeof(LoadTestConfig[]), "application/json")]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.NoClientsFound, null, "text/plain")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, SystemConstants.NoLoadTestConfigsFound, null, "text/plain")]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, SystemConstants.UnableToGetLoadTestConfigs, typeof(ErrorResult), "application/problem+json")]
         [SwaggerResponse((int)HttpStatusCode.ServiceUnavailable, SystemConstants.TerminationDescription)]
         [SwaggerOperation(
@@ -188,12 +184,13 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var errorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
+            var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
-            if (errorList.Count > 0)
+            if (errorlist.Count > 0)
             {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{nameof(DeleteLoadTestConfig)}"), SystemConstants.InvalidLoadTestConfigId);
-                return await ResultHandler.CreateBadRequestResult(errorList, RequestLogger.GetPathAndQuerystring(this.Request));
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), $"{SystemConstants.InvalidLoadTestConfigId}");
+
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
             }
 
             var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);

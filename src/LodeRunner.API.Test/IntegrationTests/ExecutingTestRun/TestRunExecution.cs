@@ -189,7 +189,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="clientStatusId">The client status identifier.</param>
         private async Task VerifyLodeRunnerClientStatusIsReady(HttpClient httpClient, string clientStatusId)
         {
-            (HttpStatusCode currentClientStatusCode, Client currentClient) = await httpClient.GetClientByIdRetriesAsync(LodeRunner.Core.SystemConstants.IntegrationClientsUri, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
+            (HttpStatusCode currentClientStatusCode, Client currentClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
 
             Assert.True(currentClientStatusCode == HttpStatusCode.OK, $"Invalid response status code: {currentClientStatusCode}");
             Assert.True(currentClient != null, "Unable to get Client entity.");

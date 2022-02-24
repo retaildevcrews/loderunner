@@ -57,7 +57,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateGetResponse<Client>(clientStatusService.GetClients, logger);
+            return await ResultHandler.CreateGetResponse(clientStatusService.GetClients, logger);
         }
 
         /// <summary>

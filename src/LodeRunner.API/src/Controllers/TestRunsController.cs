@@ -195,7 +195,7 @@ namespace LodeRunner.API.Controllers
 
             if (existingTestRunResp.StatusCode == HttpStatusCode.OK)
             {
-                if (existingTestRunResp.Model.CompletedTime != null || (existingTestRunResp.Model.CompletedTime == null && existingTestRunResp.Model.StartTime > DateTime.UtcNow))
+                if (existingTestRunResp.Model.CompletedTime != null)
                 {
                     delStatusCode = await testRunService.Delete(testRunId);
                 }
@@ -237,8 +237,7 @@ namespace LodeRunner.API.Controllers
         {
             return await Task.Run(() =>
             {
-                var errorList = service.Validator.ValidateEntity(testRun);
-                return errorList;
+                return service.Validator.ValidateEntity(testRun);
             });
         }
     }

@@ -10,11 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware.Validation;
-using LodeRunner.Core.Interfaces;
-using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -92,7 +88,7 @@ namespace LodeRunner.API.Middleware
                 if (errorList != null && errorList.Any())
                 {
                     // Log Warning
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}");
+                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}, ID ({id})");
 
                     // Add info to response
                     return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
@@ -202,23 +198,21 @@ namespace LodeRunner.API.Middleware
         {
             try
             {
-                if (parameterErrorList.Any())
+                // Get existing object to be updated.
+                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, path, parameterErrorList, logger);
+
+                if (existingItemResp.GetType() != typeof(OkObjectResult))
                 {
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreatePutResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}");
-                    return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, parameterErrorList);
+                    return existingItemResp;
                 }
 
-                // First get the object for verification
-                var existingItem = await service.Get(id);
+                var existingItem = (TEntity)((ObjectResult)existingItemResp).Value;
 
                 // Map LoadTestConfigPayload to existing LoadTestConfig.
                 autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
 
-                // Compile errors
+                // Validate and compile errors before post
                 var errorList = await compileErrors(payload, service, existingItem);
-
-                // Validate entity before post
-                service.Validator.ValidateEntity(existingItem);
 
                 // Get POST response
                 ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
@@ -237,29 +231,6 @@ namespace LodeRunner.API.Middleware
                 logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePutResponse)}"), ex, "Exception");
                 return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePutResponse)} > {ex.Message}");
             }
-        }
-
-        public static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
-        {
-            Dictionary<string, object> data = new ()
-            {
-                { "title", type },
-                { "detail", type },
-                { "status", (int)HttpStatusCode.BadRequest },
-                { "instance", path },
-                { "validationErrors", errorList },
-            };
-
-            if (type == SystemConstants.InvalidParameter)
-            {
-                data["type"] = ValidationError.GetErrorLink(path);
-            }
-
-            return new JsonResult(data)
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                ContentType = JsonContentTypeApplicationJsonProblem,
-            };
         }
 
         /// <summary>
@@ -383,6 +354,29 @@ namespace LodeRunner.API.Middleware
             return new JsonResult(new ErrorResult { Error = HttpStatusCode.InternalServerError, Message = $"Internal Server Error: {message}" })
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
+                ContentType = JsonContentTypeApplicationJsonProblem,
+            };
+        }
+
+        private static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
+        {
+            Dictionary<string, object> data = new ()
+            {
+                { "title", type },
+                { "detail", type },
+                { "status", (int)HttpStatusCode.BadRequest },
+                { "instance", path },
+                { "validationErrors", errorList },
+            };
+
+            if (type == SystemConstants.InvalidParameter)
+            {
+                data["type"] = ValidationError.GetErrorLink(path);
+            }
+
+            return new JsonResult(data)
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
                 ContentType = JsonContentTypeApplicationJsonProblem,
             };
         }

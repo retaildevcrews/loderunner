@@ -436,7 +436,7 @@ namespace LodeRunner.API
         /// <summary>
         /// The test run item was not found.
         /// </summary>
-        public const string TestRunNotFound = "Single `TestRun` document not found by testRunId.";
+        public const string TestRunNotFound = "Single `TestRun` document not found by `testRunId`.";
 
         /// <summary>
         /// The unable to delete the test run because its running.
