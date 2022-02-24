@@ -22,6 +22,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    env:
+      DOCKER_REPO: ghcr.io/retaildevcrews/lr-api
 
     steps:
     - uses: actions/checkout@v2
@@ -93,10 +95,10 @@ jobs:
 
     - name: Docker Tag and Push
       if: ${{ inputs.tag_and_push }}
-      run: 
+      run: |
         echo Docker Tag and Push because tag_and_push is- ${{ inputs.tag_and_push }}
 
-        VERSION=$(docker run --rm imageapi --version)
+        #VERSION=$(docker run --rm image --version)
 
         # tag the repo with :beta
         docker tag imageapi $DOCKER_REPO:beta
