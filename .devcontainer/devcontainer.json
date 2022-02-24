@@ -23,7 +23,8 @@
 		32080,
 		32088,
 		3000,
-		8080
+		8080,
+		9090
 	],
 
 	// add labels
@@ -37,7 +38,7 @@
 		"32088": { "label": "LodeRunner API" },
 		"3000": { "label": "Local Dev LodeRunner UI"},
 		"8080": { "label": "Local Dev LodeRunner API"},
-		"9090": { "label": "CosmosDB Emulator"}
+		"9090": { "label": "CosmosDB Emulator", "protocol": "https"}
 	},
 	
 	"containerEnv": {

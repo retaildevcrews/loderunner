@@ -14,8 +14,6 @@ using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -139,6 +137,7 @@ namespace LodeRunner.API
             int portNumber = AppConfigurationHelper.GetLoadRunnerApiPort(config.WebHostPort);
 
             // configure the web host builder
+            // configure MinRequestBodyDataRate if required: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options?view=aspnetcore-6.0#minimum-request-body-data-rate
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
@@ -146,13 +145,6 @@ namespace LodeRunner.API
                     services.AddSingleton<NgsaLog>(ngsalog);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
-                })
-                .ConfigureKestrel(serverOptions =>
-                {
-                    serverOptions.Limits.MinRequestBodyDataRate = new MinDataRate(
-                        bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-                    serverOptions.Limits.MinResponseDataRate = new MinDataRate(
-                        bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                 })
                 .UseUrls($"http://*:{portNumber}/")
                 .UseStartup<Startup>()
