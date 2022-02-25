@@ -22,10 +22,10 @@ namespace LodeRunner.Test.UnitTests
     public class TestRunValidatorTest
     {
         private readonly ITestOutputHelper output;
-        private TestRunService service;
+        private readonly TestRunService service;
 
         // Sample Test Run Is Serialized To Enable Passing Clones Instead Of References
-        private string validSerializedTestRun;
+        private readonly string validSerializedTestRun;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunValidatorTest"/> class.
