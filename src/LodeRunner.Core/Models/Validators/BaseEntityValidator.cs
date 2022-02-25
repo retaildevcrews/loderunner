@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
@@ -17,56 +18,21 @@ namespace LodeRunner.Core.Models.Validators
     where TEntity : class
     {
         /// <summary>
-        /// Gets the error message as string including the Entity Property-ErroeMessage.
+        /// Validates entity and returns a list of error messages.
         /// </summary>
-        /// <value>
-        /// The error message.
-        /// </value>
-        public string ErrorMessage
+        /// <param name="entity"> Entity. </param>
+        /// <returns> The error messages from validation. </returns>
+        public IEnumerable<string> ValidateEntity(TEntity entity)
         {
-            get
+            var errors = this.Validate(entity)?.Errors.ToList();
+            List<string> errorMessages = new ();
+
+            if (errors.Count > 0)
             {
-                string errorMsg = string.Empty;
-
-                var errors = this.ValidationResult?.Errors.ToList();
-
-                if (errors.Count > 0)
-                {
-                    var errorsList = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
-                    errorMsg = string.Join('\n', errorsList);
-                }
-
-                return errorMsg;
+                errorMessages = errors.Select(x => $"{x.PropertyName} - {x.ErrorMessage}").ToList<string>();
             }
-        }
 
-        /// <summary>
-        /// Gets a value indicating whether validation succeeded.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is valid; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsValid => this.ValidationResult != null && this.ValidationResult.IsValid;
-
-        /// <summary>
-        /// Gets the validation result.
-        /// </summary>
-        /// <value>
-        /// The validation result.
-        /// </value>
-        public ValidationResult ValidationResult { get; private set; }
-
-        /// <summary>
-        /// Validates the entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns>
-        /// True if valid, otherwise false.
-        /// </returns>
-        public bool ValidateEntity(TEntity entity)
-        {
-            this.ValidationResult = this.Validate(entity);
-            return this.ValidationResult.IsValid;
+            return errorMessages;
         }
     }
 }
