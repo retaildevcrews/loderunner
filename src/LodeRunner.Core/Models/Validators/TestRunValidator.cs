@@ -31,11 +31,11 @@ namespace LodeRunner.Core.Models.Validators
 
             // Validation For Non-Entity Properties in TestRun
             this.RuleFor(m => m.CreatedTime).GreaterThan(minDate);
-            this.RuleFor(m => new { m.StartTime, m.CreatedTime} )
-                .Must(m => m.StartTime >= m.CreatedTime )
+            this.RuleFor(m => new { m.StartTime, m.CreatedTime })
+                .Must(m => m.StartTime >= m.CreatedTime)
                 .WithMessage("Start Time Must Be Greater Than Or Equal To Created Time.");
-            this.RuleFor(m => new { m.CompletedTime, m.StartTime})
-                .Must(m => m.CompletedTime >= m.StartTime )
+            this.RuleFor(m => new { m.CompletedTime, m.StartTime })
+                .Must(m => m.CompletedTime >= m.StartTime)
                 .When(m => m.CompletedTime != null)
                 .WithMessage("Completed Time Must Be Greater Than Or Equal To Start Time.");
 
@@ -45,12 +45,14 @@ namespace LodeRunner.Core.Models.Validators
             this.RuleFor(m => m.LoadTestConfig).SetValidator(new LoadTestConfigValidator());
             this.RuleFor(m => m.LoadClients)
                 .NotEmpty()
-                .Must(loadClients => {
+                .Must(loadClients =>
+                {
                     var loadClientIds = loadClients.Select(loadClient => loadClient.Id);
                     bool isListDistinct = loadClientIds.Distinct().SequenceEqual(loadClientIds);
                     return isListDistinct;
                 }).WithMessage("Cannot Have Duplicate Load Clients.");
             this.RuleForEach(m => m.LoadClients).SetValidator(new LoadClientValidator());
+
             // ClientResults Is Optional
             this.RuleForEach(m => m.ClientResults).SetValidator(new LoadResultValidator());
         }

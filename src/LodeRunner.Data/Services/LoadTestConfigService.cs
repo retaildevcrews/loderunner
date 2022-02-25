@@ -1,18 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using LodeRunner.Core;
-using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
-using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
-using Microsoft.Azure.Cosmos;
 
 namespace LodeRunner.Services
 {

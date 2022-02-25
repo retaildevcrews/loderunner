@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Responses;
-using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,7 @@ namespace LodeRunner.API.Extensions
         /// <summary>
         /// Gets TestRunId.
         /// </summary>
-        /// <param name="testRunService">The client status service.</param>
+        /// <param name="testRunService">The test run service.</param>
         /// <param name="testRunId">The testRunId.</param>
         /// <returns>The Task</returns>
         public static async Task<ApiResponse<TestRun>> GetTestRun(this TestRunService testRunService, string testRunId)
@@ -51,7 +50,7 @@ namespace LodeRunner.API.Extensions
             {
                 // We don't have the item with specified ID, throw error
                 result.StatusCode = HttpStatusCode.NotFound;
-                result.Errors = SystemConstants.UnableToGetTestRun;
+                result.Errors = SystemConstants.TestRunItemNotFound;
             }
 
             return result;

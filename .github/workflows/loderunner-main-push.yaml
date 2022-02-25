@@ -106,6 +106,8 @@ jobs:
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      ghcr_id: ${{ secrets.GHCR_ID }}
+      ghcr_pat: ${{ secrets.GHCR_PAT }}
 
   loderunner-ui:
     needs: evaluate-changes
