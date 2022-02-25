@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loderunner-api
+  namespace: loderunner
+  labels:
+    app.kubernetes.io/name: loderunner-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loderunner-api
+  template:
+    metadata:
+      labels:
+        app: loderunner-api
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/retaildevcrews/lr-api:beta
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+          - name: "ASPNETCORE_ENVIRONMENT"
+            value: "Production"
+          volumeMounts:
+            - name: secrets
+              mountPath: "/app/secrets"
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: lr-secrets
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: loderunner-api
+  namespace: loderunner
+spec:
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: http
+      nodePort: 32088
+      protocol: TCP
+      name: http
+  selector:
+    app: loderunner-api
