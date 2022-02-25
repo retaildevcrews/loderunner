@@ -1,0 +1,49 @@
+
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: ngsa-asb-loderunner-id
+  namespace: loderunner
+spec:
+  type: 0
+  resourceID: /subscriptions/648dcb5a-de1e-48b2-af6b-fe6ef28d355c/resourcegroups/rg-ngsa-asb-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ngsa-asb-loderunner-id
+  clientID: ed670dd0-eb7f-48b5-b8f4-786ac8c30027
+
+---
+
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: ngsa-asb-loderunner-id-binding
+  namespace: loderunner
+spec:
+  azureIdentity: ngsa-asb-loderunner-id
+  selector: ngsa-asb-loderunner-id
+
+---
+
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: lr-secrets
+  namespace: loderunner 
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "true"
+    keyvaultName: "kv-aks-3i2qzkkxofr7c"
+    objects: |
+      array:
+        - |
+          objectName: CosmosLRDatabase
+          objectType: secret
+        - |
+          objectName: CosmosLRCollection
+          objectType: secret
+        - |
+          objectName: CosmosKey
+          objectType: secret
+        - |
+          objectName: CosmosUrl
+          objectType: secret
+    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
