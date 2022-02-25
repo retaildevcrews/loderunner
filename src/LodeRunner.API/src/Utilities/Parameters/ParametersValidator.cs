@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LodeRunner.API.Middleware.Validation;
 
 namespace LodeRunner.API.Middleware
@@ -18,44 +19,19 @@ namespace LodeRunner.API.Middleware
         /// Validate Id.
         /// </summary>
         /// <param name="entityId">id to validate.</param>
-        /// <returns>empty list on valid.</returns>
-        public static List<ValidationError> ValidateEntityId(string entityId)
+        /// <returns>List of error messages.</returns>
+        public static List<string> ValidateEntityId(string entityId)
         {
-            List<ValidationError> errors = new ();
+            List<string> errors = new ();
 
             string entityIdFieldName = $"{typeof(TEntity).Name}Id";
 
-            if (!IsEntityIdValid(entityId))
+            if (!Guid.TryParse(entityId, out _))
             {
-                errors.Add(new ValidationError() { Target = entityIdFieldName, Message = ValidationError.GetErrorMessage(entityIdFieldName) });
+                errors.Add($"{entityIdFieldName} - {ValidationError.GetErrorMessage(entityIdFieldName)}");
             }
 
             return errors;
-        }
-
-        /// <summary>
-        /// Check if Entity ID is Valid.
-        /// </summary>
-        /// <param name="entityId">id to validate.</param>
-        /// <returns>true on valid.</returns>
-        private static bool IsEntityIdValid(string entityId)
-        {
-            if (string.IsNullOrWhiteSpace(entityId))
-            {
-                return false;
-            }
-
-            Guid guidValue;
-            try
-            {
-                guidValue = Guid.Parse(entityId);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }
