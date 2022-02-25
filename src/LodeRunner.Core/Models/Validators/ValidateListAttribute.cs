@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,13 +21,13 @@ namespace LodeRunner.Core.Models.Validators
         /// <returns>Success if Associated String List passes validation, otherwise error.</returns>
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value is not List<string> list || list.Count == 0)
+            if (value is IList list && list.Count > 0)
             {
-                return new ValidationResult(this.ErrorMessage);
+                return ValidationResult.Success;
             }
             else
             {
-                return ValidationResult.Success;
+                return new ValidationResult(this.ErrorMessage);
             }
         }
     }

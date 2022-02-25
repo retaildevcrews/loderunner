@@ -118,7 +118,7 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
             var newloadTestConfig = this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload);
 
-            if (newloadTestConfig.Validate(out string errorMessage, loadTestConfigPayload.PropertiesChanged))
+            if (newloadTestConfig.Validate(out string errorMessage))
             {
                 var insertedLoadTestConfigResponse = await loadTestConfigService.Post(newloadTestConfig, cancellationTokenSource.Token);
 

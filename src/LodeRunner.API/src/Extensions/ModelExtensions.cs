@@ -24,13 +24,12 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
         /// <param name="errorMessage">Error MEssage String if any.</param>
-        /// <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
         /// <returns>Whether or not  the DTO passes validation.</returns>
-        public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage, List<string> payloadPropertiesChanged = null)
+        public static bool Validate(this LoadTestConfig loadTestConfig, out string errorMessage)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
 
-            string[] args = LoadTestConfigExtensions.GetArgs(loadTestConfig, payloadPropertiesChanged);
+            string[] args = LoadTestConfigExtensions.GetArgs(loadTestConfig);
 
             bool result = false;
 
