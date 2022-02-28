@@ -122,7 +122,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, TestRunsUri, this.output);
                 Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
-                // Validate Test Run Entity
+               // Validate Test Run Entity
                 var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
                 var gottenHttpResponse = await httpClient.GetItemById<TestRun>(TestRunsUri, postedTestRun.Id, this.output);
 
@@ -219,6 +219,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns>port number. 0 if not found.</returns>
         private async Task<int> TryParseProcessOutputAndGetAPIListeningPort(List<string> outputList, int timeBetweenTriesMs = 1000, int maxRetries = 20)
         {
+            Refactor this using // await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+
             int portNumber = 0;
             for (int i = 1; i <= maxRetries; i++)
             {
@@ -255,6 +257,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns>the ClientStatusId.</returns>
         private async Task<string> TryParseProcessOutputAndGetClientStatusId(List<string> outputList, int timeBetweenTriesMs = 500, int maxRetries = 10)
         {
+            Refactor this using // await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+
+            TODO: change method signature and name so it can be used for both ClientId and TestRunId
+
             string clientStatusId = null;
             for (int i = 1; i <= maxRetries; i++)
             {
@@ -263,7 +269,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 string targetOutputLine = outputList.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.InitializingClient));
                 if (!string.IsNullOrEmpty(targetOutputLine))
                 {
-                    clientStatusId = GetSubstringByString("(", ")", targetOutputLine);
+                    clientStatusId = GetSubstringByString(LodeRunner.Core.SystemConstants.LogClientIdPrefix, ")", targetOutputLine);
                     this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
                     return clientStatusId;
                 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -178,6 +179,14 @@ namespace LodeRunner
         public string TestRunId { get; set; }
 
         /// <summary>
+        /// Gets or sets the client status guid.
+        /// </summary>
+        /// <value>
+        /// The client status identifier.
+        /// </value>
+        public string ClientStatusId { get; set; }
+
+        /// <summary>
         /// Gets or sets the logLevel.
         /// </summary>
         public LogLevel LogLevel
@@ -222,8 +231,8 @@ namespace LodeRunner
         /// </returns>
         public string GetClientIdAndTestRunIdInfo()
         {
-            string testRunId = string.IsNullOrEmpty(TestRunId) == true ? "[No TestRun executing at this time.]" : TestRunId;
-            return $"Client Id: {LoadClientId} - TestRun Id:{testRunId}";
+            string testRunId = string.IsNullOrEmpty(TestRunId) == true ? "[No TestRun executing at this time.]" : this.TestRunId;
+            return $"[{SystemConstants.LogClientIdPrefix}{this.ClientStatusId}), {SystemConstants.LogTestRunIdPrefix}{testRunId})]";
         }
 
         /// <summary>

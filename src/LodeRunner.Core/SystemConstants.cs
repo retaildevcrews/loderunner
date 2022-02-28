@@ -133,5 +133,15 @@ namespace LodeRunner.Core
         /// The default API web host port.
         /// </summary>
         public const int DefaultApiWebHostPort = 8080;
+
+        /// <summary>
+        /// The log client identifier prefix.
+        /// </summary>
+        public const string LogClientIdPrefix = "Client Id: (";
+
+        /// <summary>
+        /// The log test run identifier prefix.
+        /// </summary>
+        public const string LogTestRunIdPrefix = "TestRun Id: (";
     }
 }
