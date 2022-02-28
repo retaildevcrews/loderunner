@@ -558,7 +558,7 @@ namespace LodeRunner.Services
         private async Task ExecuteNewTestRunAsync(TestRun testRun)
         {
             this.pendingTestRuns.Add(testRun.Id);
-            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"Executing TestRun", this.cancellationTokenSource));
+            this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"{Core.SystemConstants.ExecutingTestRun}", this.cancellationTokenSource));
 
             // convert TestRun LoadTestConfig object to command line args
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);

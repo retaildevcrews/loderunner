@@ -231,8 +231,13 @@ namespace LodeRunner
         /// </returns>
         public string GetClientIdAndTestRunIdInfo()
         {
-            string testRunId = string.IsNullOrEmpty(TestRunId) == true ? "[No TestRun executing at this time.]" : this.TestRunId;
-            return $"[{SystemConstants.LogClientIdPrefix}{this.ClientStatusId}), {SystemConstants.LogTestRunIdPrefix}{testRunId})]";
+            string testRunId = string.Empty;
+            if (!string.IsNullOrEmpty(TestRunId))
+            {
+                testRunId = $", {SystemConstants.LogTestRunIdPrefix}{TestRunId})";
+            }
+
+            return $"[{SystemConstants.LogClientIdPrefix}{this.ClientStatusId}){testRunId}]";
         }
 
         /// <summary>

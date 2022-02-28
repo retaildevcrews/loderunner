@@ -125,6 +125,11 @@ namespace LodeRunner.Core
         public const string ReceivedNewTestRun = "Received new TestRun";
 
         /// <summary>
+        /// The executing test run.
+        /// </summary>
+        public const string ExecutingTestRun = "Executing TestRun";
+
+        /// <summary>
         /// The terminating client.
         /// </summary>
         public const string TerminatingClient = "Terminating Client";
