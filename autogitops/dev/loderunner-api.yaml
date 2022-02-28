@@ -44,6 +44,8 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: lr-secrets
+      nodeSelector:
+        agentpool: npuser01
 
 ---
 
