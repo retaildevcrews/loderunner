@@ -233,6 +233,40 @@ namespace LodeRunner.API.Middleware
             }
         }
 
+        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string notFound, string unableToDelete, ILogger logger)
+        {
+            try
+            {
+                // Validate and/or check conditions before deleting
+                var preChecksResponse = await preDeleteChecks(id, service);
+
+                if (preChecksResponse != null)
+                {
+                    return preChecksResponse;
+                }
+
+                // Delete
+                HttpStatusCode delStatusCode = await service.Delete(id);
+
+                // Handle reponse code
+                return await HandleDeleteStatusCode(delStatusCode, notFound, unableToDelete);
+            }
+            catch (CosmosException ce)
+            {
+                // Log Error
+                logger.LogError(new EventId((int)ce.StatusCode, $" {nameof(CreateDeleteResponse)}"), ce, "CosmosException");
+
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
+                return CreateInternalServerErrorResponse($"{nameof(CreateDeleteResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Log Error
+                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{nameof(CreateDeleteResponse)}"), ex, "Exception");
+                return CreateInternalServerErrorResponse($"{nameof(CreateDeleteResponse)} > {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Creates the response for ServiceUnavailable.
         /// Currently only handles Cancellation InProgress Result use case.
@@ -378,6 +412,21 @@ namespace LodeRunner.API.Middleware
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
                 ContentType = JsonContentTypeApplicationJsonProblem,
+            };
+        }
+
+        private static async Task<ActionResult> HandleDeleteStatusCode(HttpStatusCode delStatusCode, string notFound, string unableToDelete)
+        {
+            return delStatusCode switch
+            {
+                HttpStatusCode.OK =>
+                    await ResultHandler.CreateNoContent(),
+                HttpStatusCode.NoContent =>
+                    await ResultHandler.CreateNoContent(),
+                HttpStatusCode.NotFound =>
+                    await ResultHandler.CreateErrorResult(notFound, HttpStatusCode.NotFound),
+                _ =>
+                    await ResultHandler.CreateErrorResult(unableToDelete, HttpStatusCode.InternalServerError),
             };
         }
     }

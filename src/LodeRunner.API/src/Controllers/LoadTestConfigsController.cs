@@ -185,24 +185,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
-
-            if (errorlist.Count > 0)
-            {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), SystemConstants.InvalidLoadTestConfigId);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
-
-            return deleteTaskResult switch
-            {
-                HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
-                HttpStatusCode.NoContent => await ResultHandler.CreateNoContent(),
-                HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.LoadTestConfigItemNotFound, HttpStatusCode.NotFound),
-                _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
-            };
+            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(RunPreDeletionChecks, loadTestConfigService, loadTestConfigId, SystemConstants.LoadTestConfigItemNotFound, SystemConstants.UnableToDeleteLoadTestConfig, logger);
         }
 
         private async Task<IEnumerable<string>> CompileErrorList(LoadTestConfigPayload payload, IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
@@ -214,6 +197,19 @@ namespace LodeRunner.API.Controllers
                 var errorList = flagErrorList.Concat<string>(payloadErrorList);
                 return errorList;
             });
+        }
+
+        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfig)
+        {
+            var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
+
+            if (errorlist.Count > 0)
+            {
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), SystemConstants.InvalidLoadTestConfigId);
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
+            }
+
+            return null;
         }
     }
 }

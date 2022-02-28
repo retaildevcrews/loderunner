@@ -190,20 +190,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var existingTestRunResp = await testRunService.GetTestRun(testRunId);
-            HttpStatusCode delStatusCode = HttpStatusCode.InternalServerError;
-
-            if (existingTestRunResp.StatusCode == HttpStatusCode.OK)
-            {
-                if (existingTestRunResp.Model.CompletedTime != null || (existingTestRunResp.Model.CompletedTime == null && existingTestRunResp.Model.StartTime >= DateTime.UtcNow.AddMinutes(1)))
-                {
-                    delStatusCode = await testRunService.Delete(testRunId);
-                }
-                else
-                {
-                    delStatusCode = HttpStatusCode.Conflict;
-                }
-            }
+            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.TestRunItemNotFound, SystemConstants.UnableToDeleteTestRun, logger);
 
             // Get       Delete    Returns   Message
             // -------------------------------------
@@ -212,25 +199,7 @@ namespace LodeRunner.API.Controllers
             // Ok        NotFound  NotFound  (Redundant) Same as above*
             // Ok        Conflict  Conflict  ID Found but unfinished
             // Ok        Ok        NoContent All good
-            // Any       Any       IntErr    But also show GET and DELETE status
-            return (existingTestRunResp.StatusCode, delStatusCode) switch
-            {
-                (HttpStatusCode.InternalServerError, _) =>
-                    await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.InternalServerError),
-                (HttpStatusCode.NotFound, _) =>
-                    await ResultHandler.CreateErrorResult(existingTestRunResp.Errors, HttpStatusCode.NotFound),
-
-                // This case is redundant, but is handy for testing
-                // (HttpStatusCode.OK, HttpStatusCode.NotFound) =>
-                //     await ResultHandler.CreateErrorResult(SystemConstants.NotFoundTestRun, HttpStatusCode.NotFound),
-                (HttpStatusCode.OK, HttpStatusCode.Conflict) =>
-                    await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict),
-                (HttpStatusCode.OK, HttpStatusCode.OK) => await ResultHandler.CreateNoContent(),
-                (HttpStatusCode.OK, _) =>
-                    await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteTestRun, HttpStatusCode.InternalServerError),
-                (_, _) => // For all other cases
-                    await ResultHandler.CreateErrorResult($"{SystemConstants.Unknown}. TestRun ({testRunId}) GET Status: {existingTestRunResp.StatusCode}, DEL status: {delStatusCode}", HttpStatusCode.InternalServerError),
-            };
+            // Any       Any       IntErr    But also show GET and DELETE status (Redundant if exception is thrown when GET status is not OK)
         }
 
         private async Task<IEnumerable<string>> CompileErrorList(TestRunPayload payload, IBaseService<TestRun> service, TestRun testRun)
@@ -239,6 +208,34 @@ namespace LodeRunner.API.Controllers
             {
                 return service.Validator.ValidateEntity(testRun);
             });
+        }
+
+        private bool CanTestRunBeDeleted(TestRun testRun)
+        {
+            return testRun.CompletedTime != null || (testRun.CompletedTime == null && testRun.StartTime >= DateTime.UtcNow.AddMinutes(1));
+        }
+
+        private async Task<ActionResult> RunPreDeletionChecks(string testRunId, IBaseService<TestRun> testRunService)
+        {
+            // Validate Entity ID
+            var parameterErrorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
+            var path = RequestLogger.GetPathAndQuerystring(this.Request);
+
+            // Create and return GET response
+            var existingItemResp = await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, path, parameterErrorList, logger);
+
+            if (existingItemResp.GetType() != typeof(OkObjectResult))
+            {
+                return existingItemResp;
+            }
+
+            // Check if TestRun can be deleted
+            if (!CanTestRunBeDeleted((TestRun)((ObjectResult)existingItemResp).Value))
+            {
+                return await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict);
+            }
+
+            return null;
         }
     }
 }
