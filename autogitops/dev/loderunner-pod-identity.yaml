@@ -7,7 +7,7 @@ metadata:
 spec:
   type: 0
   resourceID: /subscriptions/648dcb5a-de1e-48b2-af6b-fe6ef28d355c/resourcegroups/rg-ngsa-asb-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ngsa-asb-loderunner-id
-  clientID: ed670dd0-eb7f-48b5-b8f4-786ac8c30027
+  clientID: f6ec9d17-c3a8-4290-a044-7dc2a41d6e53
 
 ---
 
