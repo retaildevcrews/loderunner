@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
@@ -43,7 +44,7 @@ namespace LodeRunner
 
         private readonly ILogger logger;
 
-        private Config config;
+        private ILRConfig config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class.
@@ -51,7 +52,7 @@ namespace LodeRunner
         /// </summary>
         /// <param name="config">app config.</param>
         /// <param name="logger">the logger.</param>
-        public ValidationTest(Config config, ILogger logger)
+        public ValidationTest(ILRConfig config, ILogger logger)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
@@ -228,7 +229,7 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, "Exception");
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                         errorCount++;
                     }
@@ -293,7 +294,7 @@ namespace LodeRunner
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new (this.logger)
+                TimerRequestState state = new (this.logger, this.config)
                 {
                     Server = svr,
                     Client = this.OpenHttpClient(svr),
@@ -344,7 +345,7 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, "TaskCanceledException");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, $"TaskCanceledException - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -359,7 +360,7 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, "OperationCanceledException");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, $"OperationCanceledException - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -370,7 +371,8 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
+
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                 return Core.SystemConstants.ExitFail;
             }

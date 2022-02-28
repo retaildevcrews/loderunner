@@ -3,8 +3,11 @@
 
 using System;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Subscribers
 {
@@ -13,6 +16,8 @@ namespace LodeRunner.Subscribers
         private const int MaxRetryAttempts = 3;
         private readonly ClientStatus clientStatus;
         private readonly IClientStatusService clientStatusService;
+        private readonly ILogger logger;
+        private readonly ILRConfig config;
         private int failures = 0;
 
         /// <summary>
@@ -20,11 +25,14 @@ namespace LodeRunner.Subscribers
         /// </summary>
         /// <param name="clientStatusService">The client status service.</param>
         /// <param name="clientStatus">The client status.</param>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        public ClientStatusUpdater(IClientStatusService clientStatusService, ClientStatus clientStatus)
+        /// <param name="logger">The logger.</param>
+        /// <param name="config">The config.</param>
+        public ClientStatusUpdater(IClientStatusService clientStatusService, ClientStatus clientStatus, ILogger logger, ILRConfig config)
         {
             this.clientStatus = clientStatus;
             this.clientStatusService = clientStatusService;
+            this.logger = logger;
+            this.config = config;
         }
 
         /// <summary>
@@ -60,10 +68,9 @@ namespace LodeRunner.Subscribers
 
                 if (failures >= MaxRetryAttempts)
                 {
-                    //TODO: Use ILogger after PR #140 has been merged
-                    //logger.LogWarning(new EventId((int)ce.StatusCode, nameof(UpdateCosmosStatus)), $"Unable to Update Client Status.");
+                    string baseMessage = $"Unable to Update Client Status after {failures} attempts. Application will Terminate.";
 
-                    Console.WriteLine($"Unable to Update Client Status after {failures} attempts. Application will Terminate.{Environment.NewLine}{ex.Message}");
+                    logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Exception, nameof(UpdateCosmosStatus)), ex, $"{baseMessage} - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                     args.CancelTokenSource.Cancel(false);
                 }

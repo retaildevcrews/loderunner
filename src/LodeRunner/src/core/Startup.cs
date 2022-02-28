@@ -53,6 +53,8 @@ namespace LodeRunner
 
             CancellationTokenSource cancellationTokenSource = app.ApplicationServices.GetRequiredService<CancellationTokenSource>();
 
+            var config = app.ApplicationServices.GetRequiredService<Config>();
+
             var logger = app.ApplicationServices.GetRequiredService<ILogger<App>>();
 
             // signal run loop
@@ -66,7 +68,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                logger.LogInformation("Shutdown");
+                logger.LogInformation(new EventId((int)LogLevel.Information, "Shutdown"), $"{config.GetClientIdAndTestRunIdInfo()}");
             });
 
             // version handler

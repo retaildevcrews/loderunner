@@ -140,7 +140,7 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, "Exception");
+                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -150,7 +150,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, "Exception");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -198,8 +198,7 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
-
-            Console.WriteLine($"{args.Message} - {args.LastUpdated:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}"); // TODO fix LogStatusChange implementation
+            this.logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message} - {config.GetClientIdAndTestRunIdInfo()}");
         }
 
         /// <summary>
@@ -348,7 +347,7 @@ namespace LodeRunner.Services
             this.StatusUpdate(this, new ClientStatusEventArgs(ClientStatusType.Starting, $"{Core.SystemConstants.InitializingClient} ({this.ClientStatusId})", this.cancellationTokenSource));
 
             // InitAndRegister() should have data connection available so we'll attach an event subscription to update the database with client status
-            using var clientStatusUpdater = new ClientStatusUpdater(this.GetClientStatusService(), this.clientStatus);
+            using var clientStatusUpdater = new ClientStatusUpdater(this.GetClientStatusService(), this.clientStatus, this.logger, this.config);
 
             ProcessingEventBus.StatusUpdate += clientStatusUpdater.UpdateCosmosStatus;
 
@@ -532,13 +531,11 @@ namespace LodeRunner.Services
             }
             catch (CosmosException ce)
             {
-                // TODO: Update logging to handle appropriately
-                Console.WriteLine($"CosmosException: {ce}");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ce, $"CosmosException - {this.config.GetClientIdAndTestRunIdInfo()}");
             }
             catch (Exception ex)
             {
-                // TODO: Update logging to handle appropriately
-                Console.WriteLine($"Exception: {ex}");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
             }
 
             return testRuns;

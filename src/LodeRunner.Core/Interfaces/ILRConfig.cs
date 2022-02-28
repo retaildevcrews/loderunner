@@ -13,12 +13,17 @@ namespace LodeRunner.Core.Interfaces
         /// <summary>
         /// gets or sets the Load Client ID which is a GUID.
         /// </summary>
-        public string LoadClientId { get; set; }
+        string LoadClientId { get; set; }
+
+        /// <summary>
+        /// gets or sets the guid for the TestRun being executed.
+        /// </summary>
+        string TestRunId { get; set; }
 
         /// <summary>
         /// gets or sets the status update interval in seconds.
         /// </summary>
-        public int StatusUpdateInterval { get; set; }
+        int StatusUpdateInterval { get; set; }
 
         /// <summary>
         /// gets or sets the server / url.
@@ -143,5 +148,11 @@ namespace LodeRunner.Core.Interfaces
         ///   <c>true</c> if this instance is client mode; otherwise, <c>false</c>.
         /// </value>
         bool IsClientMode { get; set; }
+
+        /// <summary>
+        /// Gets the client identifier and test run identifier message.
+        /// </summary>
+        /// <returns>Concatenated string describing ClientId and TestRunId information.</returns>
+        string GetClientIdAndTestRunIdInfo();
     }
 }

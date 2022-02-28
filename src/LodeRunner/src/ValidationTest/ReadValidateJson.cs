@@ -241,7 +241,7 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(LoadJson)), ex, "Exception.");
+                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(LoadJson)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
             }
 
             // couldn't read the list
