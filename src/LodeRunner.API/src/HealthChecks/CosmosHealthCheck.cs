@@ -116,6 +116,7 @@ namespace LodeRunner.API
                 HealthStatus status = HealthStatus.Healthy;
 
                 this.clientStatus = CreateClientStatus();
+
                 // create dummy clientStatus record to run health check
                 await this.clientStatusService.Post(this.clientStatus, new CancellationTokenSource().Token).ConfigureAwait(false);
 
