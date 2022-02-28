@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.API.Test.IntegrationTests.Extensions;
@@ -228,7 +229,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         private async Task<int> TryParseProcessOutputAndGetAPIListeningPort(List<string> outputList, int timeBetweenTriesMs = 1000, int maxRetries = 20)
         {
             int portNumber = 0;
-            for (int i = 1; i <= maxRetries; i++)
+
+            var taskSource = new CancellationTokenSource();
+            await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
             {
                 await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
 
@@ -240,16 +243,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     if (int.TryParse(portNumberString, out portNumber))
                     {
-                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Found.\tPort: '{portNumber}'\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
+                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Found.\tPort: '{portNumber}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                     }
 
-                    return portNumber;
+                    taskSource.Cancel();
                 }
                 else
                 {
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Not Found.\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                 }
-            }
+            });
 
             return portNumber;
         }
@@ -264,7 +267,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         private async Task<string> TryParseProcessOutputAndGetClientStatusId(List<string> outputList, int timeBetweenTriesMs = 500, int maxRetries = 10)
         {
             string clientStatusId = null;
-            for (int i = 1; i <= maxRetries; i++)
+            var taskSource = new CancellationTokenSource();
+
+            await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
             {
                 await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
 
@@ -272,14 +277,14 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 if (!string.IsNullOrEmpty(targetOutputLine))
                 {
                     clientStatusId = GetSubstringByString("(", ")", targetOutputLine);
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
-                    return clientStatusId;
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                    taskSource.Cancel();
                 }
                 else
                 {
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Not Found.\tAttempts: {i} [{timeBetweenTriesMs}ms between requests]");
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                 }
-            }
+            });
 
             return clientStatusId;
         }
