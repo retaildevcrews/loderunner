@@ -190,7 +190,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.TestRunItemNotFound, SystemConstants.UnableToDeleteTestRun, logger);
+            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.TestRunItemNotFound, SystemConstants.UnableToDeleteTestRun, this.Request, logger);
 
             // Get       Delete    Returns   Message
             // -------------------------------------

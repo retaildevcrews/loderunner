@@ -185,7 +185,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(RunPreDeletionChecks, loadTestConfigService, loadTestConfigId, SystemConstants.LoadTestConfigItemNotFound, SystemConstants.UnableToDeleteLoadTestConfig, logger);
+            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(null, loadTestConfigService, loadTestConfigId, SystemConstants.LoadTestConfigItemNotFound, SystemConstants.UnableToDeleteLoadTestConfig, this.Request, logger);
         }
 
         private async Task<IEnumerable<string>> CompileErrorList(LoadTestConfigPayload payload, IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
@@ -199,7 +199,7 @@ namespace LodeRunner.API.Controllers
             });
         }
 
-        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfigService)
+        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfigService = null)
         {
             var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware.Validation;
 using LodeRunner.Data.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -233,16 +234,28 @@ namespace LodeRunner.API.Middleware
             }
         }
 
-        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string notFound, string unableToDelete, ILogger logger)
+        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string notFound, string unableToDelete, HttpRequest request, ILogger logger)
+        where TEntity : class
         {
             try
             {
-                // Validate and/or check conditions before deleting
-                var preChecksResponse = await preDeleteChecks(id, service);
+                // Validate id before deleting
+                var preChecksResponse = await ValidateEntityId<TEntity>(id, logger, request);
 
                 if (preChecksResponse != null)
                 {
                     return preChecksResponse;
+                }
+
+                // Check additional controller-specific conditions, if any, before deleting
+                if (preDeleteChecks != null)
+                {
+                    preChecksResponse = await preDeleteChecks(id, service);
+
+                    if (preChecksResponse != null)
+                    {
+                        return preChecksResponse;
+                    }
                 }
 
                 // Delete
@@ -428,6 +441,20 @@ namespace LodeRunner.API.Middleware
                 _ =>
                     await ResultHandler.CreateErrorResult(unableToDelete, HttpStatusCode.InternalServerError),
             };
+        }
+
+        private static async Task<ActionResult> ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request)
+        where TEntity : class
+        {
+            var errorlist = ParametersValidator<TEntity>.ValidateEntityId(id);
+
+            if (errorlist.Count > 0)
+            {
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(ValidateEntityId)), SystemConstants.InvalidLoadTestConfigId);
+                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(request));
+            }
+
+            return null;
         }
     }
 }
