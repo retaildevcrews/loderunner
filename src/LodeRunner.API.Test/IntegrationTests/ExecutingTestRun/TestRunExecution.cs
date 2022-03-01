@@ -123,12 +123,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, portList);
 
-                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, this.output);
+                HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
                 Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
                 // Validate Test Run Entity
                 var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
-                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.output);
+                var gottenHttpResponse = await httpClient.GetItemById<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.output);
 
                 Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
                 var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
@@ -138,7 +138,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 gottenTestRunId = gottenTestRun.Id;
 
                 // Attempt to get TestRun for N retries or until condition has met.
-                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 2000);
+                (HttpStatusCode testRunStatusCode, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 2000);
 
                 // Validate results
                 int expectedLoadClientCount = 1;
@@ -171,7 +171,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // gottenTestRunId gets set only after successfully have gotten and validated the Test Run entity.
                 if (!string.IsNullOrEmpty(gottenTestRunId))
                 {
-                    var response = await httpClient.DeleteItemById<TestRun>(LodeRunner.Core.SystemConstants.IntegrationTestRunsUri, gottenTestRunId, this.output);
+                    var response = await httpClient.DeleteItemById<TestRun>(SystemConstants.CategoryTestRunsPath, gottenTestRunId, this.output);
 
                     // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
                     Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
