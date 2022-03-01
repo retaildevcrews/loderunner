@@ -199,7 +199,7 @@ namespace LodeRunner.API.Controllers
             });
         }
 
-        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfig)
+        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfigService)
         {
             var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
 
