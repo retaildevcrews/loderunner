@@ -40,7 +40,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{clientsUri}/{clientStatusId}");
 
@@ -88,7 +88,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{uri}");
 
@@ -407,7 +407,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{baseEntityUri}/{itemId}");
 
@@ -439,29 +439,6 @@ namespace LodeRunner.API.Test.IntegrationTests
             });
 
             return (httpResponse.StatusCode, testRun);
-        }
-
-        /// <summary>
-        /// Runs and retry.
-        /// </summary>
-        /// <param name="maxRetries">The maximum retries.</param>
-        /// <param name="maxDelay">The maximum delay.</param>
-        /// <param name="taskSource">Task cancelationSource.</param>
-        /// <param name="taskToExecute">The task to execute.</param>
-        /// <returns>the task.</returns>
-        private static async Task RunAndRetry(int maxRetries, int maxDelay, CancellationTokenSource taskSource, Func<int, Task> taskToExecute)
-        {
-            for (int i = 1; i <= maxRetries; i++)
-            {
-                await taskToExecute(i);
-
-                if (taskSource.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                await Task.Delay(maxDelay).ConfigureAwait(false);
-            }
         }
     }
 }

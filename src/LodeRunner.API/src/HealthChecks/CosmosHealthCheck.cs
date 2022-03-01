@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.API.Models;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,8 @@ namespace LodeRunner.API
         private readonly ILogger logger;
         private readonly IClientStatusService clientStatusService;
         private readonly ICosmosConfig cosmosConfig;
+
+        private ClientStatus clientStatus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosHealthCheck"/> class.
@@ -112,9 +115,14 @@ namespace LodeRunner.API
             {
                 HealthStatus status = HealthStatus.Healthy;
 
+                this.clientStatus = CreateClientStatus();
+
+                // create dummy clientStatus record to run health check
+                await this.clientStatusService.Post(this.clientStatus, new CancellationTokenSource().Token).ConfigureAwait(false);
+
                 // Run each health check
                 await this.GetClientStatusesAsync(data).ConfigureAwait(false);
-                await this.GetClientStatusByClientStatusIdAsync("1", data).ConfigureAwait(false);
+                await this.GetClientStatusByClientStatusIdAsync(this.clientStatus.Id, data).ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (object d in data.Values)
@@ -146,11 +154,45 @@ namespace LodeRunner.API
             {
                 // log and return unhealthy
                 this.logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
-
                 data.Add("Exception", ex.Message);
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ex, data);
             }
+            finally
+            {
+                try
+                {
+                    // delete clientStatus record
+                    await this.clientStatusService.Delete(this.clientStatus.Id);
+                }
+                catch (Exception ex)
+                {
+                    // ignore the exception here, since ttl feature should delete clientStatus record
+                    this.logger.LogError($"{ex}\nException:Delete Healthz test clientStatus:{ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create ClientStatus object.
+        /// </summary>
+        /// <returns>ClientStatus.</returns>
+        private static ClientStatus CreateClientStatus()
+        {
+            LoadClient loadClient = new ()
+            {
+                Version = "1.0.0",
+                Region = $"CosmosHealthCheck-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
+                StartupArgs = $"--secrets-volume secrets",
+                StartTime = DateTime.UtcNow,
+                Name = $"CosmosHealthCheck-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
+            };
+
+            return new ClientStatus
+            {
+                Status = ClientStatusType.Starting,
+                LoadClient = loadClient,
+            };
         }
     }
 }

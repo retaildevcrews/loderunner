@@ -19,7 +19,6 @@ namespace LodeRunner.API.Test.UnitTests
     public class ValidateError
     {
         private const string CategoryMismatch = "Category mismatch.";
-        private const string SubCategoryMismatch = "SubCategory mismatch.";
         private const string ModeMismatch = "Mode mismatch.";
         private const string RandomPath = "some/random/path";
         private const string InvalidFieldName = "InvalidFieldName";
@@ -67,7 +66,9 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="expected">The expected.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(SystemConstants.ErrorLinkPath, SystemConstants.ErrorLink + SystemConstants.ErrorLinkPathAnchor)]
+        [InlineData(SystemConstants.DirectClientsPath + "001", SystemConstants.ErrorLink + SystemConstants.ErrorLinkDirectClientsPathAnchor)]
+        [InlineData(SystemConstants.DirectLoadTestConfigsPath + "001", SystemConstants.ErrorLink + SystemConstants.ErrorLinkDirectLoadTestConfigsPathAnchor)]
+        [InlineData(SystemConstants.DirectTestRunsPath + "001", SystemConstants.ErrorLink + SystemConstants.ErrorLinkDirectTestRunsPathAnchor)]
         [InlineData(RandomPath, SystemConstants.ErrorLink)]
         public void GetErrorLink_Success(string input, string expected)
         {
@@ -82,11 +83,11 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="expected">The expected.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(RandomPath, SystemConstants.ErrorLink + SystemConstants.ErrorLinkPathAnchor)]
+        [InlineData(RandomPath, SystemConstants.ErrorLink)]
         public void GetErrorLink_Failure(string input, string expected)
         {
             string result = ValidationError.GetErrorLink(input);
-            Assert.DoesNotContain(expected, result);
+            Assert.Contains(expected, result);
         }
 
         /// <summary>
@@ -94,21 +95,23 @@ namespace LodeRunner.API.Test.UnitTests
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="expectedCategory">The expected category.</param>
-        /// <param name="expectedSubCategory">The expected sub category.</param>
         /// <param name="expectedMode">The expected mode.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(SystemConstants.CategoryPathClientWithSlash, SystemConstants.CategoryClient, SystemConstants.CategorySubCategoryClient, SystemConstants.CategoryModeDirect)]
-        [InlineData(SystemConstants.CategoryPathClientWithoutSlash, SystemConstants.CategoryClient, SystemConstants.CategorySubCategoryClient, SystemConstants.CategoryModeStatic)]
-        [InlineData(SystemConstants.CategoryPathHealthz, SystemConstants.CategoryHealthz, SystemConstants.CategorySubCategoryHealthz, SystemConstants.CategoryModeHealthz)]
-        [InlineData(SystemConstants.CategoryPathMetrics, SystemConstants.CategoryMetrics, SystemConstants.CategorySubCategoryMetrics, SystemConstants.CategoryModeMetrics)]
-        [InlineData(RandomPath, SystemConstants.CategoryStatic, SystemConstants.CategorySubCategoryStatic, SystemConstants.CategoryModeStatic)]
-        public void GetCategory_Success(string path, string expectedCategory, string expectedSubCategory, string expectedMode)
+        [InlineData(SystemConstants.DirectClientsPath, SystemConstants.CategoryClient, SystemConstants.CategoryModeDirect)]
+        [InlineData(SystemConstants.DirectLoadTestConfigsPath, SystemConstants.CategoryLoadTestConfig, SystemConstants.CategoryModeDirect)]
+        [InlineData(SystemConstants.DirectTestRunsPath, SystemConstants.CategoryTestRun, SystemConstants.CategoryModeDirect)]
+        [InlineData(SystemConstants.CategoryClientsPath, SystemConstants.CategoryClient, SystemConstants.CategoryModeStatic)]
+        [InlineData(SystemConstants.CategoryLoadTestConfigsPath, SystemConstants.CategoryLoadTestConfig, SystemConstants.CategoryModeStatic)]
+        [InlineData(SystemConstants.CategoryTestRunsPath, SystemConstants.CategoryTestRun, SystemConstants.CategoryModeStatic)]
+        [InlineData(SystemConstants.CategoryHealthzPath, SystemConstants.CategoryHealthz, SystemConstants.CategoryModeHealthz)]
+        [InlineData(SystemConstants.CategoryMetricsPath, SystemConstants.CategoryMetrics, SystemConstants.CategoryModeMetrics)]
+        [InlineData(RandomPath, SystemConstants.CategoryStatic, SystemConstants.CategoryModeStatic)]
+        public void GetCategory_Success(string path, string expectedCategory, string expectedMode)
         {
-            string result = ValidationError.GetCategory(path, out string subCategory, out string mode);
+            string result = ValidationError.GetCategory(path, out string mode);
 
             Assert.True(result == expectedCategory, CategoryMismatch);
-            Assert.True(subCategory == expectedSubCategory, SubCategoryMismatch);
             Assert.True(mode == expectedMode, ModeMismatch);
         }
 
@@ -117,20 +120,18 @@ namespace LodeRunner.API.Test.UnitTests
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="expectedCategory">The expected category.</param>
-        /// <param name="expectedSubCategory">The expected sub category.</param>
         /// <param name="expectedMode">The expected mode.</param>
         [Theory]
         [Trait("Category", "Unit")]
-        [InlineData(RandomPath, SystemConstants.CategoryClient, SystemConstants.CategorySubCategoryClient, SystemConstants.CategoryModeDirect)]
-        [InlineData(RandomPath, SystemConstants.CategoryHealthz, SystemConstants.CategorySubCategoryHealthz, SystemConstants.CategoryModeHealthz)]
-        [InlineData(RandomPath, SystemConstants.CategoryMetrics, SystemConstants.CategorySubCategoryMetrics, SystemConstants.CategoryModeMetrics)]
-        [InlineData(SystemConstants.CategoryPathClientWithSlash, SystemConstants.CategoryStatic, SystemConstants.CategorySubCategoryStatic, SystemConstants.CategoryModeStatic)]
-        public void GetCategory_Failure(string path, string expectedCategory, string expectedSubCategory, string expectedMode)
+        [InlineData(RandomPath, SystemConstants.CategoryClient, SystemConstants.CategoryModeDirect)]
+        [InlineData(RandomPath, SystemConstants.CategoryHealthz, SystemConstants.CategoryModeHealthz)]
+        [InlineData(RandomPath, SystemConstants.CategoryMetrics, SystemConstants.CategoryModeMetrics)]
+        [InlineData(SystemConstants.DirectClientsPath, SystemConstants.CategoryStatic, SystemConstants.CategoryModeStatic)]
+        public void GetCategory_Failure(string path, string expectedCategory, string expectedMode)
         {
-            string result = ValidationError.GetCategory(path, out string subCategory, out string mode);
+            string result = ValidationError.GetCategory(path, out string mode);
 
             Assert.True(result != expectedCategory, CategoryMismatch);
-            Assert.True(subCategory != expectedSubCategory, SubCategoryMismatch);
             Assert.True(mode != expectedMode, ModeMismatch);
         }
     }

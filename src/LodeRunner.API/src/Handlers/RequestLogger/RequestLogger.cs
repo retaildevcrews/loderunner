@@ -216,7 +216,7 @@ namespace LodeRunner.API.Middleware
         {
             DateTime dt = DateTime.UtcNow;
 
-            string category = ValidationError.GetCategory(context, out string subCategory, out string mode);
+            string category = ValidationError.GetCategory(context, out string mode);
 
             if (this.config.RequestLogLevel != LogLevel.None &&
                 (this.config.RequestLogLevel <= LogLevel.Information ||
@@ -239,7 +239,6 @@ namespace LodeRunner.API.Middleware
                     { "CVector", cv.Value },
                     { "CVectorBase", cv.GetBase() },
                     { "Category", category },
-                    { "Subcategory", subCategory },
                     { "Mode", mode },
                 };
 
