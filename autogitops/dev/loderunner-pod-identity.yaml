@@ -2,23 +2,23 @@
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentity
 metadata:
-  name: ngsa-asb-loderunner-id
-  namespace: loderunner
+  name: {{gitops.lrmi.name}}
+  namespace: {{gitops.namespace}}
 spec:
   type: 0
-  resourceID: /subscriptions/648dcb5a-de1e-48b2-af6b-fe6ef28d355c/resourcegroups/rg-ngsa-asb-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ngsa-asb-loderunner-id
-  clientID: f6ec9d17-c3a8-4290-a044-7dc2a41d6e53
+  resourceID: /subscriptions/{{gitops.tenantid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrmi.name}}
+  clientID: {{gitops.lrmi.clientId}}
 
 ---
 
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
-  name: ngsa-asb-loderunner-id-binding
-  namespace: loderunner
+  name: {{gitops.lrmi.name}}-binding
+  namespace: {{gitops.namespace}}
 spec:
-  azureIdentity: ngsa-asb-loderunner-id
-  selector: ngsa-asb-loderunner-id
+  azureIdentity: {{gitops.lrmi.name}}
+  selector: {{gitops.lrmi.name}}
 
 ---
 
@@ -26,29 +26,29 @@ apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: lr-secrets
-  namespace: loderunner 
+  namespace: {{gitops.namespace}} 
 spec:
   provider: azure
   secretObjects:
-  - secretName: CosmosLRDatabase
+  - secretName: {{gitops.secretKeys.cosmosDatabase.keyvault}}
     type: Opaque
     data:
-    - objectName: CosmosDatabase
+    - objectName: {{gitops.secretKeys.cosmosDatabase.volume}}
       key: key
-  - secretName: CosmosLRCollection
+  - secretName: {{gitops.secretKeys.cosmosCollection.keyvault}}
     type: Opaque
     data:
-    - objectName: CosmosCollection
+    - objectName: {{gitops.secretKeys.cosmosCollection.volume}}
       key: key
-  - secretName: CosmosKey
+  - secretName: {{gitops.secretKeys.cosmosKey.keyvault}}
     type: Opaque
     data:
-    - objectName: CosmosKey
+    - objectName: {{gitops.secretKeys.cosmosKey.volume}}
       key: key
-  - secretName: CosmosUrl
+  - secretName: {{gitops.secretKeys.cosmosUrl.keyvault}}
     type: Opaque
     data:
-    - objectName: CosmosUrl
+    - objectName: {{gitops.secretKeys.cosmosUrl.volume}}
       key: key
   parameters:
     usePodIdentity: "true"
@@ -56,15 +56,15 @@ spec:
     objects: |
       array:
         - |
-          objectName: CosmosDatabase
+          objectName: {{gitops.secretKeys.cosmosDatabase.volume}}
           objectType: secret
         - |
-          objectName: CosmosCollection
+          objectName: {{gitops.secretKeys.cosmosCollection.volume}}
           objectType: secret
         - |
-          objectName: CosmosKey
+          objectName: {{gitops.secretKeys.cosmosKey.volume}}
           objectType: secret
         - |
-          objectName: CosmosUrl
+          objectName: {{gitops.secretKeys.cosmosUrl.volume}}
           objectType: secret
-    tenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+    tenantId: {{gitops.tenantid}}

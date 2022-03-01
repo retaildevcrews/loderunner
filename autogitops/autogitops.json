@@ -1,9 +1,34 @@
 {
     "namespace": "loderunner",
     "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus2","pre-ngsa-asb-centralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus2"],
+    "tenantid": "648dcb5a-de1e-48b2-af6b-fe6ef28d355c",
+    "resourceGroup": "rg-ngsa-asb-dev",
+    "keyvaultName": "kv-aks-3i2qzkkxofr7c",
+    "lrmi": {
+        "name": "ngsa-asb-loderunner-id",
+        "clientId": "f6ec9d17-c3a8-4290-a044-7dc2a41d6e53"
+    },
     "lr": {
         "name": "loderunner",
         "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
         "imageTag": "beta"
+    },
+    "secretKeys": {
+        "cosmosDatabase": {
+            "keyvault": "CosmosLRDatabase",
+            "volume": "CosmosDatabase"
+        },
+        "cosmosCollection": {
+            "keyvault": "CosmosLRCollection",
+            "volume": "CosmosCollection"
+        },
+        "cosmosKey": {
+            "keyvault": "CosmosKey",
+            "volume": "CosmosKey"
+        },
+        "cosmosUrl": {
+            "keyvault": "CosmosUrl",
+            "volume": "CosmosUrl"
+        }
     }
 }
