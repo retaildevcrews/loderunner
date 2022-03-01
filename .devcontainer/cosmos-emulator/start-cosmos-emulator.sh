@@ -31,5 +31,4 @@ sudo cp ${NGINX_CONFIG_PATH}/nginx.crt /usr/local/share/ca-certificates/
 ## Update the cert db
 sudo update-ca-certificates
 
-# sudo nginx -c ${NGINX_CONFIG_PATH}/cosmos-emul.conf
 docker run --restart=always -itd --name nginx-cosmos-proxy --network=host -v /workspaces/loderunner/workspaces/cosmos-emulator/nginx:/config --entrypoint nginx nginx:alpine -c /config/cosmos-emul.conf
