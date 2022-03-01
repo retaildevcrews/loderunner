@@ -12,6 +12,6 @@ echo "$(eval $COSMOS_KEY_CMD)" > src/LodeRunner/secrets/CosmosKey
 echo "https://$COSMOS_EMULATOR_URL" > src/LodeRunner.API/secrets/CosmosUrl
 echo "$(eval $COSMOS_KEY_CMD)" > src/LodeRunner.API/secrets/CosmosKey
 
-### Updating certs and host files again since post-start.sh doesn't kick off on restart
-### Remove once postStartCommand work as expected
+### updating certs and host files again since post-start.sh doesn't kick off on restart
+### remove once postStartCommand work as expected
 source .devcontainer/cosmos-emulator/setup-cosmos-emulator.sh

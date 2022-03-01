@@ -11,7 +11,7 @@ sudo apt-get upgrade -y
 #sudo apt-get autoremove -y
 #sudo apt-get clean -y
 
-# Setup CosmosDB Emulator
+# start CosmosDB Emulator & setup nginx
 source $(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
 
 # get install script and install node
@@ -25,9 +25,9 @@ pushd src/LodeRunner.UI
 npm install
 popd
 
-# Install Azure Cosmos SDK
+# install Azure Cosmos SDK
 pip3 install azure-cosmos
-# Wait on the CosmosDB Emulator script
+# wait on the CosmosDB Emulator script
 fg
 
 echo "post-create complete" >> ~/status
