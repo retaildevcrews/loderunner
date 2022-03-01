@@ -29,16 +29,37 @@ metadata:
   namespace: loderunner 
 spec:
   provider: azure
+  secretObjects:
+  - secretName: CosmosLRDatabase
+    type: Opaque
+    data:
+    - objectName: CosmosDatabase
+      key: key
+  - secretName: CosmosLRCollection
+    type: Opaque
+    data:
+    - objectName: CosmosCollection
+      key: key
+  - secretName: CosmosKey
+    type: Opaque
+    data:
+    - objectName: CosmosKey
+      key: key
+  - secretName: CosmosUrl
+    type: Opaque
+    data:
+    - objectName: CosmosUrl
+      key: key
   parameters:
     usePodIdentity: "true"
     keyvaultName: "kv-aks-3i2qzkkxofr7c"
     objects: |
       array:
         - |
-          objectName: CosmosLRDatabase
+          objectName: CosmosDatabase
           objectType: secret
         - |
-          objectName: CosmosLRCollection
+          objectName: CosmosCollection
           objectType: secret
         - |
           objectName: CosmosKey
