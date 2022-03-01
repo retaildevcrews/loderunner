@@ -13,6 +13,11 @@
         "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
         "imageTag": "beta"
     },
+    "lrapi": {
+        "name": "loderunner-api",
+        "imageName": "ghcr.io/retaildevcrews/lr-api",
+        "imageTag": "beta"
+    },
     "secretKeys": {
         "cosmosDatabase": {
             "keyvault": "CosmosLRDatabase",
