@@ -7,16 +7,20 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
+using LodeRunner.Interfaces;
 using LodeRunner.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner
 {
@@ -31,13 +35,27 @@ namespace LodeRunner
         public const string AsciiFile = "src/Core/ascii-art.txt";
 
         /// <summary>
+        /// The project name.
+        /// </summary>
+        internal static readonly string ProjectName = Assembly.GetCallingAssembly().GetName().Name;
+
+        /// <summary>
         /// Gets cancellation token.
         /// </summary>
-        private static CancellationTokenSource cancelTokenSource;
+        private static readonly CancellationTokenSource CancelTokenSource = new ();
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="App"/> class from being created.
+        /// Private constructor to prevent instantiation.
+        /// </summary>
+        private App()
+        {
+        }
 
         /// <summary>
         /// Gets or sets json serialization options.
         /// </summary>
+        /// <returns>JsonSerializerOptions.</returns>
         public static JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -50,8 +68,6 @@ namespace LodeRunner
         /// <returns>0 on success.</returns>
         public static async Task<int> Main(string[] args)
         {
-            cancelTokenSource = new CancellationTokenSource();
-
             RegisterTerminationEvents();
 
             if (args != null)
@@ -78,6 +94,7 @@ namespace LodeRunner
         {
             if (config == null)
             {
+                // Note: At this point of time the ILogger has not been created yet, so we use Console.
                 Console.WriteLine("CommandOptions is null");
                 return Core.SystemConstants.ExitFail;
             }
@@ -85,7 +102,15 @@ namespace LodeRunner
             //Note: config.IsClientMode does not get auto-populated by RootCommand since it does not get parsed, so we need to set it manually.
             config.IsClientMode = isClientMode;
 
-            using var l8rService = new LodeRunnerService(config, cancelTokenSource);
+            var services = new ServiceCollection();
+
+            // Register Services and System Objects.
+            ConfigureServicesAndSystemObjects(services, config);
+
+            using var serviceProvider = services.BuildServiceProvider();
+
+            using var l8rService = serviceProvider.GetService<LodeRunnerService>();
+
             return await l8rService.StartService();
         }
 
@@ -100,28 +125,20 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Builds the web host.
+        /// Configure App Services.
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <returns>The Host.</returns>
-        internal static IHost BuildWebHost(Config config)
+        /// <param name="services">Service Collection.</param>
+        /// <param name="config">The config.</param>
+        private static void ConfigureServicesAndSystemObjects(ServiceCollection services, Config config)
         {
-            int portNumber = AppConfigurationHelper.GetLoadRunnerPort(config.WebHostPort);
-
-            // configure the web host builder
-            return Host.CreateDefaultBuilder()
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.ConfigureServices(services =>
-                            {
-                                services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
-                                services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
-                            });
-                            webBuilder.UseStartup<Startup>();
-                            webBuilder.UseUrls($"http://*:{portNumber}/");
-                        })
-                        .UseConsoleLifetime()
-                        .Build();
+            services.AddLogging(logger =>
+                {
+                    logger.Setup(config, ProjectName);
+                })
+                .AddSingleton<Config>(config)
+                .AddSingleton<CancellationTokenSource>(CancelTokenSource)
+                .AddSingleton<LodeRunnerService>()
+                .AddSingleton<ILodeRunnerService>(provider => provider.GetRequiredService<LodeRunnerService>());
         }
 
         /// <summary>
@@ -131,16 +148,16 @@ namespace LodeRunner
         {
             AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
             {
-                if (!cancelTokenSource.IsCancellationRequested)
+                if (!CancelTokenSource.IsCancellationRequested)
                 {
-                    cancelTokenSource.Cancel(false);
+                    CancelTokenSource.Cancel(false);
                 }
             };
 
             Console.CancelKeyPress += (_, e) =>
             {
                 e.Cancel = true;
-                cancelTokenSource.Cancel(false);
+                CancelTokenSource.Cancel(false);
             };
         }
 
@@ -159,6 +176,7 @@ namespace LodeRunner
                     {
                         string txt = File.ReadAllText(AsciiFile);
 
+                        // Note: we use Console for Ascii Art.
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine(txt);
                         Console.ResetColor();

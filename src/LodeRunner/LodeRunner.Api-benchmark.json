@@ -1,0 +1,94 @@
+{
+  "requests": [
+
+    {
+      "path": "/version",
+      "perfTarget": { "category": "Static" },
+      "validation": {
+        "contentType": "text/plain",
+        "minLength": 5,
+        "maxLength": 20
+      }
+    },
+    {
+      "path": "/index.html",
+      "perfTarget": { "category": "Static" },
+      "validation": {
+        "contentType": "text/html",
+        "contains": [ "<title>Swagger UI</title>", "<div id=\"swagger-ui\">" ]
+      }
+    },
+    {
+      "path": "/swagger/v1/swagger.json",
+      "perfTarget": { "category": "Static" },
+      "validation": {
+        "jsonObject": [
+          { "field": "openapi" },
+          { "field": "info" },
+          { "field": "paths" },
+          { "field": "components" }
+        ]
+      }
+    },
+
+    {
+      "path": "/healthz",
+      "perfTarget": { "category": "Healthz" },
+      "validation": {
+        "contentType": "text/plain",
+        "notContains": [ "fail" ]
+      }
+    },
+    {
+      "path": "/api/Clients",
+      "perfTarget": { "category": "DirectRead" },
+      "validation": {
+        "jsonArray": {
+          "jsonObject": [
+            { "field": "entityType" },
+            { "field": "loadClientId" },
+            { "field": "name" },
+            { "field": "version" },
+            { "field": "region" },
+            { "field": "zone" },
+            { "field": "startupArgs" },
+            { "field": "startTime" },
+            { "field": "clientStatusId" },
+            { "field": "lastUpdated" },
+            { "field": "lastStatusChange" },
+            { "field": "status" },
+            { "field": "message" }
+          ]
+        }
+      }
+    },
+    {
+      "path": "/api/LoadTestConfigs",
+      "perfTarget": { "category": "DirectRead" },
+      "validation": {
+        "jsonArray": {
+          "jsonObject": [
+            { "field": "files" },
+            { "field": "strictJson" },
+            { "field": "baseURL" },
+            { "field": "verboseErrors" },
+            { "field": "randomize" },
+            { "field": "timeout" },
+            { "field": "server" },
+            { "field": "tag" },
+            { "field": "sleep" },
+            { "field": "runLoop" },
+            { "field": "duration" },
+            { "field": "maxErrors" },
+            { "field": "delayStart" },
+            { "field": "dryRun" },
+            { "field": "id" },
+            { "field": "partitionKey" },
+            { "field": "entityType" },
+            { "field": "name" }
+          ]
+        }
+      }
+    }
+  ]
+}

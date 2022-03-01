@@ -90,11 +90,11 @@ namespace LodeRunner.API
             {
                 await this.clientStatusService.Get(clientStatusId);
 
-                return this.BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
+                return this.BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
             catch (Exception ex)
             {
-                this.BuildHealthzCheck(path, MaxResponseTime / 2, ex, data, name);
+                this.BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -117,11 +117,11 @@ namespace LodeRunner.API
             {
                 await this.clientStatusService.GetMostRecent(1);
 
-                return this.BuildHealthzCheck(path, MaxResponseTime, null, data, name);
+                return this.BuildHealthzCheck(path, MaxResponseTime * 2, null, data, name);
             }
             catch (Exception ex)
             {
-                this.BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
+                this.BuildHealthzCheck(path, MaxResponseTime * 2, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;

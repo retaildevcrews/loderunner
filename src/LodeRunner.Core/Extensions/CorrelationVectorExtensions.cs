@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 
-namespace LodeRunner.API.Middleware
+namespace LodeRunner.Core.Extensions
 {
     /// <summary>
     /// Correlation Vector extensions.

@@ -4,6 +4,8 @@
 using System;
 using System.Threading;
 using LodeRunner.API.Middleware;
+using LodeRunner.API.Test.IntegrationTests.ExecutingTestRun;
+using LodeRunner.API.Test.IntegrationTests.Extensions;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Data;
@@ -52,15 +54,14 @@ namespace LodeRunner.API.Test.IntegrationTests
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             Config config = new ();
+
+            config.SecretsVolume = config.SecretsVolume.GetSecretVolume();
             Secrets.LoadSecrets(config);
             CancellationTokenSource cancelTokenSource = new ();
-
-            NgsaLog ngsalog = new () { Name = typeof(ApiWebApplicationFactory<TStartup>).FullName };
 
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
-                services.AddSingleton<NgsaLog>(ngsalog);
                 services.AddSingleton<Config>(config);
                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 services.AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()));

@@ -69,5 +69,14 @@ namespace LodeRunner.Core.Models
         /// </value>
         [Description("Number of failed requests")]
         public int FailedRequests { get; set; }
+
+        /// <summary>
+        /// Gets or sets the error message.
+        /// </summary>
+        /// <value>
+        /// ErrorMessage.
+        /// </value>
+        [Description("Number of failed requests")]
+        public string ErrorMessage { get; set; }
     }
 }

@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -25,6 +23,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The files.
         /// </value>
+        [ValidateList(ErrorMessage = "Files list cannot be null or empty.")]
         public List<string> Files { get => this.loadTestConfig.Files; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [strict json]; otherwise, <c>false</c>.
         /// </value>
-        public bool StrictJson { get => this.loadTestConfig.StrictJson; set => this.SetField(this.loadTestConfig, value); }
+        public bool? StrictJson { get => this.loadTestConfig.StrictJson; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the base URL.
@@ -41,7 +40,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The base URL.
         /// </value>
-        public string BaseURL { get => this.loadTestConfig.BaseURL; set => this.SetField(this.loadTestConfig, value); }
+        public string? BaseURL { get => this.loadTestConfig.BaseURL; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [verbose errors].
@@ -49,7 +48,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
         /// </value>
-        public bool VerboseErrors { get => this.loadTestConfig.VerboseErrors; set => this.SetField(this.loadTestConfig, value); }
+        public bool? VerboseErrors { get => this.loadTestConfig.VerboseErrors; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LoadTestConfig"/> is randomize.
@@ -57,7 +56,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if randomize; otherwise, <c>false</c>.
         /// </value>
-        public bool Randomize { get => this.loadTestConfig.Randomize; set => this.SetField(this.loadTestConfig, value); }
+        public bool? Randomize { get => this.loadTestConfig.Randomize; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the timeout.
@@ -65,7 +64,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The timeout.
         /// </value>
-        public int Timeout { get => this.loadTestConfig.Timeout; set => this.SetField(this.loadTestConfig, value); }
+        public int? Timeout { get => this.loadTestConfig.Timeout; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the server.
@@ -73,6 +72,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The server.
         /// </value>
+        [ValidateList(ErrorMessage = "Server list cannot be null or empty.")]
         public List<string> Server { get => this.loadTestConfig.Server; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The tag.
         /// </value>
-        public string Tag { get => this.loadTestConfig.Tag; set => this.SetField(this.loadTestConfig, value); }
+        public string? Tag { get => this.loadTestConfig.Tag; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the sleep.
@@ -89,7 +89,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The sleep.
         /// </value>
-        public int Sleep { get => this.loadTestConfig.Sleep; set => this.SetField(this.loadTestConfig, value); }
+        public int? Sleep { get => this.loadTestConfig.Sleep; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [run loop].
@@ -97,7 +97,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [run loop]; otherwise, <c>false</c>.
         /// </value>
-        public bool RunLoop { get => this.loadTestConfig.RunLoop; set => this.SetField(this.loadTestConfig, value); }
+        public bool? RunLoop { get => this.loadTestConfig.RunLoop; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the duration.
@@ -105,7 +105,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The duration.
         /// </value>
-        public int Duration { get => this.loadTestConfig.Duration; set => this.SetField(this.loadTestConfig, value); }
+        public int? Duration { get => this.loadTestConfig.Duration; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the maximum errors.
@@ -113,15 +113,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The maximum errors.
         /// </value>
-        public int MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(this.loadTestConfig, value); }
-
-        /// <summary>
-        /// Gets or sets the delay start.
-        /// </summary>
-        /// <value>
-        /// The delay start.
-        /// </value>
-        public int DelayStart { get => this.loadTestConfig.DelayStart; set => this.SetField(this.loadTestConfig, value); }
+        public int? MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets a value indicating whether [dry run].
@@ -129,7 +121,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [dry run]; otherwise, <c>false</c>.
         /// </value>
-        public bool DryRun { get => this.loadTestConfig.DryRun; set => this.SetField(this.loadTestConfig, value); }
+        public bool? DryRun { get => this.loadTestConfig.DryRun; set => this.SetField(this.loadTestConfig, value); }
 
         /// <summary>
         /// Gets or sets the name.

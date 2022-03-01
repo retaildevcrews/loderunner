@@ -6,11 +6,14 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Middleware;
 using LodeRunner.Core;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +41,11 @@ namespace LodeRunner.API
         /// The Web Host.
         /// </summary>
         private static IWebHost host = null;
+
+        /// <summary>
+        /// The logger application.
+        /// </summary>
+        private static ILogger logger = null;
 
         /// <summary>
         /// Gets or sets json serialization options.
@@ -76,11 +84,10 @@ namespace LodeRunner.API
         /// <returns>status.</returns>
         public static async Task<int> RunApp(Config config)
         {
-            NgsaLog logger = new () { Name = typeof(App).FullName };
-
             try
             {
-                Init(config, logger);
+                // This method builds the host and registers related services such as App Logger.
+                Init(config);
 
                 if (host == null)
                 {
@@ -88,18 +95,18 @@ namespace LodeRunner.API
                 }
 
                 // setup sigterm handler
-                SetupSigTermHandler(host, logger);
+                SetupSigTermHandler(host);
 
                 // start the webserver
                 Task hostRun = host.RunAsync();
 
                 // log startup messages
-                await logger.LogInformation($"LodeRunner.API Backend Started", LodeRunner.API.Middleware.VersionExtension.Version);
+                GetLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);
 
                 // this doesn't return except on ctl-c or sigterm
                 await hostRun.ConfigureAwait(false);
 
-                // if not cancelled, app exit -1
+                // if not canceled, app exit -1
                 return cancelTokenSource.IsCancellationRequested ? 0 : -1;
             }
             catch (Exception ex)
@@ -107,34 +114,46 @@ namespace LodeRunner.API
                 // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
 
                 // end app on error
-                await logger.LogError(nameof(RunApp), "Exception", ex: ex);
+                GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
 
                 return -1;
             }
         }
 
         /// <summary>
+        /// Gets the logger from Host services
+        /// </summary>
+        /// <returns>The App ILogger.</returns>
+        private static ILogger GetLogger()
+        {
+            if (logger == null)
+            {
+                logger = host.Services.GetRequiredService<ILogger<App>>();
+            }
+
+            return logger;
+        }
+
+        /// <summary>
         /// Initializes the specified configuration.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        /// <param name="logger">The logger.</param>
-        private static void Init(Config config, NgsaLog logger)
+        private static void Init(Config config)
         {
             // load secrets from volume
             Secrets.LoadSecrets(config);
 
             // set the logger config
             RequestLogger.CosmosName = config.CosmosName;
-            NgsaLog.LogLevel = config.LogLevel;
 
             // build the host will register Data Access Services in Startup.
-            host = BuildHost(config, logger);
+            host = BuildHost(config);
         }
 
         // Build the web host
-        private static IWebHost BuildHost(Config config, NgsaLog ngsalog)
+        private static IWebHost BuildHost(Config config)
         {
-            int portNumber = AppConfigurationHelper.GetLoadRunnerApiPort(config.WebHostPort);
+            string projectName = Assembly.GetCallingAssembly().GetName().Name;
 
             // configure the web host builder
             // configure MinRequestBodyDataRate if required: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options?view=aspnetcore-6.0#minimum-request-body-data-rate
@@ -142,29 +161,15 @@ namespace LodeRunner.API
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
-                    services.AddSingleton<NgsaLog>(ngsalog);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                 })
-                .UseUrls($"http://*:{portNumber}/")
+                .UseUrls($"http://*:{config.Port}/")
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>
                 {
-                    // log to XML
-                    // this can be replaced when the dotnet XML logger is available
-                    logger.ClearProviders();
-                    logger.AddNgsaLogger(config => { config.LogLevel = config.LogLevel; });
-
-                    // if you specify the --log-level option, it will override the appsettings.json options
-                    // remove any or all of the code below that you don't want to override
-                    if (config.IsLogLevelSet)
-                    {
-                        logger.AddFilter("Microsoft", config.LogLevel)
-                        .AddFilter("System", config.LogLevel)
-                        .AddFilter("Default", config.LogLevel)
-                        .AddFilter("LodeRunner.API", config.LogLevel);
-                    }
+                    logger.Setup(config, projectName);
                 });
 
             // build the host
@@ -172,7 +177,7 @@ namespace LodeRunner.API
         }
 
         // Create a CancellationTokenSource that cancels on ctl-c or sigterm
-        private static void SetupSigTermHandler(IWebHost host, NgsaLog logger)
+        private static void SetupSigTermHandler(IWebHost host)
         {
             AppDomain.CurrentDomain.ProcessExit += (s, ev) =>
             {
@@ -187,7 +192,7 @@ namespace LodeRunner.API
                 e.Cancel = true;
                 cancelTokenSource.Cancel();
 
-                await logger.LogInformation("Shutdown", "Shutting Down ...");
+                GetLogger().LogInformation("Shutting Down ...");
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method

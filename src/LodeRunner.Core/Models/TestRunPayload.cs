@@ -60,5 +60,14 @@ namespace LodeRunner.Core.Models
         /// The StartTime.
         /// </value>
         public DateTime StartTime { get => this.testRun.StartTime; set => this.SetField(this.testRun, value); }
+
+        /// <summary>
+        /// Gets or sets the CompletedTime.
+        /// It refers to the time the TestRun is completed.
+        /// </summary>
+        /// <value>
+        /// The CompletedTime.
+        /// </value>
+        public DateTime? CompletedTime { get => this.testRun.CompletedTime; set => this.SetField(this.testRun, value); }
     }
 }

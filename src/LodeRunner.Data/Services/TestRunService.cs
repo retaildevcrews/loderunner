@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
-using LodeRunner.Core.Responses;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 

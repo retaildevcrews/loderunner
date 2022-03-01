@@ -1,5 +1,10 @@
 const STATUS_CODE_NO_CONTENT = 204;
 
+let { REACT_APP_SERVER } = process.env;
+if (REACT_APP_SERVER && REACT_APP_SERVER.endsWith("/")) {
+  REACT_APP_SERVER = REACT_APP_SERVER.slice(0, -1);
+}
+
 const getResponseBody = async (res) => {
   const contentType = res.headers.get("content-type");
   let body;
@@ -32,7 +37,7 @@ const getResponseBody = async (res) => {
 
 const getApi = async (endpoint) => {
   try {
-    const res = await fetch(`${process.env.REACT_APP_SERVER}/api/${endpoint}`);
+    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`);
     const body = await getResponseBody(res);
     return body;
   } catch (err) {
@@ -44,7 +49,7 @@ const getApi = async (endpoint) => {
 
 const writeApi = (method, endpoint) => async (payload) => {
   try {
-    const res = await fetch(`${process.env.REACT_APP_SERVER}/api/${endpoint}`, {
+    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       method,
       headers: {
         accept: "application/json",
@@ -66,12 +71,9 @@ const deleteApi = (endpoint) => async (id) => {
       throw new Error("Missing ID");
     }
 
-    const res = await fetch(
-      `${process.env.REACT_APP_SERVER}/api/${endpoint}/${id}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}/${id}`, {
+      method: "DELETE",
+    });
     const body = await getResponseBody(res);
     return body;
   } catch (err) {
