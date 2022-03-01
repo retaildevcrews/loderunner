@@ -1,7 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,9 +18,6 @@ namespace LodeRunner.Core.Models
     [SwaggerSchemaFilter(typeof(LoadTestConfigPayloadSchemaFilter))]
     public class LoadTestConfigPayload : BasePayload
     {
-        // Composite LoadTestConfig object to hold data
-        private readonly LoadTestConfig loadTestConfig = new ();
-
         /// <summary>
         /// Gets or sets the files.
         /// </summary>
@@ -24,7 +25,7 @@ namespace LodeRunner.Core.Models
         /// The files.
         /// </value>
         [ValidateList(ErrorMessage = "Files list cannot be null or empty.")]
-        public List<string> Files { get => this.loadTestConfig.Files; set => this.SetField(this.loadTestConfig, value); }
+        public List<string> Files { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [strict json].
@@ -32,7 +33,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [strict json]; otherwise, <c>false</c>.
         /// </value>
-        public bool? StrictJson { get => this.loadTestConfig.StrictJson; set => this.SetField(this.loadTestConfig, value); }
+        public bool? StrictJson { get; set; }
 
         /// <summary>
         /// Gets or sets the base URL.
@@ -40,7 +41,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The base URL.
         /// </value>
-        public string? BaseURL { get => this.loadTestConfig.BaseURL; set => this.SetField(this.loadTestConfig, value); }
+        public string? BaseURL { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [verbose errors].
@@ -48,7 +49,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [verbose errors]; otherwise, <c>false</c>.
         /// </value>
-        public bool? VerboseErrors { get => this.loadTestConfig.VerboseErrors; set => this.SetField(this.loadTestConfig, value); }
+        public bool? VerboseErrors { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LoadTestConfig"/> is randomize.
@@ -56,7 +57,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if randomize; otherwise, <c>false</c>.
         /// </value>
-        public bool? Randomize { get => this.loadTestConfig.Randomize; set => this.SetField(this.loadTestConfig, value); }
+        public bool? Randomize { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout.
@@ -64,7 +65,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The timeout.
         /// </value>
-        public int? Timeout { get => this.loadTestConfig.Timeout; set => this.SetField(this.loadTestConfig, value); }
+        public int? Timeout { get; set; }
 
         /// <summary>
         /// Gets or sets the server.
@@ -73,7 +74,7 @@ namespace LodeRunner.Core.Models
         /// The server.
         /// </value>
         [ValidateList(ErrorMessage = "Server list cannot be null or empty.")]
-        public List<string> Server { get => this.loadTestConfig.Server; set => this.SetField(this.loadTestConfig, value); }
+        public List<string> Server { get; set; }
 
         /// <summary>
         /// Gets or sets the tag.
@@ -81,7 +82,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The tag.
         /// </value>
-        public string? Tag { get => this.loadTestConfig.Tag; set => this.SetField(this.loadTestConfig, value); }
+        public string? Tag { get; set; }
 
         /// <summary>
         /// Gets or sets the sleep.
@@ -89,7 +90,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The sleep.
         /// </value>
-        public int? Sleep { get => this.loadTestConfig.Sleep; set => this.SetField(this.loadTestConfig, value); }
+        public int? Sleep { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [run loop].
@@ -97,7 +98,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [run loop]; otherwise, <c>false</c>.
         /// </value>
-        public bool? RunLoop { get => this.loadTestConfig.RunLoop; set => this.SetField(this.loadTestConfig, value); }
+        public bool? RunLoop { get; set; }
 
         /// <summary>
         /// Gets or sets the duration.
@@ -105,7 +106,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The duration.
         /// </value>
-        public int? Duration { get => this.loadTestConfig.Duration; set => this.SetField(this.loadTestConfig, value); }
+        public int? Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum errors.
@@ -113,7 +114,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The maximum errors.
         /// </value>
-        public int? MaxErrors { get => this.loadTestConfig.MaxErrors; set => this.SetField(this.loadTestConfig, value); }
+        public int? MaxErrors { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [dry run].
@@ -121,14 +122,6 @@ namespace LodeRunner.Core.Models
         /// <value>
         ///   <c>true</c> if [dry run]; otherwise, <c>false</c>.
         /// </value>
-        public bool? DryRun { get => this.loadTestConfig.DryRun; set => this.SetField(this.loadTestConfig, value); }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get => this.loadTestConfig.Name; set => this.SetField(this.loadTestConfig, value); }
+        public bool? DryRun { get; set; }
     }
 }

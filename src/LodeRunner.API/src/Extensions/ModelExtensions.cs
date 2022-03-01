@@ -20,12 +20,11 @@ namespace LodeRunner.API.Middleware
         /// Validates flag values and combinations in load test configuration payload.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
-        /// <param name="payloadPropertiesChanged">Payload Properties Change list.</param>
         /// <returns>Errors when DTO doesn't pass validation.</returns>
-        public static IEnumerable<string> FlagValidator(this LoadTestConfig loadTestConfig, List<string> payloadPropertiesChanged = null)
+        public static IEnumerable<string> FlagValidator(this LoadTestConfig loadTestConfig)
         {
             RootCommand root = LRCommandLine.BuildRootCommandMode();
-            string[] args = LoadTestConfigExtensions.GetArgs(loadTestConfig, payloadPropertiesChanged);
+            string[] args = LoadTestConfigExtensions.GetArgs(loadTestConfig);
             return root.Parse(args).Errors.Select(x => x.Message);
         }
     }
