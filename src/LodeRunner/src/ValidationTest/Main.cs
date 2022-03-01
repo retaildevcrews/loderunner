@@ -639,7 +639,7 @@ namespace LodeRunner
         /// <returns>HttpClient.</returns>
         private HttpClient OpenHttpClient(string host)
         {
-            HttpClient client = new (httpSocketHandler)
+            HttpClient client = new (httpSocketHandler, disposeHandler: false)
             {
                 Timeout = new TimeSpan(0, 0, this.config.Timeout),
                 BaseAddress = new Uri(host),

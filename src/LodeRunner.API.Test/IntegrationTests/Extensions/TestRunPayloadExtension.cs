@@ -32,8 +32,8 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="testRunPayload">The test run payload.</param>
         /// <param name="name">The name.</param>
         /// <param name="clientStatusId">The clientStatusId.</param>
-        /// <param name="apiPort">The apiPort.</param>
-        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string clientStatusId, int apiPort)
+        /// <param name="apiServerPort">The list of API ports for servers to target during load test.</param>
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string clientStatusId, List<int> apiServerPort)
         {
             testRunPayload.SetNameAndTime(name);
 
@@ -41,8 +41,13 @@ namespace LodeRunner.API.Test.IntegrationTests
             {
                 Name = $"Sample LoadTestConfig - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 Files = new List<string>() { "LodeRunner.Api-benchmark.json" },
-                Server = new List<string>() { $"http://localhost:{apiPort}" },
+                Server = new List<string>(),
             };
+
+            foreach (var hostPort in apiServerPort)
+            {
+                loadTestConfig.Server.Add($"http://localhost:{hostPort}");
+            }
 
             testRunPayload.LoadTestConfig = loadTestConfig;
 
