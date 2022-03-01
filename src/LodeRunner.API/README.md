@@ -10,6 +10,7 @@ LodeRunner.API is intended to facility testing in controlled environments by add
 2. Add CosmosDB secret key ([Instructions](../LodeRunner.Data/README.md#cosmosdb-key))
 
 3. Allow access to CosmosDB through firewall ([Instructions](../LodeRunner.Data/README.md#cosmosdb-firewall-ip-ranges))
+      > Note: Skip this step if using Cosmos DB Emulator.
 
 4. Change into the API directory:
       `cd src/LodeRunner.API`

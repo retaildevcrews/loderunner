@@ -11,7 +11,26 @@
 
 ## Configuing CosmosDB Secrets for Local Use
 
-### CosmosDB Secrets
+### Using Cosmos DB Emulator
+
+If running in codespaces, the emulator should be running in devcontainer on default port `9090`. To run loderunner applications against the emaulator in a self contained development environment:
+
+- Update `LodeRunner` and `LodeRunner.API` secrets to use Cosmos Emulator running in codespaces:
+
+    > Note: Upon restart of an existing codespaces, you will be required to run this script again to make sure host files and certs are up to date.
+
+    ```bash
+        cd ../..
+        ./scripts/cosmos-emulator-mode.sh
+    ```
+
+- Access Cosmos Emulator UI by appending `/_explorer/index.html` to CosmosDB Emulator port address:
+
+  - For Codespaces in broswer: `https://<local-address-for-port-9090>/_explorer/index.html`
+
+  - For Codespaces in VSCode: `https://localhost:9090/_explorer/index.html`
+
+### Using shared Cosmos DB
 
 Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) require a Read-Write key from CosmosDB.
 
