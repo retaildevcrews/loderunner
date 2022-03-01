@@ -77,6 +77,18 @@ In order for a **TestRun** to be available for a LodeRunner client, it must:
 
 To execute the TestRuns, the LodeRunner instance running in **Client** mode starts a new instance of LodeRunner running in **Command** mode. The **LoadTestConfig** specified in the **TestRun** is converted to command line arguments. Once a **TestRun** execution is complete, LodeRunner will update the **TestRun** document in CosmosDB with the summarized test results in a **LoadResult** object.
 
+#### Logging Information
+
+Log entries are written when LodeRunner Client is executing under the following conditions
+
+- Scheduled Status Update, logs last Client Status with a frequency defined by `StatusUpdateInterval` (5 seconds)
+- Event triggered Status Update, logs Client Status updated by a particular event type (`Starting`, `Ready`, `Testing`, `Terminating`)
+  - Starting, when Initializing Client for the very first time.
+  - Ready, when Client is ready to perform an action.
+  - Testing, when Received or Executing a new TestRun.
+  - Terminating, when Client is stopping.
+
+
 #### Example Client Mode Arguments
 
 TODO: Describe the flags for each one, explain that -s and -f are ignored in **Client** mode
