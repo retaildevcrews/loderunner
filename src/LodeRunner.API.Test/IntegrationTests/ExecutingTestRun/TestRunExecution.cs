@@ -233,25 +233,26 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             var taskSource = new CancellationTokenSource();
             await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
             {
-                await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
-
-                string targetOutputLine = outputList.FirstOrDefault(s => s.Contains("Now listening on:"));
-                if (!string.IsNullOrEmpty(targetOutputLine))
+                await Task.Run(() =>
                 {
-                    // the line should look like "Now listening on: http://[::]:8080",  since we are splitting on ":" last string in the list will be the port either 8080 (Production) or 8081 (Development)
-                    string portNumberString = targetOutputLine.Split(":").ToList().LastOrDefault();
-
-                    if (int.TryParse(portNumberString, out portNumber))
+                    string targetOutputLine = outputList.FirstOrDefault(s => s.Contains("Now listening on:"));
+                    if (!string.IsNullOrEmpty(targetOutputLine))
                     {
-                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Found.\tPort: '{portNumber}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                    }
+                        // the line should look like "Now listening on: http://[::]:8080",  since we are splitting on ":" last string in the list will be the port either 8080 (Production) or 8081 (Development)
+                        string portNumberString = targetOutputLine.Split(":").ToList().LastOrDefault();
 
-                    taskSource.Cancel();
-                }
-                else
-                {
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                }
+                        if (int.TryParse(portNumberString, out portNumber))
+                        {
+                            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Found.\tPort: '{portNumber}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                        }
+
+                        taskSource.Cancel();
+                    }
+                    else
+                    {
+                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner API Process Output.\tPort Number Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                    }
+                });
             });
 
             return portNumber;
@@ -271,19 +272,20 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
             {
-                await Task.Delay(timeBetweenTriesMs).ConfigureAwait(false); // Log Interval is 5 secs.
-
-                string targetOutputLine = outputList.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.InitializingClient));
-                if (!string.IsNullOrEmpty(targetOutputLine))
+                await Task.Run(() =>
                 {
-                    clientStatusId = GetSubstringByString("(", ")", targetOutputLine);
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                    taskSource.Cancel();
-                }
-                else
-                {
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                }
+                    string targetOutputLine = outputList.FirstOrDefault(s => s.Contains(LodeRunner.Core.SystemConstants.InitializingClient));
+                    if (!string.IsNullOrEmpty(targetOutputLine))
+                    {
+                        clientStatusId = GetSubstringByString("(", ")", targetOutputLine);
+                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Found.\tId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                        taskSource.Cancel();
+                    }
+                    else
+                    {
+                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\tClientStatusId Not Found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                    }
+                });
             });
 
             return clientStatusId;
