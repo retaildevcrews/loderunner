@@ -4,6 +4,11 @@
 COSMOS_EMULATOR_NAME="${COSMOS_EMULATOR_NAME:-cosmos-linux-emulator}"
 COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 
+## Wait for the cosmos emulator to start
+echo "Waiting for CosmosDB Emulator to start"
+while ! test $(docker logs ${COSMOS_EMULATOR_NAME} | grep -vE 'Started ' | grep -E '^Started' | head -n 1);do sleep 5;done
+echo "CosmosDB Emulator started"
+
 # Update SSL Certs
 ## Copy Self-Signed nginx certs to trusted ssl cert dir
 sudo cp ${NGINX_CONFIG_PATH}/nginx.crt /usr/local/share/ca-certificates/

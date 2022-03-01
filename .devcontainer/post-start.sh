@@ -14,13 +14,8 @@ docker pull nginx:stable-alpine
 COSMOS_EMULATOR_NAME="${COSMOS_EMULATOR_NAME:-cosmos-linux-emulator}"
 COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 
-## Wait for the cosmos emulator to start
-echo "Waiting for CosmosDB Emulator to start"
-while ! test $(docker logs ${COSMOS_EMULATOR_NAME} | grep -vE 'Started ' | grep 'Started');do sleep 5;done
-echo "CosmosDB Emulator started"
-
 ## setup cosmos emulator
-source $(dirname $0)/cosmos-emulator/setup-cosmos-emulator.sh 
+. $(dirname $0)/cosmos-emulator/setup-cosmos-emulator.sh 
 
 export COSMOS_KEY_CMD="docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '\/Key=(\w.*) '|head -n 1 | awk -F' ' '{print \$1}' | awk -F 'Key=' '{print \$2}'"
 echo "Populating CosmosDB with LodeRunner DB and Container"
