@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using LodeRunner.Core.Models.Validators;
 using LodeRunner.Core.SchemaFilters;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,24 +18,13 @@ namespace LodeRunner.Core.Models
     [SwaggerSchemaFilter(typeof(TestRunPayloadSchemaFilter))]
     public class TestRunPayload : BasePayload
     {
-        // Composite TestRun object to hold data
-        private readonly TestRun testRun = new ();
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get => this.testRun.Name; set => this.SetField(this.testRun, value); }
-
         /// <summary>
         /// Gets or sets the LoadTestConfig.
         /// </summary>
         /// <value>
         /// The LoadTestConfig.
         /// </value>
-        public LoadTestConfig LoadTestConfig { get => this.testRun.LoadTestConfig; set => this.SetField(this.testRun, value); }
+        public LoadTestConfig LoadTestConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the LoadClients.
@@ -41,7 +32,8 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The LoadClients.
         /// </value>
-        public List<LoadClient> LoadClients { get => this.testRun.LoadClients; set => this.SetField(this.testRun, value); }
+        [ValidateList(ErrorMessage = "LoadClients list cannot be null or empty.")]
+        public List<LoadClient> LoadClients { get; set; }
 
         /// <summary>
         /// Gets or sets the CreatedTime.
@@ -50,7 +42,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The CreatedTime.
         /// </value>
-        public DateTime CreatedTime { get => this.testRun.CreatedTime; set => this.SetField(this.testRun, value); }
+        public DateTime? CreatedTime { get; set; }
 
         /// <summary>
         /// Gets or sets the StartTime.
@@ -59,7 +51,7 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The StartTime.
         /// </value>
-        public DateTime StartTime { get => this.testRun.StartTime; set => this.SetField(this.testRun, value); }
+        public DateTime? StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the CompletedTime.
@@ -68,6 +60,6 @@ namespace LodeRunner.Core.Models
         /// <value>
         /// The CompletedTime.
         /// </value>
-        public DateTime? CompletedTime { get => this.testRun.CompletedTime; set => this.SetField(this.testRun, value); }
+        public DateTime? CompletedTime { get; set; }
     }
 }
