@@ -20,7 +20,7 @@ while ! test $(docker logs ${COSMOS_EMULATOR_NAME} | grep -vE 'Started ' | grep 
 echo "CosmosDB Emulator started"
 
 ## setup cosmos emulator
-sh ./$(dirname $0)/cosmos-emulator/setup-cosmos-emulator.sh 
+source $(dirname $0)/cosmos-emulator/setup-cosmos-emulator.sh 
 
 export COSMOS_KEY_CMD="docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '\/Key=(\w.*) '|head -n 1 | awk -F' ' '{print \$1}' | awk -F 'Key=' '{print \$2}'"
 echo "Populating CosmosDB with LodeRunner DB and Container"

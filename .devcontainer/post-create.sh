@@ -12,7 +12,7 @@ sudo apt-get upgrade -y
 #sudo apt-get clean -y
 
 # Setup CosmosDB Emulator
-sh ./$(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
+source $(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
 
 # get install script and install node
 # [Choice] Node.js version: 16, 14, 12
