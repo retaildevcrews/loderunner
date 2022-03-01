@@ -55,11 +55,10 @@ metadata:
   name: loderunner-api
   namespace: loderunner
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - port: 8081
+    - port: 8080
       targetPort: http
-      nodePort: 32088
       protocol: TCP
       name: http
   selector:
