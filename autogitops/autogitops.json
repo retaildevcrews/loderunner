@@ -1,7 +1,9 @@
 {
-    "name": "loderunner",
     "namespace": "loderunner",
-    "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
-    "imageTag": "beta",
-    "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus2","pre-ngsa-asb-centralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus2"]
+    "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus2","pre-ngsa-asb-centralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus2"],
+    "lr": {
+        "name": "loderunner",
+        "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
+        "imageTag": "beta"
+    }
 }
