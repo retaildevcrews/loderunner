@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loderunner-api
-  namespace: loderunner
+  name: {{gitops.lrapi.name}}
+  namespace: {{gitops.namespace}}
   labels:
-    app.kubernetes.io/name: loderunner-api
+    app.kubernetes.io/name: {{gitops.lrapi.name}}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: loderunner-api
+      app: {{gitops.lrapi.name}}
   template:
     metadata:
       labels:
-        app: loderunner-api
-        aadpodidbinding: ngsa-asb-loderunner-id
+        app: {{gitops.lrapi.name}}
+        aadpodidbinding: {{gitops.lrmi.name}}
     spec:
       containers:
         - name: app
-          image: ghcr.io/retaildevcrews/lr-api:beta
+          image: {{gitops.lrapi.imageName}}:{{gitops.lrapi.imageTag}}
           imagePullPolicy: Always
           ports:
             - name: http
@@ -52,8 +52,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: loderunner-api
-  namespace: loderunner
+  name: {{gitops.lrapi.name}}
+  namespace: {{gitops.namespace}}
 spec:
   type: ClusterIP
   ports:
@@ -62,4 +62,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: loderunner-api
+    app: {{gitops.lrapi.name}}
