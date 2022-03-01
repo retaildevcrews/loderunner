@@ -17,7 +17,6 @@ namespace LodeRunner.Core.Extensions
     {
         /// <summary>
         /// Gets the command line arguments from LoadTestConfig properties.
-        /// If payloadPropertiesChanged list exists, only the listed properties are converted.
         /// </summary>
         /// <param name="loadTestConfig">The load test configuration.</param>
         /// <returns>The command line arguments.</returns>
