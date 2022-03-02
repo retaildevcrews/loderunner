@@ -83,7 +83,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, string path, IEnumerable<string> errorList, ILogger logger, [CallerMemberName] string methodName = null)
         {
-            try
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetByIdResponse)}", async () =>
             {
                 // Bad request response due to invalid ID
                 if (errorList != null && errorList.Any())
@@ -105,6 +105,14 @@ namespace LodeRunner.API.Middleware
 
                 // OK response
                 return new OkObjectResult(result);
+            });
+        }
+
+        public static async Task<ActionResult> TryCatchException(ILogger logger, string methodName, Func<Task<ActionResult>> taskToExecute)
+        {
+            try
+            {
+                return await taskToExecute();
             }
             catch (CosmosException ce)
             {
@@ -112,19 +120,19 @@ namespace LodeRunner.API.Middleware
                 if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
                     // Log Warning
-                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetByIdResponse)}"), SystemConstants.NotFoundError);
+                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName}"), SystemConstants.NotFoundError);
                     return new NotFoundResult();
                 }
 
                 // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ce, "CosmosException");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
+                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName}"), ce, "CosmosException");
+                return CreateInternalServerErrorResponse($"{methodName} > CosmosException > [{ce.StatusCode}] {ce.Message}");
             }
             catch (Exception ex)
             {
                 // Log Error
                 logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > {ex.Message}");
+                return CreateInternalServerErrorResponse($"{methodName} > {ex.Message}");
             }
         }
 

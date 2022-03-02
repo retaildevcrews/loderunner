@@ -217,25 +217,25 @@ namespace LodeRunner.API.Controllers
 
         private async Task<ActionResult> RunPreDeletionChecks(string testRunId, IBaseService<TestRun> testRunService)
         {
-            // Validate Entity ID
-            var parameterErrorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
-            // Create and return GET response
-            var existingItemResp = await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, path, parameterErrorList, logger);
-
-            if (existingItemResp.GetType() != typeof(OkObjectResult))
+            // Create and return GET response; assumes that id has been validated
+            return await ResultHandler.TryCatchException(logger, nameof(RunPreDeletionChecks), async () =>
             {
-                return existingItemResp;
-            }
+                var result = await testRunService.Get(testRunId);
 
-            // Check if TestRun can be deleted
-            if (!CanTestRunBeDeleted((TestRun)((ObjectResult)existingItemResp).Value))
-            {
-                return await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict);
-            }
+                // Not found response
+                if (result == null)
+                {
+                    return new NotFoundResult();
+                }
 
-            return null;
+                // Check if TestRun can be deleted
+                if (!CanTestRunBeDeleted(result))
+                {
+                    return await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict);
+                }
+
+                return null;
+            });
         }
     }
 }
