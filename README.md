@@ -18,7 +18,27 @@
 - .NET 5.0 ([download](https://docs.microsoft.com/en-us/dotnet/core/install/))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
-## Running the System via Codespaces
+## Running loderunner via Codespaces
+
+1. Open codespaces in <https://github.com/retaildevcrews/loderunner>
+2. Configure CosmosDB Secrets for local use
+   - [Using Cosmos DB Emulator](src/LodeRunner.Data/README.md#using-cosmos-db-emulator)
+   - [Using shared Cosmos DB](src/LodeRunner.Data/README.md#using-shared-cosmos-db)
+3. Allow access to CosmosDB through firewall ([Instructions](src/LodeRunner.Data/README.md#cosmosdb-firewall-ip-ranges))
+   > NOTE: Skip this step if using Cosmos DB Emulator.
+4. Run LodeRunner.API
+
+   ```bash
+      cd src/LodeRunner.API
+      dotnet run
+   ```
+
+5. Run LodeRunner
+   - [Command Mode](src/LodeRunner/README.md#command-mode)
+   - [Client Mode](src/LodeRunner/README.md#client-mode)
+6. Run LodeRunner.UI ([Instructions](src/LodeRunner.UI/README.md#initial-setup))
+
+## Setup loderunner application pods
 
 1. Open codespaces in <https://github.com/retaildevcrews/loderunner>
 2. Verify in the loderunner directory `pwd`

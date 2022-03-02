@@ -6,7 +6,7 @@ LodeRunner.UI is intended to facility testing in controlled environments by prov
 
 ### Initial Setup
 
-1. Setup LodeRunner and LodeRunner.API pods (Instructions at [Running the System via Codespaces](../../README.md#running-the-system-via-codespaces))
+1. Setup LodeRunner and LodeRunner.API pods (Instructions at [Setup loderunner application pods](../../README.md#setup-loderunner-application-pods))
 2. Change into the LodeRunner.UI directory `cd src/LodeRunner.UI`
 3. Set the endpoint LodeRunner.UI makes API calls to
    - In Codespaces, navigate to the `PORTS` terminal
