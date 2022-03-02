@@ -18,7 +18,7 @@ namespace LodeRunner.API.AutoMapperProfiles
         /// </summary>
         public LoadTestPayloadProfile()
         {
-            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreUnmodifiedProperties();
+            this.CreateMap<LoadTestConfigPayload, LoadTestConfig>().ForMember(x => x.Id, opt => opt.Ignore()).IgnoreNullFields();
         }
     }
 }

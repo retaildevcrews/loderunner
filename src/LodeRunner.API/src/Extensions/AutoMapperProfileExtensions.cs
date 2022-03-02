@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
 
 namespace LodeRunner.API.Extensions
@@ -22,16 +25,17 @@ namespace LodeRunner.API.Extensions
         /// <typeparam name="TDestination">The type of the destination.</typeparam>
         /// <param name="expression">The expression.</param>
         /// <returns>IMappingExpression</returns>
-        public static IMappingExpression<TPayloadSource, TDestination> IgnoreUnmodifiedProperties<TPayloadSource, TDestination>(this IMappingExpression<TPayloadSource, TDestination> expression)
+        public static IMappingExpression<TPayloadSource, TDestination> IgnoreNullFields<TPayloadSource, TDestination>(this IMappingExpression<TPayloadSource, TDestination> expression)
             where TPayloadSource : BasePayload
             where TDestination : BaseEntityModel
         {
             var destType = typeof(TDestination);
             foreach (var property in destType.GetProperties())
             {
-                expression.ForMember(property.Name, opt => opt.PreCondition((srcPayload) =>
+                expression.ForMember(property.Name, opt => opt.Condition((srcPayload) =>
                 {
-                    if (srcPayload.PropertiesChanged.Contains(property.Name))
+                    var fields = srcPayload.FieldValue(property.Name);
+                    if (fields[0] != null)
                     {
                         return true;
                     }
