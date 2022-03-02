@@ -63,13 +63,15 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, string path, IEnumerable<string> errorList, ILogger logger, [CallerMemberName] string methodName = null)
         {
-            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetByIdResponse)}", async () =>
+            string updatedMethodName = $"{methodName} > {nameof(CreateGetByIdResponse)}";
+
+            return await TryCatchException(logger, updatedMethodName, async () =>
             {
                 // Bad request response due to invalid ID
                 if (errorList != null && errorList.Any())
                 {
                     // Log Warning
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}, ID ({id})");
+                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, updatedMethodName), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}, ID ({id})");
 
                     // Add info to response
                     return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
@@ -118,7 +120,7 @@ namespace LodeRunner.API.Middleware
             catch (Exception ex)
             {
                 // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ex, "Exception");
+                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName}"), ex, "Exception");
                 return CreateInternalServerErrorResponse($"{methodName} > {ex.Message}");
             }
         }
@@ -137,12 +139,14 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> postResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
-            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetByIdResponse)}", async () =>
+            string updatedMethodName = $"{methodName} > {nameof(CreatePostResponse)}";
+
+            return await TryCatchException(logger, updatedMethodName, async () =>
             {
                 // Bad request response due to invalid payload
                 if (errorList != null && errorList.Any())
                 {
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreatePostResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
+                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, updatedMethodName), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
                     return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, errorList);
                 }
 
@@ -151,8 +155,8 @@ namespace LodeRunner.API.Middleware
                 // Internal server error response due to no returned value from storage create
                 if (result == null)
                 {
-                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePostResponse)}"), null, SystemConstants.UpsertError);
-                    return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > {SystemConstants.UpsertError}");
+                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, updatedMethodName), null, SystemConstants.UpsertError);
+                    return CreateInternalServerErrorResponse($"{updatedMethodName} > {SystemConstants.UpsertError}");
                 }
 
                 // Created response

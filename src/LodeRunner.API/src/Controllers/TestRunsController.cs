@@ -194,6 +194,16 @@ namespace LodeRunner.API.Controllers
         }
 
         /// <summary>
+        /// Check if conditions are met for testRun deletion.
+        /// </summary>
+        /// <param name="testRun">TestRun entity.</param>
+        /// <returns>Boolean value indicating whether testRun can be deleted.</returns>
+        private static bool CanTestRunBeDeleted(TestRun testRun)
+        {
+            return testRun.CompletedTime != null || (testRun.CompletedTime == null && testRun.StartTime >= DateTime.UtcNow.AddMinutes(1));
+        }
+
+        /// <summary>
         /// Compile and return entity validation errors.
         /// </summary>
         /// <param name="payload">TestRun payload</param>
@@ -206,16 +216,6 @@ namespace LodeRunner.API.Controllers
             {
                 return service.Validator.ValidateEntity(testRun);
             });
-        }
-
-        /// <summary>
-        /// Check if conditions are met for testRun deletion.
-        /// </summary>
-        /// <param name="testRun">TestRun entity.</param>
-        /// <returns>Boolean value indicating whether testRun can be deleted.</returns>
-        private bool CanTestRunBeDeleted(TestRun testRun)
-        {
-            return testRun.CompletedTime != null || (testRun.CompletedTime == null && testRun.StartTime >= DateTime.UtcNow.AddMinutes(1));
         }
 
         /// <summary>
