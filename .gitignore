@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 CosmosKey*
+CosmosUrl*
 
 dotFiles/
 
@@ -14,6 +15,9 @@ IaC/AKS/cluster/charts/smoker/helm-config.yaml
 
 LodeRunner.Core.xml
 LodeRunnerApi.xml
+
+# Worksapce files
+workspaces/
 
 # User-specific files
 *.suo

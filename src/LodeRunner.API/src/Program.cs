@@ -156,6 +156,7 @@ namespace LodeRunner.API
             string projectName = Assembly.GetCallingAssembly().GetName().Name;
 
             // configure the web host builder
+            // configure MinRequestBodyDataRate if required: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options?view=aspnetcore-6.0#minimum-request-body-data-rate
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {

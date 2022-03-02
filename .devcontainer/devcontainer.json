@@ -15,6 +15,10 @@
 		"terminal.integrated.defaultProfile.linux": "zsh"
 	},
 
+	"hostRequirements": {
+		"cpus": 4
+	},
+
 	"forwardPorts": [
 		30000,
 		30080,
@@ -23,7 +27,12 @@
 		32080,
 		32088,
 		3000,
-		8080
+		8080,
+		9090,
+		10251,
+		10252,
+		10253,
+		10254
 	],
 
 	// add labels
@@ -36,7 +45,14 @@
 		"32080": { "label": "LodeRunner UI" },
 		"32088": { "label": "LodeRunner API" },
 		"3000": { "label": "Local Dev LodeRunner UI"},
-		"8080": { "label": "Local Dev LodeRunner API"}
+		"8080": { "label": "Local Dev LodeRunner API"},
+		"9090": { "label": "CosmosDB Emulator", "protocol": "https"}
+	},
+	
+	"containerEnv": {
+		"COSMOS_EMULATOR_NAME":"cosmos-linux-emulator",
+		"COSMOS_EMULATOR_DATA_PATH":"workspaces/cosmos-emulator/data",
+		"NGINX_CONFIG_PATH":"workspaces/cosmos-emulator/nginx"
 	},
 
 	// Install extensions
