@@ -47,6 +47,7 @@ if connection_verify is False:
 client = CosmosClient(URL, credential=KEY, connection_verify=connection_verify)
 
 # Create LodeRunner db and container
+# CosmosDB values should be in sync with cosmos-create.sh
 db_cont = {"LodeRunnerDB": "LodeRunner", "LodeRunnerTestDB": "LodeRunner"}
 
 for db_name in db_cont:
