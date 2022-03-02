@@ -66,7 +66,15 @@ namespace LodeRunner.Services
                 LoadClient = this.loadClient,
             };
 
-            config.ClientStatusId = this.clientStatus.Id;
+            // Note: config.ClientStatusId is set when we Execute a New TestRun and we CreateAndStart a new LodeRunnerService - Command Mode
+            // in this case we set both config.TestRunId and config.ClientStatusId, so we do not want to overwrite ClientStatusId.
+
+            //TODO: Investigate if we can use  config.IsClientMode to determine if we should or should not create this.clientStatus since it is not utilized.
+
+            if (string.IsNullOrEmpty(config.ClientStatusId))
+            {
+                config.ClientStatusId = this.clientStatus.Id;
+            }
 
             this.cancellationTokenSource = cancellationTokenSource;
 
@@ -568,7 +576,7 @@ namespace LodeRunner.Services
             {
                 // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
                 // can be updated accordingly
-                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
             }
             catch (Exception ex)
             {

@@ -253,6 +253,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             return portNumber;
         }
 
+        // TODO: update comments to be more descriptive and possible replace "model" word ??
+
         /// <summary>
         /// Parses the process output and to get client status id.
         /// </summary>
@@ -261,7 +263,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="modelIdPrefix">The Model Id prefix to be parse.</param>
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
-        /// <returns>the ClientStatusId.</returns>
+        /// <returns></returns>
         private async Task<string> TryParseProcessOutputAndGetIdWithPrefix(List<string> outputList, string marker, string modelIdPrefix, int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             string modelId = null;

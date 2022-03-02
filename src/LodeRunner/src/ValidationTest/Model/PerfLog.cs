@@ -86,6 +86,22 @@ namespace LodeRunner.Model
         public string LoadClientId { get; set; }
 
         /// <summary>
+        /// Gets or sets the client status id.
+        /// </summary>
+        /// <value>
+        /// The client status identifier.
+        /// </value>
+        public string ClientStatusId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test run id.
+        /// </summary>
+        /// <value>
+        /// The test run identifier.
+        /// </value>
+        public string TestRunId { get; set; }
+
+        /// <summary>
         /// Gets or sets the performance quartile.
         /// </summary>
         public int? Quartile { get; set; }
