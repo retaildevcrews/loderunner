@@ -35,7 +35,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<IEnumerable<TEntity>>> getResult, ILogger logger, [CallerMemberName] string methodName = null)
         {
-            try
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetResponse)}", async () =>
             {
                 var result = await getResult();
 
@@ -47,27 +47,7 @@ namespace LodeRunner.API.Middleware
 
                 // OK response
                 return new OkObjectResult(result);
-            }
-            catch (CosmosException ce)
-            {
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Log Warning
-                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetResponse)}"), SystemConstants.NotFoundError);
-                    return new NoContentResult();
-                }
-
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetResponse)}"), ce, "CosmosException");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
@@ -108,6 +88,13 @@ namespace LodeRunner.API.Middleware
             });
         }
 
+        /// <summary>
+        /// Reusable try-catch block to encapsulate HTTP methods whiel handling cosmos exceptions and other exceptions.
+        /// </summary>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="methodName">String containing caller member name to improve logging.</param>
+        /// <param name="taskToExecute">Task to be executed in try block</param>
+        /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> TryCatchException(ILogger logger, string methodName, Func<Task<ActionResult>> taskToExecute)
         {
             try
@@ -150,7 +137,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> postResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
-            try
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetByIdResponse)}", async () =>
             {
                 // Bad request response due to invalid payload
                 if (errorList != null && errorList.Any())
@@ -170,21 +157,7 @@ namespace LodeRunner.API.Middleware
 
                 // Created response
                 return new CreatedResult(path, result);
-            }
-            catch (CosmosException ce)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreatePostResponse)}"), ce, "CosmosException");
-
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePostResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
@@ -242,10 +215,23 @@ namespace LodeRunner.API.Middleware
             }
         }
 
-        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string notFound, string unableToDelete, HttpRequest request, ILogger logger)
+        /// <summary>
+        /// Creates the response for DELETE methods.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="preDeleteChecks">Optional custom pre-deletion checks for each model entity</param>
+        /// <param name="service">Storage service for TEntity.</param>
+        /// <param name="id">ID for item to update.</param>
+        /// <param name="notFound">String constant for "Not Found" response</param>
+        /// <param name="unableToDelete">tring constant for "Unable to delete" response</param>
+        /// <param name="request">Request Object</param>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="methodName">String containing caller member name to improve logging.</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string notFound, string unableToDelete, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
         where TEntity : class
         {
-            try
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateDeleteResponse)}", async () =>
             {
                 // Validate id before deleting
                 var preChecksResponse = await ValidateEntityId<TEntity>(id, logger, request);
@@ -271,21 +257,7 @@ namespace LodeRunner.API.Middleware
 
                 // Handle reponse code
                 return await HandleDeleteStatusCode(delStatusCode, notFound, unableToDelete);
-            }
-            catch (CosmosException ce)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $" {nameof(CreateDeleteResponse)}"), ce, "CosmosException");
-
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                return CreateInternalServerErrorResponse($"{nameof(CreateDeleteResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{nameof(CreateDeleteResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{nameof(CreateDeleteResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
@@ -413,6 +385,13 @@ namespace LodeRunner.API.Middleware
             };
         }
 
+        /// <summary>
+        /// Create  JSONResult for Validation errors
+        /// </summary>
+        /// <param name="type">String describing error type</param>
+        /// <param name="path">Query path</param>
+        /// <param name="errorList">List of errors.</param>
+        /// <returns>JsonResult.</returns>
         private static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
         {
             Dictionary<string, object> data = new ()
@@ -436,6 +415,13 @@ namespace LodeRunner.API.Middleware
             };
         }
 
+        /// <summary>
+        /// Returns appropriate ActionResult based on delete status code.
+        /// </summary>
+        /// <param name="delStatusCode">Deletion status code</param>
+        /// <param name="notFound">String constant for "Not found" response</param>
+        /// <param name="unableToDelete">String constant for "Unable to delete" response</param>
+        /// <returns>ActionResult.</returns>
         private static async Task<ActionResult> HandleDeleteStatusCode(HttpStatusCode delStatusCode, string notFound, string unableToDelete)
         {
             return delStatusCode switch
@@ -451,6 +437,14 @@ namespace LodeRunner.API.Middleware
             };
         }
 
+        /// <summary>
+        /// Parameter validation.
+        /// </summary>
+        /// <typeparam name="TEntity">Model Entity</typeparam>
+        /// <param name="id">Entity id</param>
+        /// <param name="logger">NGSA logger.</param>
+        /// <param name="request">HTTP Request</param>
+        /// <returns>Returns an ActionResult if ValidateEntityId returns any errors, otherwise null.</returns>
         private static async Task<ActionResult> ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request)
         where TEntity : class
         {

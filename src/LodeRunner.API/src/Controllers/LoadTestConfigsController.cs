@@ -188,6 +188,13 @@ namespace LodeRunner.API.Controllers
             return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(null, loadTestConfigService, loadTestConfigId, SystemConstants.LoadTestConfigItemNotFound, SystemConstants.UnableToDeleteLoadTestConfig, this.Request, logger);
         }
 
+        /// <summary>
+        /// Compile and return entity validation errors.
+        /// </summary>
+        /// <param name="payload">LoadTestConfig payload</param>
+        /// <param name="service">Storage service for LoadTestConfig.</param>
+        /// <param name="newLoadTestConfig">LoadTestConfig</param>
+        /// <returns>List of error strings.</returns>
         private async Task<IEnumerable<string>> CompileErrorList(LoadTestConfigPayload payload, IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
         {
             return await Task.Run(() =>
@@ -197,19 +204,6 @@ namespace LodeRunner.API.Controllers
                 var errorList = flagErrorList.Concat<string>(payloadErrorList);
                 return errorList;
             });
-        }
-
-        private async Task<ActionResult> RunPreDeletionChecks(string loadTestConfigId, IBaseService<LoadTestConfig> loadTestConfigService = null)
-        {
-            var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
-
-            if (errorlist.Count > 0)
-            {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), SystemConstants.InvalidLoadTestConfigId);
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            return null;
         }
     }
 }

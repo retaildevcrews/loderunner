@@ -191,17 +191,15 @@ namespace LodeRunner.API.Controllers
             }
 
             return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.TestRunItemNotFound, SystemConstants.UnableToDeleteTestRun, this.Request, logger);
-
-            // Get       Delete    Returns   Message
-            // -------------------------------------
-            // IntErr    Any       IntErr    Cosmos error
-            // NotFound  Any       NotFound  ID not found
-            // Ok        NotFound  NotFound  (Redundant) Same as above*
-            // Ok        Conflict  Conflict  ID Found but unfinished
-            // Ok        Ok        NoContent All good
-            // Any       Any       IntErr    But also show GET and DELETE status (Redundant if exception is thrown when GET status is not OK)
         }
 
+        /// <summary>
+        /// Compile and return entity validation errors.
+        /// </summary>
+        /// <param name="payload">TestRun payload</param>
+        /// <param name="service">Storage service for TestRun.</param>
+        /// <param name="testRun">TestRun</param>
+        /// <returns>List of error strings.</returns>
         private async Task<IEnumerable<string>> CompileErrorList(TestRunPayload payload, IBaseService<TestRun> service, TestRun testRun)
         {
             return await Task.Run(() =>
@@ -210,14 +208,25 @@ namespace LodeRunner.API.Controllers
             });
         }
 
+        /// <summary>
+        /// Check if conditions are met for testRun deletion.
+        /// </summary>
+        /// <param name="testRun">TestRun entity.</param>
+        /// <returns>Boolean value indicating whether testRun can be deleted.</returns>
         private bool CanTestRunBeDeleted(TestRun testRun)
         {
             return testRun.CompletedTime != null || (testRun.CompletedTime == null && testRun.StartTime >= DateTime.UtcNow.AddMinutes(1));
         }
 
+        /// <summary>
+        /// Runs GET method to find selected testRun and verify that it can be deleted. Assumes that id formatting, etc. has been validated.
+        /// </summary>
+        /// <param name="testRunId">The testRun id to delete.</param>
+        /// <param name="testRunService">The testRun service.</param>
+        /// <returns>Appropriate ActionResult based on error or null if all checks pass.</returns>
         private async Task<ActionResult> RunPreDeletionChecks(string testRunId, IBaseService<TestRun> testRunService)
         {
-            // Create and return GET response; assumes that id has been validated
+            // Create and return GET response; assumes that id has been validated.
             return await ResultHandler.TryCatchException(logger, nameof(RunPreDeletionChecks), async () =>
             {
                 var result = await testRunService.Get(testRunId);
