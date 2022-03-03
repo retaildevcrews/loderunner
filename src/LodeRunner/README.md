@@ -8,6 +8,7 @@
 1. Add CosmosDB secret key ([Instructions](../LodeRunner.Data/README.md#cosmosdb-key))
 
 2. Allow access to CosmosDB through firewall ([Instructions](../LodeRunner.Data/README.md#cosmosdb-firewall-ip-ranges))
+    > NOTE: Skip this step if using Cosmos DB Emulator.
 
 To debug LodeRunner app, set command line arguments, otherwise it will only print out usage
 

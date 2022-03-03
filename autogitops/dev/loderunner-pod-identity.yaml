@@ -1,0 +1,70 @@
+
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: {{gitops.lrMiName}}
+  namespace: {{gitops.namespace}}
+spec:
+  type: 0
+  resourceID: /subscriptions/{{gitops.tenantid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrMiName}}
+  clientID: {{gitops.lrMiClientId}}
+
+---
+
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: {{gitops.lrMiName}}-binding
+  namespace: {{gitops.namespace}}
+spec:
+  azureIdentity: {{gitops.lrMiName}}
+  selector: {{gitops.lrMiName}}
+
+---
+
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: lr-secrets
+  namespace: {{gitops.namespace}} 
+spec:
+  provider: azure
+  secretObjects:
+  - secretName: CosmosLRDatabase
+    type: Opaque
+    data:
+    - objectName: CosmosDatabase
+      key: key
+  - secretName: CosmosLRCollection
+    type: Opaque
+    data:
+    - objectName: CosmosCollection
+      key: key
+  - secretName: CosmosKey
+    type: Opaque
+    data:
+    - objectName: CosmosKey
+      key: key
+  - secretName: CosmosUrl
+    type: Opaque
+    data:
+    - objectName: CosmosUrl
+      key: key
+  parameters:
+    usePodIdentity: "true"
+    keyvaultName: "kv-aks-3i2qzkkxofr7c"
+    objects: |
+      array:
+        - |
+          objectName: CosmosDatabase
+          objectType: secret
+        - |
+          objectName: CosmosCollection
+          objectType: secret
+        - |
+          objectName: CosmosKey
+          objectType: secret
+        - |
+          objectName: CosmosUrl
+          objectType: secret
+    tenantId: {{gitops.tenantid}}
