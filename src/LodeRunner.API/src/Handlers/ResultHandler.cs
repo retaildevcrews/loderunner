@@ -105,7 +105,7 @@ namespace LodeRunner.API.Middleware
                 // Bad request response due to invalid ID
                 var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
 
-                if (invalidIdResponse != null)
+                if (invalidIdResponse is not EmptyResult)
                 {
                     return invalidIdResponse;
                 }
@@ -239,7 +239,7 @@ namespace LodeRunner.API.Middleware
                 // Bad request response due to invalid ID
                 var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
 
-                if (invalidIdResponse != null)
+                if (invalidIdResponse is not EmptyResult)
                 {
                     return invalidIdResponse;
                 }
@@ -355,7 +355,7 @@ namespace LodeRunner.API.Middleware
                 return ResultHandler.CreateValidationErrorResponse(SystemConstants.InvalidParameter, RequestLogger.GetPathAndQuerystring(request), errorlist);
             }
 
-            return null;
+            return new EmptyResult();
         }
 
         /// <summary>
