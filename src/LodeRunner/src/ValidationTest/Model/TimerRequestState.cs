@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
@@ -192,7 +194,13 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 // log and ignore any error
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, "LodeRunnerException"), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()} - {ValidationTest.Now}\t{ex.Message}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, "LodeRunnerException"), ex, $"Exception - {ValidationTest.Now}\t{ex.Message}");
+                    });
+                });
             }
 
             // make sure to release the semaphore

@@ -224,23 +224,6 @@ namespace LodeRunner
         public string UrlPrefix { get; set; }
 
         /// <summary>
-        /// Gets the client identifier and test run identifier message.
-        /// </summary>
-        /// <returns>
-        /// Concatenated string describing ClientId and TestRunId information.
-        /// </returns>
-        public string GetClientIdAndTestRunIdInfo()
-        {
-            string testRunId = string.Empty;
-            if (!string.IsNullOrEmpty(TestRunId))
-            {
-                testRunId = $", {SystemConstants.LogTestRunIdPrefix}{TestRunId})";
-            }
-
-            return $"[{SystemConstants.LogClientIdPrefix}{this.ClientStatusId}){testRunId}]";
-        }
-
-        /// <summary>
         /// Set the default config values.
         /// </summary>
         public void SetDefaultValues()

@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
@@ -229,7 +230,13 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                        _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                        {
+                            await Task.Run(() =>
+                            {
+                                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, $"Exception");
+                            });
+                        });
 
                         errorCount++;
                     }
@@ -345,7 +352,13 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, $"TaskCanceledException - {this.config.GetClientIdAndTestRunIdInfo()}");
+                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                    {
+                        await Task.Run(() =>
+                        {
+                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, $"TaskCanceledException");
+                        });
+                    });
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -360,7 +373,13 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, $"OperationCanceledException - {this.config.GetClientIdAndTestRunIdInfo()}");
+                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                    {
+                        await Task.Run(() =>
+                        {
+                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, $"OperationCanceledException");
+                        });
+                    });
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -372,7 +391,13 @@ namespace LodeRunner
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
 
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, $"Exception");
+                    });
+                });
 
                 return Core.SystemConstants.ExitFail;
             }
@@ -692,9 +717,9 @@ namespace LodeRunner
                     { "CVectorBase", perfLog.CorrelationVectorBase },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
-                    { "ClientStatusId", perfLog.ClientStatusId },
-                    { "LoadClientId", perfLog.LoadClientId },
-                    { "TestRunId", perfLog.TestRunId },
+                    { SystemConstants.ClientStatusIdFieldName, perfLog.ClientStatusId },
+                    { SystemConstants.LoadClientIdFieldName, perfLog.LoadClientId },
+                    { SystemConstants.TestRunIdFieldName, perfLog.TestRunId },
                 };
 
                 // add zone, region tag

@@ -156,11 +156,5 @@ namespace LodeRunner.Core.Interfaces
         ///   <c>true</c> if this instance is client mode; otherwise, <c>false</c>.
         /// </value>
         bool IsClientMode { get; set; }
-
-        /// <summary>
-        /// Gets the client identifier and test run identifier message.
-        /// </summary>
-        /// <returns>Concatenated string describing ClientId and TestRunId information.</returns>
-        string GetClientIdAndTestRunIdInfo();
     }
 }

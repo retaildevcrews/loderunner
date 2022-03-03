@@ -50,7 +50,8 @@ namespace LodeRunner.Services
         /// <param name="config">The config.</param>
         /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
         /// <param name="logger">The logger.</param>
-        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
+        /// <param name="useIdValuesFromConfig">Determines if ClientStatusId , LoadClientId and TestRun will be used instead of local assigned.</param>
+        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger, bool useIdValuesFromConfig = false)
         {
             Debug.WriteLine("* LodeRunnerService Constructor *");
 
@@ -66,13 +67,17 @@ namespace LodeRunner.Services
                 LoadClient = this.loadClient,
             };
 
-            // Note: config.ClientStatusId is set when we Execute a New TestRun and we CreateAndStart a new LodeRunnerService - Command Mode
-            // in this case we set both config.TestRunId and config.ClientStatusId, so we do not want to overwrite ClientStatusId.
+            // Note: A new LodeRunnerService (CommandMode) is created when we Execute a New TestRun and all, config.TestRunId , config.LoadClientId and
+            // config.ClientStatusId are set before calling this constructor, so we check useIdValuesFromConfig to utilize same Id from Parent LR Client (Caller).
 
-            //TODO: Investigate if we can use  config.IsClientMode to determine if we should or should not create this.clientStatus since it is not utilized.
-
-            if (string.IsNullOrEmpty(config.ClientStatusId))
+            if (useIdValuesFromConfig)
             {
+                this.clientStatus.Id = config.ClientStatusId;
+                this.loadClient.Id = config.LoadClientId;
+            }
+            else
+            {
+                config.LoadClientId = this.loadClient.Id;
                 config.ClientStatusId = this.clientStatus.Id;
             }
 
@@ -150,7 +155,13 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                    {
+                        await Task.Run(() =>
+                        {
+                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, $"Exception");
+                        });
+                    });
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -160,7 +171,14 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, $"Exception");
+                    });
+                });
+
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -208,7 +226,13 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
-            this.logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message} - {config.GetClientIdAndTestRunIdInfo()}");
+            _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message}");
+                  });
+                });
         }
 
         /// <summary>
@@ -263,6 +287,7 @@ namespace LodeRunner.Services
                             webBuilder.ConfigureServices(services =>
                             {
                                 services.AddSingleton<CancellationTokenSource>(cancellationTokenSource);
+                                services.AddSingleton<Config>(config);
                                 services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
                             });
                             webBuilder.UseStartup<Startup>();
@@ -549,11 +574,23 @@ namespace LodeRunner.Services
             }
             catch (CosmosException ce)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ce, $"CosmosException - {this.config.GetClientIdAndTestRunIdInfo()}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ce, $"CosmosException");
+                    });
+                });
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ex, $"Exception");
+                    });
+                });
             }
 
             return testRuns;
@@ -576,7 +613,7 @@ namespace LodeRunner.Services
             {
                 // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
                 // can be updated accordingly
-                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, this.loadClient.Id, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
             }
             catch (Exception ex)
             {

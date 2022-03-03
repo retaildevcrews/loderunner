@@ -140,13 +140,18 @@ namespace LodeRunner.Core
         public const int DefaultApiWebHostPort = 8080;
 
         /// <summary>
-        /// The log client identifier prefix.
+        /// The client status id field name.
         /// </summary>
-        public const string LogClientIdPrefix = "Client Id: (";
+        public const string ClientStatusIdFieldName = "ClientStatusId";
 
         /// <summary>
-        /// The log test run identifier prefix.
+        /// The test run id field name.
         /// </summary>
-        public const string LogTestRunIdPrefix = "TestRun Id: (";
+        public const string TestRunIdFieldName = "TestRunId";
+
+        /// <summary>
+        /// The load client identifier field name.
+        /// </summary>
+        public const string LoadClientIdFieldName = "LoadClientId";
     }
 }

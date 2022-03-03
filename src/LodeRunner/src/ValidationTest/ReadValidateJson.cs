@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Model;
 using LodeRunner.Validators;
@@ -241,7 +243,13 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(LoadJson)), ex, $"Exception - {this.config.GetClientIdAndTestRunIdInfo()}");
+                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+                {
+                    await Task.Run(() =>
+                    {
+                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(LoadJson)), ex, $"Exception");
+                    });
+                });
             }
 
             // couldn't read the list

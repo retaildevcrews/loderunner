@@ -17,12 +17,13 @@ namespace LodeRunner.Services.Extensions
         /// Create and start a new LodeRunner instance in command mode.
         /// </summary>
         /// <param name="args">Command line args</param>
-        /// <param name="clientStatusId">ClientStatus id</param>
-        /// <param name="testRunId">TestRun id</param>
-        /// <param name="cancellationTokenSource">Cancellation token source</param>
+        /// <param name="clientStatusId">ClientStatus id.</param>
+        /// <param name="loadClientId">LoadClient id.</param>
+        /// <param name="testRunId">TestRun id.</param>
+        /// <param name="cancellationTokenSource">Cancellation token source.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>LodeRunnerService.</returns>
-        public static async Task<int> CreateAndStartLodeRunnerCommandMode(string[] args, string clientStatusId, string testRunId, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
+        public static async Task<int> CreateAndStartLodeRunnerCommandMode(string[] args, string clientStatusId, string loadClientId, string testRunId, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
             LodeRunner.Config lrConfig = new ();
             RootCommand rootClient = LRCommandLine.GetRootCommand(args);
@@ -37,13 +38,19 @@ namespace LodeRunner.Services.Extensions
                 throw new Exception("testRunId is null or empty");
             }
 
+            if (string.IsNullOrEmpty(loadClientId))
+            {
+                throw new Exception("loadClientId is null or empty");
+            }
+
             // Create lrConfig from arguments
             rootClient.Handler = CommandHandler.Create<LodeRunner.Config>(async (lrConfig) =>
             {
                 lrConfig.IsClientMode = false;
                 lrConfig.TestRunId = testRunId;
                 lrConfig.ClientStatusId = clientStatusId;
-                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource, logger);
+                lrConfig.LoadClientId = loadClientId;
+                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource, logger, useIdValuesFromConfig: true);
 
                 return await l8rService.StartService();
             });
