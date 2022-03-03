@@ -185,7 +185,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(null, loadTestConfigService, loadTestConfigId, SystemConstants.LoadTestConfigItemNotFound, SystemConstants.UnableToDeleteLoadTestConfig, this.Request, logger);
+            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(null, loadTestConfigService, loadTestConfigId, SystemConstants.UnableToDeleteLoadTestConfig, this.Request, logger);
         }
 
         /// <summary>

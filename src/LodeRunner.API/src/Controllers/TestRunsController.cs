@@ -190,7 +190,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.TestRunItemNotFound, SystemConstants.UnableToDeleteTestRun, this.Request, logger);
+            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.UnableToDeleteTestRun, this.Request, logger);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace LodeRunner.API.Controllers
                 // Check if TestRun can be deleted
                 if (!CanTestRunBeDeleted(result))
                 {
-                    return await ResultHandler.CreateErrorResult($"{SystemConstants.UnableToDeleteRunNotCompleted}. TestRun ID: {testRunId}", HttpStatusCode.Conflict);
+                    return ResultHandler.CreateConflictErrorResponse($"{SystemConstants.UnableToDeleteTestRunRunning}. TestRun ID: {testRunId}");
                 }
 
                 return null;
