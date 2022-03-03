@@ -103,13 +103,11 @@ namespace LodeRunner.API.Middleware
             return await TryCatchException(logger, updatedMethodName, async () =>
             {
                 // Bad request response due to invalid ID
-                if (errorList != null && errorList.Any())
-                {
-                    // Log Warning
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, updatedMethodName), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}, ID ({id})");
+                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
 
-                    // Add info to response
-                    return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
+                if (invalidIdResponse != null)
+                {
+                    return invalidIdResponse;
                 }
 
                 var result = await getResult(id);
@@ -236,23 +234,20 @@ namespace LodeRunner.API.Middleware
         {
             return await TryCatchException(logger, $"{methodName} > {nameof(CreateDeleteResponse)}", async () =>
             {
-                // Validate id before deleting
-                var failedPreCheckResponse = ValidateEntityId<TEntity>(id, logger, request);
+                // Bad request response due to invalid ID
+                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
+
+                if (invalidIdResponse != null)
+                {
+                    return invalidIdResponse;
+                }
+
+                // Check additional controller-specific conditions, if any, before deleting
+                var failedPreCheckResponse = await preDeleteChecks(id, service);
 
                 if (failedPreCheckResponse != null)
                 {
                     return failedPreCheckResponse;
-                }
-
-                // Check additional controller-specific conditions, if any, before deleting
-                if (preDeleteChecks != null)
-                {
-                    failedPreCheckResponse = await preDeleteChecks(id, service);
-
-                    if (failedPreCheckResponse != null)
-                    {
-                        return failedPreCheckResponse;
-                    }
                 }
 
                 // Delete
