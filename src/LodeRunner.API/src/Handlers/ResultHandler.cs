@@ -247,7 +247,12 @@ namespace LodeRunner.API.Middleware
                 // Check additional controller-specific conditions, if any, before deleting
                 if (preDeleteChecks != null)
                 {
-                    return await preDeleteChecks(id, service);
+                    var preDeleteChecksResponse = await preDeleteChecks(id, service);
+
+                    if (preDeleteChecksResponse is not EmptyResult)
+                    {
+                        return preDeleteChecksResponse;
+                    }
                 }
 
                 // Delete

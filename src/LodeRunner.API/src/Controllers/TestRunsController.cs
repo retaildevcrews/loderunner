@@ -235,7 +235,7 @@ namespace LodeRunner.API.Controllers
                     return ResultHandler.CreateConflictErrorResponse($"{SystemConstants.UnableToDeleteTestRunRunning}. TestRun ID: {testRunId}");
                 }
 
-                return null;
+                return new EmptyResult();
             });
         }
     }
