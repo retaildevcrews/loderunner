@@ -17,23 +17,5 @@
         "name": "loderunner-api",
         "imageName": "ghcr.io/retaildevcrews/lr-api",
         "imageTag": "beta"
-    },
-    "secretKeys": {
-        "cosmosDatabase": {
-            "keyvault": "CosmosLRDatabase",
-            "volume": "CosmosDatabase"
-        },
-        "cosmosCollection": {
-            "keyvault": "CosmosLRCollection",
-            "volume": "CosmosCollection"
-        },
-        "cosmosKey": {
-            "keyvault": "CosmosKey",
-            "volume": "CosmosKey"
-        },
-        "cosmosUrl": {
-            "keyvault": "CosmosUrl",
-            "volume": "CosmosUrl"
-        }
     }
 }

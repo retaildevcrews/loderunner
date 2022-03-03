@@ -30,25 +30,25 @@ metadata:
 spec:
   provider: azure
   secretObjects:
-  - secretName: {{gitops.secretKeys.cosmosDatabase.keyvault}}
+  - secretName: CosmosLRDatabase
     type: Opaque
     data:
-    - objectName: {{gitops.secretKeys.cosmosDatabase.volume}}
+    - objectName: CosmosDatabase
       key: key
-  - secretName: {{gitops.secretKeys.cosmosCollection.keyvault}}
+  - secretName: CosmosLRCollection
     type: Opaque
     data:
-    - objectName: {{gitops.secretKeys.cosmosCollection.volume}}
+    - objectName: CosmosCollection
       key: key
-  - secretName: {{gitops.secretKeys.cosmosKey.keyvault}}
+  - secretName: CosmosKey
     type: Opaque
     data:
-    - objectName: {{gitops.secretKeys.cosmosKey.volume}}
+    - objectName: CosmosKey
       key: key
-  - secretName: {{gitops.secretKeys.cosmosUrl.keyvault}}
+  - secretName: CosmosUrl
     type: Opaque
     data:
-    - objectName: {{gitops.secretKeys.cosmosUrl.volume}}
+    - objectName: CosmosUrl
       key: key
   parameters:
     usePodIdentity: "true"
@@ -56,15 +56,15 @@ spec:
     objects: |
       array:
         - |
-          objectName: {{gitops.secretKeys.cosmosDatabase.volume}}
+          objectName: CosmosDatabase
           objectType: secret
         - |
-          objectName: {{gitops.secretKeys.cosmosCollection.volume}}
+          objectName: CosmosCollection
           objectType: secret
         - |
-          objectName: {{gitops.secretKeys.cosmosKey.volume}}
+          objectName: CosmosKey
           objectType: secret
         - |
-          objectName: {{gitops.secretKeys.cosmosUrl.volume}}
+          objectName: CosmosUrl
           objectType: secret
     tenantId: {{gitops.tenantid}}
