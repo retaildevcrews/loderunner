@@ -4,18 +4,10 @@
     "tenantid": "648dcb5a-de1e-48b2-af6b-fe6ef28d355c",
     "resourceGroup": "rg-ngsa-asb-dev",
     "keyvaultName": "kv-aks-3i2qzkkxofr7c",
-    "lrmi": {
-        "name": "ngsa-asb-loderunner-id",
-        "clientId": "f6ec9d17-c3a8-4290-a044-7dc2a41d6e53"
-    },
-    "lr": {
-        "name": "loderunner",
-        "imageName": "ghcr.io/retaildevcrews/ngsa-lr",
-        "imageTag": "beta"
-    },
-    "lrapi": {
-        "name": "loderunner-api",
-        "imageName": "ghcr.io/retaildevcrews/lr-api",
-        "imageTag": "beta"
-    }
+    "lrMiName": "ngsa-asb-loderunner-id",
+    "lrMiClientId": "f6ec9d17-c3a8-4290-a044-7dc2a41d6e53",
+    "lrCommandName": "loderunner",
+    "lrCommandImage": "ghcr.io/retaildevcrews/ngsa-lr:beta",
+    "lrApiName": "loderunner-api",
+    "lrApiImage": "ghcr.io/retaildevcrews/lr-api:beta"
 }

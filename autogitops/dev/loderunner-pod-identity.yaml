@@ -2,23 +2,23 @@
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentity
 metadata:
-  name: {{gitops.lrmi.name}}
+  name: {{gitops.lrMiName}}
   namespace: {{gitops.namespace}}
 spec:
   type: 0
-  resourceID: /subscriptions/{{gitops.tenantid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrmi.name}}
-  clientID: {{gitops.lrmi.clientId}}
+  resourceID: /subscriptions/{{gitops.tenantid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrMiName}}
+  clientID: {{gitops.lrMiClientId}}
 
 ---
 
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
-  name: {{gitops.lrmi.name}}-binding
+  name: {{gitops.lrMiName}}-binding
   namespace: {{gitops.namespace}}
 spec:
-  azureIdentity: {{gitops.lrmi.name}}
-  selector: {{gitops.lrmi.name}}
+  azureIdentity: {{gitops.lrMiName}}
+  selector: {{gitops.lrMiName}}
 
 ---
 
