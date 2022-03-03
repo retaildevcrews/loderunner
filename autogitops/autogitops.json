@@ -1,4 +1,5 @@
 {
+    "name": "loderunner",
     "namespace": "loderunner",
     "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus2","pre-ngsa-asb-centralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus2"],
     "tenantid": "648dcb5a-de1e-48b2-af6b-fe6ef28d355c",
