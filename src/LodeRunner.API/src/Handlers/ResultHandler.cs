@@ -91,12 +91,12 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="getResult">Gets result from data storage by ID.</param>
         /// <param name="id">TEntity ID to search by.</param>
-        /// <param name="path">Request path.</param>
-        /// <param name="errorList">List of ValidationErrors.</param>
+        /// <param name="request">HTTP Request</param>
         /// <param name="logger">The Logger.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, string path, IEnumerable<string> errorList, ILogger logger, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
+        where TEntity : class
         {
             string updatedMethodName = $"{methodName} > {nameof(CreateGetByIdResponse)}";
 
@@ -127,28 +127,32 @@ namespace LodeRunner.API.Middleware
         /// Creates the response for POST methods.
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <param name="postResult">Posts payload to data storage.</param>
+        /// <param name="compileErrors">Validates Entity and compiles errors.</param>
+        /// <param name="service">Storage service for TEntity.</param>
         /// <param name="payload">Payload.</param>
-        /// <param name="path">Request path.</param>
-        /// <param name="errorList">List of ValidationErrors.</param>
+        /// <param name="request">HTTP request.</param>
         /// <param name="logger">The Logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> postResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, TEntity payload, HttpRequest request, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
             string updatedMethodName = $"{methodName} > {nameof(CreatePostResponse)}";
+            string path = RequestLogger.GetPathAndQuerystring(request);
 
             return await TryCatchException(logger, updatedMethodName, async () =>
             {
+                // Validate payload
+                var validationErrorList = compileErrors(service, payload);
+
                 // Bad request response due to invalid payload
-                if (errorList != null && errorList.Any())
+                if (validationErrorList != null && validationErrorList.Any())
                 {
                     logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, updatedMethodName), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
-                    return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, errorList);
+                    return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, validationErrorList);
                 }
 
-                var result = await postResult(payload, cancellationToken);
+                var result = await service.Post(payload, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (result == null)
@@ -169,6 +173,7 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="compileErrors">Delegate to compile errors</param>
         /// <param name="service">Storage service for TEntity.</param>
+        /// <param name="request">HTTP request</param>
         /// <param name="id">ID for item to update.</param>
         /// <param name="payload">Payload.</param>
         /// <param name="path">Request path.</param>
@@ -178,12 +183,13 @@ namespace LodeRunner.API.Middleware
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<TEntityPayload, IBaseService<TEntity>, TEntity, Task<IEnumerable<string>>> compileErrors, IBaseService<TEntity> service, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        where TEntity : class
         {
             try
             {
                 // Get existing object to be updated.
-                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, path, parameterErrorList, logger);
+                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, request, logger);
 
                 if (existingItemResp.GetType() != typeof(OkObjectResult))
                 {
@@ -195,11 +201,8 @@ namespace LodeRunner.API.Middleware
                 // Map LoadTestConfigPayload to existing LoadTestConfig.
                 autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
 
-                // Validate and compile errors before post
-                var errorList = await compileErrors(payload, service, existingItem);
-
                 // Get POST response
-                ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
+                ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, existingItem, request, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (updatedItemResponse.GetType() == typeof(CreatedResult))
@@ -224,12 +227,11 @@ namespace LodeRunner.API.Middleware
         /// <param name="preDeleteChecks">Optional custom pre-deletion checks for each model entity</param>
         /// <param name="service">Storage service for TEntity.</param>
         /// <param name="id">ID for item to update.</param>
-        /// <param name="unableToDelete">tring constant for "Unable to delete" response</param>
         /// <param name="request">Request Object</param>
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="methodName">String containing caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, string unableToDelete, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
         where TEntity : class
         {
             return await TryCatchException(logger, $"{methodName} > {nameof(CreateDeleteResponse)}", async () =>
@@ -243,11 +245,9 @@ namespace LodeRunner.API.Middleware
                 }
 
                 // Check additional controller-specific conditions, if any, before deleting
-                var failedPreCheckResponse = await preDeleteChecks(id, service);
-
-                if (failedPreCheckResponse != null)
+                if (preDeleteChecks != null)
                 {
-                    return failedPreCheckResponse;
+                    return await preDeleteChecks(id, service);
                 }
 
                 // Delete

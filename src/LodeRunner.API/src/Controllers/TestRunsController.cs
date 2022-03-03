@@ -93,7 +93,7 @@ namespace LodeRunner.API.Controllers
 
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, path, errorList, logger);
+            return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, this.Request, logger);
         }
 
         /// <summary>
@@ -122,11 +122,7 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
             var newTestRun = this.autoMapper.Map<TestRunPayload, TestRun>(testRunPayload);
 
-            var errorList = testRunService.Validator.ValidateEntity(newTestRun);
-
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
-            return await ResultHandler.CreatePostResponse(testRunService.Post, newTestRun, path, errorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePostResponse(this.CompileErrorList, testRunService, newTestRun, this.Request, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -162,7 +158,7 @@ namespace LodeRunner.API.Controllers
             List<string> parameterErrorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, testRunId, testRunPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, this.Request, testRunId, testRunPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -190,7 +186,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, SystemConstants.UnableToDeleteTestRun, this.Request, logger);
+            return await ResultHandler.CreateDeleteResponse<TestRun>(RunPreDeletionChecks, testRunService, testRunId, this.Request, logger);
         }
 
         /// <summary>
@@ -206,16 +202,12 @@ namespace LodeRunner.API.Controllers
         /// <summary>
         /// Compile and return entity validation errors.
         /// </summary>
-        /// <param name="payload">TestRun payload</param>
         /// <param name="service">Storage service for TestRun.</param>
         /// <param name="testRun">TestRun</param>
         /// <returns>List of error strings.</returns>
-        private async Task<IEnumerable<string>> CompileErrorList(TestRunPayload payload, IBaseService<TestRun> service, TestRun testRun)
+        private IEnumerable<string> CompileErrorList(IBaseService<TestRun> service, TestRun testRun)
         {
-            return await Task.Run(() =>
-            {
-                return service.Validator.ValidateEntity(testRun);
-            });
+            return service.Validator.ValidateEntity(testRun);
         }
 
         /// <summary>
