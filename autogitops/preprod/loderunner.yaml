@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{gitops.name}}
+  name: {{gitops.lrCommandName}}
   namespace: {{gitops.namespace}}
   labels:
-    app.kubernetes.io/name: {{gitops.name}}
+    app.kubernetes.io/name: {{gitops.lrCommandName}}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{gitops.name}}
+      app: {{gitops.lrCommandName}}
   template:
     metadata:
       labels:
-        app: {{gitops.name}}
+        app: {{gitops.lrCommandName}}
         deploy: {{gitops.deploy}}
         version: beta-{{gitops.version}}
     spec:
       containers:
         - name: app
-          image: {{gitops.imageName}}:{{gitops.imageTag}}
+          image: {{gitops.lrCommandImage}}
           imagePullPolicy: Always
           ports:
             - name: http
@@ -48,7 +48,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{gitops.name}}
+  name: {{gitops.lrCommandName}}
   namespace: {{gitops.namespace}}
 spec:
   type: ClusterIP
@@ -58,4 +58,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: {{gitops.name}}
+    app: {{gitops.lrCommandName}}
