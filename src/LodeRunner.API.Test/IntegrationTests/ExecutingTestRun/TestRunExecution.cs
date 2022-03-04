@@ -116,12 +116,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // Verify that clientStatusId exist is Database.
                 await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
 
+                string loadClientId = "Get LoadClientId from 'lodeRunnerAppContext.Output'"; // TODO, wait for PR #172 to be merged.
+
+                Assert.False(string.IsNullOrEmpty(loadClientId), "Unable to get loadClientId");
+
                 // Create Test Run
                 TestRunPayload testRunPayload = new ();
 
                 string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
-                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, clientStatusId, portList);
+                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, loadClientId, portList);
 
                 HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
                 Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);

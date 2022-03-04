@@ -524,7 +524,7 @@ namespace LodeRunner.Services
             List<TestRun> testRuns = new ();
             try
             {
-                var polledRuns = await GetTestRunService().GetNewTestRunsByClientId(this.ClientStatusId);
+                var polledRuns = await GetTestRunService().GetNewTestRunsByClientId(this.loadClient.Id);
                 foreach (var item in polledRuns)
                 {
                     testRuns.Add((TestRun)item);

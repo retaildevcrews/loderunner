@@ -82,7 +82,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 {
                     StartInfo = new ProcessStartInfo()
                     {
-                        CreateNoWindow = true,
+                        CreateNoWindow = false,
                         UseShellExecute = false,
 
                         FileName = this.processContextParams.CommandLine,
