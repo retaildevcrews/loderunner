@@ -40,7 +40,7 @@ jobs:
 
     - name: Docker Build LodeRunner.UI
       run: |
-        docker build ./src/LodeRunner.UI --target nginx-dev -t imageui
+        docker build ./src/LodeRunner.UI --target nginx-prod -t imageui
 
     - name: Docker Run and Test LodeRunner.UI
       if: ${{ inputs.run_and_test }}
@@ -81,9 +81,7 @@ jobs:
       run: | 
         echo Docker Tag and Push because tag_and_push is- ${{ inputs.tag_and_push }}
 
-        VERSION=$(docker run --rm imageui --version)
         # tag the repo with :beta
-
         docker tag imageui $DOCKER_REPO:beta
 
         # Push to the repo
