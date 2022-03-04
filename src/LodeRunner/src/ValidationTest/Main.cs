@@ -14,6 +14,7 @@ using LodeRunner.Core;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
+using LodeRunner.Extensions;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
@@ -230,13 +231,7 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                        {
-                            await Task.Run(() =>
-                            {
-                                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, $"Exception");
-                            });
-                        });
+                        logger.NgsaLogError(config, ex, "Exception");
 
                         errorCount++;
                     }
@@ -352,13 +347,7 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                    {
-                        await Task.Run(() =>
-                        {
-                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, $"TaskCanceledException");
-                        });
-                    });
+                    logger.NgsaLogError(config, tce, "TaskCanceledException");
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -373,31 +362,19 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                    {
-                        await Task.Run(() =>
-                        {
-                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, $"OperationCanceledException");
-                        });
-                    });
+                    logger.NgsaLogError(config, oce, "OperationCanceledException");
 
                     return Core.SystemConstants.ExitFail;
                 }
 
-                // Operation was cancelled
+                // Operation was canceled
                 return Core.SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
 
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, $"Exception");
-                    });
-                });
+                logger.NgsaLogError(config, ex, "Exception");
 
                 return Core.SystemConstants.ExitFail;
             }

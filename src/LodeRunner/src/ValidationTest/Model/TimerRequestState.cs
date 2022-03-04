@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
+using LodeRunner.Extensions;
 using LodeRunner.Model;
 using Microsoft.Extensions.Logging;
 
@@ -194,13 +195,7 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 // log and ignore any error
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, "LodeRunnerException"), ex, $"Exception - {ValidationTest.Now}\t{ex.Message}");
-                    });
-                });
+                logger.NgsaLogError(config, ex, $"Exception - {ValidationTest.Now}\t{ex.Message}");
             }
 
             // make sure to release the semaphore

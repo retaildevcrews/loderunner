@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
+using LodeRunner.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,13 +71,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, "Shutdown"), "Shutting down");
-                    });
-                });
+                logger.NgsaLogInformational(config, "Shutting down");
             });
 
             // version handler

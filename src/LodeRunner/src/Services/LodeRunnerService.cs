@@ -16,6 +16,7 @@ using LodeRunner.Core.Models;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Extensions;
 using LodeRunner.Interfaces;
 using LodeRunner.Services.Extensions;
 using LodeRunner.Subscribers;
@@ -155,13 +156,7 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                    {
-                        await Task.Run(() =>
-                        {
-                            this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), tce, $"Exception");
-                        });
-                    });
+                    logger.NgsaLogError(config, tce, "Task Canceled Exception");
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -171,13 +166,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(StartService)), ex, $"Exception");
-                    });
-                });
+                logger.NgsaLogError(config, ex, "Task Canceled Exception");
 
                 return Core.SystemConstants.ExitFail;
             }
@@ -226,13 +215,8 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
-            _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message}");
-                  });
-                });
+
+            this.logger.NgsaLogInformational(config, $"{args.Message}");
         }
 
         /// <summary>
@@ -393,7 +377,8 @@ namespace LodeRunner.Services
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("Polling for available TestRuns");
+                    logger.NgsaLogInformational(config, "Polling for available TestRuns");
+
                     var testRuns = await this.PollForTestRunsAsync();
                     if (testRuns != null && testRuns.Count > 0)
                     {
@@ -574,23 +559,11 @@ namespace LodeRunner.Services
             }
             catch (CosmosException ce)
             {
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ce, $"CosmosException");
-                    });
-                });
+                logger.NgsaLogError(config, ce, "CosmosException");
             }
             catch (Exception ex)
             {
-                _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                {
-                    await Task.Run(() =>
-                    {
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(PollForTestRunsAsync)), ex, $"Exception");
-                    });
-                });
+                logger.NgsaLogError(config, ex, "Exception");
             }
 
             return testRuns;

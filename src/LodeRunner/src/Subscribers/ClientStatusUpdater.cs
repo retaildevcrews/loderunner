@@ -9,6 +9,7 @@ using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data.Interfaces;
+using LodeRunner.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Subscribers
@@ -72,13 +73,7 @@ namespace LodeRunner.Subscribers
                 {
                     string baseMessage = $"Unable to Update Client Status after {failures} attempts. Application will Terminate.";
 
-                    _ = Common.SetRunTaskClearNgsaLoggerIdValues(config, async () =>
-                    {
-                        await Task.Run(() =>
-                        {
-                            logger.LogWarning(new EventId((int)EventTypes.CommonEvents.Exception, nameof(UpdateCosmosStatus)), ex, $"{baseMessage}");
-                        });
-                    });
+                    logger.NgsaLogWarnning(config, ex, baseMessage);
 
                     args.CancelTokenSource.Cancel(false);
                 }
