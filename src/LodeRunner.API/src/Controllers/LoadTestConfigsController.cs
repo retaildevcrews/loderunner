@@ -92,7 +92,7 @@ namespace LodeRunner.API.Controllers
             List<string> errorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreateGetByIdResponse(loadTestConfigService.Get, loadTestConfigId, path, errorList, logger);
+            return await ResultHandler.CreateGetByIdResponse(loadTestConfigService.Get, loadTestConfigId, this.Request, logger);
         }
 
         /// <summary>
@@ -121,11 +121,7 @@ namespace LodeRunner.API.Controllers
             // NOTE: the Mapping configuration will create a new loadTestConfig but will ignore the Id since the property has a getter and setter.
             var newLoadTestConfig = this.autoMapper.Map<LoadTestConfigPayload, LoadTestConfig>(loadTestConfigPayload);
 
-            var errorList = await CompileErrorList(loadTestConfigPayload, loadTestConfigService, newLoadTestConfig);
-
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
-            return await ResultHandler.CreatePostResponse(loadTestConfigService.Post, newLoadTestConfig, path, errorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePostResponse(this.CompileErrorList, loadTestConfigService, newLoadTestConfig, this.Request, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -158,7 +154,7 @@ namespace LodeRunner.API.Controllers
             List<string> parameterErrorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
             var path = RequestLogger.GetPathAndQuerystring(this.Request);
 
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, loadTestConfigId, loadTestConfigPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, this.Request, loadTestConfigId, loadTestConfigPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -185,35 +181,21 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var errorlist = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
-
-            if (errorlist.Count > 0)
-            {
-                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(DeleteLoadTestConfig)), SystemConstants.InvalidLoadTestConfigId);
-
-                return await ResultHandler.CreateBadRequestResult(errorlist, RequestLogger.GetPathAndQuerystring(this.Request));
-            }
-
-            var deleteTaskResult = await loadTestConfigService.Delete(loadTestConfigId);
-
-            return deleteTaskResult switch
-            {
-                HttpStatusCode.OK => await ResultHandler.CreateNoContent(),
-                HttpStatusCode.NoContent => await ResultHandler.CreateNoContent(),
-                HttpStatusCode.NotFound => await ResultHandler.CreateErrorResult(SystemConstants.LoadTestConfigItemNotFound, HttpStatusCode.NotFound),
-                _ => await ResultHandler.CreateErrorResult(SystemConstants.UnableToDeleteLoadTestConfig, HttpStatusCode.InternalServerError),
-            };
+            return await ResultHandler.CreateDeleteResponse<LoadTestConfig>(null, loadTestConfigService, loadTestConfigId, this.Request, logger);
         }
 
-        private async Task<IEnumerable<string>> CompileErrorList(LoadTestConfigPayload payload, IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
+        /// <summary>
+        /// Compile and return entity validation errors.
+        /// </summary>
+        /// <param name="service">Storage service for LoadTestConfig.</param>
+        /// <param name="newLoadTestConfig">LoadTestConfig</param>
+        /// <returns>List of error strings.</returns>
+        private IEnumerable<string> CompileErrorList(IBaseService<LoadTestConfig> service, LoadTestConfig newLoadTestConfig)
         {
-            return await Task.Run(() =>
-            {
-                var payloadErrorList = service.Validator.ValidateEntity(newLoadTestConfig);
-                var flagErrorList = newLoadTestConfig.FlagValidator();
-                var errorList = flagErrorList.Concat<string>(payloadErrorList);
-                return errorList;
-            });
+            var payloadErrorList = service.Validator.ValidateEntity(newLoadTestConfig);
+            var flagErrorList = newLoadTestConfig.FlagValidator();
+            var errorList = flagErrorList.Concat<string>(payloadErrorList);
+            return errorList;
         }
     }
 }
