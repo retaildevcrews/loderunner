@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
+using LodeRunner.Core;
+using LodeRunner.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +56,8 @@ namespace LodeRunner
 
             CancellationTokenSource cancellationTokenSource = app.ApplicationServices.GetRequiredService<CancellationTokenSource>();
 
+            var config = app.ApplicationServices.GetRequiredService<Config>();
+
             var logger = app.ApplicationServices.GetRequiredService<ILogger<App>>();
 
             // signal run loop
@@ -66,7 +71,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                logger.LogInformation("Shutdown");
+                logger.NgsaLogInformational(config, SystemConstants.ShuttingDown);
             });
 
             // version handler
