@@ -10,8 +10,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Events;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
+using LodeRunner.Extensions;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
@@ -43,7 +46,7 @@ namespace LodeRunner
 
         private readonly ILogger logger;
 
-        private Config config;
+        private ILRConfig config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationTest"/> class.
@@ -51,7 +54,7 @@ namespace LodeRunner
         /// </summary>
         /// <param name="config">app config.</param>
         /// <param name="logger">the logger.</param>
-        public ValidationTest(Config config, ILogger logger)
+        public ValidationTest(ILRConfig config, ILogger logger)
         {
             if (config == null || config.Files == null || config.Server == null || config.Server.Count == 0)
             {
@@ -228,7 +231,7 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunOnce)), ex, "Exception");
+                        logger.NgsaLogError(config, ex, SystemConstants.Exception);
 
                         errorCount++;
                     }
@@ -293,7 +296,7 @@ namespace LodeRunner
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new (this.logger)
+                TimerRequestState state = new (this.logger, this.config)
                 {
                     Server = svr,
                     Client = this.OpenHttpClient(svr),
@@ -344,7 +347,7 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), tce, "TaskCanceledException");
+                    logger.NgsaLogError(config, tce, SystemConstants.TaskCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -359,18 +362,19 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), oce, "OperationCanceledException");
+                    logger.NgsaLogError(config, oce, SystemConstants.OperationCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
 
-                // Operation was cancelled
+                // Operation was canceled
                 return Core.SystemConstants.ExitSuccess;
             }
             catch (Exception ex)
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, nameof(RunLoop)), ex, "Exception");
+
+                logger.NgsaLogError(config, ex, SystemConstants.Exception);
 
                 return Core.SystemConstants.ExitFail;
             }
@@ -517,7 +521,9 @@ namespace LodeRunner
                 Duration = duration,
                 ContentLength = contentLength,
                 Failed = validationResult.Failed,
+                ClientStatusId = this.config.ClientStatusId,
                 LoadClientId = this.config.LoadClientId,
+                TestRunId = this.config.TestRunId,
             };
 
             // determine the Performance Level based on category
@@ -688,7 +694,9 @@ namespace LodeRunner
                     { "CVectorBase", perfLog.CorrelationVectorBase },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
-                    { "LoadClientId", perfLog.LoadClientId },
+                    { SystemConstants.ClientStatusIdFieldName, perfLog.ClientStatusId },
+                    { SystemConstants.LoadClientIdFieldName, perfLog.LoadClientId },
+                    { SystemConstants.TestRunIdFieldName, perfLog.TestRunId },
                 };
 
                 // add zone, region tag

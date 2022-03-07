@@ -83,7 +83,7 @@ namespace LodeRunner.Core.Models
                 StartupArgs = $"--secrets-volume {config.SecretsVolume}",
                 StartTime = lastUpdated,
             };
-            config.LoadClientId = loadClient.Id;
+
             int suffixIndex = loadClient.Id.Length - 4;
             loadClient.Name = $"{loadClient.Region}-{loadClient.Zone}-{loadClient.Id.Substring(suffixIndex)}";
             return loadClient;

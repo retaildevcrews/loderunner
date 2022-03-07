@@ -204,6 +204,11 @@ namespace LodeRunner.API
         public const string BadRequest = "Bad Request.";
 
         /// <summary>
+        /// Generic error message for Cosmos response with unhandled status code.
+        /// </summary>
+        public const string UnhandledCosmosStatusCode = "Unhandled status code from CosmosDB.";
+
+        /// <summary>
         /// Generic parameter data message.
         /// </summary>
         public const string InvalidParameter = "Invalid parameter data.";
@@ -437,10 +442,5 @@ namespace LodeRunner.API
         /// The test run item was not found.
         /// </summary>
         public const string TestRunNotFound = "Single `TestRun` document not found by `testRunId`.";
-
-        /// <summary>
-        /// The unable to delete the test run because its running.
-        /// </summary>
-        public const string UnableToDeleteRunNotCompleted = "Test is still running. Unable to delete the TestRun.";
     }
 }

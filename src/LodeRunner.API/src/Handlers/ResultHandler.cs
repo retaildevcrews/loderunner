@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware.Validation;
 using LodeRunner.Data.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -25,6 +26,41 @@ namespace LodeRunner.API.Middleware
         private const string JsonContentTypeApplicationJsonProblem = "application/problem+json";
 
         /// <summary>
+        /// Reusable try-catch block to encapsulate HTTP methods whiel handling cosmos exceptions and other exceptions.
+        /// </summary>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="methodName">String containing caller member name to improve logging.</param>
+        /// <param name="taskToExecute">Task to be executed in try block</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> TryCatchException(ILogger logger, string methodName, Func<Task<ActionResult>> taskToExecute)
+        {
+            try
+            {
+                return await taskToExecute();
+            }
+            catch (CosmosException ce)
+            {
+                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
+                if (ce.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // Log Warning
+                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName}"), SystemConstants.NotFoundError);
+                    return new NotFoundResult();
+                }
+
+                // Log Error
+                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName}"), ce, "CosmosException");
+                return CreateInternalServerErrorResponse($"{methodName} > CosmosException > [{ce.StatusCode}] {ce.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Log Error
+                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName}"), ex, "Exception");
+                return CreateInternalServerErrorResponse($"{methodName} > {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Creates the response for GET (all) methods.
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
@@ -34,7 +70,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>A task with the appropriate response.</returns>
         public static async Task<ActionResult> CreateGetResponse<TEntity>(Func<Task<IEnumerable<TEntity>>> getResult, ILogger logger, [CallerMemberName] string methodName = null)
         {
-            try
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateGetResponse)}", async () =>
             {
                 var result = await getResult();
 
@@ -46,27 +82,7 @@ namespace LodeRunner.API.Middleware
 
                 // OK response
                 return new OkObjectResult(result);
-            }
-            catch (CosmosException ce)
-            {
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Log Warning
-                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetResponse)}"), SystemConstants.NotFoundError);
-                    return new NoContentResult();
-                }
-
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetResponse)}"), ce, "CosmosException");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
@@ -75,23 +91,23 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="getResult">Gets result from data storage by ID.</param>
         /// <param name="id">TEntity ID to search by.</param>
-        /// <param name="path">Request path.</param>
-        /// <param name="errorList">List of ValidationErrors.</param>
+        /// <param name="request">HTTP Request</param>
         /// <param name="logger">The Logger.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, string path, IEnumerable<string> errorList, ILogger logger, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreateGetByIdResponse<TEntity>(Func<string, Task<TEntity>> getResult, string id, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
+        where TEntity : class
         {
-            try
+            string updatedMethodName = $"{methodName} > {nameof(CreateGetByIdResponse)}";
+
+            return await TryCatchException(logger, updatedMethodName, async () =>
             {
                 // Bad request response due to invalid ID
-                if (errorList != null && errorList.Any())
-                {
-                    // Log Warning
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreateGetByIdResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidParameter}, ID ({id})");
+                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
 
-                    // Add info to response
-                    return CreateValidationErrorResponse(SystemConstants.InvalidParameter, path, errorList);
+                if (invalidIdResponse is not EmptyResult)
+                {
+                    return invalidIdResponse;
                 }
 
                 var result = await getResult(id);
@@ -104,78 +120,50 @@ namespace LodeRunner.API.Middleware
 
                 // OK response
                 return new OkObjectResult(result);
-            }
-            catch (CosmosException ce)
-            {
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                if (ce.StatusCode == HttpStatusCode.NotFound)
-                {
-                    // Log Warning
-                    logger.LogWarning(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetByIdResponse)}"), SystemConstants.NotFoundError);
-                    return new NotFoundResult();
-                }
-
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ce, "CosmosException");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreateGetByIdResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreateGetByIdResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
         /// Creates the response for POST methods.
         /// </summary>
         /// <typeparam name="TEntity">Model entity.</typeparam>
-        /// <param name="postResult">Posts payload to data storage.</param>
+        /// <param name="compileErrors">Validates Entity and compiles errors.</param>
+        /// <param name="service">Storage service for TEntity.</param>
         /// <param name="payload">Payload.</param>
-        /// <param name="path">Request path.</param>
-        /// <param name="errorList">List of ValidationErrors.</param>
+        /// <param name="request">HTTP request.</param>
         /// <param name="logger">The Logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<TEntity, CancellationToken, Task<TEntity>> postResult, TEntity payload, string path, IEnumerable<string> errorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePostResponse<TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, TEntity payload, HttpRequest request, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         {
-            try
+            string updatedMethodName = $"{methodName} > {nameof(CreatePostResponse)}";
+            string path = RequestLogger.GetPathAndQuerystring(request);
+
+            return await TryCatchException(logger, updatedMethodName, async () =>
             {
+                // Validate payload
+                var validationErrorList = compileErrors(service, payload);
+
                 // Bad request response due to invalid payload
-                if (errorList != null && errorList.Any())
+                if (validationErrorList != null && validationErrorList.Any())
                 {
-                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, $"{methodName} > {nameof(CreatePostResponse)}"), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
-                    return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, errorList);
+                    logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, updatedMethodName), $"{SystemConstants.BadRequest}: {SystemConstants.InvalidPayload}");
+                    return CreateValidationErrorResponse(SystemConstants.InvalidPayload, path, validationErrorList);
                 }
 
-                var result = await postResult(payload, cancellationToken);
+                var result = await service.Post(payload, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (result == null)
                 {
-                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePostResponse)}"), null, SystemConstants.UpsertError);
-                    return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > {SystemConstants.UpsertError}");
+                    logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, updatedMethodName), null, SystemConstants.UpsertError);
+                    return CreateInternalServerErrorResponse($"{updatedMethodName} > {SystemConstants.UpsertError}");
                 }
 
                 // Created response
                 return new CreatedResult(path, result);
-            }
-            catch (CosmosException ce)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)ce.StatusCode, $"{methodName} > {nameof(CreatePostResponse)}"), ce, "CosmosException");
-
-                // Returns most common Exception: 404 NotFound, 429 TooManyReqs
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > CosmosException > [{ce.StatusCode}] {ce.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePostResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePostResponse)} > {ex.Message}");
-            }
+            });
         }
 
         /// <summary>
@@ -185,6 +173,7 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="compileErrors">Delegate to compile errors</param>
         /// <param name="service">Storage service for TEntity.</param>
+        /// <param name="request">HTTP request</param>
         /// <param name="id">ID for item to update.</param>
         /// <param name="payload">Payload.</param>
         /// <param name="path">Request path.</param>
@@ -194,12 +183,13 @@ namespace LodeRunner.API.Middleware
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<TEntityPayload, IBaseService<TEntity>, TEntity, Task<IEnumerable<string>>> compileErrors, IBaseService<TEntity> service, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        where TEntity : class
         {
             try
             {
                 // Get existing object to be updated.
-                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, path, parameterErrorList, logger);
+                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, request, logger);
 
                 if (existingItemResp.GetType() != typeof(OkObjectResult))
                 {
@@ -211,11 +201,8 @@ namespace LodeRunner.API.Middleware
                 // Map LoadTestConfigPayload to existing LoadTestConfig.
                 autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
 
-                // Validate and compile errors before post
-                var errorList = await compileErrors(payload, service, existingItem);
-
                 // Get POST response
-                ActionResult updatedItemResponse = await CreatePostResponse(service.Post, existingItem, path, errorList, logger, cancellationToken);
+                ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, existingItem, request, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (updatedItemResponse.GetType() == typeof(CreatedResult))
@@ -234,6 +221,63 @@ namespace LodeRunner.API.Middleware
         }
 
         /// <summary>
+        /// Creates the response for DELETE methods.
+        /// </summary>
+        /// <typeparam name="TEntity">Model entity.</typeparam>
+        /// <param name="preDeleteChecks">Optional custom pre-deletion checks for each model entity</param>
+        /// <param name="service">Storage service for TEntity.</param>
+        /// <param name="id">ID for item to update.</param>
+        /// <param name="request">Request Object</param>
+        /// <param name="logger">NGSA Logger.</param>
+        /// <param name="methodName">String containing caller member name to improve logging.</param>
+        /// <returns>A task with the appropriate response.</returns>
+        public static async Task<ActionResult> CreateDeleteResponse<TEntity>(Func<string, IBaseService<TEntity>, Task<ActionResult>> preDeleteChecks, IBaseService<TEntity> service, string id, HttpRequest request, ILogger logger, [CallerMemberName] string methodName = null)
+        where TEntity : class
+        {
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreateDeleteResponse)}", async () =>
+            {
+                // Bad request response due to invalid ID
+                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
+
+                if (invalidIdResponse is not EmptyResult)
+                {
+                    return invalidIdResponse;
+                }
+
+                // Check additional controller-specific conditions, if any, before deleting
+                if (preDeleteChecks != null)
+                {
+                    var preDeleteChecksResponse = await preDeleteChecks(id, service);
+
+                    if (preDeleteChecksResponse is not EmptyResult)
+                    {
+                        return preDeleteChecksResponse;
+                    }
+                }
+
+                // Delete
+                HttpStatusCode delStatusCode = await service.Delete(id);
+
+                // Handle reponse code
+                return HandleDeleteStatusCode(delStatusCode);
+            });
+        }
+
+        /// <summary>
+        /// Creates response for conflict error.
+        /// </summary>
+        /// <param name="message">The Message.</param>
+        /// <returns>JsonResult.</returns>
+        public static JsonResult CreateConflictErrorResponse(string message)
+        {
+            return new JsonResult(new ErrorResult { Error = HttpStatusCode.Conflict, Message = $"Conflict: {message}" })
+            {
+                StatusCode = (int)HttpStatusCode.Conflict,
+                ContentType = JsonContentTypeApplicationJsonProblem,
+            };
+        }
+
+        /// <summary>
         /// Creates the response for ServiceUnavailable.
         /// Currently only handles Cancellation InProgress Result use case.
         /// </summary>
@@ -245,103 +289,6 @@ namespace LodeRunner.API.Middleware
                 StatusCode = (int)HttpStatusCode.ServiceUnavailable,
                 ContentType = JsonContentTypeApplicationJsonProblem,
             };
-        }
-
-        /// <summary>
-        /// Creates No Content Result.
-        /// </summary>
-        /// <returns>JsonResult.</returns>
-        public static async Task<NoContentResult> CreateNoContent()
-        {
-            return await Task.Run(() => new NoContentResult());
-        }
-
-        /// <summary>
-        /// Creates an Error JsonResult.
-        /// </summary>
-        /// <param name="message">The Message.</param>
-        /// <param name="statusCode">The Message StatusCode.</param>
-        /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateErrorResult(string message, HttpStatusCode statusCode)
-        {
-            return await CreateResult(new ErrorResult { Error = statusCode, Message = message }, statusCode);
-        }
-
-        /// <summary>
-        /// Content Result from data.
-        /// </summary>
-        /// <typeparam name="TEntity">the data type.</typeparam>
-        /// <param name="data">the data.</param>
-        /// <param name="statusCode">The http code.</param>
-        /// <param name="contentType">Json Content Type.</param>
-        /// <returns>the Json Result.</returns>
-        public static async Task<JsonResult> CreateResult<TEntity>(TEntity data, HttpStatusCode statusCode, string contentType = "application/json")
-        {
-            return await Task.Run(() =>
-            {
-                JsonResult res = new (data)
-                {
-                    StatusCode = (int)statusCode,
-                    ContentType = contentType,
-                };
-
-                return res;
-            });
-        }
-
-        /// <summary>
-        /// Create a BadRequest Result.
-        /// </summary>
-        /// <param name="errors">list of validation errors.</param>
-        /// <param name="path">string.</param>
-        /// <returns>JsonResult.</returns>
-        public static async Task<JsonResult> CreateBadRequestResult(object errors, string path)
-        {
-            Dictionary<string, object> data = new ()
-            {
-                { "type", ValidationError.GetErrorLink(path) },
-                { "title", "Parameter validation error" },
-                { "detail", "One or more invalid parameters were specified." },
-                { "status", (int)HttpStatusCode.BadRequest },
-                { "instance", path },
-                { "validationErrors", errors },
-            };
-
-            return await CreateResult(data, HttpStatusCode.BadRequest, JsonContentTypeApplicationJsonProblem);
-        }
-
-        /// <summary>
-        /// Handles the result.
-        /// </summary>
-        /// <param name="results">The results.</param>
-        /// <param name="logger">The logger.</param>
-        /// <returns>The Action Result.</returns>
-        public static async Task<ActionResult> HandleResult(object results, ILogger logger)
-        {
-            if (results == null)
-            {
-                return await CreateErrorResult("Requested data not found.", HttpStatusCode.NotFound);
-            }
-            else if (results is IEnumerable<object> && !(results as IEnumerable<object>).Any())
-            {
-                return await CreateNoContent();
-            }
-            else
-            {
-                try
-                {
-                    // return an OK object result
-                    return new OkObjectResult(results);
-                }
-                catch (Exception ex)
-                {
-                    // log and return exception
-                    logger.LogError(new EventId((int)(int)HttpStatusCode.InternalServerError, nameof(HandleResult)), ex, "Exception");
-
-                    // return 500 error
-                    return await CreateErrorResult("Internal Server Error", HttpStatusCode.InternalServerError);
-                }
-            }
         }
 
         /// <summary>
@@ -358,6 +305,13 @@ namespace LodeRunner.API.Middleware
             };
         }
 
+        /// <summary>
+        /// Create  JSONResult for Validation errors
+        /// </summary>
+        /// <param name="type">String describing error type</param>
+        /// <param name="path">Query path</param>
+        /// <param name="errorList">List of errors.</param>
+        /// <returns>JsonResult.</returns>
         private static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
         {
             Dictionary<string, object> data = new ()
@@ -378,6 +332,45 @@ namespace LodeRunner.API.Middleware
             {
                 StatusCode = (int)HttpStatusCode.BadRequest,
                 ContentType = JsonContentTypeApplicationJsonProblem,
+            };
+        }
+
+        /// <summary>
+        /// Parameter validation.
+        /// </summary>
+        /// <typeparam name="TEntity">Model Entity</typeparam>
+        /// <param name="id">Entity id</param>
+        /// <param name="logger">NGSA logger.</param>
+        /// <param name="request">HTTP Request</param>
+        /// <returns>Returns an ActionResult if ValidateEntityId returns any errors, otherwise null.</returns>
+        private static ActionResult ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request)
+        where TEntity : class
+        {
+            // TODO: Use by all id validators
+            var errorlist = ParametersValidator<TEntity>.ValidateEntityId(id);
+
+            if (errorlist.Count > 0)
+            {
+                logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(ValidateEntityId)), SystemConstants.InvalidLoadTestConfigId);
+                return ResultHandler.CreateValidationErrorResponse(SystemConstants.InvalidParameter, RequestLogger.GetPathAndQuerystring(request), errorlist);
+            }
+
+            return new EmptyResult();
+        }
+
+        /// <summary>
+        /// Returns appropriate ActionResult based on delete status code.
+        /// </summary>
+        /// <param name="delStatusCode">Deletion status code</param>
+        /// <returns>ActionResult.</returns>
+        private static ActionResult HandleDeleteStatusCode(HttpStatusCode delStatusCode)
+        {
+            return delStatusCode switch
+            {
+                HttpStatusCode.OK => new NoContentResult(),
+                HttpStatusCode.NoContent => new NoContentResult(),
+                HttpStatusCode.NotFound => new NotFoundResult(),
+                _ => ResultHandler.CreateInternalServerErrorResponse($"{SystemConstants.UnhandledCosmosStatusCode} [StatusCode: {delStatusCode}]"),
             };
         }
     }

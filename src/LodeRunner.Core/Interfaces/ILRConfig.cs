@@ -11,14 +11,27 @@ namespace LodeRunner.Core.Interfaces
     public interface ILRConfig : ICosmosConfig
     {
         /// <summary>
+        /// Gets or sets the client status identifier.
+        /// </summary>
+        /// <value>
+        /// The client status identifier.
+        /// </value>
+        string ClientStatusId { get; set; }
+
+        /// <summary>
         /// gets or sets the Load Client ID which is a GUID.
         /// </summary>
-        public string LoadClientId { get; set; }
+        string LoadClientId { get; set; }
+
+        /// <summary>
+        /// gets or sets the guid for the TestRun being executed.
+        /// </summary>
+        string TestRunId { get; set; }
 
         /// <summary>
         /// gets or sets the status update interval in seconds.
         /// </summary>
-        public int StatusUpdateInterval { get; set; }
+        int StatusUpdateInterval { get; set; }
 
         /// <summary>
         /// gets or sets the server / url.

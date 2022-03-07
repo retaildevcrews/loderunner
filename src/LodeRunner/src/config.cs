@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -176,6 +177,14 @@ namespace LodeRunner
         /// gets or sets the guid for the TestRun being executed.
         /// </summary>
         public string TestRunId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the client status guid.
+        /// </summary>
+        /// <value>
+        /// The client status identifier.
+        /// </value>
+        public string ClientStatusId { get; set; }
 
         /// <summary>
         /// Gets or sets the logLevel.
