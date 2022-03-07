@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
@@ -170,6 +171,51 @@ namespace LodeRunner.API.Test.IntegrationTests
             StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
 
             var httpResponse = await httpClient.PostAsync(postTestRunsUri, stringContent);
+
+            if (httpResponse.StatusCode == HttpStatusCode.Created)
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST TestRun\tResponse StatusCode: '{httpResponse.StatusCode}'");
+            }
+            else
+            {
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+            }
+
+            return httpResponse;
+        }
+
+        /// <summary>
+        /// Post an invalid TestRun.
+        /// </summary>
+        /// <param name="httpClient">The httpClient.</param>
+        /// <param name="postTestRunsUri">The post TestRun Uri.</param>
+        /// <param name="output">The output.</param>
+        /// <returns>the task.</returns>
+        public static async Task<HttpResponseMessage> PostInvalidTestRun(this HttpClient httpClient, string postTestRunsUri, ITestOutputHelper output)
+        {
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(PostTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+
+            string jsonTestRun = JsonConvert.SerializeObject(testRunPayload);
+            StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PostAsync(postTestRunsUri, stringContent);
+
+            JsonSerializerOptions jsonOptions = new ()
+            {
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true,
+            };
+
+            jsonOptions.Converters.Add(new JsonStringEnumConverter());
+            var postedTestRun = await httpResponse.Content.ReadFromJsonAsync<TestRun>(jsonOptions);
+            postedTestRun.StartTime = DateTime.UtcNow.AddMinutes(10);
+            postedTestRun.CompletedTime = DateTime.UtcNow;
+            string updatedJsonTestRun = System.Text.Json.JsonSerializer.Serialize(postedTestRun);
+            StringContent updatedStringContent = new (updatedJsonTestRun, Encoding.UTF8, "application/json");
+            httpResponse = await httpClient.PostAsync(postTestRunsUri, updatedStringContent);
 
             if (httpResponse.StatusCode == HttpStatusCode.Created)
             {

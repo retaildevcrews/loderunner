@@ -176,14 +176,12 @@ namespace LodeRunner.API.Middleware
         /// <param name="request">HTTP request</param>
         /// <param name="id">ID for item to update.</param>
         /// <param name="payload">Payload.</param>
-        /// <param name="path">Request path.</param>
         /// <param name="autoMapper">Mapper.</param>
-        /// <param name="parameterErrorList">List of parameter validation error messages.</param>
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, string path, IMapper autoMapper, IEnumerable<string> parameterErrorList, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, IMapper autoMapper, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         where TEntity : class
         {
             try

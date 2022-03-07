@@ -106,6 +106,21 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
+        /// Determines whether this instance [returns correct response when it fails get a test run by invalid ID].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotGetLoadTestConfigByInvalidId()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            string invalidId = "xxxx-0000";
+            var returnedHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryTestRunsPath, invalidId, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+        }
+
+        /// <summary>
         /// Determines whether this instance [can update loadTestConfig by identifier].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -147,6 +162,24 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
+        /// Determines whether this instance [can update loadTestConfig with an improperly formatted identifier].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPutLoadTestConfigsWithInvalidId()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            string invalidId = "xxxx-0000";
+            var updatedloadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Updated - LoadTestConfigs");
+
+            // Update LoadTestConfig
+            var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, invalidId, updatedloadTestConfigPayload, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+        }
+
+        /// <summary>
         /// Determines whether this instance [can delete a loadTestConfig by ID].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
@@ -172,6 +205,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Not Found", gottenMessage);
+
+            // Ensure that PUT works as expected on deleted item
+            var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, loadTestConfig.Id, loadTestConfigPayload, this.output);
+            Assert.Equal(HttpStatusCode.NotFound, puttedResponse.StatusCode);
         }
 
         /// <summary>
