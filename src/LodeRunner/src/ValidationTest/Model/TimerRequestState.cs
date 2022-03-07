@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
+using LodeRunner.Core;
+using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
+using LodeRunner.Extensions;
 using LodeRunner.Model;
 using Microsoft.Extensions.Logging;
 
@@ -18,6 +22,7 @@ namespace LodeRunner
     {
         private static Semaphore loopController;
         private readonly ILogger logger;
+        private readonly ILRConfig config;
         private System.Timers.Timer timer;
         private bool disposedValue;
 
@@ -25,9 +30,11 @@ namespace LodeRunner
         /// Initializes a new instance of the <see cref="TimerRequestState"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public TimerRequestState(ILogger logger)
+        /// <param name="config">The config.</param>
+        public TimerRequestState(ILogger logger, ILRConfig config)
         {
             this.logger = logger;
+            this.config = config;
         }
 
         /// <summary>
@@ -188,7 +195,7 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 // log and ignore any error
-                this.logger.LogError(new EventId((int)EventTypes.CommonEvents.Exception, "LodeRunnerException"), ex, $"{ValidationTest.Now}\t{ex.Message}");
+                logger.NgsaLogError(config, ex, $"{SystemConstants.Exception} - {ValidationTest.Now}\t{ex.Message}");
             }
 
             // make sure to release the semaphore

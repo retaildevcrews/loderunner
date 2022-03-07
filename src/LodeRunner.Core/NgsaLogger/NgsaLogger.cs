@@ -42,6 +42,30 @@ namespace LodeRunner.Core.NgsaLogger
         public static string Region { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the client status identifier.
+        /// </summary>
+        /// <value>
+        /// The client status identifier.
+        /// </value>
+        public static string ClientStatusId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the test run identifier.
+        /// </summary>
+        /// <value>
+        /// The test run i identifier.
+        /// </value>
+        public static string TestRunId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the load client id.
+        /// </summary>
+        /// <value>
+        /// The load client identifier.
+        /// </value>
+        public static string LoadClientId { get; set; } = string.Empty;
+
+        /// <summary>
         /// Creates the scope.
         /// </summary>
         /// <typeparam name="TState">State type.</typeparam>
@@ -95,6 +119,21 @@ namespace LodeRunner.Core.NgsaLogger
             if (!string.IsNullOrEmpty(Region))
             {
                 d.Add("Region", Region);
+            }
+
+            if (!string.IsNullOrEmpty(ClientStatusId))
+            {
+                d.Add(SystemConstants.ClientStatusIdFieldName, ClientStatusId);
+            }
+
+            if (!string.IsNullOrEmpty(LoadClientId))
+            {
+                d.Add(SystemConstants.LoadClientIdFieldName, LoadClientId);
+            }
+
+            if (!string.IsNullOrEmpty(TestRunId))
+            {
+                d.Add(SystemConstants.TestRunIdFieldName, TestRunId);
             }
 
             // convert state to list
