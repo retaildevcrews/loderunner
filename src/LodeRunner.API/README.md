@@ -72,6 +72,36 @@ Upon requesting **LodeRunner.API** endpoint, ASP.NET validates payload uing `Com
 
 Object --> `ComponentModel` validation --> ModelExtensions Object validation --> Build `RootCommand` object --> Execute Command Line Parser Validator
 
+## Expected API Responses
+
+The expected responses and returned status codes for various types of HTTP requests to selected API paths are shown in the table below. The selected paths include:
+
+* /api/clients (C)
+* /api/loadtestconfigs (L)
+* /api/testruns (T)
+
+| Reason	| Response	| Status Code	| GET	| GETByID	| POST	| PUT	| DELETE 
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| CosmosException |						
+| |	Not Found |	404 |	C,L,T |	C,L,T |	L,T |	L,T	| L,T
+| | Determined by CosmosException |	Varies (e.g., 408, 429)	| C,L,T	| C,L,T	| L,T	| L,T	| L,T
+| Exception	
+| |	Internal Server Error	| 500	| C,L,T	| C,L,T	| L,T	| L,T	| L,T
+| Successful HTTP Method Execution							
+| |	Created	| 201		| |	| L,T		
+| |	Internal Server Error (no returned value) | 500 |	| | L,T	| L,T	| L,T
+| |	No Content	| 204	| C,L,T		| |	| L,T	| L,T
+| |	Not Found	| 404	|	| C,L,T	|	| L,T	| L,T
+| |	OK	| 200	| C,L,T	| C,L,T	|	|	| L,T
+| Failed Pre-Execution Entity Id Validation						
+| |	Bad Request	| 400	|	| C,L,T	|	| L,T	| L,T
+| Failed Pre-Execution Entity Validation							
+| | Bad Request	| 400	| 	| |	L,T	| L,T	
+| Failed Pre-Execution Condition							
+| | Conflict	| 409	| | | |	| T
+| | Not Found	| 404	| | | | | T
+
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
