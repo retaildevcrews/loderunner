@@ -46,7 +46,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             foreach (var hostPort in apiServerPort)
             {
-                loadTestConfig.Server.Add($"http://localhost:{hostPort}");
+                loadTestConfig.Server.Add(string.Format(SystemConstants.BaseUriLocalHostPort, hostPort));
             }
 
             testRunPayload.LoadTestConfig = loadTestConfig;

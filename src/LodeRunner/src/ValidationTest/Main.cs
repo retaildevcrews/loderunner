@@ -697,6 +697,7 @@ namespace LodeRunner
                     { SystemConstants.ClientStatusIdFieldName, perfLog.ClientStatusId },
                     { SystemConstants.LoadClientIdFieldName, perfLog.LoadClientId },
                     { SystemConstants.TestRunIdFieldName, perfLog.TestRunId },
+                    { "LogName", SystemConstants.LoadTestRequestLogName },
                 };
 
                 // add zone, region tag

@@ -16,10 +16,10 @@ namespace LodeRunner.Data.Interfaces
     public interface ITestRunService : IBaseService<TestRun>
     {
         /// <summary>
-        /// Gets all available TestRuns for the given client id.
+        /// Gets all available TestRuns for the given LoadClientId.
         /// </summary>
-        /// <param name="clientId">The client id.</param>
+        /// <param name="loadClientId">The loadClient id.</param>
         /// <returns>List of TestRuns to run on client.</returns>
-        Task<IEnumerable<TestRun>> GetNewTestRunsByClientId(string clientId);
+        Task<IEnumerable<TestRun>> GetNewTestRunsByLoadClientId(string loadClientId);
     }
 }
