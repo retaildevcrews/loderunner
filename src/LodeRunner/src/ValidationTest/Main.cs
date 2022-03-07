@@ -231,7 +231,7 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        logger.NgsaLogError(config, ex, "Exception");
+                        logger.NgsaLogError(config, ex, SystemConstants.Exception);
 
                         errorCount++;
                     }
@@ -347,7 +347,7 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    logger.NgsaLogError(config, tce, "TaskCanceledException");
+                    logger.NgsaLogError(config, tce, SystemConstants.TaskCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -362,7 +362,7 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    logger.NgsaLogError(config, oce, "OperationCanceledException");
+                    logger.NgsaLogError(config, oce, SystemConstants.OperationCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -374,7 +374,7 @@ namespace LodeRunner
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
 
-                logger.NgsaLogError(config, ex, "Exception");
+                logger.NgsaLogError(config, ex, SystemConstants.Exception);
 
                 return Core.SystemConstants.ExitFail;
             }

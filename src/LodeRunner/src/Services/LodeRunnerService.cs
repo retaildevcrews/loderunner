@@ -156,7 +156,7 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    logger.NgsaLogError(config, tce, "Task Canceled Exception");
+                    logger.NgsaLogError(config, tce, SystemConstants.TaskCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -166,7 +166,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, "Task Canceled Exception");
+                logger.NgsaLogError(config, ex, SystemConstants.Exception);
 
                 return Core.SystemConstants.ExitFail;
             }
@@ -377,7 +377,7 @@ namespace LodeRunner.Services
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    logger.NgsaLogInformational(config, "Polling for available TestRuns");
+                    logger.NgsaLogInformational(config, SystemConstants.PollingTestRuns);
 
                     var testRuns = await this.PollForTestRunsAsync();
                     if (testRuns != null && testRuns.Count > 0)
@@ -559,11 +559,11 @@ namespace LodeRunner.Services
             }
             catch (CosmosException ce)
             {
-                logger.NgsaLogError(config, ce, "CosmosException");
+                logger.NgsaLogError(config, ce, SystemConstants.CosmosException);
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, "Exception");
+                logger.NgsaLogError(config, ex, SystemConstants.Exception);
             }
 
             return testRuns;

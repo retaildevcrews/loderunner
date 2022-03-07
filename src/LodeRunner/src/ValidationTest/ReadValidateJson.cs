@@ -244,7 +244,7 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, "Exception");
+                logger.NgsaLogError(config, ex, SystemConstants.Exception);
             }
 
             // couldn't read the list

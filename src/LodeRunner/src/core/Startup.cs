@@ -71,7 +71,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                logger.NgsaLogInformational(config, "Shutting down");
+                logger.NgsaLogInformational(config, SystemConstants.ShuttingDown);
             });
 
             // version handler

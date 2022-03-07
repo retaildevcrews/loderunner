@@ -195,7 +195,7 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 // log and ignore any error
-                logger.NgsaLogError(config, ex, $"Exception - {ValidationTest.Now}\t{ex.Message}");
+                logger.NgsaLogError(config, ex, $"{SystemConstants.Exception} - {ValidationTest.Now}\t{ex.Message}");
             }
 
             // make sure to release the semaphore

@@ -153,5 +153,35 @@ namespace LodeRunner.Core
         /// The load client identifier field name.
         /// </summary>
         public const string LoadClientIdFieldName = "LoadClientId";
+
+        /// <summary>
+        /// The task canceled exception string.
+        /// </summary>
+        public const string TaskCanceledException = "Task Canceled Exception";
+
+        /// <summary>
+        /// The operation canceled exception string.
+        /// </summary>
+        public const string OperationCanceledException = "Operation Canceled Exception";
+
+        /// <summary>
+        /// The cosmos exception string.
+        /// </summary>
+        public const string CosmosException = "Cosmos Exception";
+
+        /// <summary>
+        /// The exception string.
+        /// </summary>
+        public const string Exception = "Exception";
+
+        /// <summary>
+        /// The polling test runs string.
+        /// </summary>
+        public const string PollingTestRuns = "Polling for available TestRuns";
+
+        /// <summary>
+        /// The shutting down string.
+        /// </summary>
+        public const string ShuttingDown = "Shutting down";
     }
 }
