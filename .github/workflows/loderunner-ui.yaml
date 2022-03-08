@@ -81,6 +81,8 @@ jobs:
       run: | 
         echo Docker Tag and Push because tag_and_push is- ${{ inputs.tag_and_push }}
 
+        VERSION=$(npm run version --silent)
+
         # tag the repo with :beta
         docker tag imageui $DOCKER_REPO:beta
 

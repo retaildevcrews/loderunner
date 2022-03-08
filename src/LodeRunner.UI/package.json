@@ -27,7 +27,9 @@
     "eject": "react-scripts eject",
     "lint": "eslint --fix 'src/**/*.{js,jsx}'",
     "lint-audit": "eslint 'src/**/*.{js,jsx}'",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "version": "echo $npm_package_version"
+
   },
   "eslintConfig": {
     "extends": [
