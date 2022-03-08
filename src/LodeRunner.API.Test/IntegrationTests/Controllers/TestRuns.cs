@@ -21,6 +21,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class TestRuns : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
+        private const string InvalidTestRunId = "xxxx-0000";
+
         private readonly ApiWebApplicationFactory<Startup> factory;
 
         private readonly JsonSerializerOptions jsonOptions;
@@ -109,8 +111,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            string invalidId = "xxxx-0000";
-            var returnedHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, invalidId, this.output);
+            var returnedHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
@@ -204,14 +205,13 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            string invalidId = "xxxx-0000";
             TestRunPayload testRunPayload = new ();
             testRunPayload.Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CannotPutInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
             testRunPayload.CreatedTime = DateTime.UtcNow;
             testRunPayload.StartTime = DateTime.UtcNow;
 
             // Update TestRun
-            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, invalidId, testRunPayload, this.output);
+            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, testRunPayload, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
         }
 

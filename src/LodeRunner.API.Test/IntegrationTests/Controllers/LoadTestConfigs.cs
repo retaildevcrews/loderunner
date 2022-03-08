@@ -22,6 +22,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class LoadTestConfigs : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
+        private const string InvalidLoadTestConfigId = "xxxx-0000";
+
         private const string LoadTestConfigsUri = "/api/LoadTestConfigs";
 
         private readonly ApiWebApplicationFactory<Startup> factory;
@@ -115,8 +117,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            string invalidId = "xxxx-0000";
-            var returnedHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryTestRunsPath, invalidId, this.output);
+            var returnedHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryTestRunsPath, InvalidLoadTestConfigId, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
@@ -171,11 +172,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            string invalidId = "xxxx-0000";
             var updatedloadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Updated - LoadTestConfigs");
 
             // Update LoadTestConfig
-            var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, invalidId, updatedloadTestConfigPayload, this.output);
+            var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, InvalidLoadTestConfigId, updatedloadTestConfigPayload, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
         }
 
