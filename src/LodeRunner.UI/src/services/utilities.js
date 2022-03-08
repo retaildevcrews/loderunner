@@ -1,3 +1,5 @@
+import { v4 } from "uuid";
+
 const STATUS_CODE_NO_CONTENT = 204;
 
 let { REACT_APP_SERVER } = process.env;
@@ -37,7 +39,11 @@ const getResponseBody = async (res) => {
 
 const getApi = async (endpoint) => {
   try {
-    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`);
+    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
+      headers: {
+        "correlation-id": v4(),
+      }
+    });
     const body = await getResponseBody(res);
     return body;
   } catch (err) {
@@ -54,6 +60,7 @@ const writeApi = (method, endpoint) => async (payload) => {
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
+        "correlation-id": v4(),
       },
       body: JSON.stringify(payload),
     });
@@ -73,6 +80,9 @@ const deleteApi = (endpoint) => async (id) => {
 
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}/${id}`, {
       method: "DELETE",
+      headers: {
+        "correlation-id": v4(),
+      }
     });
     const body = await getResponseBody(res);
     return body;
