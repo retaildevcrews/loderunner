@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -19,6 +20,8 @@ namespace LodeRunner.Core.NgsaLogger
     {
         private readonly string name;
         private readonly NgsaLoggerConfiguration config;
+
+        private Dictionary<string, object> context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NgsaLogger"/> class.
@@ -42,30 +45,6 @@ namespace LodeRunner.Core.NgsaLogger
         public static string Region { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the client status identifier.
-        /// </summary>
-        /// <value>
-        /// The client status identifier.
-        /// </value>
-        public static string ClientStatusId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the test run identifier.
-        /// </summary>
-        /// <value>
-        /// The test run i identifier.
-        /// </value>
-        public static string TestRunId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the load client id.
-        /// </summary>
-        /// <value>
-        /// The load client identifier.
-        /// </value>
-        public static string LoadClientId { get; set; } = string.Empty;
-
-        /// <summary>
         /// Creates the scope.
         /// </summary>
         /// <typeparam name="TState">State type.</typeparam>
@@ -73,7 +52,16 @@ namespace LodeRunner.Core.NgsaLogger
         /// <returns>Default.</returns>
         public IDisposable BeginScope<TState>(TState state)
         {
-            return default;
+            if (state is LoggerDisposableScope)
+            {
+                this.context = (state as LoggerDisposableScope).Context;
+                return state as IDisposable;
+            }
+            else
+            {
+                this.context = null;
+                return default;
+            }
         }
 
         /// <summary>
@@ -121,19 +109,13 @@ namespace LodeRunner.Core.NgsaLogger
                 d.Add("Region", Region);
             }
 
-            if (!string.IsNullOrEmpty(ClientStatusId))
+            // Adds every Dictionary Item define in the scope.
+            if (this.context != null)
             {
-                d.Add(SystemConstants.ClientStatusIdFieldName, ClientStatusId);
-            }
-
-            if (!string.IsNullOrEmpty(LoadClientId))
-            {
-                d.Add(SystemConstants.LoadClientIdFieldName, LoadClientId);
-            }
-
-            if (!string.IsNullOrEmpty(TestRunId))
-            {
-                d.Add(SystemConstants.TestRunIdFieldName, TestRunId);
+                foreach (var kv in this.context)
+                {
+                    d.Add(kv.Key, kv.Value);
+                }
             }
 
             // convert state to list

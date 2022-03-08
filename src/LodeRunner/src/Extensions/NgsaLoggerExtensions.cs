@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LodeRunner.Core;
@@ -16,6 +17,8 @@ namespace LodeRunner.Extensions
     /// </summary>
     internal static class NgsaLoggerExtensions
     {
+        private static readonly object LoggingLock = new ();
+
         /// <summary>
         ///  Formats and writes a warning log message.
         /// </summary>
@@ -55,6 +58,19 @@ namespace LodeRunner.Extensions
         }
 
         /// <summary>
+        /// Begins the lode runner scope.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="properties">The properties.</param>
+        /// <returns>Disposable.</returns>
+        private static IDisposable BeginLodeRunnerScope(this ILogger logger, params ValueTuple<string, object>[] properties)
+        {
+            var dictionary = properties.ToDictionary(p => p.Item1, p => p.Item2);
+
+            return logger.BeginScope(new LoggerDisposableScope(dictionary));
+        }
+
+        /// <summary>
         /// Logs the entry after updating Ngsa members ClientStatusId, LoadClientId, TestRunId.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -65,9 +81,9 @@ namespace LodeRunner.Extensions
         /// <param name="methodName">Name of the method.</param>
         private static void NgsaScopeLogEntry(this ILogger logger, ILRConfig config, LogLevel logLevel, Exception ex, string message, string methodName = null)
         {
-            _ = SetRunTaskClearNgsaLoggerIdValues(config, async () =>
+            lock (LoggingLock)
             {
-                await Task.Run(() =>
+                using (logger.BeginLodeRunnerScope((SystemConstants.ClientStatusIdFieldName, config.ClientStatusId), (SystemConstants.LoadClientIdFieldName, config.LoadClientId), (SystemConstants.TestRunIdFieldName, config.TestRunId)))
                 {
                     switch (logLevel)
                     {
@@ -89,31 +105,7 @@ namespace LodeRunner.Extensions
                                 break;
                             }
                     }
-                });
-            });
-        }
-
-        /// <summary>
-        /// Sets the run task clear ngsa logger identifier values.
-        /// </summary>
-        /// <param name="config">The LR config.</param>
-        /// <param name="taskToExecute">The task to execute.</param>
-        /// <returns> The task.</returns>
-        private static async Task SetRunTaskClearNgsaLoggerIdValues(ILRConfig config, Func<Task> taskToExecute)
-        {
-            try
-            {
-                NgsaLogger.ClientStatusId = config.ClientStatusId;
-                NgsaLogger.TestRunId = config.TestRunId;
-                NgsaLogger.LoadClientId = config.LoadClientId;
-
-                await taskToExecute();
-            }
-            finally
-            {
-                NgsaLogger.LoadClientId = string.Empty;
-                NgsaLogger.ClientStatusId = string.Empty;
-                NgsaLogger.TestRunId = string.Empty;
+                }
             }
         }
     }
