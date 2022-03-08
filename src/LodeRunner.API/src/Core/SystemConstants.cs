@@ -442,5 +442,10 @@ namespace LodeRunner.API
         /// The test run item was not found.
         /// </summary>
         public const string TestRunNotFound = "Single `TestRun` document not found by `testRunId`.";
+
+        /// <summary>
+        /// The base Url for local host with port param.
+        /// </summary>
+        public const string BaseUriLocalHostPort = "http://localhost:{0}";
     }
 }
