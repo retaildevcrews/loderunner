@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System.Collections.Generic;
 using LodeRunner.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +10,7 @@ namespace LodeRunner.API
     /// <summary>
     /// Configurations for App.
     /// </summary>
-    public class Config : ICosmosConfig, ICommonConfig
+    public class Config : ICosmosConfig, ICommonConfig, ILogValues
     {
         private string urlPrefix = string.Empty;
         private LogLevel logLevel = LogLevel.Warning;
@@ -120,5 +121,16 @@ namespace LodeRunner.API
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds.</value>
         public int CosmosTimeout { get; set; } = 60;
+
+        /// <summary>
+        /// Gets the log values.
+        /// </summary>
+        /// <returns>
+        /// Data Dictionary.
+        /// </returns>
+        public Dictionary<string, object> GetLogValues()
+        {
+            return new Dictionary<string, object>();
+        }
     }
 }

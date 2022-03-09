@@ -169,7 +169,7 @@ namespace LodeRunner.API
                 .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureLogging(logger =>
                 {
-                    logger.Setup(config, projectName);
+                    logger.Setup(config, config, projectName);
                 });
 
             // build the host

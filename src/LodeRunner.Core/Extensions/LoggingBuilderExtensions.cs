@@ -18,15 +18,16 @@ namespace LodeRunner.Core.Extensions
         /// </summary>
         /// <param name="logger">The ILoggingBuilder.</param>
         /// <param name="config">The configuration.</param>
+        /// <param name="logValues">logValues interface than allows to inject a new data dictionary when.</param>
         /// <param name="projectName">The project name.</param>
         /// <returns>ILoggingBuilder.</returns>
-        public static ILoggingBuilder Setup(this ILoggingBuilder logger, ICommonConfig config, string projectName)
+        public static ILoggingBuilder Setup(this ILoggingBuilder logger, ICommonConfig config, ILogValues logValues, string projectName)
         {
             // log to XML
             // this can be replaced when the dotnet XML logger is available
             logger.ClearProviders();
 
-            logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; });
+            logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; }, logValues);
 
             // if you specify the --log-level option, it will override the appsettings.json options
 

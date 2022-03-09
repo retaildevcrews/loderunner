@@ -13,10 +13,9 @@ using LodeRunner.Core.Events;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-using LodeRunner.Core.NgsaLogger;
+
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Extensions;
 using LodeRunner.Interfaces;
 using LodeRunner.Services.Extensions;
 using LodeRunner.Subscribers;
@@ -156,7 +155,7 @@ namespace LodeRunner.Services
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    logger.NgsaLogError(config, tce, SystemConstants.TaskCanceledException);
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(StartService)), tce, SystemConstants.TaskCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -166,8 +165,7 @@ namespace LodeRunner.Services
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, SystemConstants.Exception);
-
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(StartService)), ex, SystemConstants.Exception);
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -215,8 +213,7 @@ namespace LodeRunner.Services
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
             // TODO Move to proper location when merging with DAL
-
-            this.logger.NgsaLogInformational(config, $"{args.Message}");
+            logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message}");
         }
 
         /// <summary>
@@ -279,7 +276,7 @@ namespace LodeRunner.Services
                         })
                         .ConfigureLogging(logger =>
                         {
-                            logger.Setup(config, App.ProjectName);
+                            logger.Setup(config, config, App.ProjectName);
                         })
                         .UseConsoleLifetime()
                         .Build();
@@ -377,7 +374,7 @@ namespace LodeRunner.Services
             {
                 while (!this.cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    logger.NgsaLogInformational(config, SystemConstants.PollingTestRuns);
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StartAndWait)), SystemConstants.PollingTestRuns);
 
                     var testRuns = await this.PollForTestRunsAsync();
                     if (testRuns != null && testRuns.Count > 0)
@@ -390,6 +387,8 @@ namespace LodeRunner.Services
                                 // only execute TestRuns scheduled to run before the next minute
                                 if (testRun.StartTime < DateTime.UtcNow.AddMinutes(1))
                                 {
+                                    // We set TestRunId so the client can log it when updating Status for ReceivedNewTestRun and ExecutingTestRun.
+                                    // The context for "this.config" is LodeRunner Client.
                                     this.config.TestRunId = testRun.Id;
 
                                     this.StatusUpdate(null, new ClientStatusEventArgs(ClientStatusType.Testing, $"{Core.SystemConstants.ReceivedNewTestRun}", this.cancellationTokenSource));
@@ -559,11 +558,11 @@ namespace LodeRunner.Services
             }
             catch (CosmosException ce)
             {
-                logger.NgsaLogError(config, ce, SystemConstants.CosmosException);
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(PollForTestRunsAsync)), ce, SystemConstants.CosmosException);
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, SystemConstants.Exception);
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(PollForTestRunsAsync)), ex, SystemConstants.Exception);
             }
 
             return testRuns;

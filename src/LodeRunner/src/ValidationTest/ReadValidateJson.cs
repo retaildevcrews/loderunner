@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using LodeRunner.Core;
-using LodeRunner.Core.NgsaLogger;
-using LodeRunner.Extensions;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.Extensions.Logging;
@@ -244,7 +241,7 @@ namespace LodeRunner
             }
             catch (Exception ex)
             {
-                logger.NgsaLogError(config, ex, SystemConstants.Exception);
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(LoadJson)), ex, SystemConstants.Exception);
             }
 
             // couldn't read the list

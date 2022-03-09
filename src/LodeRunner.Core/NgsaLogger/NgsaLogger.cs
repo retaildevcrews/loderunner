@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
@@ -20,18 +21,19 @@ namespace LodeRunner.Core.NgsaLogger
     {
         private readonly string name;
         private readonly NgsaLoggerConfiguration config;
-
-        private Dictionary<string, object> context;
+        private readonly ILogValues logValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NgsaLogger"/> class.
         /// </summary>
         /// <param name="name">Logger Name.</param>
         /// <param name="config">Logger Config.</param>
-        public NgsaLogger(string name, NgsaLoggerConfiguration config)
+        /// <param name="logValues">logValues interface than allows to inject a new data dictionary when.</param>
+        public NgsaLogger(string name, NgsaLoggerConfiguration config, ILogValues logValues)
         {
             this.name = name;
             this.config = config;
+            this.logValues = logValues;
         }
 
         /// <summary>
@@ -52,16 +54,7 @@ namespace LodeRunner.Core.NgsaLogger
         /// <returns>Default.</returns>
         public IDisposable BeginScope<TState>(TState state)
         {
-            if (state is LoggerDisposableScope)
-            {
-                this.context = (state as LoggerDisposableScope).Context;
-                return state as IDisposable;
-            }
-            else
-            {
-                this.context = null;
-                return default;
-            }
+            return default;
         }
 
         /// <summary>
@@ -109,10 +102,10 @@ namespace LodeRunner.Core.NgsaLogger
                 d.Add("Region", Region);
             }
 
-            // Adds every Dictionary Item define in the scope.
-            if (this.context != null)
+            // Adds custom item to Dictionary.
+            if (this.logValues != null)
             {
-                foreach (var kv in this.context)
+                foreach (var kv in this.logValues.GetLogValues())
                 {
                     d.Add(kv.Key, kv.Value);
                 }
