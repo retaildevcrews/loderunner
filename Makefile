@@ -51,7 +51,7 @@ deploy :
 	@docker push k3d-registry.localhost:5000/loderunner-api:local
 
 	# Create LodeRunner.UI image from codebase
-	@docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
+	@docker build ./src/LodeRunner.UI -t k3d-registry.localhost:5000/loderunner-ui:local
 	# Load new client image to k3d registry
 	@docker push k3d-registry.localhost:5000/loderunner-ui:local
 
@@ -122,7 +122,7 @@ lr-local:
 	@docker push k3d-registry.localhost:5000/loderunner-api:local
 
 	# Create LodeRunner.UI image from codebase
-	@docker build ./src/LodeRunner.UI --target nginx-dev -t k3d-registry.localhost:5000/loderunner-ui:local
+	@docker build ./src/LodeRunner.UI -t k3d-registry.localhost:5000/loderunner-ui:local
 	# Load new client image to k3d registry
 	@docker push k3d-registry.localhost:5000/loderunner-ui:local
 

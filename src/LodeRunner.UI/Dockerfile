@@ -17,28 +17,15 @@ RUN npm run build-prod
 
 ###########################################################
 
-### build dev nginx container
-FROM nginx:stable AS nginx-dev
-LABEL nginx=dev
-
-COPY --from=build /app/build /usr/share/nginx/html
-
-EXPOSE 80
-
-STOPSIGNAL SIGQUIT
-
-CMD ["nginx-debug", "-g", "daemon off;"]
-
-###########################################################
-
 ### build prod nginx container
 FROM nginx:stable-alpine AS nginx-prod
 LABEL nginx=prod
 
 COPY --from=build /app/build /usr/share/nginx/html
+COPY ./start-nginx.sh /
 
 EXPOSE 80
 
 STOPSIGNAL SIGQUIT
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/start-nginx.sh"]
