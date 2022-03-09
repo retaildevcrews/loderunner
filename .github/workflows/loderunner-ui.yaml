@@ -46,7 +46,8 @@ jobs:
       if: ${{ inputs.run_and_test }}
       run: |
 
-        docker run --name l8rui -d --rm -p 8080:80 imageui 
+        # LRAPI_DNS here is a dummy variable just to run LRUI
+        docker run --name l8rui -d --rm -p 8080:80 -e LRAPI_DNS="http://localhost:9090" imageui 
 
         echo "Waiting for web server to start ..."
     
