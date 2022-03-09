@@ -103,7 +103,7 @@ namespace LodeRunner.Core.NgsaLogger
             }
 
             // Adds custom item to Dictionary.
-            if (this.logValues != null)
+            if (this.logValues?.GetLogValues()?.Count > 0)
             {
                 foreach (var kv in this.logValues.GetLogValues())
                 {
