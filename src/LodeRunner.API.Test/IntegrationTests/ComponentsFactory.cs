@@ -99,7 +99,7 @@ namespace LodeRunner.API.Test.IntegrationTests
             string projectName = Assembly.GetCallingAssembly().GetName().Name;
             using var loggerFactory = LoggerFactory.Create(logger =>
                 {
-                    logger.Setup(config, config, projectName);
+                    logger.Setup(logLevelConfig: config, logValues: config, projectName: projectName);
                 });
 
             return loggerFactory.CreateLogger<LodeRunnerService>();

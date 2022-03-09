@@ -276,7 +276,7 @@ namespace LodeRunner.Services
                         })
                         .ConfigureLogging(logger =>
                         {
-                            logger.Setup(config, config, App.ProjectName);
+                            logger.Setup(logLevelConfig: config, logValues: config, projectName: App.ProjectName);
                         })
                         .UseConsoleLifetime()
                         .Build();
