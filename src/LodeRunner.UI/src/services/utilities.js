@@ -1,4 +1,4 @@
-import { v4 } from "uuid";
+import { CorrelationVector } from "mscv";
 
 const STATUS_CODE_NO_CONTENT = 204;
 
@@ -41,7 +41,7 @@ const getApi = async (endpoint) => {
   try {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       headers: {
-        "correlation-id": v4(),
+        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
       }
     });
     const body = await getResponseBody(res);
@@ -54,13 +54,14 @@ const getApi = async (endpoint) => {
 };
 
 const writeApi = (method, endpoint) => async (payload) => {
+  console.log(CorrelationVector.createCorrelationVector());
   try {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       method,
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
-        "correlation-id": v4(),
+        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
       },
       body: JSON.stringify(payload),
     });
@@ -73,6 +74,7 @@ const writeApi = (method, endpoint) => async (payload) => {
 };
 
 const deleteApi = (endpoint) => async (id) => {
+  console.log(CorrelationVector.createCorrelationVector());
   try {
     if (!id) {
       throw new Error("Missing ID");
@@ -81,7 +83,7 @@ const deleteApi = (endpoint) => async (id) => {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}/${id}`, {
       method: "DELETE",
       headers: {
-        "correlation-id": v4(),
+        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
       }
     });
     const body = await getResponseBody(res);
