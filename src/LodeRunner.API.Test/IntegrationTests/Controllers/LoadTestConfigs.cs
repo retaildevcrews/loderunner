@@ -122,6 +122,30 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
+        /// Determines whether this instance [returns correct response when it fails to post an invalid load test config].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPostInvalidLoadTestConfig()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create testRun payload; update "Files" property to make the payload invalid.
+            var loadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Sample - LoadTestConfig");
+            loadTestConfigPayload.Files = null;
+
+            var returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+
+            loadTestConfigPayload.Files = new List<string>() { "baseline.json", "benchmark.json" };
+            loadTestConfigPayload.Server = null;
+
+            returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+        }
+
+        /// <summary>
         /// Determines whether this instance [can update loadTestConfig by identifier].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -177,6 +201,35 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Update LoadTestConfig
             var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(LoadTestConfigsUri, InvalidLoadTestConfigId, updatedloadTestConfigPayload, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can update load test config with an invalid payload].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPutInvalidLoadTestConfig()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create loadTestConfig payload; update "Files" property to make the payload invalid.
+            var loadTestConfigPayload = this.GetLoadTestConfigPayloadWithDefaultMockData("Sample - LoadTestConfig");
+
+            var returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
+            var postedLoadTestConfig = await returnedHttpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
+            Assert.Equal(HttpStatusCode.Created, returnedHttpResponse.StatusCode);
+
+            // Update LoadTestConfig
+            loadTestConfigPayload.Files = null;
+            HttpResponseMessage puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryTestRunsPath, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+
+            loadTestConfigPayload.Files = new List<string>() { "baseline.json", "benchmark.json" };
+            loadTestConfigPayload.Server = null;
+
+            returnedHttpResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryTestRunsPath, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
         /// <summary>

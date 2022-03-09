@@ -125,7 +125,13 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            var returnedHttpResponse = await httpClient.PostInvalidTestRun(SystemConstants.CategoryTestRunsPath, this.output);
+            // Create testRun payload; update StartTime and CompletedTime to make it invalid.
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            testRunPayload.StartTime = DateTime.UtcNow.AddMinutes(10);
+            testRunPayload.CompletedTime = DateTime.UtcNow;
+
+            var returnedHttpResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
             Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
