@@ -54,7 +54,6 @@ const getApi = async (endpoint) => {
 };
 
 const writeApi = (method, endpoint) => async (payload) => {
-  console.log(CorrelationVector.createCorrelationVector());
   try {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       method,
@@ -74,7 +73,6 @@ const writeApi = (method, endpoint) => async (payload) => {
 };
 
 const deleteApi = (endpoint) => async (id) => {
-  console.log(CorrelationVector.createCorrelationVector());
   try {
     if (!id) {
       throw new Error("Missing ID");
