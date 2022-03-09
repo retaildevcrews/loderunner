@@ -183,5 +183,10 @@ namespace LodeRunner.Core
         /// The shutting down string.
         /// </summary>
         public const string ShuttingDown = "Shutting down";
+
+        /// <summary>
+        /// The load test request log name.
+        /// </summary>
+        public const string LoadTestRequestLogName = "LoadTestRequest";
     }
 }
