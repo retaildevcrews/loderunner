@@ -9,6 +9,7 @@
     "babel-jest": "^26.6.3",
     "hookrouter": "^1.2.5",
     "jest": "^26.6.0",
+    "mscv": "^1.0.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
