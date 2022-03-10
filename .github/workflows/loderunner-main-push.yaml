@@ -36,6 +36,7 @@ on:
       - 'src/LodeRunner.UI/**.css'
       - 'src/LodeRunner.UI/*.csproj'
       - 'src/LodeRunner.UI/**.cs'
+      - 'src/LodeRunner.UI/**.sh'
 
       #Autogitops
       - 'autogitops/**'
