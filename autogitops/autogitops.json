@@ -10,5 +10,7 @@
     "lrCommandName": "loderunner",
     "lrCommandImage": "ghcr.io/retaildevcrews/ngsa-lr:beta",
     "lrApiName": "loderunner-api",
-    "lrApiImage": "ghcr.io/retaildevcrews/lr-api:beta"
+    "lrApiImage": "ghcr.io/retaildevcrews/lr-api:beta",
+    "lrUiName": "loderunner-ui",
+    "lrUiImage": "ghcr.io/retaildevcrews/lr-ui:beta"
 }
