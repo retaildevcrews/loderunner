@@ -89,9 +89,6 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<string> errorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
             return await ResultHandler.CreateGetByIdResponse(loadTestConfigService.Get, loadTestConfigId, this.Request, logger);
         }
 
@@ -151,10 +148,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            List<string> parameterErrorList = ParametersValidator<LoadTestConfig>.ValidateEntityId(loadTestConfigId);
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, this.Request, loadTestConfigId, loadTestConfigPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, this.Request, loadTestConfigId, loadTestConfigPayload, this.autoMapper, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>

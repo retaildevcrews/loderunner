@@ -89,10 +89,6 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            var errorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
-
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
             return await ResultHandler.CreateGetByIdResponse(testRunService.Get, testRunId, this.Request, logger);
         }
 
@@ -154,11 +150,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            // NOTE: the Mapping configuration will create a new testRun but will ignore the Id since the property has a getter and setter.
-            List<string> parameterErrorList = ParametersValidator<TestRun>.ValidateEntityId(testRunId);
-            var path = RequestLogger.GetPathAndQuerystring(this.Request);
-
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, this.Request, testRunId, testRunPayload, path, this.autoMapper, parameterErrorList, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, this.Request, testRunId, testRunPayload, this.autoMapper, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>

@@ -21,6 +21,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
     /// </summary>
     public class TestRuns : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
+        private const string InvalidTestRunId = "xxxx-0000";
+
         private readonly ApiWebApplicationFactory<Startup> factory;
 
         private readonly JsonSerializerOptions jsonOptions;
@@ -100,6 +102,40 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
+        /// Determines whether this instance [returns correct response when it fails get a test run by invalid ID].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotGetTestRunByInvalidId()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            var returnedHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [returns correct response when it fails to post an invalid test run].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPostInvalidTestRun()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create testRun payload; update StartTime and CompletedTime to make it invalid.
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            testRunPayload.StartTime = DateTime.UtcNow.AddMinutes(10);
+            testRunPayload.CompletedTime = DateTime.UtcNow;
+
+            var returnedHttpResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+        }
+
+        /// <summary>
         /// Determines whether this instance [can update test run by identifier].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -136,6 +172,53 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             // We test for Equal, now the Expected value "postedTestRun" should be equals that the Actual value gottenTestRun
             Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can update test run with an invalid payload].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPutInvalidTestRun()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create a new TestRun
+            HttpResponseMessage postResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
+            var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CannotPutInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+            testRunPayload.CreatedTime = postedTestRun.CreatedTime;
+            testRunPayload.StartTime = DateTime.UtcNow.AddMinutes(5);
+            testRunPayload.LoadTestConfig = postedTestRun.LoadTestConfig;
+            testRunPayload.LoadClients = postedTestRun.LoadClients;
+            testRunPayload.CompletedTime = DateTime.UtcNow;
+
+            // Update TestRun
+            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, testRunPayload, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can update a test run with an improperly formatted identifier].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPutTestRunWithInvalidId()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CannotPutInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+            testRunPayload.CreatedTime = DateTime.UtcNow;
+            testRunPayload.StartTime = DateTime.UtcNow;
+
+            // Update TestRun
+            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, testRunPayload, this.output);
+            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
         }
 
         /// <summary>
@@ -178,6 +261,17 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Not Found", gottenMessage);
+
+            // Ensure that PUT still works as expected (fails to update deleted item).
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CanDeleteTestRunById)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
+            testRunPayload.CreatedTime = DateTime.UtcNow;
+            testRunPayload.StartTime = DateTime.UtcNow.AddMinutes(10);
+            testRunPayload.LoadTestConfig = testRun.LoadTestConfig;
+            testRunPayload.LoadClients = testRun.LoadClients;
+
+            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, testRunPayload, this.output);
+            Assert.Equal(HttpStatusCode.NotFound, puttedResponse.StatusCode);
         }
     }
 }
