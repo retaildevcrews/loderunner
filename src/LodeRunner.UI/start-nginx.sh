@@ -7,7 +7,7 @@ set -m # jobs
 
 for i in $(grep -rl '$LRAPI_DNS' /usr/share/nginx/html/*);
 do
-    envsubst < $i > /tmp/envsubst
+    envsubst '$LRAPI_DNS' < $i > /tmp/envsubst
     mv /tmp/envsubst $i
 done
 
