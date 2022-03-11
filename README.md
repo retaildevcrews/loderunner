@@ -26,9 +26,9 @@
    - In Codespaces, navigate to the `PORTS` terminal
    - Identify port `LodeRunner API (32088)` and hover over the `Local Address`
    - Click on the clipboard icon to copy the local address
-   - Open `src/LodeRunner.UI/.env.production`
-   - Set `REACT_APP_SERVER` to copied LodeRunner.API URL
-   - Prevent accidental commits with `git update-index --assume-unchanged src/LodeRunner.UI/.env.production`
+   - Open `deploy/loderunner/local/4-loderunner-ui.yaml`
+   - Under `env` > `name: "LRAPI_DNS"`, set the `value` to copied LodeRunner.API URL
+   - Prevent accidental commits with `git update-index --assume-unchanged deploy/loderunner/local/4-loderunner-ui.yaml`
 4. Set environmental variables with CosmosDB values for K8S generic secret
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
    - Set CosmosDB Collection: `export LR_COL=LodeRunner`

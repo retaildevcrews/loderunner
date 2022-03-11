@@ -23,6 +23,9 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          env:
+          - name: "LRAPI_DNS"
+            value: ""
           resources:
             limits:
               memory: "512Mi"
