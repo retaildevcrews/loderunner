@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
@@ -132,6 +134,8 @@ namespace LodeRunner.API.Middleware
                 return;
             }
 
+            var payload = LogRequestPayload(context.Request);
+
             DateTime dtStart = DateTime.Now;
             double duration = 0;
             double ttfb = 0;
@@ -152,7 +156,7 @@ namespace LodeRunner.API.Middleware
             // compute request duration
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
 
-            this.LogRequest(context, cv, ttfb, duration);
+            this.LogRequest(context, cv, ttfb, duration, payload);
         }
 
         // convert StatusCode for metrics
@@ -211,8 +215,31 @@ namespace LodeRunner.API.Middleware
             return clientIp?.Replace("::ffff:", string.Empty);
         }
 
+        /// <summary>
+        /// Extracts and returns request body
+        /// </summary>
+        /// <param name="request">HttpRequest</param>
+        /// <returns>Request body as object.</returns>
+        private static object LogRequestPayload(HttpRequest request)
+        {
+            if (request.Method == "POST" || request.Method == "PUT")
+            {
+                // Allows using several time the stream in ASP.Net Core
+                request.EnableBuffering();
+
+                StreamReader reader = new (request.Body);
+                var bodyStr = reader.ReadToEndAsync().Result;
+                request.Body.Position = 0L;
+
+                // Need to deserialize to remove formatting
+                return JsonSerializer.Deserialize<object>(bodyStr);
+            }
+
+            return null;
+        }
+
         // log the request
-        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration)
+        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration, object payload)
         {
             DateTime dt = DateTime.UtcNow;
 
@@ -265,6 +292,11 @@ namespace LodeRunner.API.Middleware
                 if (CosmosRUs > 0)
                 {
                     log.Add("CosmosRUs", CosmosRUs);
+                }
+
+                if (payload != null)
+                {
+                    log.Add("Payload", payload);
                 }
 
                 // write the results to the console
