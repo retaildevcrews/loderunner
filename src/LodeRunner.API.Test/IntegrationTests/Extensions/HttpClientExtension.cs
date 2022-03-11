@@ -33,8 +33,8 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="output">The output.</param>
         /// <param name="maxRetries">Maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
-        /// <returns>HttpStatusCode and Client from response.</returns>
-        public static async Task<(HttpStatusCode, Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        /// <returns>HttpResponseMessage and Client from response.</returns>
+        public static async Task<(HttpResponseMessage, Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
             HttpResponseMessage httpResponse = new ();
             Client client = null;
@@ -65,12 +65,13 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
                 else
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                    string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET Client by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\tClientStatusId: '{clientStatusId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\tError:{userMessage}");
                     taskSource.Cancel();
                 }
             });
 
-            return (httpResponse.StatusCode, client);
+            return (httpResponse, client);
         }
 
         /// <summary>
@@ -125,7 +126,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -149,7 +151,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -178,7 +181,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -206,7 +210,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -230,7 +235,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE TestRun\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tTestRunId: '{testRunId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -257,7 +263,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET all {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -291,7 +298,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: POST {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -319,7 +327,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -346,7 +355,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: DELETE {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -379,7 +389,8 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
             else
             {
-                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{entityItemId}'");
+                string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: PUT {entityName}\tUNEXPECTED Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{entityItemId}'\tError:{userMessage}");
             }
 
             return httpResponse;
@@ -397,8 +408,8 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="validateCondition">validateCondition delegate.</param>
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">The time between requests ms.</param>
-        /// <returns>HttpStatusCode and TEntity from response.</returns>
-        public static async Task<(HttpStatusCode, TEntity)> GetEntityByIdRetries<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, Func<TEntity, Task<(bool result, string fieldName, string conditionalValue)>> validateCondition, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
+        /// <returns>HttpResponseMessage and TEntity from response.</returns>
+        public static async Task<(HttpResponseMessage, TEntity)> GetEntityByIdRetries<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, Func<TEntity, Task<(bool result, string fieldName, string conditionalValue)>> validateCondition, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
             where TEntity : BaseEntityModel
         {
             string entityName = typeof(TEntity).Name;
@@ -434,12 +445,13 @@ namespace LodeRunner.API.Test.IntegrationTests
                 }
                 else
                 {
-                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                    string userMessage = await httpResponse.Content.ReadAsStringAsync();
+                    output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAction: GET {entityName} by ID\tUnhandled Response StatusCode: '{httpResponse.StatusCode}'\t{entityName}Id: '{itemId}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]\tError:{userMessage}");
                     taskSource.Cancel();
                 }
             });
 
-            return (httpResponse.StatusCode, testRun);
+            return (httpResponse, testRun);
         }
     }
 }
