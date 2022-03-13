@@ -17,26 +17,27 @@ namespace LodeRunner.Core.Extensions
         /// Configures ILoggingBuilder.
         /// </summary>
         /// <param name="logger">The ILoggingBuilder.</param>
-        /// <param name="config">The configuration.</param>
+        /// <param name="logLevelConfig">Log level configuration.</param>
+        /// <param name="logValues">logValues interface than allows to inject a data dictionary when performing a log operation.</param>
         /// <param name="projectName">The project name.</param>
         /// <returns>ILoggingBuilder.</returns>
-        public static ILoggingBuilder Setup(this ILoggingBuilder logger, ICommonConfig config, string projectName)
+        public static ILoggingBuilder Setup(this ILoggingBuilder logger, ICommonConfig logLevelConfig, ILogValues logValues, string projectName)
         {
             // log to XML
             // this can be replaced when the dotnet XML logger is available
             logger.ClearProviders();
 
-            logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = config.LogLevel; });
+            logger.AddNgsaLogger(loggerConfig => { loggerConfig.LogLevel = logLevelConfig.LogLevel; }, logValues);
 
             // if you specify the --log-level option, it will override the appsettings.json options
 
             // remove any or all of the code below that you don't want to override
-            if (config.IsLogLevelSet)
+            if (logLevelConfig.IsLogLevelSet)
             {
-                logger.AddFilter("Microsoft", config.LogLevel)
-                .AddFilter("System", config.LogLevel)
-                .AddFilter("Default", config.LogLevel)
-                .AddFilter(projectName, config.LogLevel);
+                logger.AddFilter("Microsoft", logLevelConfig.LogLevel)
+                .AddFilter("System", logLevelConfig.LogLevel)
+                .AddFilter("Default", logLevelConfig.LogLevel)
+                .AddFilter(projectName, logLevelConfig.LogLevel);
             }
 
             return logger;

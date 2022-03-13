@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
-using LodeRunner.Core.NgsaLogger;
-using LodeRunner.Extensions;
 using LodeRunner.Model;
 using LodeRunner.Validators;
 using Microsoft.CorrelationVector;
@@ -231,7 +229,7 @@ namespace LodeRunner
                         }
 
                         // log error and keep processing
-                        logger.NgsaLogError(config, ex, SystemConstants.Exception);
+                        logger.LogError(new EventId((int)LogLevel.Error, nameof(RunOnce)), ex, SystemConstants.Exception);
 
                         errorCount++;
                     }
@@ -347,7 +345,7 @@ namespace LodeRunner
                 // log exception
                 if (!tce.Task.IsCompleted)
                 {
-                    logger.NgsaLogError(config, tce, SystemConstants.TaskCanceledException);
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(RunLoop)), tce, SystemConstants.TaskCanceledException);
 
                     return Core.SystemConstants.ExitFail;
                 }
@@ -362,8 +360,7 @@ namespace LodeRunner
                 // log exception
                 if (!token.IsCancellationRequested)
                 {
-                    logger.NgsaLogError(config, oce, SystemConstants.OperationCanceledException);
-
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(RunLoop)), oce, SystemConstants.OperationCanceledException);
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -374,7 +371,7 @@ namespace LodeRunner
             {
                 TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
 
-                logger.NgsaLogError(config, ex, SystemConstants.Exception);
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(RunLoop)), ex, SystemConstants.Exception);
 
                 return Core.SystemConstants.ExitFail;
             }

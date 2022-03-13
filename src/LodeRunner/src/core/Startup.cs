@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
-using LodeRunner.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +70,7 @@ namespace LodeRunner
 
             life.ApplicationStopped.Register(() =>
             {
-                logger.NgsaLogInformational(config, SystemConstants.ShuttingDown);
+                logger.LogInformation(new EventId((int)LogLevel.Information, SystemConstants.ShuttingDown), SystemConstants.ShuttingDown);
             });
 
             // version handler

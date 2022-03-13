@@ -133,7 +133,7 @@ namespace LodeRunner
         {
             services.AddLogging(logger =>
                 {
-                    logger.Setup(config, ProjectName);
+                    logger.Setup(logLevelConfig: config, logValues: config, projectName: ProjectName);
                 })
                 .AddSingleton<Config>(config)
                 .AddSingleton<CancellationTokenSource>(CancelTokenSource)

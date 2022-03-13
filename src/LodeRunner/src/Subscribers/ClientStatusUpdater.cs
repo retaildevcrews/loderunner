@@ -2,14 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
-using LodeRunner.Core;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-using LodeRunner.Core.NgsaLogger;
 using LodeRunner.Data.Interfaces;
-using LodeRunner.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Subscribers
@@ -73,7 +69,7 @@ namespace LodeRunner.Subscribers
                 {
                     string baseMessage = $"Unable to Update Client Status after {failures} attempts. Application will Terminate.";
 
-                    logger.NgsaLogWarnning(config, ex, baseMessage);
+                    logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(UpdateCosmosStatus)), ex, baseMessage);
 
                     args.CancelTokenSource.Cancel(false);
                 }

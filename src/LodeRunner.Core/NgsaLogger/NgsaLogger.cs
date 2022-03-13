@@ -2,9 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
@@ -19,16 +21,19 @@ namespace LodeRunner.Core.NgsaLogger
     {
         private readonly string name;
         private readonly NgsaLoggerConfiguration config;
+        private readonly ILogValues logValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NgsaLogger"/> class.
         /// </summary>
         /// <param name="name">Logger Name.</param>
         /// <param name="config">Logger Config.</param>
-        public NgsaLogger(string name, NgsaLoggerConfiguration config)
+        /// <param name="logValues">logValues interface than allows to inject a new data dictionary when.</param>
+        public NgsaLogger(string name, NgsaLoggerConfiguration config, ILogValues logValues)
         {
             this.name = name;
             this.config = config;
+            this.logValues = logValues;
         }
 
         /// <summary>
@@ -40,30 +45,6 @@ namespace LodeRunner.Core.NgsaLogger
         /// Gets or sets region.
         /// </summary>
         public static string Region { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the client status identifier.
-        /// </summary>
-        /// <value>
-        /// The client status identifier.
-        /// </value>
-        public static string ClientStatusId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the test run identifier.
-        /// </summary>
-        /// <value>
-        /// The test run i identifier.
-        /// </value>
-        public static string TestRunId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the load client id.
-        /// </summary>
-        /// <value>
-        /// The load client identifier.
-        /// </value>
-        public static string LoadClientId { get; set; } = string.Empty;
 
         /// <summary>
         /// Creates the scope.
@@ -121,19 +102,13 @@ namespace LodeRunner.Core.NgsaLogger
                 d.Add("Region", Region);
             }
 
-            if (!string.IsNullOrEmpty(ClientStatusId))
+            // Adds custom item to Dictionary.
+            if (this.logValues?.GetLogValues()?.Count > 0)
             {
-                d.Add(SystemConstants.ClientStatusIdFieldName, ClientStatusId);
-            }
-
-            if (!string.IsNullOrEmpty(LoadClientId))
-            {
-                d.Add(SystemConstants.LoadClientIdFieldName, LoadClientId);
-            }
-
-            if (!string.IsNullOrEmpty(TestRunId))
-            {
-                d.Add(SystemConstants.TestRunIdFieldName, TestRunId);
+                foreach (var kv in this.logValues.GetLogValues())
+                {
+                    d.Add(kv.Key, kv.Value);
+                }
             }
 
             // convert state to list

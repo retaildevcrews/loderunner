@@ -13,7 +13,7 @@ namespace LodeRunner
     /// <summary>
     /// Web Validation Test Configuration.
     /// </summary>
-    public class Config : ILRConfig, ICosmosConfig, ICommonConfig
+    public class Config : ILRConfig, ICosmosConfig, ICommonConfig, ILogValues
     {
         private LogLevel logLevel = LogLevel.Information;
 
@@ -176,7 +176,7 @@ namespace LodeRunner
         /// <summary>
         /// gets or sets the guid for the TestRun being executed.
         /// </summary>
-        public string TestRunId { get; set; }
+        public string TestRunId { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the client status guid.
@@ -222,6 +222,31 @@ namespace LodeRunner
         /// The URL prefix.
         /// </value>
         public string UrlPrefix { get; set; }
+
+        /// <summary>
+        /// Gets the log values.
+        /// </summary>
+        /// <returns>
+        /// Data Dictionary.
+        /// </returns>
+        public Dictionary<string, object> GetLogValues()
+        {
+            return new Dictionary<string, object>
+                {
+                    {
+                        SystemConstants.ClientStatusIdFieldName,
+                        ClientStatusId
+                    },
+                    {
+                        SystemConstants.LoadClientIdFieldName,
+                        LoadClientId
+                    },
+                    {
+                        SystemConstants.TestRunIdFieldName,
+                        TestRunId
+                    },
+                };
+        }
 
         /// <summary>
         /// Set the default config values.
