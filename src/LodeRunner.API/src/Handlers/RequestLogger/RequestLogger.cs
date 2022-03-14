@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
@@ -134,13 +133,14 @@ namespace LodeRunner.API.Middleware
                 return;
             }
 
-            var payload = LogRequestPayload(context.Request);
-
             DateTime dtStart = DateTime.Now;
             double duration = 0;
             double ttfb = 0;
 
             CorrelationVector cv = CorrelationVectorExtensions.Extend(context);
+
+            // Buffering needs to be enabled to allow payload to be read from request body before next is called.
+            var payload = GetRequestPayloadObject(context.Request);
 
             // Invoke next handler
             if (this.next != null)
@@ -220,19 +220,21 @@ namespace LodeRunner.API.Middleware
         /// </summary>
         /// <param name="request">HttpRequest</param>
         /// <returns>Request body as object.</returns>
-        private static object LogRequestPayload(HttpRequest request)
+        private static object GetRequestPayloadObject(HttpRequest request)
         {
             if (request.Method == "POST" || request.Method == "PUT")
             {
-                // Allows using several time the stream in ASP.Net Core
+                // Allows using the stream several times in ASP.Net Core
                 request.EnableBuffering();
 
-                StreamReader reader = new (request.Body);
-                var bodyStr = reader.ReadToEndAsync().Result;
-                request.Body.Position = 0L;
+                string requestBodyString;
+                using (StreamReader reader = new (request.Body, leaveOpen: true))
+                {
+                    requestBodyString = reader.ReadToEndAsync().Result;
+                    request.Body.Position = 0;
+                }
 
-                // Need to deserialize to remove formatting
-                return JsonSerializer.Deserialize<object>(bodyStr);
+                return JsonSerializer.Deserialize<object>(requestBodyString);
             }
 
             return null;
