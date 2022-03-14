@@ -54,6 +54,11 @@ namespace LodeRunner.API
         public const string Unknown = "unknown";
 
         /// <summary>
+        /// The lode runner UI default port.
+        /// </summary>
+        public const int LodeRunnerUIDefaultPort = 3000;
+
+        /// <summary>
         /// The client status identifier.
         /// </summary>
         public const string ClientStatusID = "CLIENTSTATUSID";

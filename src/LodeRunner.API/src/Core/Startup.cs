@@ -138,12 +138,13 @@ namespace LodeRunner.API
         {
             AddSwaggerServices(services);
 
+            int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
             services.AddCors(options =>
         {
             options.AddDefaultPolicy(
                 builder =>
                 {
-                    builder.WithOrigins(string.Format(SystemConstants.BaseUriLocalHostPort, 3000), "https://*.githubpreview.dev")
+                    builder.WithOrigins(string.Format(SystemConstants.BaseUriLocalHostPort, portNumber), "https://*.githubpreview.dev")
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
