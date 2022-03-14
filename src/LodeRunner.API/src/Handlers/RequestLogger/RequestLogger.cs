@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -138,6 +139,9 @@ namespace LodeRunner.API.Middleware
 
             CorrelationVector cv = CorrelationVectorExtensions.Extend(context);
 
+            // Buffering needs to be enabled to allow payload to be read from request body before next is called.
+            var payload = GetRequestPayloadObject(context.Request);
+
             // Invoke next handler
             if (this.next != null)
             {
@@ -152,7 +156,7 @@ namespace LodeRunner.API.Middleware
             // compute request duration
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
 
-            this.LogRequest(context, cv, ttfb, duration);
+            this.LogRequest(context, cv, ttfb, duration, payload);
         }
 
         // convert StatusCode for metrics
@@ -211,8 +215,33 @@ namespace LodeRunner.API.Middleware
             return clientIp?.Replace("::ffff:", string.Empty);
         }
 
+        /// <summary>
+        /// Extracts and returns request body
+        /// </summary>
+        /// <param name="request">HttpRequest</param>
+        /// <returns>Request body as object.</returns>
+        private static object GetRequestPayloadObject(HttpRequest request)
+        {
+            if (request.Method == "POST" || request.Method == "PUT")
+            {
+                // Allows using the stream several times in ASP.Net Core
+                request.EnableBuffering();
+
+                string requestBodyString;
+                using (StreamReader reader = new (request.Body, leaveOpen: true))
+                {
+                    requestBodyString = reader.ReadToEndAsync().Result;
+                    request.Body.Position = 0;
+                }
+
+                return JsonSerializer.Deserialize<object>(requestBodyString);
+            }
+
+            return null;
+        }
+
         // log the request
-        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration)
+        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration, object payload)
         {
             DateTime dt = DateTime.UtcNow;
 
@@ -265,6 +294,11 @@ namespace LodeRunner.API.Middleware
                 if (CosmosRUs > 0)
                 {
                     log.Add("CosmosRUs", CosmosRUs);
+                }
+
+                if (payload != null)
+                {
+                    log.Add("Payload", payload);
                 }
 
                 // write the results to the console
