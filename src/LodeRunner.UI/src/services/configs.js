@@ -61,13 +61,15 @@ const checkConfigInputs = (inputs) => {
 const getConfigPayload = (inputs) =>
   Object.values(CONFIG).reduce((data, config) => {
     switch (config) {
-      case CONFIG.baseUrl:
       case CONFIG.name:
       case CONFIG.tag:
         // don't send if no input
         return inputs[config].length > 0
           ? { ...data, [config]: inputs[config] }
           : data;
+      case CONFIG.baseUrl:
+        // send even if no input
+        return { ...data, [config]: inputs[config] };
       case CONFIG.duration:
       case CONFIG.randomize:
         // send only if runLoop is set
