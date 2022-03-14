@@ -41,8 +41,9 @@ const getApi = async (endpoint) => {
   try {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       headers: {
-        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
-      }
+        [CorrelationVector.headerName]:
+          CorrelationVector.createCorrelationVector().value,
+      },
     });
     const body = await getResponseBody(res);
     return body;
@@ -60,7 +61,8 @@ const writeApi = (method, endpoint) => async (payload) => {
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
-        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
+        [CorrelationVector.headerName]:
+          CorrelationVector.createCorrelationVector().value,
       },
       body: JSON.stringify(payload),
     });
@@ -81,8 +83,9 @@ const deleteApi = (endpoint) => async (id) => {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}/${id}`, {
       method: "DELETE",
       headers: {
-        [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
-      }
+        [CorrelationVector.headerName]:
+          CorrelationVector.createCorrelationVector().value,
+      },
     });
     const body = await getResponseBody(res);
     return body;
