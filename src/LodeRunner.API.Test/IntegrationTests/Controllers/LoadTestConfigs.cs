@@ -66,7 +66,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             var responseContents = await httpResponse.Content.ReadAsStringAsync();
             AssertExtension.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent }, responseContents);
-            //Assert.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent });
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
             {
@@ -96,13 +95,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postedResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.Created, postedResponse);
-            //Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
 
             var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
             var gottenHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryLoadTestConfigsPath, postedTestRun.Id, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, gottenHttpResponse);
-            //Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
 
             var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
@@ -125,8 +122,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var returnedHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryTestRunsPath, InvalidLoadTestConfigId, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
-
-            //Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
         /// <summary>
@@ -146,7 +141,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
-            //Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
 
             loadTestConfigPayload.Files = new List<string>() { "baseline.json", "benchmark.json" };
             loadTestConfigPayload.Server = null;
@@ -154,7 +148,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
-            //Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
         /// <summary>
@@ -180,7 +173,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryLoadTestConfigsPath, postedLoadTestConfig.Id, updatedloadTestConfigPayload, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.NoContent, puttedResponse);
-            //Assert.Equal(HttpStatusCode.NoContent, puttedResponse.StatusCode);
 
             var gottenResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryLoadTestConfigsPath, postedLoadTestConfig.Id, this.output);
             var actualLoadTestConfig = await gottenResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
@@ -215,8 +207,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryLoadTestConfigsPath, InvalidLoadTestConfigId, updatedloadTestConfigPayload, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, puttedResponse);
-
-            //Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
         }
 
         /// <summary>
@@ -235,7 +225,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var returnedHttpResponse = await httpClient.PostEntity<LoadTestConfig, LoadTestConfigPayload>(loadTestConfigPayload, SystemConstants.CategoryLoadTestConfigsPath, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.Created, returnedHttpResponse);
-            //Assert.Equal(HttpStatusCode.Created, returnedHttpResponse.StatusCode);
 
             var postedLoadTestConfig = await returnedHttpResponse.Content.ReadFromJsonAsync<LoadTestConfig>(this.jsonOptions);
 
@@ -244,7 +233,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryTestRunsPath, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, puttedResponse);
-            //Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
 
             loadTestConfigPayload.Files = new List<string>() { "baseline.json", "benchmark.json" };
             loadTestConfigPayload.Server = null;
@@ -252,7 +240,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             returnedHttpResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryTestRunsPath, postedLoadTestConfig.Id, loadTestConfigPayload, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
-            //Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
         }
 
         /// <summary>
@@ -275,13 +262,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var deletedResponse = await httpClient.DeleteItemById<LoadTestConfig>(SystemConstants.CategoryLoadTestConfigsPath, loadTestConfig.Id, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.NoContent, deletedResponse);
-            //Assert.Equal(HttpStatusCode.NoContent, deletedResponse.StatusCode);
 
             Assert.Equal(0, deletedResponse.Content.Headers.ContentLength);
 
             var gottenHttpResponse = await httpClient.GetItemById<LoadTestConfig>(SystemConstants.CategoryLoadTestConfigsPath, loadTestConfig.Id, this.output);
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.NotFound, gottenHttpResponse);
-            //Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
 
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Not Found", gottenMessage);
@@ -290,7 +275,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             var puttedResponse = await httpClient.PutEntityByItemId<LoadTestConfig, LoadTestConfigPayload>(SystemConstants.CategoryLoadTestConfigsPath, loadTestConfig.Id, loadTestConfigPayload, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.NotFound, puttedResponse);
-            //Assert.Equal(HttpStatusCode.NotFound, puttedResponse.StatusCode);
         }
 
         /// <summary>

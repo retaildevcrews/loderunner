@@ -4,7 +4,7 @@
 namespace LodeRunner.API.Test.IntegrationTests.Extensions
 {
     /// <summary>
-    /// Exception class that allow display a user message when comparing Equals. 
+    /// Exception class that allow display a user message when comparing Equals.
     /// </summary>
     /// <seealso cref="Xunit.Sdk.EqualException" />
     public class EqualException : Xunit.Sdk.EqualException

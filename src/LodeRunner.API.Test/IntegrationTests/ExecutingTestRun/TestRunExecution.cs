@@ -132,14 +132,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 AssertExtension.EqualResponseStatusCode(HttpStatusCode.Created, postedResponse);
 
-                //Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
-
                // Validate Test Run Entity
                 var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
                 var gottenHttpResponse = await httpClient.GetItemById<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.output);
 
                 AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, gottenHttpResponse);
-                //Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
+
                 var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
                 Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
@@ -171,7 +169,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // Validate results
                 int expectedLoadClientCount = 1;
                 AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, testRunResponse);
-                //Assert.Equal(HttpStatusCode.OK, testRunStatusCode);
 
                 Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
                 Assert.True(readyTestRun.LoadClients.Count == expectedLoadClientCount, $"LoadClients.Count do not match the expected value [{expectedLoadClientCount}]");
@@ -205,7 +202,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     // The Delete action should success because we are validating "testRun.CompletedTime" at this.ValidateCompletedTime
                     AssertExtension.EqualResponseStatusCode(HttpStatusCode.NoContent, response);
-                    //Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
                 }
             }
         }

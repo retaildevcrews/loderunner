@@ -77,7 +77,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             var responseContents = await httpResponse.Content.ReadAsStringAsync();
             AssertExtension.Equal(expectedValue, httpResponse.Content.Headers.ContentType.ToString(), responseContents);
-            //Assert.Equal(expectedValue, httpResponse.Content.Headers.ContentType.ToString());
         }
 
         /// <summary>
@@ -109,7 +108,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             }
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, httpResponse);
-            //Assert.Equal(HttpStatusCode.OK, httpResponse.StatusCode);
 
             List<Client> clients = await httpResponse.Content.ReadFromJsonAsync<List<Client>>(this.jsonOptions);
 
@@ -152,7 +150,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             (HttpResponseMessage httpResponseReady, Client readyClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, httpResponseReady);
-            //Assert.Equal(HttpStatusCode.OK, httpResponseReady.StatusCode);
 
             Assert.NotNull(readyClient);
             Assert.Equal(clientStatusId, readyClient.ClientStatusId);
@@ -163,7 +160,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             (HttpResponseMessage httpResponseTerminating, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, httpResponseTerminating);
-            //Assert.Equal(HttpStatusCode.OK, httpResponseTerminating.StatusCode);
 
             Assert.NotNull(terminatingClient);
             Assert.Equal(clientStatusId, terminatingClient.ClientStatusId);
