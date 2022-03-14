@@ -111,14 +111,7 @@ namespace LodeRunner.API
 
             if (env.IsDevelopment())
             {
-                int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
-                app.UseCors(builder =>
-                {
-                    builder.WithOrigins(string.Format(SystemConstants.BaseUriLocalHostPort, portNumber), "https://*.githubpreview.dev")
-                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
+                app.UseCors();
             }
 
             // Configure Swagger
@@ -145,7 +138,18 @@ namespace LodeRunner.API
         {
             AddSwaggerServices(services);
 
-            services.AddCors();
+            int portNumber = AppConfigurationHelper.GetLoadRunnerUIPort(SystemConstants.LodeRunnerUIDefaultPort);
+            services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                builder =>
+                {
+                    builder.WithOrigins(string.Format(SystemConstants.BaseUriLocalHostPort, portNumber), "https://*.githubpreview.dev")
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+        });
 
             // set json serialization defaults and api behavior
             services.AddControllers()
