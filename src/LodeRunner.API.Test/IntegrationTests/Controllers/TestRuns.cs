@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using LodeRunner.API.Test.IntegrationTests.Extensions;
 using LodeRunner.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
@@ -61,7 +62,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             HttpResponseMessage httpResponse = await httpClient.GetTestRuns(SystemConstants.CategoryTestRunsPath, this.output);
-            Assert.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent });
+
+            var responseContents = await httpResponse.Content.ReadAsStringAsync();
+            AssertExtension.Contains(httpResponse.StatusCode, new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent }, responseContents);
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
             {
@@ -87,12 +90,14 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             HttpResponseMessage postedResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
-            Assert.Equal(HttpStatusCode.Created, postedResponse.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.Created, postedResponse);
 
             var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
             var gottenHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.output);
 
-            Assert.Equal(HttpStatusCode.OK, gottenHttpResponse.StatusCode);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, gottenHttpResponse);
+
             var gottenTestRun = await gottenHttpResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
             Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
@@ -112,7 +117,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             var returnedHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, this.output);
-            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
         }
 
         /// <summary>
@@ -132,7 +138,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             testRunPayload.CompletedTime = DateTime.UtcNow;
 
             var returnedHttpResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
-            Assert.Equal(HttpStatusCode.BadRequest, returnedHttpResponse.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
         }
 
         /// <summary>
@@ -159,7 +166,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Update TestRun
             var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, testRunPayload, this.output);
 
-            Assert.Equal(HttpStatusCode.NoContent, puttedResponse.StatusCode);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.NoContent, puttedResponse);
 
             var gottenResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.output);
             var gottenTestRun = await gottenResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
@@ -198,7 +205,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             // Update TestRun
             var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, testRunPayload, this.output);
-            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, puttedResponse);
         }
 
         /// <summary>
@@ -218,7 +225,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             // Update TestRun
             var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, InvalidTestRunId, testRunPayload, this.output);
-            Assert.Equal(HttpStatusCode.BadRequest, puttedResponse.StatusCode);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, puttedResponse);
         }
 
         /// <summary>
@@ -240,7 +247,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             // Try Deleting the TestRun created in this Integration Test scope
             var response = await httpClient.DeleteTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, this.output);
             Assert.Null(testRun.CompletedTime);
-            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.Conflict, response);
 
             // TODO: When TestRun feature is completed, refactor to add deletion test
             // Save the completed time and update CosmosDB
@@ -249,15 +257,18 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             // Try deleting the TestRun created, which should return NoContent
             response = await httpClient.DeleteTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, this.output);
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.NoContent, response);
             Assert.Equal(0, response.Content.Headers.ContentLength);
 
             // Trying to delete the old TestRun should result in NotFound
             response = await httpClient.DeleteTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, this.output);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.NotFound, response);
 
             var gottenHttpResponse = await httpClient.GetTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, this.output);
-            Assert.Equal(HttpStatusCode.NotFound, gottenHttpResponse.StatusCode);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.NotFound, gottenHttpResponse);
 
             var gottenMessage = await gottenHttpResponse.Content.ReadAsStringAsync();
             Assert.Contains("Not Found", gottenMessage);
@@ -271,7 +282,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             testRunPayload.LoadClients = testRun.LoadClients;
 
             var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, testRun.Id, testRunPayload, this.output);
-            Assert.Equal(HttpStatusCode.NotFound, puttedResponse.StatusCode);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.NotFound, puttedResponse);
         }
     }
 }
