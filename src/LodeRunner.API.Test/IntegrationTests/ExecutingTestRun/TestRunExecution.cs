@@ -216,8 +216,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             (HttpResponseMessage httpResponseReady, Client currentClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Ready, this.jsonOptions, this.output, 10, 1000);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, httpResponseReady);
-
-            // Assert.True(httpResponseReady.StatusCode == HttpStatusCode.OK, $"Invalid response status code: {httpResponseReady.StatusCode}");
             Assert.True(currentClient != null, "Unable to get Client entity.");
             Assert.Equal(clientStatusId, currentClient.ClientStatusId);
             Assert.Equal(ClientStatusType.Ready, currentClient.Status);
