@@ -139,6 +139,8 @@ namespace LodeRunner.Services
                 return await this.StartDryRun();
             }
 
+            DateTime startTime = DateTime.UtcNow;
+
             try
             {
                 if (this.config.IsClientMode)
@@ -157,6 +159,8 @@ namespace LodeRunner.Services
                 {
                     logger.LogError(new EventId((int)LogLevel.Error, nameof(StartService)), tce, SystemConstants.TaskCanceledException);
 
+                    ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+
                     return Core.SystemConstants.ExitFail;
                 }
 
@@ -166,6 +170,9 @@ namespace LodeRunner.Services
             catch (Exception ex)
             {
                 logger.LogError(new EventId((int)LogLevel.Error, nameof(StartService)), ex, SystemConstants.Exception);
+
+                ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, ex.Message));
+
                 return Core.SystemConstants.ExitFail;
             }
         }
@@ -579,6 +586,7 @@ namespace LodeRunner.Services
 
             // convert TestRun LoadTestConfig object to command line args
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
+            DateTime startTime = DateTime.UtcNow;
 
             CancellationTokenSource cancel = new ();
             try
@@ -591,7 +599,7 @@ namespace LodeRunner.Services
             {
                 // TODO: Handle specific exceptions (as needed)
                 // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
-                ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(DateTime.UtcNow, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
+                ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
         }
     }
