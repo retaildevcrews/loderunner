@@ -120,3 +120,20 @@ jobs:
     secrets:
       ghcr_id: ${{ secrets.GHCR_ID }}
       ghcr_pat: ${{ secrets.GHCR_PAT }}
+
+  autogitops:
+    runs-on: ubuntu-20.04
+    needs: [ loderunner-only, loderunner-api, loderunner-ui]
+    steps:
+    - name: AutoGitOps Pull
+      run: |        
+        docker pull ghcr.io/bartr/autogitops
+
+    - name: GitOps Deploy
+      run: |        
+        docker run \
+        --name ago \
+        --rm \
+        -v $(pwd)/autogitops:/ago/autogitops \
+        ghcr.io/bartr/autogitops -r /retaildevcrews/ngsa-asb -p ${{ secrets.GHCR_PAT }}
+
