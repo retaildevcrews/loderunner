@@ -20,7 +20,7 @@ const ConfigForm = ({ openedConfigId = -1 }) => {
   const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
-  const isNewConfig = openedConfig == -1;
+  const isNewConfig = openedConfig === -1;
 
   useEffect(() => {
     if (!isNewConfig) {
