@@ -15,8 +15,10 @@ on:
         type: boolean 
     secrets:
       ghcr_id:
+        description: 'GHCR_ID used for autogitops deploy'
         required: false
       ghcr_pat:
+        description: 'GHCR_PAT used for autogitops deploy'
         required: false
 
 jobs:

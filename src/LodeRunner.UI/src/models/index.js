@@ -46,7 +46,7 @@ export const LOAD_CLIENT = {
 };
 
 export const CONFIG = {
-  baseUrl: "baseUrl",
+  baseUrl: "baseURL",
   delayStart: "delayStart",
   dryRun: "dryRun",
   duration: "duration",
@@ -55,15 +55,16 @@ export const CONFIG = {
   id: "id",
   name: "name",
   maxErrors: "maxErrors",
-  strictJson: "strictJson",
-  verbose: "verbose",
-  verboseErrors: "verboseErrors",
+  partitionKey: "partitionKey",
   randomize: "randomize",
   runLoop: "runLoop",
   servers: "server",
   sleep: "sleep",
+  strictJson: "strictJson",
   tag: "tag",
   timeout: "timeout",
+  verbose: "verbose",
+  verboseErrors: "verboseErrors",
 };
 
 export const TEST_RUN = {

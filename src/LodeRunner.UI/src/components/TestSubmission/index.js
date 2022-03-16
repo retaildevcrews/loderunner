@@ -5,8 +5,8 @@ import {
   ConfigsContext,
   TestPageContext,
 } from "../../contexts";
-import postTestRun from "../../services/testRun";
-import { CLIENT, CLIENT_STATUS_TYPES, CONFIG } from "../../models";
+import { postTestRun } from "../../services/testRun";
+import { CLIENT, CLIENT_STATUS_TYPES, CONFIG, TEST_RUN } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
@@ -85,12 +85,13 @@ const TestSubmission = () => {
         ? now.toISOString()
         : scheduledStartTimeRef.current.value;
 
-      postTestRun(
-        testRunConfig,
-        testRunClients,
-        scheduledStartTime,
-        testRunName
-      )
+      postTestRun({
+        [TEST_RUN.name]: testRunName,
+        [TEST_RUN.createdTime]: now.toISOString(),
+        [TEST_RUN.scheduledStartTime]: scheduledStartTime,
+        [TEST_RUN.config]: testRunConfig,
+        [TEST_RUN.clients]: testRunClients,
+      })
         .then(() => {
           // eslint-disable-next-line no-alert
           alert("Successfully submitted load test run request");

@@ -103,6 +103,7 @@ describe("getConfigPayload", () => {
     };
 
     const expectedPayload = {
+      [CONFIG.baseUrl]: "",
       [CONFIG.runLoop]: false,
       [CONFIG.files]: [],
       [CONFIG.servers]: [],
