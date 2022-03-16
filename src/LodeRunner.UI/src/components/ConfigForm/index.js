@@ -3,26 +3,30 @@ import ArrayOfStringInput from "./ArrayOfStringInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
 import BooleanInput from "./BooleanInput";
-import { writeConfig } from "../../services/configs";
+import { writeConfig, getConfig } from "../../services/configs";
 import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
 import { CONFIG } from "../../models";
-import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
+import { MODAL_CONTENT } from "../../utilities/constants";
 
-const ConfigForm = () => {
+const ConfigForm = ({ openedConfigId = -1 }) => {
   // context props
   const { setIsPending } = useContext(AppContext);
-  const { setModalContent } = useContext(TestPageContext);
-  const { configs, openedConfigId, setFetchConfigsTrigger } =
-    useContext(ConfigsContext);
+  const testPageContext = useContext(TestPageContext);
+  const configsContext = useContext(ConfigsContext);
 
+  const [openedConfig, setOpenedConfig] = useState();
+  const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
+  const isNewConfig = openedConfig == -1;
 
-  const openedConfig = configs.find(
-    ({ [CONFIG.id]: configId }) => configId === openedConfigId
-  );
-
+  useEffect(() => {
+    if (!isNewConfig) {
+      getConfig(openedConfigId).then( res => setOpenedConfig(res) ).catch( e => console.log(e));
+    }
+  }, [fetchConfigTrigger])
+  
   // initial boolean form values
   const dryRunFlagRef = useRef(
     openedConfig ? openedConfig[CONFIG.dryRun] : false
@@ -99,7 +103,7 @@ const ConfigForm = () => {
       // eslint-disable-next-line no-param-reassign
       ref.current.value = openedConfig[CONFIG.servers][index] || "";
     });
-  }, []);
+  }, [openedConfig]);
 
   const onRefCurrentChange =
     (ref) =>
@@ -127,8 +131,9 @@ const ConfigForm = () => {
     // Create new or update existing config
     writeConfig(configWriteMethod, formData)
       .then(() => {
-        setModalContent(MODAL_CONTENT.closed);
-        setFetchConfigsTrigger(Date.now());
+        if (!isNewConfig) {
+          setFetchConfigTrigger(Date.now());
+        }
       })
       .catch((err) => {
         if (typeof err !== "object") {
@@ -142,7 +147,13 @@ const ConfigForm = () => {
           setErrors(err);
         }
       })
-      .finally(() => setIsPending(false));
+      .finally(() => {
+        setIsPending(false);
+        if (isNewConfig) {
+          testPageContext.setModalContent(MODAL_CONTENT.closed);
+          configsContext.setFetchConfigsTrigger(Date.now());
+        }
+      });
   }, [formData]);
 
   const saveConfig = () => {
@@ -178,7 +189,7 @@ const ConfigForm = () => {
   return (
     <div className="configform">
       <h2>
-        {openedConfigId === -1 ? "New Config" : openedConfig[CONFIG.name]}
+        {openedConfig?.[CONFIG.name] || "New Config"}
       </h2>
       <BooleanInput
         label="Dry Run"

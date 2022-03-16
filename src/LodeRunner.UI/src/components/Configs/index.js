@@ -142,19 +142,13 @@ const Configs = () => {
                 </div>
               </div>
               <div className="configs-item-options">
-                <button
-                  className="unset"
-                  type="button"
-                  onClick={openConfigFormModal(configId)}
-                  onKeyDown={openConfigFormModal(configId)}
-                  aria-label="Edit Load Test Config"
-                >
+                <A href={`/configs/${configId}`}>
                   <PencilIcon
                     width="3em"
                     fillColor="lightgrey"
                     hoverColor="whitesmoke"
                   />
-                </button>
+                </A>
                 <button
                   className="unset"
                   type="button"

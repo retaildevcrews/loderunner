@@ -121,8 +121,13 @@ const writeConfig = async (method, inputs) => {
 
 const deleteConfig = deleteApi("LoadTestConfigs");
 
+const getConfig = async (configId) => {
+  return await getApi(`LoadTestConfigs/${configId}`) || {};
+};
+
 export {
   getConfigs,
+  getConfig,
   checkConfigInputs,
   getConfigPayload,
   writeConfig,

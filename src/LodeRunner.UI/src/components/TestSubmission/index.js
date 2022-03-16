@@ -177,7 +177,7 @@ const TestSubmission = () => {
           >
             Parse Load Test Files with Strict JSON:&nbsp;
           </span>
-          {testRunConfig[CONFIG.strictJson].toString()}
+          {testRunConfig[CONFIG.strictJson].toString() ?? "--"}
         </div>
         <br />
         <div>
@@ -196,9 +196,7 @@ const TestSubmission = () => {
           >
             Verbose:&nbsp;
           </span>
-          {testRunConfig[CONFIG.verbose] === undefined
-            ? "--"
-            : testRunConfig[CONFIG.verbose].toString()}
+          {testRunConfig[CONFIG.verbose]?.toString() ?? "--"}
         </div>
         <br />
         <div>
@@ -208,7 +206,7 @@ const TestSubmission = () => {
           >
             Run Loop:&nbsp;
           </span>
-          {testRunConfig[CONFIG.runLoop].toString()}
+          {testRunConfig[CONFIG.runLoop].toString() ?? "--"}
         </div>
         <div>
           <span className="testsubmission-config-label" title="Test duration">
@@ -223,7 +221,7 @@ const TestSubmission = () => {
           >
             Randomize:&nbsp;
           </span>
-          {testRunConfig[CONFIG.randomize].toString()}
+          {testRunConfig[CONFIG.randomize]?.toString() ?? "--"}
         </div>
         <div>
           <span
@@ -248,7 +246,7 @@ const TestSubmission = () => {
           >
             Verbose Errors:&nbsp;
           </span>
-          {testRunConfig[CONFIG.verboseErrors].toString()}
+          {testRunConfig[CONFIG.verboseErrors].toString() ?? "--"}
         </div>
         <div>
           <span
@@ -352,7 +350,7 @@ const TestSubmission = () => {
                   <span className="testsubmission-clients-item-label">
                     Prometheus Enabled:&nbsp;
                   </span>
-                  {prometheus?.toString()}
+                  {prometheus?.toString() ?? "--"}
                 </div>
                 <div>
                   <span className="testsubmission-clients-item-label">
