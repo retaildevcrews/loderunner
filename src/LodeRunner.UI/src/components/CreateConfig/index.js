@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ConfigForm from "../ConfigForm";
 import { writeConfig } from "../../services/configs";
 import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
@@ -25,14 +25,14 @@ const CreateConfig = () => {
   const [fileFlagRefs, setFileFlagRefs] = useState([
     {
       id: 0,
-      ref: null,
+      ref: React.createRef(),
       initialValue: CONFIG_OPTIONS[CONFIG.files].default,
     },
   ]);
   const [serverFlagRefs, setServerFlagRefs] = useState([
     {
       id: 0,
-      ref: null,
+      ref: React.createRef(),
       initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
     },
   ]);

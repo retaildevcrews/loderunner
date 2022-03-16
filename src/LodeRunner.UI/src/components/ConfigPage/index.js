@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { A } from "hookrouter";
 import ConfigForm from "../ConfigForm";
@@ -61,7 +61,7 @@ const ConfigPage = ({ configId }) => {
       setFileFlagRefs(
         openedConfig[CONFIG.files].map((value, index) => ({
           id: index,
-          ref: null,
+          ref: React.createRef(),
           initialValue: value,
         }))
       );
@@ -69,7 +69,7 @@ const ConfigPage = ({ configId }) => {
       setFileFlagRefs([
         {
           id: 0,
-          ref: null,
+          ref: React.createRef(),
           initialValue: CONFIG_OPTIONS[CONFIG.files].default,
         },
       ]);
@@ -79,7 +79,7 @@ const ConfigPage = ({ configId }) => {
       setServerFlagRefs(
         openedConfig[CONFIG.servers].map((value, index) => ({
           id: index,
-          ref: null,
+          ref: React.createRef(),
           initialValue: value,
         }))
       );
@@ -87,7 +87,7 @@ const ConfigPage = ({ configId }) => {
       setServerFlagRefs([
         {
           id: 0,
-          ref: null,
+          ref: React.createRef(),
           initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
         },
       ]);
