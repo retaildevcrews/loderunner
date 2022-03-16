@@ -10,7 +10,7 @@ import { CONFIG } from "../../models";
 import "./styles.css";
 import { MODAL_CONTENT } from "../../utilities/constants";
 
-const ConfigForm = ({ openedConfigId = -1 }) => {
+const ConfigForm = ({ openedConfigId }) => {
   // context props
   const { setIsPending } = useContext(AppContext);
   const testPageContext = useContext(TestPageContext);
@@ -20,7 +20,8 @@ const ConfigForm = ({ openedConfigId = -1 }) => {
   const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
-  const isNewConfig = openedConfig === -1;
+  console.log(openedConfigId)
+  const isNewConfig = openedConfigId === "-1";
 
   useEffect(() => {
     if (!isNewConfig) {
@@ -368,7 +369,7 @@ const ConfigForm = ({ openedConfigId = -1 }) => {
 };
 
 ConfigForm.propTypes = {
-  openedConfigId: PropTypes.any,
+  openedConfigId: PropTypes.string.isRequired,
 };
 
 export default ConfigForm;

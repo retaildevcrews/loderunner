@@ -100,7 +100,7 @@ const TestPage = () => {
               {modalContent === MODAL_CONTENT.pendingFeature && (
                 <PendingFeature />
               )}
-              {modalContent === MODAL_CONTENT.configForm && <ConfigForm />}
+              {modalContent === MODAL_CONTENT.configForm && <ConfigForm openedConfigId="-1"/>}
               {modalContent === MODAL_CONTENT.testSubmission && (
                 <TestSubmission />
               )}
