@@ -56,10 +56,12 @@ spec:
     objects: |
       array:
         - |
-          objectName: CosmosDatabase
+          objectName: CosmosLRDatabase
+          objectAlias: CosmosDatabase
           objectType: secret
         - |
-          objectName: CosmosCollection
+          objectName: CosmosLRCollection
+          objectAlias: CosmosCollection
           objectType: secret
         - |
           objectName: CosmosKey
