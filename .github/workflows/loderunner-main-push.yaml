@@ -79,12 +79,28 @@ jobs:
             echo "LodeRunner source code changed!!"
           else
             echo "LodeRunnerChanged=false" >> $GITHUB_ENV
-          fi        
+          fi
+
+          if [[ "$FILES" == *"src/LodeRunner.API/"* || "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
+            echo "LodeRunnerApiChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.API source code changed!!"
+          else
+            echo "LodeRunnerApiChanged=false" >> $GITHUB_ENV
+          fi  
+
+          if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
+            echo "LodeRunnerUiChanged=true" >> $GITHUB_ENV
+            echo "LodeRunner.UI source code changed!!"
+          else
+            echo "LodeRunnerUiChanged=false" >> $GITHUB_ENV
+          fi  
          
     outputs:
       RunAndTestAll: ${{ env.RunAndTestAll }}
       autogitops: ${{ env.autogitops }}
       LodeRunnerChanged: ${{ env.LodeRunnerChanged }} 
+      LodeRunnerApiChanged: ${{ env.LodeRunnerApiChanged }} 
+      LodeRunnerUiChanged: ${{ env.LodeRunnerUiChanged }} 
 
   loderunner-only:
     needs: evaluate-changes
@@ -105,6 +121,7 @@ jobs:
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+      autogitops: ${{ needs.evaluate-changes.outputs.autogitops == 'true' || needs.evaluate-changes.outputs.LodeRunnerApiChanged == 'true' }}
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
@@ -117,6 +134,7 @@ jobs:
     with:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
+      autogitops: ${{ needs.evaluate-changes.outputs.autogitops == 'true' || needs.evaluate-changes.outputs.LodeRunnerUiChanged == 'true' }}
     secrets:
       ghcr_id: ${{ secrets.GHCR_ID }}
       ghcr_pat: ${{ secrets.GHCR_PAT }}
