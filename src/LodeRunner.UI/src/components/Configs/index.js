@@ -32,9 +32,6 @@ const Configs = () => {
     setModalContent(MODAL_CONTENT.configForm);
   };
 
-  const openPendingFeatureModal = () =>
-    setModalContent(MODAL_CONTENT.pendingFeature);
-
   const handleDeleteConfig = (id, name) => (e) => {
     e.stopPropagation();
 
@@ -115,15 +112,7 @@ const Configs = () => {
             [CONFIG.servers]: servers,
             [CONFIG.files]: files,
           }) => (
-            <div
-              role="presentation"
-              key={configId}
-              className="card"
-              type="button"
-              onClick={openPendingFeatureModal}
-              onKeyDown={openPendingFeatureModal}
-              aria-label="Pending Functionality"
-            >
+            <div role="presentation" key={configId} className="card">
               <div>
                 <div>
                   <span className="card-key">Name:</span> {name || "--"}
