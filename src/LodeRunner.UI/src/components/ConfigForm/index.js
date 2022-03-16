@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import ArrayOfStringInput from "./ArrayOfStringInput";
 import IntegerInput from "./IntegerInput";
@@ -364,6 +365,10 @@ const ConfigForm = ({ openedConfigId = -1 }) => {
       </div>
     </div>
   );
+};
+
+ConfigForm.propTypes = {
+  openedConfigId: PropTypes.any,
 };
 
 export default ConfigForm;
