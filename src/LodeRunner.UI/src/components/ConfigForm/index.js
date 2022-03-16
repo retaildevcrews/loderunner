@@ -20,12 +20,11 @@ const ConfigForm = ({ openedConfigId }) => {
   const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState();
-  console.log(openedConfigId)
   const isNewConfig = openedConfigId === "-1";
 
   useEffect(() => {
     if (!isNewConfig) {
-      getConfig(openedConfigId).then( res => setOpenedConfig(res) ).catch( e => console.log(e));
+      getConfig(openedConfigId).then( res => setOpenedConfig(res) );
     }
   }, [fetchConfigTrigger])
   
