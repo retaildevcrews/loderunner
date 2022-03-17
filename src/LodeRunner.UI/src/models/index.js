@@ -63,7 +63,6 @@ export const CONFIG = {
   strictJson: "strictJson",
   tag: "tag",
   timeout: "timeout",
-  verbose: "verbose",
   verboseErrors: "verboseErrors",
 };
 

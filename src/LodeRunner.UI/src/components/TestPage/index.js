@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import ClientDetails from "../ClientDetails";
 import Clients from "../Clients";
-import ConfigForm from "../ConfigForm";
+import CreateConfig from "../CreateConfig";
 import Configs from "../Configs";
 import Modal from "../Modal";
 import PendingFeature from "../PendingFeature";
@@ -100,7 +100,7 @@ const TestPage = () => {
               {modalContent === MODAL_CONTENT.pendingFeature && (
                 <PendingFeature />
               )}
-              {modalContent === MODAL_CONTENT.configForm && <ConfigForm openedConfigId="-1"/>}
+              {modalContent === MODAL_CONTENT.configForm && <CreateConfig/>}
               {modalContent === MODAL_CONTENT.testSubmission && (
                 <TestSubmission />
               )}

@@ -228,12 +228,6 @@ const ResultPage = ({ testRunId }) => {
                   ? "--"
                   : test[TEST_RUN.config][CONFIG.dryRun].toString()}
               </div>
-              <div title="Display 200 and 300 results as well as errors">
-                <span className="result-item-label">Verbose:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.verbose] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.verbose].toString()}
-              </div>
               <div title="Display validation error messages">
                 <span className="result-item-label">Verbose Errors:</span>&nbsp;
                 {test[TEST_RUN.config][CONFIG.verboseErrors] === undefined

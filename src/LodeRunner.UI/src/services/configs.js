@@ -100,7 +100,6 @@ const getConfigPayload = (inputs) =>
       case CONFIG.dryRun:
       case CONFIG.strictJson:
       case CONFIG.runLoop:
-      case CONFIG.verbose:
       case CONFIG.verboseErrors:
         // always send boolean input
         return { ...data, [config]: getAsBoolean(inputs[config]) };

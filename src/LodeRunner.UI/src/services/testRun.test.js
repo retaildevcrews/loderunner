@@ -17,8 +17,6 @@ describe("getPostPayload", () => {
 
     delete input[TEST_RUN.config].baseUrl;
     delete input[TEST_RUN.config].servers;
-    // TODO: Undetermined if utilized
-    delete input[TEST_RUN.config][CONFIG.verbose];
 
     const expectedPayload = {
       name: TEST_RUN.name,

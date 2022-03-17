@@ -6,7 +6,6 @@ const IntegerInput = ({
   elRef,
   inputName,
   units,
-  defaultValue,
 }) => (
   <div className="configform-input">
     <label htmlFor={inputName}>
@@ -19,7 +18,6 @@ const IntegerInput = ({
         type="number"
         step="1"
         name={inputName}
-        defaultValue={defaultValue}
       />
       &nbsp;
       {units}
@@ -39,12 +37,10 @@ IntegerInput.propTypes = {
   ]).isRequired,
   inputName: PropTypes.string.isRequired,
   units: PropTypes.string,
-  defaultValue: PropTypes.number,
 };
 
 IntegerInput.defaultProps = {
   units: "",
-  defaultValue: 0,
 };
 
 export default IntegerInput;

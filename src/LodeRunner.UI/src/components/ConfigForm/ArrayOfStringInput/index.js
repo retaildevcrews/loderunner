@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import "./styles.css";
 
@@ -82,5 +82,12 @@ ArrayOfStringInput.propTypes = {
   setFlagRefs: PropTypes.func.isRequired,
   inputName: PropTypes.string.isRequired,
 };
+
+// declare string array form refs
+export const getArrayOfStringInputRefs = (values = [0]) =>
+  values.map((_, index) => ({
+    id: index,
+    ref: React.createRef(),
+  }));
 
 export default ArrayOfStringInput;

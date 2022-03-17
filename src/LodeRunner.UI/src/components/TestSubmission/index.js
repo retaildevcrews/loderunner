@@ -189,15 +189,6 @@ const TestSubmission = () => {
           </span>
           {testRunConfig[CONFIG.tag] || "--"}
         </div>
-        <div>
-          <span
-            className="testsubmission-config-label"
-            title="Display 200 and 300 results as well as errors"
-          >
-            Verbose:&nbsp;
-          </span>
-          {testRunConfig[CONFIG.verbose]?.toString() ?? "--"}
-        </div>
         <br />
         <div>
           <span

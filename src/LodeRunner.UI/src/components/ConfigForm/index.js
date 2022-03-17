@@ -1,110 +1,39 @@
-import PropTypes from "prop-types";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import ArrayOfStringInput from "./ArrayOfStringInput";
+import BooleanInput from "./BooleanInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
-import BooleanInput from "./BooleanInput";
-import { writeConfig, getConfig } from "../../services/configs";
-import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
-import { CONFIG } from "../../models";
-import "./styles.css";
-import { MODAL_CONTENT } from "../../utilities/constants";
 
-const ConfigForm = ({ openedConfigId }) => {
-  // context props
-  const { setIsPending } = useContext(AppContext);
-  const testPageContext = useContext(TestPageContext);
-  const configsContext = useContext(ConfigsContext);
+const ConfigForm = ({
+  children,
+  executeSave,
 
-  const [openedConfig, setOpenedConfig] = useState();
-  const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
-  const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState();
-  const isNewConfig = openedConfigId === "-1";
+  baseUrlFlag,
+  configName,
+  dryRunFlag,
+  durationFlag,
+  fileFlags,
+  maxErrorsFlag,
+  randomizeFlag,
+  runLoopFlag,
+  serverFlags,
+  setFileFlags,
+  setServerFlags,
+  sleepFlag,
+  strictJsonFlag,
+  tagFlag,
+  timeoutFlag,
+  verboseErrorsFlag,
+}) => {
+  const [runLoopFlagState, setRunLoopFlagState] = useState(runLoopFlag.current);
 
-  useEffect(() => {
-    if (!isNewConfig) {
-      getConfig(openedConfigId).then( res => setOpenedConfig(res) );
+  const onRunLoopFlagChange = ({ target }) => {
+    runLoopFlag.current = target.value === "true";
+    if (target.value === "false") {
+      randomizeFlag.current = false;
     }
-  }, [fetchConfigTrigger])
-  
-  // initial boolean form values
-  const dryRunFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.dryRun] : false
-  );
-  const randomizeFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.randomize] : false
-  );
-  const runLoopFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.runLoop] : false
-  );
-  const [runLoopFlagState, setRunLoopFlagState] = useState(
-    openedConfig ? openedConfig[CONFIG.runLoop] : false
-  );
-  const strictJsonFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.strictJson] : false
-  );
-  const verboseFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.verbose] : false
-  );
-  const verboseErrorsFlagRef = useRef(
-    openedConfig ? openedConfig[CONFIG.verboseErrors] : false
-  );
-
-  // declare string array form refs
-  const getArrayOfStringInputRefs = (values = [0]) =>
-    values.map((_, index) => ({
-      id: index,
-      ref: React.createRef(),
-    }));
-  const [fileFlagRefs, setFileFlagRefs] = useState(
-    openedConfig
-      ? getArrayOfStringInputRefs(openedConfig[CONFIG.files])
-      : getArrayOfStringInputRefs()
-  );
-  const [serverFlagRefs, setServerFlagRefs] = useState(
-    openedConfig
-      ? getArrayOfStringInputRefs(openedConfig[CONFIG.servers])
-      : getArrayOfStringInputRefs()
-  );
-
-  // declare string form refs
-  const baseUrlFlagRef = useRef();
-  const configNameRef = useRef();
-  const durationFlagRef = useRef();
-  const maxErrorsFlagRef = useRef();
-  const sleepFlagRef = useRef();
-  const tagFlagRef = useRef();
-  const timeoutFlagRef = useRef();
-
-  useEffect(() => {
-    // do not set initial values if new config
-    if (!openedConfig) {
-      return;
-    }
-    // initial string form values
-    baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl] || "";
-    configNameRef.current.value = openedConfig[CONFIG.name] || "";
-    if (durationFlagRef.current) {
-      durationFlagRef.current.value = openedConfig[CONFIG.duration];
-    }
-    if (maxErrorsFlagRef.current) {
-      maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
-    }
-    sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
-    tagFlagRef.current.value = openedConfig[CONFIG.tag] || "";
-    timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
-
-    // initial string array form values
-    fileFlagRefs.forEach(({ id: index, ref }) => {
-      // eslint-disable-next-line no-param-reassign
-      ref.current.value = openedConfig[CONFIG.files][index] || "";
-    });
-    serverFlagRefs.forEach(({ id: index, ref }) => {
-      // eslint-disable-next-line no-param-reassign
-      ref.current.value = openedConfig[CONFIG.servers][index] || "";
-    });
-  }, [openedConfig]);
+    setRunLoopFlagState(target.value === "true");
+  };
 
   const onRefCurrentChange =
     (ref) =>
@@ -113,262 +42,154 @@ const ConfigForm = ({ openedConfigId }) => {
       ref.current = target.value;
     };
 
-  const onRunLoopFlagRefChange = ({ target }) => {
-    runLoopFlagRef.current = target.value === "true";
-    if (target.value === "false") {
-      randomizeFlagRef.current = false;
-    }
-    setRunLoopFlagState(target.value === "true");
-  };
-
-  // POST or PUT config
-  useEffect(() => {
-    if (!formData) {
-      return;
-    }
-
-    const configWriteMethod = openedConfig ? "PUT" : "POST";
-
-    // Create new or update existing config
-    writeConfig(configWriteMethod, formData)
-      .then(() => {
-        if (!isNewConfig) {
-          setFetchConfigTrigger(Date.now());
-        }
-      })
-      .catch((err) => {
-        if (typeof err !== "object") {
-          // Display non-object errors
-          setErrors({ response: err });
-        } else if (err.message) {
-          // Display thrown error
-          setErrors({ response: err.message });
-        } else {
-          // Display custom input error(s)
-          setErrors(err);
-        }
-      })
-      .finally(() => {
-        setIsPending(false);
-        if (isNewConfig) {
-          testPageContext.setModalContent(MODAL_CONTENT.closed);
-          configsContext.setFetchConfigsTrigger(Date.now());
-        }
-      });
-  }, [formData]);
-
-  const saveConfig = () => {
-    setIsPending(true);
-
+  const handleSave = () => {
     const inputs = {
-      [CONFIG.baseUrl]: baseUrlFlagRef.current.value,
-      [CONFIG.dryRun]: dryRunFlagRef.current,
-      [CONFIG.duration]:
-        durationFlagRef.current && durationFlagRef.current.value,
-      [CONFIG.files]: fileFlagRefs.map(({ ref }) => ref.current.value),
-      [CONFIG.name]: configNameRef.current.value,
-      [CONFIG.maxErrors]: maxErrorsFlagRef.current.value,
-      [CONFIG.servers]: serverFlagRefs.map(({ ref }) => ref.current.value),
-      [CONFIG.strictJson]: strictJsonFlagRef.current,
-      [CONFIG.randomize]: randomizeFlagRef.current,
-      [CONFIG.runLoop]: runLoopFlagRef.current,
-      [CONFIG.sleep]: sleepFlagRef.current.value,
-      [CONFIG.tag]: tagFlagRef.current.value,
-      [CONFIG.verbose]: verboseFlagRef.current,
-      [CONFIG.verboseErrors]: verboseErrorsFlagRef.current,
-      [CONFIG.timeout]: timeoutFlagRef.current.value,
+      [CONFIG.baseUrl]: baseUrlFlag.current.value,
+      [CONFIG.dryRun]: dryRunFlag.current,
+      [CONFIG.duration]: durationFlag.current?.value, // TODO: send default value if not populated
+      [CONFIG.files]: fileFlags.map(({ ref }) => ref.current.value),
+      [CONFIG.maxErrors]: maxErrorsFlag.current.value,
+      [CONFIG.name]: configName.current.value,
+      [CONFIG.randomize]: randomizeFlag.current,
+      [CONFIG.runLoop]: runLoopFlag.current,
+      [CONFIG.servers]: serverFlags.map(({ ref }) => ref.current.value),
+      [CONFIG.sleep]: sleepFlag.current.value,
+      [CONFIG.strictJson]: strictJsonFlag.current,
+      [CONFIG.tag]: tagFlag.current.value,
+      [CONFIG.timeout]: timeoutFlag.current.value,
+      [CONFIG.verboseErrors]: verboseErrorsFlag.current,
     };
-
-    // include config ID if updating existing config
-    if (openedConfig) {
-      inputs[CONFIG.id] = openedConfig[CONFIG.id];
-    }
-
-    setFormData(inputs);
+    executeSave(inputs);
   };
 
   return (
-    <div className="configform">
-      <h2>
-        {openedConfig?.[CONFIG.name] || "New Config"}
-      </h2>
+    <div>
+      {children}
       <BooleanInput
         label="Dry Run"
         description="Validate settings with target clients without running load test"
-        elRef={dryRunFlagRef}
+        elRef={dryRunFlag}
         inputName="dryRunFlag"
-        onChange={onRefCurrentChange(dryRunFlagRef)}
+        onChange={onRefCurrentChange(dryRunFlag)}
       />
       <br />
       <StringInput
         label="Name"
         description="User friendly name for config settings"
-        elRef={configNameRef}
+        elRef={configName}
         inputName="configName"
       />
       <br />
       <ArrayOfStringInput
         label="Servers"
         description="Servers to test (required)"
-        flagRefs={serverFlagRefs}
-        setFlagRefs={setServerFlagRefs}
-        inputName="serverFlag"
+        flagRefs={serverFlags}
+        setFlagRefs={setServerFlags}
+        inputName="serverFlags"
       />
-      {errors[CONFIG.servers] && (
-        <div className="configform-error">ERROR: {errors[CONFIG.servers]}</div>
-      )}
       <br />
       <ArrayOfStringInput
         label="Load Test Files"
         description="Load test file to test (required)"
-        flagRefs={fileFlagRefs}
-        setFlagRefs={setFileFlagRefs}
+        flagRefs={fileFlags}
+        setFlagRefs={setFileFlags}
         inputName="fileFlag"
       />
-      {errors[CONFIG.files] && (
-        <div className="configform-error">ERROR: {errors[CONFIG.files]}</div>
-      )}
       <br />
       <StringInput
         label="Base URL"
         description="Base URL for load test files"
-        elRef={baseUrlFlagRef}
+        elRef={baseUrlFlag}
         inputName="baseUrlFlag"
       />
       <br />
       <BooleanInput
         label="Parse Load Test Files with Strict JSON"
         description="Use strict RFC rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON."
-        elRef={strictJsonFlagRef}
+        elRef={strictJsonFlag}
         inputName="strictJsonFlag"
-        onChange={onRefCurrentChange(strictJsonFlagRef)}
+        onChange={onRefCurrentChange(strictJsonFlag)}
       />
       <br />
       <StringInput
         label="Tag"
         description="Add a tag to the log"
-        elRef={tagFlagRef}
+        elRef={tagFlag}
         inputName="tagFlag"
-      />
-      <br />
-      <BooleanInput
-        label="Verbose"
-        description="Display 200 and 300 results as well as errors"
-        elRef={verboseFlagRef}
-        inputName="verboseFlag"
-        onChange={onRefCurrentChange(verboseFlagRef)}
       />
       <br />
       <div className="configform-runloop">
         <BooleanInput
           label="Run Loop"
           description="Run test in an infinite loop"
-          elRef={runLoopFlagRef}
+          elRef={runLoopFlag}
           inputName="runLoopFlag"
-          onChange={onRunLoopFlagRefChange}
+          onChange={onRunLoopFlagChange}
         />
-        {runLoopFlagState ? (
-          <>
-            <br />
-            <div className="configform-runloop-dependent">
-              <IntegerInput
-                label="Duration"
-                description="Test duration"
-                elRef={durationFlagRef}
-                inputName="durationFlag"
-                units="second(s)"
-                defaultValue={0}
-              />
-              {errors[CONFIG.duration] && (
-                <div className="configform-error">
-                  ERROR: {errors[CONFIG.duration]}
-                </div>
-              )}
-              <br />
-              <BooleanInput
-                label="Randomize"
-                description="Processes load file randomly instead of from top to bottom"
-                elRef={randomizeFlagRef}
-                inputName="randomizeFlag"
-                onChange={onRefCurrentChange(randomizeFlagRef)}
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <br />
-            <div className="configform-runloop-dependent">
-              <IntegerInput
-                label="Max Errors"
-                description="Maximum validation errors"
-                elRef={maxErrorsFlagRef}
-                inputName="maxErrorsFlag"
-                defaultValue={10}
-              />
-              {errors[CONFIG.maxErrors] && (
-                <div className="configform-error">
-                  ERROR: {errors[CONFIG.maxErrors]}
-                </div>
-              )}
-            </div>
-          </>
-        )}
       </div>
+      {runLoopFlagState ? (
+        <>
+          <br />
+          <div className="configform-runloop-dependent">
+            <IntegerInput
+              label="Duration"
+              description="Test duration"
+              elRef={durationFlag}
+              inputName="durationFlag"
+              units="second(s)"
+            />
+            <br />
+            <BooleanInput
+              label="Randomize"
+              description="Processes load file randomly instead of from top to bottom"
+              elRef={randomizeFlag}
+              inputName="randomizeFlag"
+              onChange={onRefCurrentChange(randomizeFlag)}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <br />
+          <div className="configform-runloop-dependent">
+            <IntegerInput
+              label="Max Errors"
+              description="Maximum validation errors"
+              elRef={maxErrorsFlag}
+              inputName="maxErrorsFlag"
+            />
+          </div>
+        </>
+      ) }
       <br />
       <IntegerInput
         label="Sleep"
         description="Sleep between each request"
-        elRef={sleepFlagRef}
+        elRef={sleepFlag}
         inputName="sleepFlag"
         units="ms"
       />
-      {errors[CONFIG.sleep] && (
-        <div className="configform-error">ERROR: {errors[CONFIG.sleep]}</div>
-      )}
       <br />
       <IntegerInput
         label="Timeout"
         description="Request timeout"
-        elRef={timeoutFlagRef}
+        elRef={timeoutFlag}
         inputName="timeoutFlag"
         units="second(s)"
-        defaultValue={30}
       />
-      {errors[CONFIG.timeout] && (
-        <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
-      )}
       <br />
       <BooleanInput
         label="Verbose Errors"
         description="Display validation error messages"
-        elRef={verboseErrorsFlagRef}
+        elRef={verboseErrorsFlag}
         inputName="verboseErrorsFlag"
-        onChange={onRefCurrentChange(verboseErrorsFlagRef)}
+        onChange={onRefCurrentChange(verboseErrorsFlag)}
       />
-      <br />
-      <div className="configform-save">
-        {!errors.response && Object.keys(errors).length > 0 && (
-          <div className="configform-save-error configform-error">
-            Invalid config value(s)
-          </div>
-        )}
-        {errors.response && (
-          <div className="configform-save-error configform-error">
-            Unable to save config:
-            <br />
-            {errors.response}
-          </div>
-        )}
-        <button type="button" onClick={saveConfig}>
-          SAVE
-        </button>
-      </div>
+      <button type="button" onClick={handleSave}>
+        SAVE
+      </button>
     </div>
   );
-};
-
-ConfigForm.propTypes = {
-  openedConfigId: PropTypes.string.isRequired,
 };
 
 export default ConfigForm;
