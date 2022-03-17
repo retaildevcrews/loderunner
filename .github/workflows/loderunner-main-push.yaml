@@ -109,6 +109,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [ loderunner-only, loderunner-api, loderunner-ui]
     steps:
+    - uses: actions/checkout@v2
+        
     - name: AutoGitOps Pull
       run: |        
         docker pull ghcr.io/bartr/autogitops
