@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: {{gitops.lrCommandImage}}
+          image: {{gitops.lrImage}}
           imagePullPolicy: Always
           ports:
             - name: http
