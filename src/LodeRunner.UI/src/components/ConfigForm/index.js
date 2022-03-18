@@ -1,8 +1,11 @@
+import { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import ArrayOfStringInput from "./ArrayOfStringInput";
 import BooleanInput from "./BooleanInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
+import { AppContext } from "../../contexts";
+import { CONFIG } from "../../models";
 
 const ConfigForm = ({
   children,
@@ -31,8 +34,10 @@ const ConfigForm = ({
   const [errors, setErrors] = useState({});
 
   const onRunLoopFlagChange = ({ target }) => {
+    // eslint-disable-next-line no-param-reassign
     runLoopFlag.current = target.value === "true";
     if (target.value === "false") {
+      // eslint-disable-next-line no-param-reassign
       randomizeFlag.current = false;
     }
     setRunLoopFlagState(target.value === "true");
@@ -44,6 +49,18 @@ const ConfigForm = ({
       // eslint-disable-next-line no-param-reassign
       ref.current = target.value;
     };
+
+  useEffect(() => {
+    // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
+    if (durationFlag.current) {
+      // eslint-disable-next-line no-param-reassign
+      durationFlag.current.value = "";
+    }
+    if (maxErrorsFlag.current) {
+      // eslint-disable-next-line no-param-reassign
+      maxErrorsFlag.current.value = 10;
+    }
+  }, [runLoopFlagState]);
 
   useEffect(() => {
     if (!formData) {
@@ -246,10 +263,10 @@ const ConfigForm = ({
             {errors.response}
           </div>
         )}
-      <button type="button" onClick={handleSave}>
-        SAVE
-      </button>
-    </div>
+        <button type="button" onClick={handleSave}>
+          SAVE
+        </button>
+      </div>
     </div>
   );
 };

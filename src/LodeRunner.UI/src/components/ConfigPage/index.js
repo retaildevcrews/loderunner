@@ -1,51 +1,53 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { useState, useRef, useEffect } from "react";
 import { A } from "hookrouter";
 import ConfigForm from "../ConfigForm";
 import { getArrayOfStringInputRefs } from "../ConfigForm/ArrayOfStringInput";
+import { AppContext } from "../../contexts";
+import { writeConfig, getConfig } from "../../services/configs";
 import { CONFIG } from "../../models";
 import "./styles.css";
 
 const ConfigPage = ({ configId }) => {
+  const { setIsPending } = useContext(AppContext);
+  const [openedConfig, setOpenedConfig] = useState(); //TODO: handle when undefined
+  const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
 
-  const [openedConfig, setOpenedConfig] = useState({}); //TODO: handle when undefined
+  const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs());
   const [serverFlagRefs, setServerFlagRefs] = useState(
-    getArrayOfStringInputRefs(openedConfig[CONFIG.servers]) // TODO: Handle missing value with default
-  );
-  const [fileFlagRefs, setFileFlagRefs] = useState(
-    getArrayOfStringInputRefs(openedConfig[CONFIG.files])
+    getArrayOfStringInputRefs()
   );
 
-  // initial boolean form values
+  // declare form references
   // TODO: Handle missing value with default
   const baseUrlFlagRef = useRef();
   const configNameRef = useRef();
-  const dryRunFlagRef = useRef(openedConfig[CONFIG.dryRun]);
+  const dryRunFlagRef = useRef();
   const durationFlagRef = useRef();
   const maxErrorsFlagRef = useRef();
-  const randomizeFlagRef = useRef(openedConfig[CONFIG.randomize]);
-  const runLoopFlagRef = useRef(openedConfig[CONFIG.runLoop]);
+  const randomizeFlagRef = useRef();
+  const runLoopFlagRef = useRef();
   const sleepFlagRef = useRef();
-  const strictJsonFlagRef = useRef(openedConfig[CONFIG.strictJson]);
+  const strictJsonFlagRef = useRef();
   const tagFlagRef = useRef();
   const timeoutFlagRef = useRef();
-  const verboseErrorsFlagRef = useRef(openedConfig[CONFIG.verboseErrors]);
+  const verboseErrorsFlagRef = useRef();
 
-  // TODO: Handle missing values with default
   useEffect(() => {
+    setIsPending(true);
+    getConfig(configId)
+      .then((res) => setOpenedConfig(res))
+      .finally(() => setIsPending(false));
+  }, [fetchConfigTrigger]);
+
+  // Update inputs when openedConfig is set
+  useEffect(() => {
+    if (!openedConfig) {
+      return;
+    }
     // Handle array of references
-    // TODO: Handle empty servers/files
-    serverFlagRefs.forEach(({ id: index, ref }) => {
-      // eslint-disable-next-line no-param-reassign
-      ref.current.value =
-        (openedConfig[CONFIG.servers] && openedConfig[CONFIG.servers][index]) ||
-        "";
-    });
-    fileFlagRefs.forEach(({ id: index, ref }) => {
-      // eslint-disable-next-line no-param-reassign
-      ref.current.value =
-        openedConfig[CONFIG.files] && openedConfig[CONFIG.files][index];
-    });
+    setFileFlagRefs(getArrayOfStringInputRefs(openedConfig[CONFIG.files]));
+    setServerFlagRefs(getArrayOfStringInputRefs(openedConfig[CONFIG.servers]));
 
     // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
     if (durationFlagRef.current) {
@@ -55,21 +57,47 @@ const ConfigPage = ({ configId }) => {
       maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors];
     }
 
-    // Handle Others
+    // Handle primitive references
     baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl];
-    configNameRef.current.value = openedConfig[CONFIG.name]; 
+    configNameRef.current.value = openedConfig[CONFIG.name];
+    dryRunFlagRef.current = openedConfig[CONFIG.dryRun];
+    randomizeFlagRef.current = openedConfig[CONFIG.randomize];
+    runLoopFlagRef.current = openedConfig[CONFIG.runLoop];
     sleepFlagRef.current.value = openedConfig[CONFIG.sleep];
-    tagFlagRef.current.value = openedConfig[CONFIG.tag];    
+    strictJsonFlagRef.current = openedConfig[CONFIG.strictJson];
+    tagFlagRef.current.value = openedConfig[CONFIG.tag];
     timeoutFlagRef.current.value = openedConfig[CONFIG.timeout];
+    verboseErrorsFlagRef.current = openedConfig[CONFIG.verboseErrors];
   }, [openedConfig]);
 
-  const executeSave = (inputs) => {
-    // TODO: make PUT call
+  useEffect(() => {
+    if (!openedConfig) {
+      return;
+    }
+
+    if (openedConfig[CONFIG.files]) {
+      openedConfig[CONFIG.files].forEach((value, index) => {
+        fileFlagRefs[index].ref.current.value = value;
+      });
+    }
+
+    if (openedConfig[CONFIG.servers]) {
+      openedConfig[CONFIG.servers].forEach((value, index) => {
+        serverFlagRefs[index].ref.current.value = value;
+      });
+    }
+  }, [fileFlagRefs, serverFlagRefs]);
+
+  // Update existing config
+  const putConfig = (inputs) => {
     // eslint-disable-next-line no-param-reassign
     inputs[CONFIG.id] = openedConfig[CONFIG.id];
+    return writeConfig("PUT", inputs).then(() =>
+      setFetchConfigTrigger(Date.now())
+    );
   };
 
-  return (
+  return openedConfig ? (
     <div className="config">
       <div className="page-header">
         <h1>Load Test Config</h1>
@@ -99,6 +127,8 @@ const ConfigPage = ({ configId }) => {
         <h2>{openedConfig[CONFIG.name]}</h2>
       </ConfigForm>
     </div>
+  ) : (
+    <div>Load Test Config Not Found</div>
   );
 };
 

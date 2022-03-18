@@ -1,16 +1,15 @@
-import PropTypes from "prop-types";
 import { useContext, useEffect, useRef, useState } from "react";
 import ConfigForm from "../ConfigForm";
 import { getArrayOfStringInputRefs } from "../ConfigForm/ArrayOfStringInput";
-import { writeConfig, getConfig } from "../../services/configs";
-import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
-import { CONFIG } from "../../models";
+import { writeConfig } from "../../services/configs";
+import { ConfigsContext, TestPageContext } from "../../contexts";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const CreateConfig = () => {
   // context props
   const { setFetchConfigsTrigger } = useContext(ConfigsContext);
+  const { setModalContent } = useContext(TestPageContext);
 
   // initial boolean form values
   //TODO: Set via default value function in model
@@ -21,7 +20,9 @@ const CreateConfig = () => {
   const verboseErrorsFlagRef = useRef(false);
 
   // initialize array of string refs
-  const [serverFlagRefs, setServerFlagRefs] = useState(getArrayOfStringInputRefs());
+  const [serverFlagRefs, setServerFlagRefs] = useState(
+    getArrayOfStringInputRefs()
+  );
   const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs());
 
   // declare string refs
@@ -55,7 +56,7 @@ const CreateConfig = () => {
     writeConfig("POST", inputs).then(() => {
       setModalContent(MODAL_CONTENT.closed);
       setFetchConfigsTrigger(Date.now());
-      });
+    });
 
   return (
     <div className="configform">
