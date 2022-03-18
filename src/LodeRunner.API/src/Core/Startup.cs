@@ -201,15 +201,12 @@ namespace LodeRunner.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = SwaggerTitle, Version = "v1" });
 
-                if (AppConfigurationHelper.IsProductionEnvironment())
-                {
-                    // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
-                    var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
-                    c.IncludeXmlComments(filePath);
+                // NOTE: this xml file documentation is needed to pull example tag from all method's documentation.
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunnerApi.xml");
+                c.IncludeXmlComments(filePath);
 
-                    filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunner.Core.xml");
-                    c.IncludeXmlComments(filePath);
-                }
+                filePath = Path.Combine(System.AppContext.BaseDirectory, "LodeRunner.Core.xml");
+                c.IncludeXmlComments(filePath);
 
                 c.EnableAnnotations();
 
