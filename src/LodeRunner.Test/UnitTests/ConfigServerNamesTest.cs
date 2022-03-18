@@ -28,7 +28,7 @@ namespace LodeRunner.Test.UnitTests
         [InlineData(new string[] { "http://ngsa-memory-eastus-pre.cse.ms", "http://ngsa-memory-eastus-pre.cse.ms/" }, "Unable to match Server name with 'http' prefix.")]
         [InlineData(new string[] { "https://ngsa-memory-eastus-pre.cse.ms", "https://ngsa-memory-eastus-pre.cse.ms/" }, "Unable to match Server name with 'https' prefix.")]
         [InlineData(new string[] { "localhost", }, "Unable to match Server name 'localhost'")]
-        public void CommandMode_ValidateLodeRunnerConfigSetDefaultValues(string[] serverNames, string messageIfFailed)
+        public void CommandMode_ValidateLodeRunnerConfigServerDefaultValues(string[] serverNames, string messageIfFailed)
         {
             Config lrConfig = new ();
 
