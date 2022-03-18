@@ -10,9 +10,7 @@ const routes = {
   "/results/:testRunId": ({ testRunId }) => (
     <ResultPage testRunId={testRunId} />
   ),
-  "/configs/:configId": ({ configId }) => (
-    <ConfigPage configId={configId} />
-  ),
+  "/configs/:configId": ({ configId }) => <ConfigPage configId={configId} />,
 };
 
 export default routes;
