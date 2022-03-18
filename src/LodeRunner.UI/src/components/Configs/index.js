@@ -132,8 +132,8 @@ const Configs = () => {
                 <A href={`/configs/${configId}`}>
                   <PencilIcon
                     width="3em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </A>
                 <button
@@ -145,8 +145,8 @@ const Configs = () => {
                 >
                   <TrashIcon
                     width="2em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </button>
                 <button
@@ -158,8 +158,8 @@ const Configs = () => {
                 >
                   <PlayIcon
                     width="2.4em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </button>
               </div>

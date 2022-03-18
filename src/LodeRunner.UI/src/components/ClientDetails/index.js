@@ -53,8 +53,8 @@ const ClientDetails = () => {
               aria-label="Edit Load Client Name"
             >
               <PencilIcon
-                fillColor="#2c7f84"
-                hoverColor="#24b2b9"
+                fillColor="var(--c-primary-dark)"
+                hoverColor="var(--c-primary)"
                 width="1em"
               />
             </button>

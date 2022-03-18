@@ -134,8 +134,8 @@ const ResultsOverviewPage = () => {
                 <A href={`/results/${testId}`}>
                   <PencilIcon
                     width="3em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </A>
                 <button
@@ -147,8 +147,8 @@ const ResultsOverviewPage = () => {
                 >
                   <TrashIcon
                     width="2em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </button>
               </div>

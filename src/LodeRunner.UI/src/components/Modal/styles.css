@@ -8,7 +8,7 @@
 }
 .modal {
   display: grid;
-  border: solid 2px #2c7f84;
+  border: solid 2px var(--c-primary);
   border-radius: 4px;
   padding: 1em;
   max-width: calc(100vw - 4em);
@@ -22,14 +22,14 @@
 .modal-exit {
   border: none;
   border-radius: 4px;
-  background-color: #156064;
-  color: whitesmoke;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
   font-weight: bold;
   display: block;
   height: 2em;
   width: 2em;
 }
 .modal-exit:hover {
-  background-color: #24b2b9;
-  color: white;
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
 }
