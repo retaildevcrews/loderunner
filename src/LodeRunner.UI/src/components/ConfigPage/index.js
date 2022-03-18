@@ -78,8 +78,7 @@ const ConfigPage = ({ configId }) => {
         </A>
       </div>
       <ConfigForm
-        executeSave={executeSave}
-        
+        writeConfig={putConfig}
         baseUrlFlag={baseUrlFlagRef}
         configName={configNameRef}
         dryRunFlag={dryRunFlagRef}

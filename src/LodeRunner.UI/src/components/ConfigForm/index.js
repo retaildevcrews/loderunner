@@ -6,8 +6,7 @@ import StringInput from "./StringInput";
 
 const ConfigForm = ({
   children,
-  executeSave,
-
+  writeConfig,
   baseUrlFlag,
   configName,
   dryRunFlag,
@@ -25,7 +24,11 @@ const ConfigForm = ({
   timeoutFlag,
   verboseErrorsFlag,
 }) => {
+  const { setIsPending } = useContext(AppContext);
+
   const [runLoopFlagState, setRunLoopFlagState] = useState(runLoopFlag.current);
+  const [formData, setFormData] = useState();
+  const [errors, setErrors] = useState({});
 
   const onRunLoopFlagChange = ({ target }) => {
     runLoopFlag.current = target.value === "true";
@@ -42,8 +45,33 @@ const ConfigForm = ({
       ref.current = target.value;
     };
 
+  useEffect(() => {
+    if (!formData) {
+      return;
+    }
+
+    setIsPending(true);
+
+    writeConfig(formData)
+      .catch((err) => {
+        if (typeof err !== "object") {
+          // Display non-object errors
+          setErrors({ response: err });
+        } else if (err.message) {
+          // Display thrown error
+          setErrors({ response: err.message });
+        } else {
+          // Display custom input error(s)
+          setErrors(err);
+        }
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
+  }, [formData]);
+
   const handleSave = () => {
-    const inputs = {
+    setFormData({
       [CONFIG.baseUrl]: baseUrlFlag.current.value,
       [CONFIG.dryRun]: dryRunFlag.current,
       [CONFIG.duration]: durationFlag.current?.value, // TODO: send default value if not populated
@@ -58,8 +86,7 @@ const ConfigForm = ({
       [CONFIG.tag]: tagFlag.current.value,
       [CONFIG.timeout]: timeoutFlag.current.value,
       [CONFIG.verboseErrors]: verboseErrorsFlag.current,
-    };
-    executeSave(inputs);
+    });
   };
 
   return (
@@ -87,6 +114,9 @@ const ConfigForm = ({
         setFlagRefs={setServerFlags}
         inputName="serverFlags"
       />
+      {errors[CONFIG.servers] && (
+        <div className="configform-error">ERROR: {errors[CONFIG.servers]}</div>
+      )}
       <br />
       <ArrayOfStringInput
         label="Load Test Files"
@@ -95,6 +125,9 @@ const ConfigForm = ({
         setFlagRefs={setFileFlags}
         inputName="fileFlag"
       />
+      {errors[CONFIG.files] && (
+        <div className="configform-error">ERROR: {errors[CONFIG.files]}</div>
+      )}
       <br />
       <StringInput
         label="Base URL"
@@ -127,9 +160,9 @@ const ConfigForm = ({
           onChange={onRunLoopFlagChange}
         />
       </div>
+      <br />
       {runLoopFlagState ? (
         <>
-          <br />
           <div className="configform-runloop-dependent">
             <IntegerInput
               label="Duration"
@@ -138,6 +171,11 @@ const ConfigForm = ({
               inputName="durationFlag"
               units="second(s)"
             />
+            {errors[CONFIG.duration] && (
+              <div className="configform-error">
+                ERROR: {errors[CONFIG.duration]}
+              </div>
+            )}
             <br />
             <BooleanInput
               label="Randomize"
@@ -150,7 +188,6 @@ const ConfigForm = ({
         </>
       ) : (
         <>
-          <br />
           <div className="configform-runloop-dependent">
             <IntegerInput
               label="Max Errors"
@@ -158,9 +195,14 @@ const ConfigForm = ({
               elRef={maxErrorsFlag}
               inputName="maxErrorsFlag"
             />
+            {errors[CONFIG.maxErrors] && (
+              <div className="configform-error">
+                ERROR: {errors[CONFIG.maxErrors]}
+              </div>
+            )}
           </div>
         </>
-      ) }
+      )}
       <br />
       <IntegerInput
         label="Sleep"
@@ -169,6 +211,9 @@ const ConfigForm = ({
         inputName="sleepFlag"
         units="ms"
       />
+      {errors[CONFIG.sleep] && (
+        <div className="configform-error">ERROR: {errors[CONFIG.sleep]}</div>
+      )}
       <br />
       <IntegerInput
         label="Timeout"
@@ -177,6 +222,9 @@ const ConfigForm = ({
         inputName="timeoutFlag"
         units="second(s)"
       />
+      {errors[CONFIG.timeout] && (
+        <div className="configform-error">ERROR: {errors[CONFIG.timeout]}</div>
+      )}
       <br />
       <BooleanInput
         label="Verbose Errors"
@@ -185,9 +233,23 @@ const ConfigForm = ({
         inputName="verboseErrorsFlag"
         onChange={onRefCurrentChange(verboseErrorsFlag)}
       />
+      <div className="configform-save">
+        {!errors.response && Object.keys(errors).length > 0 && (
+          <div className="configform-save-error configform-error">
+            Invalid config value(s)
+          </div>
+        )}
+        {errors.response && (
+          <div className="configform-save-error configform-error">
+            Unable to save config:
+            <br />
+            {errors.response}
+          </div>
+        )}
       <button type="button" onClick={handleSave}>
         SAVE
       </button>
+    </div>
     </div>
   );
 };
