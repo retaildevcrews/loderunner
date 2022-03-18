@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import ArrayOfStringInput from "./ArrayOfStringInput";
 import BooleanInput from "./BooleanInput";
 import IntegerInput from "./IntegerInput";
@@ -252,6 +252,54 @@ const ConfigForm = ({
     </div>
     </div>
   );
+};
+
+ConfigForm.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+  writeConfig: PropTypes.func.isRequired,
+  baseUrlFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  configName: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  dryRunFlag: PropTypes.shape({ current: PropTypes.bool }).isRequired,
+  durationFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  fileFlags: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      ref: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+    })
+  ).isRequired,
+  maxErrorsFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  randomizeFlag: PropTypes.shape({ current: PropTypes.bool }).isRequired,
+  runLoopFlag: PropTypes.shape({ current: PropTypes.bool }).isRequired,
+  serverFlags: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      ref: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+    })
+  ).isRequired,
+  setFileFlags: PropTypes.func.isRequired,
+  setServerFlags: PropTypes.func.isRequired,
+  sleepFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  strictJsonFlag: PropTypes.shape({ current: PropTypes.bool }).isRequired,
+  tagFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  timeoutFlag: PropTypes.shape({
+    current: PropTypes.instanceOf(Element),
+  }).isRequired,
+  verboseErrorsFlag: PropTypes.shape({ current: PropTypes.bool }).isRequired,
 };
 
 export default ConfigForm;
