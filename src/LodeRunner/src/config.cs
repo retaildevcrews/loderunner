@@ -270,7 +270,7 @@ namespace LodeRunner
                         }
                         else
                         {
-                            this.Server[i] = $"https://{s}.azurewebsites.net";
+                            this.Server[i] = $"https://{s}";
                         }
                     }
                 }

@@ -60,7 +60,7 @@ namespace LodeRunner.Core
         /// </returns>
         public static bool IsProductionEnvironment()
         {
-            return GetEnvironmentName() == SystemConstants.DevelopmentEnvironment;
+            return GetEnvironmentName() == SystemConstants.ProductionEnvironment;
         }
 
         /// <summary>
