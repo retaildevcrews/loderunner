@@ -6,6 +6,7 @@ import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
 import { AppContext } from "../../contexts";
 import { CONFIG } from "../../models";
+import "./styles.css";
 
 const ConfigForm = ({
   children,
@@ -176,50 +177,49 @@ const ConfigForm = ({
           inputName="runLoopFlag"
           onChange={onRunLoopFlagChange}
         />
+        {runLoopFlagState ? (
+          <>
+            <div className="configform-runloop-dependent">
+              <IntegerInput
+                label="Duration"
+                description="Test duration"
+                elRef={durationFlag}
+                inputName="durationFlag"
+                units="second(s)"
+              />
+              {errors[CONFIG.duration] && (
+                <div className="configform-error">
+                  ERROR: {errors[CONFIG.duration]}
+                </div>
+              )}
+              <br />
+              <BooleanInput
+                label="Randomize"
+                description="Processes load file randomly instead of from top to bottom"
+                elRef={randomizeFlag}
+                inputName="randomizeFlag"
+                onChange={onRefCurrentChange(randomizeFlag)}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="configform-runloop-dependent">
+              <IntegerInput
+                label="Max Errors"
+                description="Maximum validation errors"
+                elRef={maxErrorsFlag}
+                inputName="maxErrorsFlag"
+              />
+              {errors[CONFIG.maxErrors] && (
+                <div className="configform-error">
+                  ERROR: {errors[CONFIG.maxErrors]}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
-      <br />
-      {runLoopFlagState ? (
-        <>
-          <div className="configform-runloop-dependent">
-            <IntegerInput
-              label="Duration"
-              description="Test duration"
-              elRef={durationFlag}
-              inputName="durationFlag"
-              units="second(s)"
-            />
-            {errors[CONFIG.duration] && (
-              <div className="configform-error">
-                ERROR: {errors[CONFIG.duration]}
-              </div>
-            )}
-            <br />
-            <BooleanInput
-              label="Randomize"
-              description="Processes load file randomly instead of from top to bottom"
-              elRef={randomizeFlag}
-              inputName="randomizeFlag"
-              onChange={onRefCurrentChange(randomizeFlag)}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="configform-runloop-dependent">
-            <IntegerInput
-              label="Max Errors"
-              description="Maximum validation errors"
-              elRef={maxErrorsFlag}
-              inputName="maxErrorsFlag"
-            />
-            {errors[CONFIG.maxErrors] && (
-              <div className="configform-error">
-                ERROR: {errors[CONFIG.maxErrors]}
-              </div>
-            )}
-          </div>
-        </>
-      )}
       <br />
       <IntegerInput
         label="Sleep"
