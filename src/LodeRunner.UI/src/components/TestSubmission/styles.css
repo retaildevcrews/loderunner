@@ -1,17 +1,17 @@
 .modal-testsubmission {
-  background-color: #fefbe7;
+  background-color: var(--c-neutral-lightest);
 }
 .testsubmission button.testsubmission-button {
   width: 100%;
-  background-color: #156064;
-  color: whitesmoke;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
   height: 2em;
   border-radius: 4px;
   font-weight: bold;
 }
 .testsubmission button.testsubmission-button:hover {
-  background-color: #24b2b9;
-  color: white;
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
 }
 .testsubmission ul {
   margin: 0;

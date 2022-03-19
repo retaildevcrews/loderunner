@@ -30,8 +30,8 @@ const PlayIcon = ({ fillColor, hoverColor, width }) => {
 };
 
 PlayIcon.defaultProps = {
-  fillColor: "black",
-  hoverColor: "grey",
+  fillColor: "var(--c-neutral-darkest)",
+  hoverColor: "var(--c-neutral)",
   width: "1em",
 };
 

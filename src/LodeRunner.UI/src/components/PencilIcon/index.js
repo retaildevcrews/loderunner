@@ -38,8 +38,8 @@ const PencilIcon = ({ fillColor, hoverColor, width }) => {
 };
 
 PencilIcon.defaultProps = {
-  fillColor: "black",
-  hoverColor: "grey",
+  fillColor: "var(--c-neutral-darkest)",
+  hoverColor: "var(--c-neutral)",
   width: "1em",
 };
 

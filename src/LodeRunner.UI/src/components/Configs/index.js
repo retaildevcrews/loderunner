@@ -19,16 +19,11 @@ const Configs = () => {
   const { setIsPending } = useContext(AppContext);
   const { setModalContent } = useContext(TestPageContext);
   const { selectedClientIds } = useContext(ClientsContext);
-  const {
-    setFetchConfigsTrigger,
-    configs,
-    setOpenedConfigId,
-    setTestRunConfigId,
-  } = useContext(ConfigsContext);
+  const { setFetchConfigsTrigger, configs, setTestRunConfigId } =
+    useContext(ConfigsContext);
 
-  const openConfigFormModal = (id) => (e) => {
+  const openConfigFormModal = (e) => {
     e.stopPropagation();
-    setOpenedConfigId(id);
     setModalContent(MODAL_CONTENT.configForm);
   };
 
@@ -92,8 +87,8 @@ const Configs = () => {
           <button
             className="unset configs-newitem"
             type="button"
-            onClick={openConfigFormModal(-1)}
-            onKeyDown={openConfigFormModal(-1)}
+            onClick={openConfigFormModal}
+            onKeyDown={openConfigFormModal}
             aria-label="New Load Test Config"
             title="New Load Test Config"
           >
@@ -134,8 +129,8 @@ const Configs = () => {
                 <A href={`/configs/${configId}`}>
                   <PencilIcon
                     width="3em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </A>
                 <button
@@ -147,8 +142,8 @@ const Configs = () => {
                 >
                   <TrashIcon
                     width="2em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </button>
                 <button
@@ -160,8 +155,8 @@ const Configs = () => {
                 >
                   <PlayIcon
                     width="2.4em"
-                    fillColor="lightgrey"
-                    hoverColor="whitesmoke"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
                   />
                 </button>
               </div>

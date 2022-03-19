@@ -20,19 +20,19 @@
 .clientdetails-header-exit {
   border: none;
   border-radius: 4px;
-  background-color: #156064;
-  color: whitesmoke;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
   font-weight: bold;
 }
 .clientdetails-header-exit:hover {
-  background-color: #24b2b9;
-  color: white;
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
 }
 .clientdetails-sectiontitle {
   margin-bottom: 0.2em;
 }
 .clientdetails-key {
-  color: #2c7f84;
+  color: var(--c-primary-dark);
 }
 .clientdetails-status {
   display: flex;

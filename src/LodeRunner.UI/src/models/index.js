@@ -1,6 +1,7 @@
+import { CONFIG, CONFIG_OPTIONS } from "./configs";
+
 export const CLIENT = {
   clientStatusId: "clientStatusId",
-  entityType: "entityType",
   lastStatusChange: "lastStatusChange",
   lastUpdated: "lastUpdated",
   loadClientId: "loadClientId",
@@ -24,7 +25,6 @@ export const CLIENT_STATUS_TYPES = {
 };
 
 export const CLIENT_STATUS = {
-  entityType: "entityType",
   id: "id",
   lastStatusChange: "lastStatusChange",
   lastUpdated: "lastUpdated",
@@ -34,7 +34,6 @@ export const CLIENT_STATUS = {
 };
 
 export const LOAD_CLIENT = {
-  entityType: "entityType",
   id: "id",
   name: "name",
   prometheus: "prometheus",
@@ -45,30 +44,7 @@ export const LOAD_CLIENT = {
   zone: "zone",
 };
 
-export const CONFIG = {
-  baseUrl: "baseURL",
-  delayStart: "delayStart",
-  dryRun: "dryRun",
-  duration: "duration",
-  entityType: "entityType",
-  files: "files",
-  id: "id",
-  name: "name",
-  maxErrors: "maxErrors",
-  partitionKey: "partitionKey",
-  randomize: "randomize",
-  runLoop: "runLoop",
-  servers: "server",
-  sleep: "sleep",
-  strictJson: "strictJson",
-  tag: "tag",
-  timeout: "timeout",
-  verbose: "verbose",
-  verboseErrors: "verboseErrors",
-};
-
 export const TEST_RUN = {
-  entityType: "entityType",
   id: "id",
   name: "name",
   config: "loadTestConfig",
@@ -86,3 +62,5 @@ export const RESULT = {
   successfulRequestCount: "successfulRequests",
   failedRequestCount: "failedRequests",
 };
+
+export { CONFIG, CONFIG_OPTIONS };
