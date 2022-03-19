@@ -25,7 +25,7 @@ const Configs = () => {
     setTestRunConfigId,
   } = useContext(ConfigsContext);
 
-  const openConfigFormModal = (id) => (e) => {
+  const openConfigFormModal = (e) => {
     e.stopPropagation();
     setModalContent(MODAL_CONTENT.configForm);
   };
@@ -69,8 +69,8 @@ const Configs = () => {
         } (${id})`
       );
     } else {
-      // setTestRunConfigId(id);
-      // setModalContent(MODAL_CONTENT.testSubmission);
+      setTestRunConfigId(id);
+      setModalContent(MODAL_CONTENT.testSubmission);
     }
   };
 
@@ -90,8 +90,8 @@ const Configs = () => {
           <button
             className="unset configs-newitem"
             type="button"
-            onClick={openConfigFormModal(-1)}
-            onKeyDown={openConfigFormModal(-1)}
+            onClick={openConfigFormModal}
+            onKeyDown={openConfigFormModal}
             aria-label="New Load Test Config"
             title="New Load Test Config"
           >

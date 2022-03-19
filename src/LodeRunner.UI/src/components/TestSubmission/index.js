@@ -18,7 +18,7 @@ const TestSubmission = () => {
   const { setIsPending } = useContext(AppContext);
   const { setModalContent } = useContext(TestPageContext);
 
-  const { formData, setFormData } = useState();
+  const [formData, setFormData] = useState();
   const testRunNameRef = useRef();
   const [isScheduledForNow, setIsScheduledForNow] = useState(true);
   const scheduledStartTimeRef = useRef();
@@ -67,7 +67,7 @@ const TestSubmission = () => {
       .finally(() => setIsPending(false));
   }, [formData]);
 
-  const handleEditConfig = (configId) => navigate(`/configs/${configId}`);
+  const handleEditConfig = (configId) => () => navigate(`/configs/${configId}`);
 
   const handleCancel = () => {
     setModalContent(MODAL_CONTENT.closed);
@@ -91,7 +91,7 @@ const TestSubmission = () => {
       [TEST_RUN.config]:testRunConfig,
       [TEST_RUN.clients]: testRunClients,
       [TEST_RUN.createdTime]: now.toISOString(),
-      [TEST_RUN.scheduledStartTime]: isScheduledForNow ? now.toISOString : scheduledStartTimeRef.current.value,
+      [TEST_RUN.scheduledStartTime]: isScheduledForNow ? now.toISOString() : scheduledStartTimeRef.current.value,
     });
   };
 

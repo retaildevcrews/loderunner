@@ -4,6 +4,7 @@ import { writeApi } from "./utilities";
 const checkTestRunInputs = (inputs) => {
   const checkedInputs = [
     TEST_RUN.clients,
+    TEST_RUN.name,
     TEST_RUN.scheduledStartTime,
   ];
 
@@ -11,8 +12,10 @@ const checkTestRunInputs = (inputs) => {
     switch (config) {
       case TEST_RUN.clients:
         return inputs[config].length > 0 ? errs : [...errs, "Need to select at least one load client."];
+      case TEST_RUN.name:
+        return inputs[config] ? errs : [...errs, "Need to set a test run name."];
       case TEST_RUN.scheduledStartTime:
-        return inputs[config] || [...errs, "Need to schedule the test run start."];
+        return inputs[config] ? errs : [...errs, "Need to schedule the test run start."];
       default:
         return errs;
     };
