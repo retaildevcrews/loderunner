@@ -1,11 +1,8 @@
-.modal-configform {
-  background-color: #ffdd89;
-}
 .configform-input-label {
   font-weight: bold;
 }
 .configform-error {
-  color: red;
+  color: var(--c-error);
   font-weight: bold;
   font-size: 0.8em;
 }
@@ -18,21 +15,21 @@
 .configform-save > button {
   border: none;
   border-radius: 4px;
-  background-color: #156064;
-  color: whitesmoke;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
   height: 2em;
   width: 100%;
   font-weight: bold;
 }
 .configform-save > button:hover {
-  background-color: #24b2b9;
-  color: white;
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
 }
 .configform-runloop {
   display: flex;
 }
 .configform-runloop-dependent {
-  border-left: 2px solid #156064;
+  border-left: 2px solid var(--c-primary-dark);
   width: 70%;
   margin-left: 1em;
   padding-left: 1em;

@@ -30,8 +30,8 @@ RefreshIcon.propTypes = {
 
 RefreshIcon.defaultProps = {
   height: "1em",
-  arrowColor: "#32BEA6",
-  backgroundColor: "#f7f7f7",
+  arrowColor: "var(--c-primary)",
+  backgroundColor: "var(--c-neutral-lightest)",
 };
 
 export default RefreshIcon;

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import ClientDetails from "../ClientDetails";
 import Clients from "../Clients";
-import ConfigForm from "../ConfigForm";
+import CreateConfig from "../CreateConfig";
 import Configs from "../Configs";
 import Modal from "../Modal";
 import PendingFeature from "../PendingFeature";
@@ -22,7 +22,6 @@ const TestPage = () => {
   const [modalContent, setModalContent] = useState(MODAL_CONTENT.closed);
 
   const [configs, setConfigs] = useState([]);
-  const [openedConfigId, setOpenedConfigId] = useState(-1);
   const [testRunConfigId, setTestRunConfigId] = useState(-1);
 
   const [clients, setClients] = useState([]);
@@ -80,8 +79,6 @@ const TestPage = () => {
         value={{
           setFetchConfigsTrigger,
           configs,
-          openedConfigId,
-          setOpenedConfigId,
           testRunConfigId,
           setTestRunConfigId,
         }}
@@ -100,7 +97,7 @@ const TestPage = () => {
               {modalContent === MODAL_CONTENT.pendingFeature && (
                 <PendingFeature />
               )}
-              {modalContent === MODAL_CONTENT.configForm && <ConfigForm />}
+              {modalContent === MODAL_CONTENT.configForm && <CreateConfig />}
               {modalContent === MODAL_CONTENT.testSubmission && (
                 <TestSubmission />
               )}

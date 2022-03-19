@@ -8,10 +8,10 @@
   margin-left: 0.3em;
   font-weight: bold;
   font-size: 1.2em;
-  color: #156064;
+  color: var(--c-primary-dark);
 }
 button.configs-newitem:hover {
-  color: #24b2b9;
+  color: var(--c-primary-light);
 }
 .configs-item-options {
   display: flex;

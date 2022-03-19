@@ -9,7 +9,7 @@
   margin-top: 0.67em;
 }
 .clients > h3 {
-  color: #2c7f84;
+  color: var(--c-primary-dark);
   margin: 0;
   margin-bottom: 1em;
 }
@@ -25,8 +25,8 @@
   border: none;
   border-radius: 4px;
   padding: 1em;
-  background-color: #156064;
-  color: whitesmoke;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
   font-weight: bold;
   display: flex;
   justify-content: space-between;
@@ -39,17 +39,17 @@
   margin-left: 6px;
 }
 .clients-item-select:hover {
-  background-color: #24b2b9;
-  color: #156064;
+  background-color: var(--c-primary);
+  color: var(--c-primary-dark);
 }
 .clients-item-status {
   width: 10%;
   border-radius: 4px;
   border: none;
-  color: white;
+  color: var(--c-neutral-lightest);
   font-weight: bold;
 }
 .clients-item-status:hover,
 .clients-item-status.selected {
-  background-color: #24b2b9;
+  background-color: var(--c-primary);
 }

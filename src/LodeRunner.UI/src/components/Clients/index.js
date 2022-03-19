@@ -72,7 +72,10 @@ const Clients = ({ setFetchClientsInterval }) => {
                         className="clients-item-select-icon"
                         aria-label="Load Client Selected for Test Run"
                       >
-                        <CheckMarkIcon fillColor="white" width="1em" />
+                        <CheckMarkIcon
+                          fillColor="var(--c-neutral-lightest)"
+                          width="1em"
+                        />
                       </span>
                     )}
                   </button>

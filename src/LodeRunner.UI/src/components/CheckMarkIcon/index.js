@@ -33,7 +33,7 @@ const CheckMarkIcon = ({ fillColor, width }) => {
 };
 
 CheckMarkIcon.defaultProps = {
-  fillColor: "black",
+  fillColor: "var(--c-neutral-darkest)",
   width: "2em",
 };
 
