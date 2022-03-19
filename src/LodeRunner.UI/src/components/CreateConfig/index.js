@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import ConfigForm from "../ConfigForm";
-import { getArrayOfStringInputRefs } from "../ConfigForm/ArrayOfStringInput";
 import { writeConfig } from "../../services/configs";
 import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
 import { CONFIG, CONFIG_OPTIONS } from "../../models";
@@ -21,8 +20,16 @@ const CreateConfig = () => {
   const verboseErrorsFlagRef = useRef(CONFIG_OPTIONS[CONFIG.verboseErrors].default);
 
   // initialize array of string refs
-  const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs(CONFIG_OPTIONS[CONFIG.files].default));
-  const [serverFlagRefs, setServerFlagRefs] = useState(getArrayOfStringInputRefs(CONFIG_OPTIONS[CONFIG.servers].default));
+  const [fileFlagRefs, setFileFlagRefs] = useState([{
+    id: 0,
+    ref: null,
+    initialValue: CONFIG_OPTIONS[CONFIG.files].default,
+  }]);
+  const [serverFlagRefs, setServerFlagRefs] = useState([{
+    id: 0,
+    ref: null,
+    initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
+  }]);
 
   // declare refs without initial values
   const baseUrlFlagRef = useRef();

@@ -37,9 +37,9 @@ const ArrayOfStringInput = ({
         <span className="configform-input-label">{label}: </span>
         {description}
         <br />
-        {flagRefs.map(({ id, ref }, index) => (
+        {flagRefs.map(({ id, initialValue }, index) => (
           <div className="arrayofstringinput-input" key={`${inputName}-${id}`}>
-            <input ref={ref} type="string" name={inputName} defaultValue="" />
+            <input ref={element => flagRefs[index].ref = element } type="string" name={inputName} defaultValue={initialValue} />
             &nbsp;
             {flagRefs.length - 1 !== index ? (
               <>
@@ -54,8 +54,7 @@ const ArrayOfStringInput = ({
             ) : (
               <button
                 type="button"
-                onClick={() =>
-                  setEditedFlag({ id: editedFlag.id + 1, index: -1 })
+                onClick={() => setEditedFlag({ id: id + 1, index: -1 })
                 }
               >
                 +
@@ -82,12 +81,5 @@ ArrayOfStringInput.propTypes = {
   setFlagRefs: PropTypes.func.isRequired,
   inputName: PropTypes.string.isRequired,
 };
-
-// declare string array form refs
-export const getArrayOfStringInputRefs = (values = [0]) =>
-  values.map((_, index) => ({
-    id: index,
-    ref: React.createRef(),
-  }));
 
 export default ArrayOfStringInput;

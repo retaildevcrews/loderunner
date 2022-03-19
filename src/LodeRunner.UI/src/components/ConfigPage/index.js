@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { A } from "hookrouter";
 import ConfigForm from "../ConfigForm";
-import { getArrayOfStringInputRefs } from "../ConfigForm/ArrayOfStringInput";
 import { AppContext } from "../../contexts";
 import { writeConfig, getConfig } from "../../services/configs";
 import { CONFIG, CONFIG_OPTIONS } from "../../models";
@@ -13,8 +12,8 @@ const ConfigPage = ({ configId }) => {
   const [openedConfig, setOpenedConfig] = useState();
   const [fetchConfigTrigger, setFetchConfigTrigger] = useState(0);
 
-  const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs());
-  const [serverFlagRefs, setServerFlagRefs] = useState(getArrayOfStringInputRefs());
+  const [fileFlagRefs, setFileFlagRefs] = useState([]);
+  const [serverFlagRefs, setServerFlagRefs] = useState([]);
 
   // declare string/integer references
   const baseUrlFlagRef = useRef();
@@ -44,9 +43,35 @@ const ConfigPage = ({ configId }) => {
     if (!openedConfig) {
       return;
     }
+
     // Handle array of references
-    setFileFlagRefs(getArrayOfStringInputRefs(openedConfig[CONFIG.files] ?? CONFIG_OPTIONS[CONFIG.files].default));
-    setServerFlagRefs(getArrayOfStringInputRefs(openedConfig[CONFIG.servers] ?? CONFIG_OPTIONS[CONFIG.servers].default));
+    if (openedConfig[CONFIG.files]?.length > 0) {
+      setFileFlagRefs(openedConfig[CONFIG.files].map((value, index) => ({
+        id: index,
+        ref: null,
+        initialValue: value,
+      })));
+    } else {
+      setFileFlagRefs([{
+        id: 0,
+        ref: null,
+        initialValue: CONFIG_OPTIONS[CONFIG.files].default,
+      }]);
+    }
+
+    if (openedConfig[CONFIG.servers]?.length > 0) {
+      setServerFlagRefs(openedConfig[CONFIG.servers].map((value, index) => ({
+        id: index,
+        ref: null,
+        initialValue: value,
+      })));
+    } else {
+      setServerFlagRefs([{
+        id: 0,
+        ref: null,
+        initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
+      }]);
+    }
 
     // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
     if (durationFlagRef.current) {
@@ -63,21 +88,6 @@ const ConfigPage = ({ configId }) => {
     tagFlagRef.current.value = openedConfig[CONFIG.tag] ?? CONFIG_OPTIONS[CONFIG.tag].default;
     timeoutFlagRef.current.value = openedConfig[CONFIG.timeout] ?? CONFIG_OPTIONS[CONFIG.timeout].default;
   }, [openedConfig]);
-
-  // Update references in array when array changes in length
-  useEffect(() => {
-    if (openedConfig?.[CONFIG.files] && openedConfig[CONFIG.files].length === fileFlagRefs.length) {
-      openedConfig[CONFIG.files].forEach((value, index) => {
-        fileFlagRefs[index].ref.current.value = value;
-      });
-    }
-
-    if (openedConfig?.[CONFIG.servers] && openedConfig[CONFIG.servers].length === serverFlagRefs.length) {
-      openedConfig[CONFIG.servers].forEach((value, index) => {
-        serverFlagRefs[index].ref.current.value = value;
-      });
-    }
-  }, [fileFlagRefs, serverFlagRefs]);
 
   // Update existing config
   const putConfig = (inputs) => {

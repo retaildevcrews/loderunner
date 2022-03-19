@@ -36,7 +36,7 @@ export const CONFIG_OPTIONS = {
     required: false,
   },
   [CONFIG.files]: {
-    default: [""],
+    default: "",
     dependencies: [],
     required: true,
   },
@@ -66,7 +66,7 @@ export const CONFIG_OPTIONS = {
     required: false,
   },
   [CONFIG.servers]: {
-    default: [""],
+    default: "",
     dependencies: [],
     required: true,
   },
