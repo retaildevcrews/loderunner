@@ -22,13 +22,11 @@ const Configs = () => {
   const {
     setFetchConfigsTrigger,
     configs,
-    setOpenedConfigId,
     setTestRunConfigId,
   } = useContext(ConfigsContext);
 
   const openConfigFormModal = (id) => (e) => {
     e.stopPropagation();
-    setOpenedConfigId(id);
     setModalContent(MODAL_CONTENT.configForm);
   };
 
@@ -71,8 +69,8 @@ const Configs = () => {
         } (${id})`
       );
     } else {
-      setTestRunConfigId(id);
-      setModalContent(MODAL_CONTENT.testSubmission);
+      // setTestRunConfigId(id);
+      // setModalContent(MODAL_CONTENT.testSubmission);
     }
   };
 

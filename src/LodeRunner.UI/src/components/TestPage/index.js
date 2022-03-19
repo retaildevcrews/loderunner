@@ -22,7 +22,6 @@ const TestPage = () => {
   const [modalContent, setModalContent] = useState(MODAL_CONTENT.closed);
 
   const [configs, setConfigs] = useState([]);
-  const [openedConfigId, setOpenedConfigId] = useState(-1);
   const [testRunConfigId, setTestRunConfigId] = useState(-1);
 
   const [clients, setClients] = useState([]);
@@ -80,8 +79,6 @@ const TestPage = () => {
         value={{
           setFetchConfigsTrigger,
           configs,
-          openedConfigId,
-          setOpenedConfigId,
           testRunConfigId,
           setTestRunConfigId,
         }}

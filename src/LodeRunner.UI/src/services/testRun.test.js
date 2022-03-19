@@ -37,7 +37,6 @@ describe("getPostPayload", () => {
         runLoop: CONFIG.runLoop,
         duration: CONFIG.duration,
         maxErrors: CONFIG.maxErrors,
-        delayStart: CONFIG.delayStart,
         dryRun: CONFIG.dryRun,
       },
       loadClients: [

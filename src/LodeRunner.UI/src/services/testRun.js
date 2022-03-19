@@ -1,50 +1,34 @@
+import { TEST_RUN } from "../models";
 import { writeApi } from "./utilities";
-import { CLIENT, CONFIG, TEST_RUN } from "../models";
 
-const getPostPayload = ({
-  [TEST_RUN.name]: testRunName,
-  [TEST_RUN.createdTime]: testRunCreatedTime,
-  [TEST_RUN.scheduledStartTime]: testRunStartTime,
-  [TEST_RUN.config]: config,
-  [TEST_RUN.clients]: clients,
-}) => {
-  const configPayload = JSON.parse(JSON.stringify(config));
-  delete configPayload[CONFIG.partitionKey];
-  delete configPayload[CONFIG.entityType];
+const checkTestRunInputs = (inputs) => {
+  const checkedInputs = [
+    TEST_RUN.clients,
+    TEST_RUN.scheduledStartTime,
+  ];
 
-  const clientsPayload = clients.map(
-    ({
-      [CLIENT.loadClientId]: id,
-      [CLIENT.name]: name,
-      [CLIENT.version]: version,
-      [CLIENT.region]: region,
-      [CLIENT.zone]: zone,
-      [CLIENT.prometheus]: prometheus,
-      [CLIENT.startupArgs]: startupArgs,
-      [CLIENT.startTime]: startTime,
-    }) => ({
-      id,
-      name,
-      version,
-      region,
-      zone,
-      prometheus,
-      startupArgs,
-      startTime,
-    })
-  );
+  const errors = checkedInputs.reduce((errs, config) => {
+    switch (config) {
+      case TEST_RUN.clients:
+        return inputs[config].length > 0 ? errs : [...errs, "Need to select at least one load client."];
+      case TEST_RUN.scheduledStartTime:
+        return inputs[config] || [...errs, "Need to schedule the test run start."];
+      default:
+        return errs;
+    };
+  }, []);
 
-  return {
-    [TEST_RUN.name]: testRunName,
-    [TEST_RUN.createdTime]: testRunCreatedTime,
-    [TEST_RUN.scheduledStartTime]: testRunStartTime,
-    [TEST_RUN.config]: configPayload,
-    [TEST_RUN.clients]: clientsPayload,
-  };
+  if (errors.length > 0) {
+    throw errors;
+  }
 };
 
-const postTestRun = async (input) => {
-  return writeApi("POST", "TestRuns")(getPostPayload(input));
+const postTestRun = async (inputs) => {
+  checkTestRunInputs(inputs);
+  return writeApi("POST", "TestRuns")(inputs);
 };
 
-export { postTestRun, getPostPayload };
+export {
+  checkTestRunInputs,
+  postTestRun,
+};

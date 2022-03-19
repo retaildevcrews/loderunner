@@ -2,30 +2,29 @@ import { useContext, useEffect, useRef, useState } from "react";
 import ConfigForm from "../ConfigForm";
 import { getArrayOfStringInputRefs } from "../ConfigForm/ArrayOfStringInput";
 import { writeConfig } from "../../services/configs";
-import { ConfigsContext, TestPageContext } from "../../contexts";
+import { AppContext, ConfigsContext, TestPageContext } from "../../contexts";
+import { CONFIG, CONFIG_OPTIONS } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
 const CreateConfig = () => {
   // context props
+  const { setIsPending } = useContext(AppContext);
   const { setFetchConfigsTrigger } = useContext(ConfigsContext);
   const { setModalContent } = useContext(TestPageContext);
 
   // initial boolean form values
-  //TODO: Set via default value function in model
-  const dryRunFlagRef = useRef(false);
-  const randomizeFlagRef = useRef(false);
-  const runLoopFlagRef = useRef(false);
-  const strictJsonFlagRef = useRef(false);
-  const verboseErrorsFlagRef = useRef(false);
+  const dryRunFlagRef = useRef(CONFIG_OPTIONS[CONFIG.dryRun].default);
+  const randomizeFlagRef = useRef(CONFIG_OPTIONS[CONFIG.randomize].default);
+  const runLoopFlagRef = useRef(CONFIG_OPTIONS[CONFIG.runLoop].default);
+  const strictJsonFlagRef = useRef(CONFIG_OPTIONS[CONFIG.strictJson].default);
+  const verboseErrorsFlagRef = useRef(CONFIG_OPTIONS[CONFIG.verboseErrors].default);
 
   // initialize array of string refs
-  const [serverFlagRefs, setServerFlagRefs] = useState(
-    getArrayOfStringInputRefs()
-  );
-  const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs());
+  const [fileFlagRefs, setFileFlagRefs] = useState(getArrayOfStringInputRefs(CONFIG_OPTIONS[CONFIG.files].default));
+  const [serverFlagRefs, setServerFlagRefs] = useState(getArrayOfStringInputRefs(CONFIG_OPTIONS[CONFIG.servers].default));
 
-  // declare string refs
+  // declare refs without initial values
   const baseUrlFlagRef = useRef();
   const configNameRef = useRef();
   const durationFlagRef = useRef();
@@ -35,28 +34,34 @@ const CreateConfig = () => {
   const timeoutFlagRef = useRef();
 
   useEffect(() => {
-    // TODO: use default values to set
     // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
     if (durationFlagRef.current) {
-      durationFlagRef.current.value = "";
+      durationFlagRef.current.value = CONFIG_OPTIONS[CONFIG.duration].default;
     }
     if (maxErrorsFlagRef.current) {
-      maxErrorsFlagRef.current.value = 10;
+      maxErrorsFlagRef.current.value = CONFIG_OPTIONS[CONFIG.maxErrors].default;
     }
 
-    // Handle Others
-    configNameRef.current.value = "";
-    sleepFlagRef.current.value = 0;
-    tagFlagRef.current.value = "";
-    timeoutFlagRef.current.value = 30;
+    // set initial values after ref elements mount
+    baseUrlFlagRef.current.value = CONFIG_OPTIONS[CONFIG.baseUrl].default;
+    configNameRef.current.value = CONFIG_OPTIONS[CONFIG.name].default;
+    sleepFlagRef.current.value = CONFIG_OPTIONS[CONFIG.sleep].default;
+    tagFlagRef.current.value = CONFIG_OPTIONS[CONFIG.tag].default;
+    timeoutFlagRef.current.value = CONFIG_OPTIONS[CONFIG.timeout].default;
   }, []);
 
   // Create new config
-  const postConfig = (inputs) =>
-    writeConfig("POST", inputs).then(() => {
-      setModalContent(MODAL_CONTENT.closed);
-      setFetchConfigsTrigger(Date.now());
-    });
+  const postConfig = (inputs) => {
+    setIsPending(true);
+    return writeConfig("POST", inputs)
+      .then(() => {
+        setFetchConfigsTrigger(Date.now());
+        return () => setModalContent(MODAL_CONTENT.closed);
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
+  };
 
   return (
     <div className="configform">

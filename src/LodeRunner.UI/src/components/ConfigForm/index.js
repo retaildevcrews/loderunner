@@ -4,8 +4,7 @@ import ArrayOfStringInput from "./ArrayOfStringInput";
 import BooleanInput from "./BooleanInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
-import { AppContext } from "../../contexts";
-import { CONFIG } from "../../models";
+import { CONFIG, CONFIG_OPTIONS } from "../../models";
 import "./styles.css";
 
 const ConfigForm = ({
@@ -28,8 +27,6 @@ const ConfigForm = ({
   timeoutFlag,
   verboseErrorsFlag,
 }) => {
-  const { setIsPending } = useContext(AppContext);
-
   const [runLoopFlagState, setRunLoopFlagState] = useState(runLoopFlag.current);
   const [formData, setFormData] = useState();
   const [errors, setErrors] = useState({});
@@ -44,22 +41,23 @@ const ConfigForm = ({
     setRunLoopFlagState(target.value === "true");
   };
 
-  const onRefCurrentChange =
+  // Sets reference value on boolean toogle
+  const onBooleanInputChange =
     (ref) =>
     ({ target }) => {
       // eslint-disable-next-line no-param-reassign
-      ref.current = target.value;
+      ref.current = target.value === "true"
     };
 
   useEffect(() => {
     // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
     if (durationFlag.current) {
       // eslint-disable-next-line no-param-reassign
-      durationFlag.current.value = "";
+      durationFlag.current.value = CONFIG_OPTIONS[CONFIG.duration].default;
     }
     if (maxErrorsFlag.current) {
       // eslint-disable-next-line no-param-reassign
-      maxErrorsFlag.current.value = 10;
+      maxErrorsFlag.current.value = CONFIG_OPTIONS[CONFIG.maxErrors].default;
     }
   }, [runLoopFlagState]);
 
@@ -68,9 +66,11 @@ const ConfigForm = ({
       return;
     }
 
-    setIsPending(true);
-
     writeConfig(formData)
+      .then((callback = () => {}) => {
+        setErrors({});
+        callback();
+      })
       .catch((err) => {
         if (typeof err !== "object") {
           // Display non-object errors
@@ -82,29 +82,41 @@ const ConfigForm = ({
           // Display custom input error(s)
           setErrors(err);
         }
-      })
-      .finally(() => {
-        setIsPending(false);
       });
   }, [formData]);
 
   const handleSave = () => {
-    setFormData({
+    // send default value if referencing unmounted element (dependent on run loop)
+    const duration = durationFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.duration].default;
+    const maxErrors = maxErrorsFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.maxErrors].default;
+
+    const inputs = {
       [CONFIG.baseUrl]: baseUrlFlag.current.value,
       [CONFIG.dryRun]: dryRunFlag.current,
-      [CONFIG.duration]: durationFlag.current?.value, // TODO: send default value if not populated
-      [CONFIG.files]: fileFlags.map(({ ref }) => ref.current.value),
-      [CONFIG.maxErrors]: maxErrorsFlag.current.value,
+      [CONFIG.duration]: duration,
+      [CONFIG.files]: fileFlags.map(({ ref }) => ref.current.value).filter(file => file),
+      [CONFIG.maxErrors]: maxErrors,
       [CONFIG.name]: configName.current.value,
       [CONFIG.randomize]: randomizeFlag.current,
       [CONFIG.runLoop]: runLoopFlag.current,
-      [CONFIG.servers]: serverFlags.map(({ ref }) => ref.current.value),
+      [CONFIG.servers]: serverFlags.map(({ ref }) => ref.current.value).filter(server => server),
       [CONFIG.sleep]: sleepFlag.current.value,
       [CONFIG.strictJson]: strictJsonFlag.current,
       [CONFIG.tag]: tagFlag.current.value,
       [CONFIG.timeout]: timeoutFlag.current.value,
       [CONFIG.verboseErrors]: verboseErrorsFlag.current,
+    };
+
+    // Remove dependendent invalid inputs
+    Object.entries(CONFIG_OPTIONS).forEach(([config, { dependencies }]) => {
+      dependencies.forEach(([dependentOn, shouldExist]) => {
+        if (inputs[dependentOn] !== shouldExist) {
+          delete inputs[config];
+        }
+      });
     });
+
+    setFormData(inputs);
   };
 
   return (
@@ -115,7 +127,7 @@ const ConfigForm = ({
         description="Validate settings with target clients without running load test"
         elRef={dryRunFlag}
         inputName="dryRunFlag"
-        onChange={onRefCurrentChange(dryRunFlag)}
+        onChange={onBooleanInputChange(dryRunFlag)}
       />
       <br />
       <StringInput
@@ -159,7 +171,7 @@ const ConfigForm = ({
         description="Use strict RFC rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON."
         elRef={strictJsonFlag}
         inputName="strictJsonFlag"
-        onChange={onRefCurrentChange(strictJsonFlag)}
+        onChange={onBooleanInputChange(strictJsonFlag)}
       />
       <br />
       <StringInput
@@ -198,7 +210,7 @@ const ConfigForm = ({
                 description="Processes load file randomly instead of from top to bottom"
                 elRef={randomizeFlag}
                 inputName="randomizeFlag"
-                onChange={onRefCurrentChange(randomizeFlag)}
+                onChange={onBooleanInputChange(randomizeFlag)}
               />
             </div>
           </>
@@ -248,7 +260,7 @@ const ConfigForm = ({
         description="Display validation error messages"
         elRef={verboseErrorsFlag}
         inputName="verboseErrorsFlag"
-        onChange={onRefCurrentChange(verboseErrorsFlag)}
+        onChange={onBooleanInputChange(verboseErrorsFlag)}
       />
       <div className="configform-save">
         {!errors.response && Object.keys(errors).length > 0 && (
