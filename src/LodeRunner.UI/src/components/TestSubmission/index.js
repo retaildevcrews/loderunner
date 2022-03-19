@@ -5,8 +5,9 @@ import {
   ClientsContext,
   ConfigsContext,
   TestPageContext,
+  TestRunsContext,
 } from "../../contexts";
-import { postTestRun } from "../../services/testRun";
+import { postTestRun } from "../../services/testRuns";
 import {
   CLIENT,
   CLIENT_STATUS_TYPES,
@@ -19,11 +20,12 @@ import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const TestSubmission = () => {
+  const { setIsPending } = useContext(AppContext);
   const { clients, selectedClientIds, setSelectedClientIds } =
     useContext(ClientsContext);
   const { configs, testRunConfigId } = useContext(ConfigsContext);
-  const { setIsPending } = useContext(AppContext);
   const { setModalContent } = useContext(TestPageContext);
+  const { setFetchTestRunsTrigger } = useContext(TestRunsContext);
 
   const [formData, setFormData] = useState();
   const testRunNameRef = useRef();
@@ -66,6 +68,7 @@ const TestSubmission = () => {
         setModalContent(MODAL_CONTENT.closed);
         setSelectedClientIds({});
       })
+      .then(() => setFetchTestRunsTrigger(Date.now()))
       .catch((err) => {
         if (err.length > 0) {
           // eslint-disable-next-line no-alert

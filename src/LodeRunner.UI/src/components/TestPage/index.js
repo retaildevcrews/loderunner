@@ -3,6 +3,7 @@ import ClientDetails from "../ClientDetails";
 import Clients from "../Clients";
 import CreateConfig from "../CreateConfig";
 import Configs from "../Configs";
+import IncompleteTestRuns from "../IncompleteTestRuns";
 import Modal from "../Modal";
 import PendingFeature from "../PendingFeature";
 import TestSubmission from "../TestSubmission";
@@ -11,9 +12,11 @@ import {
   ClientsContext,
   ConfigsContext,
   TestPageContext,
+  TestRunsContext,
 } from "../../contexts";
 import { getClients } from "../../services/clients";
 import { getConfigs } from "../../services/configs";
+import { getTestRuns } from "../../services/testRuns";
 import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
 import "./styles.css";
 
@@ -28,9 +31,12 @@ const TestPage = () => {
   const [selectedClientIds, setSelectedClientIds] = useState({});
   const [openedClientDetailsId, setOpenedClientDetailsId] = useState(-1);
 
+  const [testRuns, setTestRuns] = useState([]);
+
   const [fetchConfigsTrigger, setFetchConfigsTrigger] = useState(0);
   const [fetchClientsTrigger, setFetchClientsTrigger] = useState(0);
   const fetchClientsIntervalId = useRef();
+  const [fetchTestRunsTrigger, setFetchTestRunsTrigger] = useState(0);
 
   const setFetchClientsInterval = (interval) => {
     // Clear old interval
@@ -65,6 +71,12 @@ const TestPage = () => {
   }, [fetchConfigsTrigger]);
 
   useEffect(() => {
+    getTestRuns()
+      .then((t) => setTestRuns(t))
+      .catch(() => setTestRuns([]));
+  }, [fetchTestRunsTrigger]);
+
+  useEffect(() => {
     // Handle cleanup when modal closes
     if (modalContent === MODAL_CONTENT.closed && testRunConfigId !== -1) {
       setTestRunConfigId(-1);
@@ -92,24 +104,33 @@ const TestPage = () => {
             setOpenedClientDetailsId,
           }}
         >
-          {modalContent && (
-            <Modal content={modalContent} setContent={setModalContent}>
-              {modalContent === MODAL_CONTENT.pendingFeature && (
-                <PendingFeature />
-              )}
-              {modalContent === MODAL_CONTENT.configForm && <CreateConfig />}
-              {modalContent === MODAL_CONTENT.testSubmission && (
-                <TestSubmission />
-              )}
-            </Modal>
-          )}
-          <div className="testpage-content">
-            <Clients setFetchClientsInterval={setFetchClientsInterval} />
-            <div className="testpage-content-column">
-              {mainContent === MAIN_CONTENT.clientDetails && <ClientDetails />}
-              {mainContent === MAIN_CONTENT.configs && <Configs />}
+          <TestRunsContext.Provider
+            value={{ testRuns, setFetchTestRunsTrigger }}
+          >
+            {modalContent && (
+              <Modal content={modalContent} setContent={setModalContent}>
+                {modalContent === MODAL_CONTENT.pendingFeature && (
+                  <PendingFeature />
+                )}
+                {modalContent === MODAL_CONTENT.configForm && <CreateConfig />}
+                {modalContent === MODAL_CONTENT.testSubmission && (
+                  <TestSubmission />
+                )}
+              </Modal>
+            )}
+            <div className="testpage-content">
+              <div className="testpage-content-activepanel">
+                <Clients setFetchClientsInterval={setFetchClientsInterval} />
+                <IncompleteTestRuns />
+              </div>
+              <div className="testpage-content-column">
+                {mainContent === MAIN_CONTENT.clientDetails && (
+                  <ClientDetails />
+                )}
+                {mainContent === MAIN_CONTENT.configs && <Configs />}
+              </div>
             </div>
-          </div>
+          </TestRunsContext.Provider>
         </ClientsContext.Provider>
       </ConfigsContext.Provider>
     </TestPageContext.Provider>

@@ -33,7 +33,7 @@ function getMMMDYYYYhmma(datetime) {
     hours > 11 ? "pm" : "am"
   }`;
 
-  return `${formattedDate} @ ${formattedTime}`;
+  return `${formattedDate} - ${formattedTime}`;
 }
 
 export default getMMMDYYYYhmma;
