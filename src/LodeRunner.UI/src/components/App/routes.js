@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import ConfigPage  from "../ConfigPage";
+import ConfigPage from "../ConfigPage";
 import ResultPage from "../ResultPage";
 import ResultsOverviewPage from "../ResultsOverviewPage";
 import TestPage from "../TestPage";

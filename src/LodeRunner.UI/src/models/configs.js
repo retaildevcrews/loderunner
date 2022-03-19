@@ -32,7 +32,7 @@ export const CONFIG_OPTIONS = {
   },
   [CONFIG.duration]: {
     default: 0, // infinite
-    dependencies: [[ [CONFIG.runLoop], true ]],
+    dependencies: [[[CONFIG.runLoop], true]],
     required: false,
   },
   [CONFIG.files]: {
@@ -52,12 +52,12 @@ export const CONFIG_OPTIONS = {
   },
   [CONFIG.maxErrors]: {
     default: 10,
-    dependencies: [[ [CONFIG.runLoop], false ]],
+    dependencies: [[[CONFIG.runLoop], false]],
     required: false,
-  }, 
+  },
   [CONFIG.randomize]: {
     default: false,
-    dependencies: [[ [CONFIG.runLoop], true ]],
+    dependencies: [[[CONFIG.runLoop], true]],
     required: false,
   },
   [CONFIG.runLoop]: {

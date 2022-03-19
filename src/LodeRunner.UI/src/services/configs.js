@@ -36,7 +36,10 @@ const checkConfigInputs = (inputs) => {
             };
       case CONFIG.duration:
         // Dependent (runLoop == True) positive integer value or zero
-        if (inputs[CONFIG.runLoop] && !(Number.parseInt(inputs[config], 10) >= 0)) {
+        if (
+          inputs[CONFIG.runLoop] &&
+          !(Number.parseInt(inputs[config], 10) >= 0)
+        ) {
           return {
             ...errs,
             [config]: "Must be a positive integer or zero",
@@ -45,7 +48,10 @@ const checkConfigInputs = (inputs) => {
         return errs;
       case CONFIG.maxErrors:
         // Dependent (runLoop == False) positive integer value or zero
-        if (!inputs[CONFIG.runLoop] && !(Number.parseInt(inputs[config], 10) >= 0)) {
+        if (
+          !inputs[CONFIG.runLoop] &&
+          !(Number.parseInt(inputs[config], 10) >= 0)
+        ) {
           return {
             ...errs,
             [config]: "Must be a positive integer or zero",
@@ -74,13 +80,7 @@ const writeConfig = async (method, inputs) => {
 const deleteConfig = deleteApi("LoadTestConfigs");
 
 const getConfig = async (configId) => {
-  return await getApi(`LoadTestConfigs/${configId}`) || {};
+  return (await getApi(`LoadTestConfigs/${configId}`)) || {};
 };
 
-export {
-  checkConfigInputs,
-  deleteConfig,
-  getConfig,
-  getConfigs,
-  writeConfig,
-};
+export { checkConfigInputs, deleteConfig, getConfig, getConfigs, writeConfig };

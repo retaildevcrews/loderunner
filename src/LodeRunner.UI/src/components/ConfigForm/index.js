@@ -46,7 +46,7 @@ const ConfigForm = ({
     (ref) =>
     ({ target }) => {
       // eslint-disable-next-line no-param-reassign
-      ref.current = target.value === "true"
+      ref.current = target.value === "true";
     };
 
   useEffect(() => {
@@ -87,19 +87,25 @@ const ConfigForm = ({
 
   const handleSave = () => {
     // send default value if referencing unmounted element (dependent on run loop)
-    const duration = durationFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.duration].default;
-    const maxErrors = maxErrorsFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.maxErrors].default;
+    const duration =
+      durationFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.duration].default;
+    const maxErrors =
+      maxErrorsFlag.current?.value ?? CONFIG_OPTIONS[CONFIG.maxErrors].default;
 
     const inputs = {
       [CONFIG.baseUrl]: baseUrlFlag.current.value,
       [CONFIG.dryRun]: dryRunFlag.current,
       [CONFIG.duration]: duration,
-      [CONFIG.files]: fileFlags.map(({ ref }) => ref.current.value).filter(file => file),
+      [CONFIG.files]: fileFlags
+        .map(({ ref }) => ref.current.value)
+        .filter((file) => file),
       [CONFIG.maxErrors]: maxErrors,
       [CONFIG.name]: configName.current.value,
       [CONFIG.randomize]: randomizeFlag.current,
       [CONFIG.runLoop]: runLoopFlag.current,
-      [CONFIG.servers]: serverFlags.map(({ ref }) => ref.current.value).filter(server => server),
+      [CONFIG.servers]: serverFlags
+        .map(({ ref }) => ref.current.value)
+        .filter((server) => server),
       [CONFIG.sleep]: sleepFlag.current.value,
       [CONFIG.strictJson]: strictJsonFlag.current,
       [CONFIG.tag]: tagFlag.current.value,

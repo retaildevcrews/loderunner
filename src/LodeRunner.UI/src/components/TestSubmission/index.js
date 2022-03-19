@@ -7,13 +7,20 @@ import {
   TestPageContext,
 } from "../../contexts";
 import { postTestRun } from "../../services/testRun";
-import { CLIENT, CLIENT_STATUS_TYPES, CONFIG, CONFIG_OPTIONS, TEST_RUN } from "../../models";
+import {
+  CLIENT,
+  CLIENT_STATUS_TYPES,
+  CONFIG,
+  CONFIG_OPTIONS,
+  TEST_RUN,
+} from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const TestSubmission = () => {
-  const { clients, selectedClientIds, setSelectedClientIds } = useContext(ClientsContext);
+  const { clients, selectedClientIds, setSelectedClientIds } =
+    useContext(ClientsContext);
   const { configs, testRunConfigId } = useContext(ConfigsContext);
   const { setIsPending } = useContext(AppContext);
   const { setModalContent } = useContext(TestPageContext);
@@ -23,13 +30,19 @@ const TestSubmission = () => {
   const [isScheduledForNow, setIsScheduledForNow] = useState(true);
   const scheduledStartTimeRef = useRef();
 
-  const testRunConfig = configs.find(({ [CONFIG.id]: id }) => id === testRunConfigId);
-  const selectedClients = clients.filter(({ [CLIENT.loadClientId]: clientId }) => selectedClientIds[clientId]);
+  const testRunConfig = configs.find(
+    ({ [CONFIG.id]: id }) => id === testRunConfigId
+  );
+  const selectedClients = clients.filter(
+    ({ [CLIENT.loadClientId]: clientId }) => selectedClientIds[clientId]
+  );
   const [testRunClientRefs] = useState(
-    selectedClients.reduce((agg, { [CLIENT.loadClientId]: clientId }) => ({
+    selectedClients.reduce(
+      (agg, { [CLIENT.loadClientId]: clientId }) => ({
         ...agg,
         [clientId]: React.createRef(),
-      }), {}
+      }),
+      {}
     )
   );
 
@@ -61,8 +74,9 @@ const TestSubmission = () => {
           // eslint-disable-next-line no-alert
           alert(`Unable to submit load test run request. ${err.message}`);
         } else {
+          // eslint-disable-next-line no-alert
           alert(`Unable to submit load test run request. ${err}`);
-        };
+        }
       })
       .finally(() => setIsPending(false));
   }, [formData]);
@@ -74,7 +88,10 @@ const TestSubmission = () => {
   };
 
   const handleSubmit = () => {
-    const testRunClients = selectedClients.filter(({ [CLIENT.loadClientId]: clientId }) => testRunClientRefs[clientId].current.checked);
+    const testRunClients = selectedClients.filter(
+      ({ [CLIENT.loadClientId]: clientId }) =>
+        testRunClientRefs[clientId].current.checked
+    );
 
     // TODO: When LR.API uses dictionary for TestRun.LoadClients
     // const testRunClients = selectedClients
@@ -88,18 +105,21 @@ const TestSubmission = () => {
 
     setFormData({
       [TEST_RUN.name]: testRunNameRef.current.value,
-      [TEST_RUN.config]:testRunConfig,
+      [TEST_RUN.config]: testRunConfig,
       [TEST_RUN.clients]: testRunClients,
       [TEST_RUN.createdTime]: now.toISOString(),
-      [TEST_RUN.scheduledStartTime]: isScheduledForNow ? now.toISOString() : scheduledStartTimeRef.current.value,
+      [TEST_RUN.scheduledStartTime]: isScheduledForNow
+        ? now.toISOString()
+        : scheduledStartTimeRef.current.value,
     });
   };
 
-  const showDependentConfig = (config) => (
-    CONFIG_OPTIONS[config].dependencies.reduce((isVisible, [dependentOn, shouldExist]) => (
-      isVisible && testRunConfig[dependentOn] !== shouldExist
-    ), true)
-  );
+  const showDependentConfig = (config) =>
+    CONFIG_OPTIONS[config].dependencies.reduce(
+      (isVisible, [dependentOn, shouldExist]) =>
+        isVisible && testRunConfig[dependentOn] !== shouldExist,
+      true
+    );
 
   return (
     <div className="testsubmission">
@@ -129,7 +149,8 @@ const TestSubmission = () => {
           >
             Dry Run:&nbsp;
           </span>
-          {testRunConfig[CONFIG.dryRun]?.toString() ?? CONFIG_OPTIONS[CONFIG.dryRun].default.toString()}
+          {testRunConfig[CONFIG.dryRun]?.toString() ??
+            CONFIG_OPTIONS[CONFIG.dryRun].default.toString()}
         </div>
         <div>
           <span className="testsubmission-config-label" title="Servers to test">
@@ -172,7 +193,8 @@ const TestSubmission = () => {
           >
             Parse Load Test Files with Strict JSON:&nbsp;
           </span>
-          {testRunConfig[CONFIG.strictJson]?.toString() ?? CONFIG_OPTIONS[CONFIG.strictJson].default.toString()}
+          {testRunConfig[CONFIG.strictJson]?.toString() ??
+            CONFIG_OPTIONS[CONFIG.strictJson].default.toString()}
         </div>
         <br />
         <div>
@@ -192,19 +214,20 @@ const TestSubmission = () => {
           >
             Run Loop:&nbsp;
           </span>
-          {testRunConfig[CONFIG.runLoop]?.toString() ?? CONFIG_OPTIONS[CONFIG.runLoop].default.toString()}
+          {testRunConfig[CONFIG.runLoop]?.toString() ??
+            CONFIG_OPTIONS[CONFIG.runLoop].default.toString()}
         </div>
-        {
-          showDependentConfig([CONFIG.duration]) &&
+        {showDependentConfig([CONFIG.duration]) && (
           <div>
             <span className="testsubmission-config-label" title="Test duration">
               Duration:&nbsp;
             </span>
-            {testRunConfig[CONFIG.duration] ?? CONFIG_OPTIONS[CONFIG.duration].default} second(s)
+            {testRunConfig[CONFIG.duration] ??
+              CONFIG_OPTIONS[CONFIG.duration].default}{" "}
+            second(s)
           </div>
-        }
-        {
-          showDependentConfig([CONFIG.randomize]) &&
+        )}
+        {showDependentConfig([CONFIG.randomize]) && (
           <div>
             <span
               className="testsubmission-config-label"
@@ -212,9 +235,10 @@ const TestSubmission = () => {
             >
               Randomize:&nbsp;
             </span>
-            {testRunConfig[CONFIG.randomize]?.toString() ?? CONFIG_OPTIONS[CONFIG.randomize].default.toString()}
+            {testRunConfig[CONFIG.randomize]?.toString() ??
+              CONFIG_OPTIONS[CONFIG.randomize].default.toString()}
           </div>
-        }
+        )}
         <div>
           <span
             className="testsubmission-config-label"
@@ -222,14 +246,17 @@ const TestSubmission = () => {
           >
             Sleep:&nbsp;
           </span>
-          {testRunConfig[CONFIG.sleep] ?? CONFIG_OPTIONS[CONFIG.sleep].default} ms
+          {testRunConfig[CONFIG.sleep] ?? CONFIG_OPTIONS[CONFIG.sleep].default}{" "}
+          ms
         </div>
         <br />
         <div>
           <span className="testsubmission-config-label" title="Request timeout">
             Timeout:&nbsp;
           </span>
-          {testRunConfig[CONFIG.timeout] ?? CONFIG_OPTIONS[CONFIG.timeout].default} second(s)
+          {testRunConfig[CONFIG.timeout] ??
+            CONFIG_OPTIONS[CONFIG.timeout].default}{" "}
+          second(s)
         </div>
         <div>
           <span
@@ -238,10 +265,10 @@ const TestSubmission = () => {
           >
             Verbose Errors:&nbsp;
           </span>
-          {testRunConfig[CONFIG.verboseErrors]?.toString() ?? CONFIG_OPTIONS[CONFIG.timeout].default.toString()}
+          {testRunConfig[CONFIG.verboseErrors]?.toString() ??
+            CONFIG_OPTIONS[CONFIG.timeout].default.toString()}
         </div>
-        {
-          showDependentConfig(CONFIG.maxErrors) &&
+        {showDependentConfig(CONFIG.maxErrors) && (
           <div>
             <span
               className="testsubmission-config-label"
@@ -249,9 +276,10 @@ const TestSubmission = () => {
             >
               Max Errors:&nbsp;
             </span>
-            {testRunConfig[CONFIG.maxErrors] ?? CONFIG_OPTIONS[CONFIG.maxErrors].default}
+            {testRunConfig[CONFIG.maxErrors] ??
+              CONFIG_OPTIONS[CONFIG.maxErrors].default}
           </div>
-        }
+        )}
         <br />
         <button
           className="unset testsubmission-button"

@@ -19,11 +19,8 @@ const Configs = () => {
   const { setIsPending } = useContext(AppContext);
   const { setModalContent } = useContext(TestPageContext);
   const { selectedClientIds } = useContext(ClientsContext);
-  const {
-    setFetchConfigsTrigger,
-    configs,
-    setTestRunConfigId,
-  } = useContext(ConfigsContext);
+  const { setFetchConfigsTrigger, configs, setTestRunConfigId } =
+    useContext(ConfigsContext);
 
   const openConfigFormModal = (e) => {
     e.stopPropagation();

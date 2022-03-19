@@ -1,36 +1,36 @@
 .configform-input-label {
-    font-weight: bold;
+  font-weight: bold;
 }
 .configform-error {
-    color: var(--c-error);
-    font-weight: bold;
-    font-size: 0.8em;
+  color: var(--c-error);
+  font-weight: bold;
+  font-size: 0.8em;
 }
 .configform-save {
-    margin: 2em 0;
+  margin: 2em 0;
 }
 .configform-save-error {
-    text-align: center;
+  text-align: center;
 }
 .configform-save > button {
-    border: none;
-    border-radius: 4px;
-    background-color: var(--c-primary-dark);
-    color: var(--c-neutral-lightest);
-    height: 2em;
-    width: 100%;
-    font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
+  height: 2em;
+  width: 100%;
+  font-weight: bold;
 }
 .configform-save > button:hover {
-    background-color: var(--c-primary);
-    color: var(--c-neutral-lightest);
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
 }
 .configform-runloop {
-    display: flex;
+  display: flex;
 }
 .configform-runloop-dependent {
-    border-left: 2px solid var(--c-primary-dark);
-    width: 70%;
-    margin-left: 1em;
-    padding-left: 1em;
+  border-left: 2px solid var(--c-primary-dark);
+  width: 70%;
+  margin-left: 1em;
+  padding-left: 1em;
 }

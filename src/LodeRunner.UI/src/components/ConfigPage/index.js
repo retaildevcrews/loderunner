@@ -25,11 +25,23 @@ const ConfigPage = ({ configId }) => {
   const timeoutFlagRef = useRef();
 
   // handle boolean input references
-  const dryRunFlagRef = useRef(openedConfig?.[CONFIG.dryRun] ?? CONFIG_OPTIONS[CONFIG.dryRun].default);
-  const randomizeFlagRef = useRef(openedConfig?.[CONFIG.randomize] ?? CONFIG_OPTIONS[CONFIG.randomize].default);
-  const runLoopFlagRef = useRef(openedConfig?.[CONFIG.runLoop] ?? CONFIG_OPTIONS[CONFIG.runLoop].default);
-  const strictJsonFlagRef = useRef(openedConfig?.[CONFIG.strictJson] ?? CONFIG_OPTIONS[CONFIG.strictJson].default);
-  const verboseErrorsFlagRef = useRef(openedConfig?.[CONFIG.verboseErrors] ?? CONFIG_OPTIONS[CONFIG.verboseErrors].default);
+  const dryRunFlagRef = useRef(
+    openedConfig?.[CONFIG.dryRun] ?? CONFIG_OPTIONS[CONFIG.dryRun].default
+  );
+  const randomizeFlagRef = useRef(
+    openedConfig?.[CONFIG.randomize] ?? CONFIG_OPTIONS[CONFIG.randomize].default
+  );
+  const runLoopFlagRef = useRef(
+    openedConfig?.[CONFIG.runLoop] ?? CONFIG_OPTIONS[CONFIG.runLoop].default
+  );
+  const strictJsonFlagRef = useRef(
+    openedConfig?.[CONFIG.strictJson] ??
+      CONFIG_OPTIONS[CONFIG.strictJson].default
+  );
+  const verboseErrorsFlagRef = useRef(
+    openedConfig?.[CONFIG.verboseErrors] ??
+      CONFIG_OPTIONS[CONFIG.verboseErrors].default
+  );
 
   useEffect(() => {
     setIsPending(true);
@@ -46,47 +58,64 @@ const ConfigPage = ({ configId }) => {
 
     // Handle array of references
     if (openedConfig[CONFIG.files]?.length > 0) {
-      setFileFlagRefs(openedConfig[CONFIG.files].map((value, index) => ({
-        id: index,
-        ref: null,
-        initialValue: value,
-      })));
+      setFileFlagRefs(
+        openedConfig[CONFIG.files].map((value, index) => ({
+          id: index,
+          ref: null,
+          initialValue: value,
+        }))
+      );
     } else {
-      setFileFlagRefs([{
-        id: 0,
-        ref: null,
-        initialValue: CONFIG_OPTIONS[CONFIG.files].default,
-      }]);
+      setFileFlagRefs([
+        {
+          id: 0,
+          ref: null,
+          initialValue: CONFIG_OPTIONS[CONFIG.files].default,
+        },
+      ]);
     }
 
     if (openedConfig[CONFIG.servers]?.length > 0) {
-      setServerFlagRefs(openedConfig[CONFIG.servers].map((value, index) => ({
-        id: index,
-        ref: null,
-        initialValue: value,
-      })));
+      setServerFlagRefs(
+        openedConfig[CONFIG.servers].map((value, index) => ({
+          id: index,
+          ref: null,
+          initialValue: value,
+        }))
+      );
     } else {
-      setServerFlagRefs([{
-        id: 0,
-        ref: null,
-        initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
-      }]);
+      setServerFlagRefs([
+        {
+          id: 0,
+          ref: null,
+          initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
+        },
+      ]);
     }
 
     // Handle Potentially Unmounted DOM Elements (Dependent on Run Loop State)
     if (durationFlagRef.current) {
-      durationFlagRef.current.value = openedConfig[CONFIG.duration] ?? CONFIG_OPTIONS[CONFIG.duration].default;
+      durationFlagRef.current.value =
+        openedConfig[CONFIG.duration] ??
+        CONFIG_OPTIONS[CONFIG.duration].default;
     }
     if (maxErrorsFlagRef.current) {
-      maxErrorsFlagRef.current.value = openedConfig[CONFIG.maxErrors] ?? CONFIG_OPTIONS[CONFIG.maxErrors].default;
+      maxErrorsFlagRef.current.value =
+        openedConfig[CONFIG.maxErrors] ??
+        CONFIG_OPTIONS[CONFIG.maxErrors].default;
     }
 
     // Handle string/integer references
-    baseUrlFlagRef.current.value = openedConfig[CONFIG.baseUrl] ?? CONFIG_OPTIONS[CONFIG.baseUrl].default;
-    configNameRef.current.value = openedConfig[CONFIG.name] ?? CONFIG_OPTIONS[CONFIG.name].default;
-    sleepFlagRef.current.value = openedConfig[CONFIG.sleep] ?? CONFIG_OPTIONS[CONFIG.sleep].default;
-    tagFlagRef.current.value = openedConfig[CONFIG.tag] ?? CONFIG_OPTIONS[CONFIG.tag].default;
-    timeoutFlagRef.current.value = openedConfig[CONFIG.timeout] ?? CONFIG_OPTIONS[CONFIG.timeout].default;
+    baseUrlFlagRef.current.value =
+      openedConfig[CONFIG.baseUrl] ?? CONFIG_OPTIONS[CONFIG.baseUrl].default;
+    configNameRef.current.value =
+      openedConfig[CONFIG.name] ?? CONFIG_OPTIONS[CONFIG.name].default;
+    sleepFlagRef.current.value =
+      openedConfig[CONFIG.sleep] ?? CONFIG_OPTIONS[CONFIG.sleep].default;
+    tagFlagRef.current.value =
+      openedConfig[CONFIG.tag] ?? CONFIG_OPTIONS[CONFIG.tag].default;
+    timeoutFlagRef.current.value =
+      openedConfig[CONFIG.timeout] ?? CONFIG_OPTIONS[CONFIG.timeout].default;
   }, [openedConfig]);
 
   // Update existing config

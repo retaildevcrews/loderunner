@@ -1,12 +1,6 @@
 import PropTypes from "prop-types";
 
-const IntegerInput = ({
-  label,
-  description,
-  elRef,
-  inputName,
-  units,
-}) => (
+const IntegerInput = ({ label, description, elRef, inputName, units }) => (
   <div className="configform-input">
     <label htmlFor={inputName}>
       <span className="configform-input-label">{label}: </span>

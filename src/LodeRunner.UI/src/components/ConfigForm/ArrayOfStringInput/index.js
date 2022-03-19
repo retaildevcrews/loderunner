@@ -39,7 +39,15 @@ const ArrayOfStringInput = ({
         <br />
         {flagRefs.map(({ id, initialValue }, index) => (
           <div className="arrayofstringinput-input" key={`${inputName}-${id}`}>
-            <input ref={element => flagRefs[index].ref = element } type="string" name={inputName} defaultValue={initialValue} />
+            <input
+              ref={(element) => {
+                // eslint-disable-next-line no-param-reassign
+                flagRefs[index].ref = element;
+              }}
+              type="string"
+              name={inputName}
+              defaultValue={initialValue}
+            />
             &nbsp;
             {flagRefs.length - 1 !== index ? (
               <>
@@ -54,8 +62,7 @@ const ArrayOfStringInput = ({
             ) : (
               <button
                 type="button"
-                onClick={() => setEditedFlag({ id: id + 1, index: -1 })
-                }
+                onClick={() => setEditedFlag({ id: id + 1, index: -1 })}
               >
                 +
               </button>

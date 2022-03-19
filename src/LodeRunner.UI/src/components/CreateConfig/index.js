@@ -17,19 +17,25 @@ const CreateConfig = () => {
   const randomizeFlagRef = useRef(CONFIG_OPTIONS[CONFIG.randomize].default);
   const runLoopFlagRef = useRef(CONFIG_OPTIONS[CONFIG.runLoop].default);
   const strictJsonFlagRef = useRef(CONFIG_OPTIONS[CONFIG.strictJson].default);
-  const verboseErrorsFlagRef = useRef(CONFIG_OPTIONS[CONFIG.verboseErrors].default);
+  const verboseErrorsFlagRef = useRef(
+    CONFIG_OPTIONS[CONFIG.verboseErrors].default
+  );
 
   // initialize array of string refs
-  const [fileFlagRefs, setFileFlagRefs] = useState([{
-    id: 0,
-    ref: null,
-    initialValue: CONFIG_OPTIONS[CONFIG.files].default,
-  }]);
-  const [serverFlagRefs, setServerFlagRefs] = useState([{
-    id: 0,
-    ref: null,
-    initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
-  }]);
+  const [fileFlagRefs, setFileFlagRefs] = useState([
+    {
+      id: 0,
+      ref: null,
+      initialValue: CONFIG_OPTIONS[CONFIG.files].default,
+    },
+  ]);
+  const [serverFlagRefs, setServerFlagRefs] = useState([
+    {
+      id: 0,
+      ref: null,
+      initialValue: CONFIG_OPTIONS[CONFIG.servers].default,
+    },
+  ]);
 
   // declare refs without initial values
   const baseUrlFlagRef = useRef();
