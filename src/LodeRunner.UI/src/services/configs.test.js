@@ -29,7 +29,6 @@ describe("checkConfigInputs", () => {
       [CONFIG.files]: `Missing ${CONFIG.files} flag`,
       [CONFIG.duration]: "Must be a positive integer or zero",
       [CONFIG.sleep]: "Must be a positive integer or zero",
-      [CONFIG.maxErrors]: "Must be a positive integer or zero",
       [CONFIG.timeout]: "Must be a positive integer or zero",
     };
 
