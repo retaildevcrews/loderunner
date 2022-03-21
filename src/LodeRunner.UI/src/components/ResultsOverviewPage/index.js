@@ -4,7 +4,7 @@ import RefreshIcon from "../RefreshIcon";
 import TrashIcon from "../TrashIcon";
 import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
-import { getResults, deleteTestRun } from "../../services/results";
+import { getTestRuns, deleteTestRun } from "../../services/testRuns";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
@@ -41,7 +41,7 @@ const ResultsOverviewPage = () => {
 
   useEffect(() => {
     setIsPending(true);
-    getResults()
+    getTestRuns()
       .then((r) => setResults(r))
       .catch(() => setResults([]))
       .finally(() => setIsPending(false));

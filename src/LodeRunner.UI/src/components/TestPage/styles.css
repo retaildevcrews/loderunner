@@ -3,6 +3,12 @@
   height: 100%;
   flex: auto;
 }
+.testpage-content-activepanel {
+  width: 20em;
+  border-right: #156064 2px solid;
+  padding: 6px;
+  overflow: auto;
+}
 .testpage-content-column {
   display: flex;
   height: 100%;

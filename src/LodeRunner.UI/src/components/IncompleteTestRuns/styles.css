@@ -1,0 +1,33 @@
+.incompletetestruns {
+  border-top: #156064 2px solid;
+  margin-top: 1em;
+  padding-top: 1em;
+}
+
+.incompletetestruns > a.navigation {
+  display: block;
+  text-align: center;
+}
+
+.incompletetestruns-item {
+  text-align: left;
+  display: flex; 
+  flex-direction: column;
+  margin: 6px 0;
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  padding: 1em;
+  background-color: var(--c-primary-dark);
+  color: var(--c-neutral-lightest);
+  font-weight: bold;
+}
+
+.incompletetestruns-item:hover {
+  background-color: var(--c-primary);
+  color: var(--c-neutral-lightest);
+}
+
+.incompletetestruns-item > div:not(:last-child) {
+  margin-bottom: 0.5em;
+}

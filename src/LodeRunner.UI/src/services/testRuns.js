@@ -1,5 +1,17 @@
 import { TEST_RUN } from "../models";
-import { writeApi } from "./utilities";
+import { deleteApi, getApi, writeApi } from "./utilities";
+
+const getTestRuns = async () => {
+  const content = await getApi("testruns");
+  return content || [];
+};
+
+const getTestRunById = async (testRunId) => {
+  const content = await getApi(`testruns/${testRunId}`);
+  return content || {};
+};
+
+const deleteTestRun = deleteApi("testruns");
 
 const checkTestRunInputs = (inputs) => {
   const checkedInputs = [
@@ -37,4 +49,4 @@ const postTestRun = async (inputs) => {
   return writeApi("POST", "TestRuns")(inputs);
 };
 
-export { checkTestRunInputs, postTestRun };
+export { deleteTestRun, getTestRunById, getTestRuns, postTestRun };

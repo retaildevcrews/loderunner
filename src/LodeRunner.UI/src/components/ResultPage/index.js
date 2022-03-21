@@ -7,7 +7,7 @@ import PencilIcon from "../PencilIcon";
 import PendingFeature from "../PendingFeature";
 import RefreshIcon from "../RefreshIcon";
 import { AppContext } from "../../contexts";
-import { getResultById } from "../../services/results";
+import { getTestRunById } from "../../services/testRuns";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { CONFIG, LOAD_CLIENT, RESULT, TEST_RUN } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
@@ -21,7 +21,7 @@ const ResultPage = ({ testRunId }) => {
 
   useEffect(() => {
     setIsPending(true);
-    getResultById(testRunId)
+    getTestRunById(testRunId)
       .then((r) => setTest(r))
       .catch(() => setTest())
       .finally(() => setIsPending(false));

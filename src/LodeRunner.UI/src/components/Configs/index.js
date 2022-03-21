@@ -95,9 +95,6 @@ const Configs = () => {
             +
           </button>
         </h1>
-        <A href="/results" className="unset navigation">
-          Test Run Overview
-        </A>
       </div>
       <div>
         {configs.map(

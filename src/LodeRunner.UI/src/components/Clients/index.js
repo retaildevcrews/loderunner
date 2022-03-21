@@ -55,45 +55,43 @@ const Clients = ({ setFetchClientsInterval }) => {
               [CLIENT.loadClientId]: loadClientId,
               [CLIENT.status]: status,
               [CLIENT.name]: name,
-            }) => {
-              return (
-                <div key={loadClientId} className="clients-item">
-                  <button
-                    className="clients-item-select"
-                    type="button"
-                    onClick={() => toggleClient(loadClientId)}
-                    onKeyDown={() => toggleClient(loadClientId)}
-                    title="Select Load Client for Test Run"
-                    label-aria="Select Load Client for Test Run"
-                  >
-                    {name || "--"}
-                    {selectedClientIds[loadClientId] && (
-                      <span
-                        className="clients-item-select-icon"
-                        aria-label="Load Client Selected for Test Run"
-                      >
-                        <CheckMarkIcon
-                          fillColor="var(--c-neutral-lightest)"
-                          width="1em"
-                        />
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    className={`clients-item-status status-${
-                      status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
-                    } ${openedClientDetailsId === loadClientId && "selected"}`}
-                    type="button"
-                    title="Open Load Client Details"
-                    aria-label="Open Load Client Details"
-                    onClick={() => toggleClientDetails(loadClientId)}
-                    onKeyDown={() => toggleClientDetails(loadClientId)}
-                  >
-                    {openedClientDetailsId === loadClientId && ">"}
-                  </button>
-                </div>
-              );
-            }
+            }) => (
+              <div key={loadClientId} className="clients-item">
+                <button
+                  className="clients-item-select"
+                  type="button"
+                  onClick={() => toggleClient(loadClientId)}
+                  onKeyDown={() => toggleClient(loadClientId)}
+                  title="Select Load Client for Test Run"
+                  label-aria="Select Load Client for Test Run"
+                >
+                  {name || "--"}
+                  {selectedClientIds[loadClientId] && (
+                    <span
+                      className="clients-item-select-icon"
+                      aria-label="Load Client Selected for Test Run"
+                    >
+                      <CheckMarkIcon
+                        fillColor="var(--c-neutral-lightest)"
+                        width="1em"
+                      />
+                    </span>
+                  )}
+                </button>
+                <button
+                  className={`clients-item-status status-${
+                    status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
+                  } ${openedClientDetailsId === loadClientId && "selected"}`}
+                  type="button"
+                  title="Open Load Client Details"
+                  aria-label="Open Load Client Details"
+                  onClick={() => toggleClientDetails(loadClientId)}
+                  onKeyDown={() => toggleClientDetails(loadClientId)}
+                >
+                  {openedClientDetailsId === loadClientId && ">"}
+                </button>
+              </div>
+            )
           )
         ) : (
           <div className="clients-notification">
