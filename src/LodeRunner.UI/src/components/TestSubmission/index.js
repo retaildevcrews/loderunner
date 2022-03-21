@@ -13,6 +13,7 @@ import {
   CLIENT_STATUS_TYPES,
   CONFIG,
   CONFIG_OPTIONS,
+  LOAD_CLIENT,
   TEST_RUN,
 } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
@@ -91,10 +92,39 @@ const TestSubmission = () => {
   };
 
   const handleSubmit = () => {
-    const testRunClients = selectedClients.filter(
-      ({ [CLIENT.loadClientId]: clientId }) =>
-        testRunClientRefs[clientId].current.checked
-    );
+    const testRunClients = selectedClients
+      .filter(
+        ({ [CLIENT.loadClientId]: clientId }) =>
+          testRunClientRefs[clientId].current.checked
+      )
+      .reduce(
+        (
+          agg,
+          {
+            [CLIENT.loadClientId]: id,
+            [CLIENT.name]: name,
+            [CLIENT.prometheus]: prometheus,
+            [CLIENT.startupArgs]: args,
+            [CLIENT.startTime]: start,
+            [CLIENT.region]: region,
+            [CLIENT.version]: version,
+            [CLIENT.zone]: zone,
+          }
+        ) => [
+          ...agg,
+          {
+            [LOAD_CLIENT.id]: id,
+            [LOAD_CLIENT.name]: name,
+            [LOAD_CLIENT.prometheus]: prometheus,
+            [LOAD_CLIENT.startupArgs]: args,
+            [LOAD_CLIENT.startTime]: start,
+            [LOAD_CLIENT.region]: region,
+            [LOAD_CLIENT.version]: version,
+            [LOAD_CLIENT.zone]: zone,
+          },
+        ],
+        []
+      );
 
     // TODO: When LR.API uses dictionary for TestRun.LoadClients
     // const testRunClients = selectedClients
