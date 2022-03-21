@@ -37,13 +37,10 @@ const ArrayOfStringInput = ({
         <span className="configform-input-label">{label}: </span>
         {description}
         <br />
-        {flagRefs.map(({ id, initialValue }, index) => (
+        {flagRefs.map(({ id, ref, initialValue }, index) => (
           <div className="arrayofstringinput-input" key={`${inputName}-${id}`}>
             <input
-              ref={(element) => {
-                // eslint-disable-next-line no-param-reassign
-                flagRefs[index].ref = element;
-              }}
+              ref={ref}
               type="string"
               name={inputName}
               defaultValue={initialValue}

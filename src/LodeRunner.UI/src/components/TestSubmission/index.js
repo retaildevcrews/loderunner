@@ -406,7 +406,8 @@ const TestSubmission = () => {
                   <span className="testsubmission-clients-item-label">
                     Prometheus Enabled:&nbsp;
                   </span>
-                  {prometheus?.toString() ?? "--"}
+                  {prometheus?.toString() ??
+                    CONFIG_OPTIONS[CONFIG.prometheus].default.toString()}
                 </div>
                 <div>
                   <span className="testsubmission-clients-item-label">
