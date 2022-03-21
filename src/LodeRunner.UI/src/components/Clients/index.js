@@ -56,7 +56,9 @@ const Clients = ({ setFetchClientsInterval }) => {
               [CLIENT.status]: status,
               [CLIENT.name]: name,
             }) => (
-              <div key={loadClientId} className="clients-item">
+              <div key={loadClientId} className={`clients-item status-${
+                status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
+              } ${openedClientDetailsId === loadClientId && "selected"}`}>
                 <button
                   className="clients-item-select"
                   type="button"
@@ -65,30 +67,23 @@ const Clients = ({ setFetchClientsInterval }) => {
                   title="Select Load Client for Test Run"
                   label-aria="Select Load Client for Test Run"
                 >
-                  {name || "--"}
-                  {selectedClientIds[loadClientId] && (
-                    <span
-                      className="clients-item-select-icon"
-                      aria-label="Load Client Selected for Test Run"
-                    >
-                      <CheckMarkIcon
+                  {(
+                    <CheckMarkIcon
                         fillColor="var(--c-neutral-lightest)"
-                        width="1em"
+                        width="1.25em"
+                        isChecked={selectedClientIds[loadClientId]}
                       />
-                    </span>
                   )}
                 </button>
                 <button
-                  className={`clients-item-status status-${
-                    status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
-                  } ${openedClientDetailsId === loadClientId && "selected"}`}
+                  className={`clients-item-status`}
                   type="button"
                   title="Open Load Client Details"
                   aria-label="Open Load Client Details"
                   onClick={() => toggleClientDetails(loadClientId)}
                   onKeyDown={() => toggleClientDetails(loadClientId)}
                 >
-                  {openedClientDetailsId === loadClientId && ">"}
+                  {name || "--"}
                 </button>
               </div>
             )
