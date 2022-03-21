@@ -42,7 +42,7 @@ const ResultPage = ({ testRunId }) => {
             className="unset refresh"
             onClick={() => setFetchTestTrigger(Date.now())}
           >
-            <RefreshIcon height="0.8em" />
+            <RefreshIcon height="0.9em" />
           </button>
           Load Test
         </h1>
