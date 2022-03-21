@@ -1,17 +1,17 @@
 :root {
-  --c-primary-light: #33a4ff;
+  --c-primary-light: #1A98FF;
   --c-primary: #0071ce;
   --c-primary-dark: #003e9b;
 
-  --c-neutral-lightest: #eee;
-  --c-neutral-light: #bbb;
+  --c-neutral-lightest: #fff;
+  --c-neutral-light: #ccc;
   --c-neutral: #888;
   --c-neutral-dark: #555;
   --c-neutral-darkest: #222;
 
-  --c-success: #66bb6a;
+  --c-success: #4AA54C;
   --c-info: #29b6f6;
-  --c-warning: #ffa726;
+  --c-warning: #D68100;
   --c-error: #f44336;
 }
 body {

@@ -57,7 +57,7 @@ const ResultsOverviewPage = () => {
             className="unset refresh"
             onClick={() => setFetchResultsTrigger(Date.now())}
           >
-            <RefreshIcon height="0.8em" />
+            <RefreshIcon height="0.9em" />
           </button>
           Test Run Overview
         </h1>

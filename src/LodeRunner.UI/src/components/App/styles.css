@@ -23,6 +23,7 @@ button {
   z-index: 100;
   position: absolute;
   background-color: var(--c-neutral);
+  opacity: 0.9;
   height: 100%;
   width: 100%;
   display: flex;
@@ -58,6 +59,7 @@ a.navigation:hover {
   margin-top: 0.67em;
 }
 .page-header h1 {
+  align-items: center;
   margin: 0;
   display: flex;
 }
