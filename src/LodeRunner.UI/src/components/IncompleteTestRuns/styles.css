@@ -11,7 +11,7 @@
 
 .incompletetestruns-item {
   text-align: left;
-  display: flex; 
+  display: flex;
   flex-direction: column;
   margin: 6px 0;
   width: 100%;

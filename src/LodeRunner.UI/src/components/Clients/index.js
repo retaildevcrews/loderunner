@@ -56,9 +56,12 @@ const Clients = ({ setFetchClientsInterval }) => {
               [CLIENT.status]: status,
               [CLIENT.name]: name,
             }) => (
-              <div key={loadClientId} className={`clients-item status-${
-                status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
-              } ${openedClientDetailsId === loadClientId && "selected"}`}>
+              <div
+                key={loadClientId}
+                className={`clients-item status-${
+                  status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
+                } ${openedClientDetailsId === loadClientId && "selected"}`}
+              >
                 <button
                   className="clients-item-select"
                   type="button"
@@ -67,16 +70,14 @@ const Clients = ({ setFetchClientsInterval }) => {
                   title="Select Load Client for Test Run"
                   label-aria="Select Load Client for Test Run"
                 >
-                  {(
-                    <CheckMarkIcon
-                        fillColor="var(--c-neutral-lightest)"
-                        width="1.25em"
-                        isChecked={selectedClientIds[loadClientId]}
-                      />
-                  )}
+                  <CheckMarkIcon
+                    fillColor="var(--c-neutral-lightest)"
+                    width="1.25em"
+                    isChecked={selectedClientIds[loadClientId]}
+                  />
                 </button>
                 <button
-                  className={`clients-item-status`}
+                  className="clients-item-status"
                   type="button"
                   title="Open Load Client Details"
                   aria-label="Open Load Client Details"
