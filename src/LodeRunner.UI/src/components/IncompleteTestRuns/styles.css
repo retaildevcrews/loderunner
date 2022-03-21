@@ -11,6 +11,8 @@
 
 .incompletetestruns-item {
   text-align: left;
+  display: flex; 
+  flex-direction: column;
   margin: 6px 0;
   width: 100%;
   border: none;
@@ -24,4 +26,8 @@
 .incompletetestruns-item:hover {
   background-color: var(--c-primary);
   color: var(--c-neutral-lightest);
+}
+
+.incompletetestruns-item > div:not(:last-child) {
+  margin-bottom: 0.5em;
 }
