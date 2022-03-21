@@ -9,16 +9,19 @@ const IncompleteTestRuns = () => {
   const { testRuns } = useContext(TestRunsContext);
   const incompleteTestRuns = useMemo(
     () =>
-      testRuns.filter(
-        ({ [TEST_RUN.finalCompletionTime]: completionTime }) => !completionTime
-      ),
+      testRuns
+        .filter(
+          ({ [TEST_RUN.finalCompletionTime]: completionTime }) =>
+            !completionTime
+        )
+        .slice(0, 20),
     [testRuns]
   );
 
   return (
     <div className="incompletetestruns">
       <A href="/results" className="unset navigation">
-        To All Test Runs
+        See All Test Runs
       </A>
       {incompleteTestRuns.map(
         ({
