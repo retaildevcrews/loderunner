@@ -172,16 +172,16 @@ namespace LodeRunner.API.Middleware
         /// <typeparam name="TEntityPayload">Payload entity.</typeparam>
         /// <typeparam name="TEntity">Model entity.</typeparam>
         /// <param name="compileErrors">Delegate to compile errors</param>
+        /// <param name="mapPayloadToEntity">Delegate to custom PayloadToEntity mapping.</param>
         /// <param name="service">Storage service for TEntity.</param>
         /// <param name="request">HTTP request</param>
         /// <param name="id">ID for item to update.</param>
         /// <param name="payload">Payload.</param>
-        /// <param name="autoMapper">Mapper.</param>
         /// <param name="logger">NGSA Logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="methodName">Caller member name to improve logging.</param>
         /// <returns>A task with the appropriate response.</returns>
-        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, IMapper autoMapper, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
+        public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, Func<TEntity, TEntityPayload, TEntity> mapPayloadToEntity, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         where TEntity : class
         {
             try
@@ -196,11 +196,10 @@ namespace LodeRunner.API.Middleware
 
                 var existingItem = (TEntity)((ObjectResult)existingItemResp).Value;
 
-                // Map LoadTestConfigPayload to existing LoadTestConfig.
-                autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
+                var mappedEntity = mapPayloadToEntity(existingItem, payload);
 
                 // Get POST response
-                ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, existingItem, request, logger, cancellationToken);
+                ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, mappedEntity, request, logger, cancellationToken);
 
                 // Internal server error response due to no returned value from storage create
                 if (updatedItemResponse.GetType() == typeof(CreatedResult))
