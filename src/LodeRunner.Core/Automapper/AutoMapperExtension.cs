@@ -45,5 +45,20 @@ namespace LodeRunner.Core.Automapper
             // Do the mapping to assure we use the payload class.
             return BasePayloadAutoMapperHelper<LoadTestConfig, LoadTestConfigPayload>.Map(loadTestConfigSource);
         }
+
+        /// <summary>
+        /// Creates a new LoadTestConfig instance from LoadTestConfigPayload setting parameter Id.
+        /// </summary>
+        /// <param name="payloadSource">The loadTestConfig source.</param>
+        /// <param name="id">The loadTestConfig id to set on the Destination LoadTestConfig.</param>
+        /// <returns>The Test Payload object.</returns>
+        public static LoadTestConfig MapPayloadToLoadTestConfig(this LoadTestConfigPayload payloadSource, string id)
+        {
+            var mappedLoadTestConfig = BasePayloadToEntityAutoMapperHelper<LoadTestConfigPayload, LoadTestConfig>.Map(payloadSource);
+
+            mappedLoadTestConfig.Id = id;
+
+            return mappedLoadTestConfig;
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace LodeRunner.API.Extensions
     public static class AutoMapperProfileExtensions
     {
         /// <summary>
-        /// Builds the expression ignoring the unmodified properties.
+        /// Builds the expression ignoring the null fields.
         /// </summary>
         /// <typeparam name="TPayloadSource">The type of the payload source.</typeparam>
         /// <typeparam name="TDestination">The type of the destination.</typeparam>
@@ -37,9 +37,11 @@ namespace LodeRunner.API.Extensions
                     var fields = srcPayload.FieldValue(property.Name);
                     if (fields[0] != null)
                     {
+                        // This return value is to fulfill opt.Condition((srcPayload)) check. Determines whether or not the property will be included in the return expression.
                         return true;
                     }
 
+                    // This return value is to fulfill opt.Condition((srcPayload)) check. Determines whether or not the property will be included in the return expression.
                     return false;
                 }));
             }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using LodeRunner.API.Middleware;
+using LodeRunner.Core.Automapper;
 using LodeRunner.Core.Models;
 using LodeRunner.Core.Models.Validators;
 using LodeRunner.Data.Interfaces;
@@ -148,7 +150,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, loadTestConfigService, this.Request, loadTestConfigId, loadTestConfigPayload, this.autoMapper, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, this.MapPayloadToEntity, loadTestConfigService, this.Request, loadTestConfigId, loadTestConfigPayload, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -190,6 +192,17 @@ namespace LodeRunner.API.Controllers
             var flagErrorList = newLoadTestConfig.FlagValidator();
             var errorList = flagErrorList.Concat<string>(payloadErrorList);
             return errorList;
+        }
+
+        /// <summary>
+        /// Maps the payload to entity.
+        /// </summary>
+        /// <param name="existingItem">The entity.</param>
+        /// <param name="payload">The payload.</param>
+        /// <returns>The custom mapped entity.</returns>
+        private LoadTestConfig MapPayloadToEntity(LoadTestConfig existingItem, LoadTestConfigPayload payload)
+        {
+            return payload.MapPayloadToLoadTestConfig(existingItem.Id);
         }
     }
 }

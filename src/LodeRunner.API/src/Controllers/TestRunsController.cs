@@ -150,7 +150,7 @@ namespace LodeRunner.API.Controllers
                 return ResultHandler.CreateServiceUnavailableResponse();
             }
 
-            return await ResultHandler.CreatePutResponse(this.CompileErrorList, testRunService, this.Request, testRunId, testRunPayload, this.autoMapper, logger, cancellationTokenSource.Token);
+            return await ResultHandler.CreatePutResponse(this.CompileErrorList, this.MapPayloadToEntity, testRunService, this.Request, testRunId, testRunPayload, logger, cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -229,6 +229,18 @@ namespace LodeRunner.API.Controllers
 
                 return new EmptyResult();
             });
+        }
+
+        /// <summary>
+        /// Maps the payload to entity.
+        /// </summary>
+        /// <param name="existingItem">The entity.</param>
+        /// <param name="payload">The payload.</param>
+        /// <returns>The custom mapped entity.</returns>
+        private TestRun MapPayloadToEntity(TestRun existingItem, TestRunPayload payload)
+        {
+            this.autoMapper.Map<TestRunPayload, TestRun>(payload, existingItem);
+            return existingItem;
         }
     }
 }
