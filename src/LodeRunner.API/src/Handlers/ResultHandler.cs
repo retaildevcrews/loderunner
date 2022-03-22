@@ -102,24 +102,19 @@ namespace LodeRunner.API.Middleware
 
             return await TryCatchException(logger, updatedMethodName, async () =>
             {
-                // Bad request response due to invalid ID
-                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
-
-                if (invalidIdResponse is not EmptyResult)
+                return await ValidateEntityId<TEntity>(id, logger, request, async () =>
                 {
-                    return invalidIdResponse;
-                }
+                    var result = await getResult(id);
 
-                var result = await getResult(id);
+                    // Not found response
+                    if (result == null)
+                    {
+                        return new NotFoundResult();
+                    }
 
-                // Not found response
-                if (result == null)
-                {
-                    return new NotFoundResult();
-                }
-
-                // OK response
-                return new OkObjectResult(result);
+                    // OK response
+                    return new OkObjectResult(result);
+                });
             });
         }
 
@@ -184,38 +179,35 @@ namespace LodeRunner.API.Middleware
         public static async Task<ActionResult> CreatePutResponse<TEntityPayload, TEntity>(Func<IBaseService<TEntity>, TEntity, IEnumerable<string>> compileErrors, IBaseService<TEntity> service, HttpRequest request, string id, TEntityPayload payload, IMapper autoMapper, ILogger logger, CancellationToken cancellationToken, [CallerMemberName] string methodName = null)
         where TEntity : class
         {
-            try
+            // Create and return GET response; assumes that id has been validated.
+            return await TryCatchException(logger, $"{methodName} > {nameof(CreatePutResponse)}", async () =>
             {
-                // Get existing object to be updated.
-                var existingItemResp = await CreateGetByIdResponse<TEntity>(service.Get, id, request, logger);
-
-                if (existingItemResp.GetType() != typeof(OkObjectResult))
+                return await ValidateEntityId<TEntity>(id, logger, request, async () =>
                 {
-                    return existingItemResp;
-                }
+                    // Get existing object to be updated.
+                    var existingItem = await service.Get(id);
 
-                var existingItem = (TEntity)((ObjectResult)existingItemResp).Value;
+                    // Not found response
+                    if (existingItem == null)
+                    {
+                        return new NotFoundResult();
+                    }
 
-                // Map LoadTestConfigPayload to existing LoadTestConfig.
-                autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
+                    // Copy payload not null data into existingItem;
+                    autoMapper.Map<TEntityPayload, TEntity>(payload, existingItem);
 
-                // Get POST response
-                ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, existingItem, request, logger, cancellationToken);
+                    // Get POST response
+                    ActionResult updatedItemResponse = await CreatePostResponse(compileErrors, service, existingItem, request, logger, cancellationToken);
 
-                // Internal server error response due to no returned value from storage create
-                if (updatedItemResponse.GetType() == typeof(CreatedResult))
-                {
-                    return new NoContentResult();
-                }
+                    // Internal server error response due to no returned value from storage create
+                    if (updatedItemResponse.GetType() == typeof(CreatedResult))
+                    {
+                        return new NoContentResult();
+                    }
 
-                return updatedItemResponse;
-            }
-            catch (Exception ex)
-            {
-                // Log Error
-                logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, $"{methodName} > {nameof(CreatePutResponse)}"), ex, "Exception");
-                return CreateInternalServerErrorResponse($"{methodName} > {nameof(CreatePutResponse)} > {ex.Message}");
-            }
+                    return updatedItemResponse;
+                });
+            });
         }
 
         /// <summary>
@@ -234,30 +226,25 @@ namespace LodeRunner.API.Middleware
         {
             return await TryCatchException(logger, $"{methodName} > {nameof(CreateDeleteResponse)}", async () =>
             {
-                // Bad request response due to invalid ID
-                var invalidIdResponse = ValidateEntityId<TEntity>(id, logger, request);
-
-                if (invalidIdResponse is not EmptyResult)
+                return await ValidateEntityId<TEntity>(id, logger, request, async () =>
                 {
-                    return invalidIdResponse;
-                }
-
-                // Check additional controller-specific conditions, if any, before deleting
-                if (preDeleteChecks != null)
-                {
-                    var preDeleteChecksResponse = await preDeleteChecks(id, service);
-
-                    if (preDeleteChecksResponse is not EmptyResult)
+                    // Check additional controller-specific conditions, if any, before deleting
+                    if (preDeleteChecks != null)
                     {
-                        return preDeleteChecksResponse;
+                        var preDeleteChecksResponse = await preDeleteChecks(id, service);
+
+                        if (preDeleteChecksResponse is not EmptyResult)
+                        {
+                            return preDeleteChecksResponse;
+                        }
                     }
-                }
 
-                // Delete
-                HttpStatusCode delStatusCode = await service.Delete(id);
+                    // Delete
+                    HttpStatusCode delStatusCode = await service.Delete(id);
 
-                // Handle reponse code
-                return HandleDeleteStatusCode(delStatusCode);
+                    // Handle response code
+                    return HandleDeleteStatusCode(delStatusCode);
+                });
             });
         }
 
@@ -340,8 +327,10 @@ namespace LodeRunner.API.Middleware
         /// <param name="id">Entity id</param>
         /// <param name="logger">NGSA logger.</param>
         /// <param name="request">HTTP Request</param>
+        /// <param name="taskToExecute">Task to be executed after validation.</param>
+        /// <returns>A task with the appropriate response.</returns>
         /// <returns>Returns an ActionResult if ValidateEntityId returns any errors, otherwise null.</returns>
-        private static ActionResult ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request)
+        private static async Task<ActionResult> ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request, Func<Task<ActionResult>> taskToExecute)
         where TEntity : class
         {
             // TODO: Use by all id validators
@@ -350,10 +339,10 @@ namespace LodeRunner.API.Middleware
             if (errorlist.Count > 0)
             {
                 logger.LogWarning(new EventId((int)HttpStatusCode.BadRequest, nameof(ValidateEntityId)), SystemConstants.InvalidLoadTestConfigId);
-                return ResultHandler.CreateValidationErrorResponse(SystemConstants.InvalidParameter, RequestLogger.GetPathAndQuerystring(request), errorlist);
+                return CreateValidationErrorResponse(SystemConstants.InvalidParameter, RequestLogger.GetPathAndQuerystring(request), errorlist);
             }
 
-            return new EmptyResult();
+            return await taskToExecute();
         }
 
         /// <summary>
