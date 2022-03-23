@@ -10,7 +10,7 @@
     },
     "Dev - Command Mode": {
       "commandName": "Project",
-      "commandLineArgs": "--mode Command -s https://ngsa-pre-central-dev.cse.ms -f memory-baseline.json memory-benchmark.json --delay-start 5 --run-loop true --duration 180",
+      "commandLineArgs": "--mode Command -s https://ngsa-cosmos-westus2-dev.cse.ms/ https://ngsa-memory-westus2-dev.cse.ms/ -f baseline.json benchmark.json --delay-start 5 --run-loop true --duration 180",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
