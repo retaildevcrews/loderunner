@@ -53,7 +53,6 @@ namespace LodeRunner.Core.SchemaFilters
                     ["runLoop"] = new OpenApiBoolean(true),
                     ["duration"] = new OpenApiInteger(60),
                     ["maxErrors"] = new OpenApiInteger(10),
-                    ["delayStart"] = new OpenApiInteger(5),
                     ["dryRun"] = new OpenApiBoolean(false),
                 },
                 ["loadClients"] = new OpenApiArray
