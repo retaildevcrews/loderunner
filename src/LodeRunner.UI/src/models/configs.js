@@ -96,3 +96,19 @@ export const CONFIG_OPTIONS = {
     required: false,
   },
 };
+
+export const removeConfigDependencies = (config) => {
+  Object.entries(CONFIG_OPTIONS).forEach(([configKey, { dependencies }]) => {
+    dependencies.forEach(([dependentOn, shouldExist]) => {
+      if (config[dependentOn] !== shouldExist) {
+        delete config[configKey];
+      }
+    });
+  });
+}
+
+export const addDefaultsToConfig = (config) => {
+  Object.entries(CONFIG_OPTIONS).forEach(([configKey, configOptions]) => {
+    config[configKey] ??= configOptions.default;
+  })
+}

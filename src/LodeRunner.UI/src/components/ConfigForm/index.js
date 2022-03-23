@@ -4,7 +4,7 @@ import ArrayOfStringInput from "./ArrayOfStringInput";
 import BooleanInput from "./BooleanInput";
 import IntegerInput from "./IntegerInput";
 import StringInput from "./StringInput";
-import { CONFIG, CONFIG_OPTIONS } from "../../models";
+import { CONFIG, CONFIG_OPTIONS, removeConfigDependencies } from "../../models";
 import "./styles.css";
 
 const ConfigForm = ({
@@ -113,14 +113,7 @@ const ConfigForm = ({
       [CONFIG.verboseErrors]: verboseErrorsFlag.current,
     };
 
-    // Remove dependendent invalid inputs
-    Object.entries(CONFIG_OPTIONS).forEach(([config, { dependencies }]) => {
-      dependencies.forEach(([dependentOn, shouldExist]) => {
-        if (inputs[dependentOn] !== shouldExist) {
-          delete inputs[config];
-        }
-      });
-    });
+    removeConfigDependencies(inputs);
 
     setFormData(inputs);
   };

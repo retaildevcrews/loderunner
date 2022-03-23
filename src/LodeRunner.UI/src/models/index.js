@@ -1,4 +1,4 @@
-import { CONFIG, CONFIG_OPTIONS } from "./configs";
+import { CONFIG, CONFIG_OPTIONS, addDefaultsToConfig, removeConfigDependencies } from "./configs";
 
 export const CLIENT = {
   clientStatusId: "clientStatusId",
@@ -63,4 +63,4 @@ export const RESULT = {
   failedRequestCount: "failedRequests",
 };
 
-export { CONFIG, CONFIG_OPTIONS };
+export { CONFIG, CONFIG_OPTIONS, addDefaultsToConfig, removeConfigDependencies};
