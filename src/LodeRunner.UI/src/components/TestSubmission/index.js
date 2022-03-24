@@ -15,6 +15,8 @@ import {
   CONFIG_OPTIONS,
   LOAD_CLIENT,
   TEST_RUN,
+  removeConfigDependencies,
+  addDefaultsToConfig,
 } from "../../models";
 import { MODAL_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
@@ -97,34 +99,16 @@ const TestSubmission = () => {
         ({ [CLIENT.loadClientId]: clientId }) =>
           testRunClientRefs[clientId].current.checked
       )
-      .reduce(
-        (
-          agg,
-          {
-            [CLIENT.loadClientId]: id,
-            [CLIENT.name]: name,
-            [CLIENT.prometheus]: prometheus,
-            [CLIENT.startupArgs]: args,
-            [CLIENT.startTime]: start,
-            [CLIENT.region]: region,
-            [CLIENT.version]: version,
-            [CLIENT.zone]: zone,
-          }
-        ) => [
-          ...agg,
-          {
-            [LOAD_CLIENT.id]: id,
-            [LOAD_CLIENT.name]: name,
-            [LOAD_CLIENT.prometheus]: prometheus,
-            [LOAD_CLIENT.startupArgs]: args,
-            [LOAD_CLIENT.startTime]: start,
-            [LOAD_CLIENT.region]: region,
-            [LOAD_CLIENT.version]: version,
-            [LOAD_CLIENT.zone]: zone,
-          },
-        ],
-        []
-      );
+      .map(client => ({
+        [LOAD_CLIENT.id]: client[CLIENT.loadClientId],
+        [LOAD_CLIENT.name]: client[CLIENT.name],
+        [LOAD_CLIENT.prometheus]: client[CLIENT.prometheus],
+        [LOAD_CLIENT.startupArgs]: client[CLIENT.startupArgs],
+        [LOAD_CLIENT.startTime]: client[CLIENT.startTime],
+        [LOAD_CLIENT.region]: client[CLIENT.region],
+        [LOAD_CLIENT.version]: client[CLIENT.version],
+        [LOAD_CLIENT.zone]: client[CLIENT.zone],
+      }));
 
     // TODO: When LR.API uses dictionary for TestRun.LoadClients
     // const testRunClients = selectedClients
@@ -133,6 +117,10 @@ const TestSubmission = () => {
     //     ...agg,
     //     [client[CLIENT.loadClientId]]: client,
     //   }), {});
+
+    addDefaultsToConfig(testRunConfig);
+
+    removeConfigDependencies(testRunConfig);
 
     const now = new Date();
 
@@ -150,7 +138,7 @@ const TestSubmission = () => {
   const showDependentConfig = (config) =>
     CONFIG_OPTIONS[config].dependencies.reduce(
       (isVisible, [dependentOn, shouldExist]) =>
-        isVisible && testRunConfig[dependentOn] !== shouldExist,
+        isVisible && testRunConfig[dependentOn] === shouldExist,
       true
     );
 
@@ -272,6 +260,18 @@ const TestSubmission = () => {
               CONFIG_OPTIONS[CONFIG.randomize].default.toString()}
           </div>
         )}
+        {showDependentConfig(CONFIG.maxErrors) && (
+          <div>
+            <span
+              className="testsubmission-config-label"
+              title="Maximum validation errors"
+            >
+              Max Errors:&nbsp;
+            </span>
+            {testRunConfig[CONFIG.maxErrors] ??
+              CONFIG_OPTIONS[CONFIG.maxErrors].default}
+          </div>
+        )}
         <div>
           <span
             className="testsubmission-config-label"
@@ -301,18 +301,6 @@ const TestSubmission = () => {
           {testRunConfig[CONFIG.verboseErrors]?.toString() ??
             CONFIG_OPTIONS[CONFIG.timeout].default.toString()}
         </div>
-        {showDependentConfig(CONFIG.maxErrors) && (
-          <div>
-            <span
-              className="testsubmission-config-label"
-              title="Maximum validation errors"
-            >
-              Max Errors:&nbsp;
-            </span>
-            {testRunConfig[CONFIG.maxErrors] ??
-              CONFIG_OPTIONS[CONFIG.maxErrors].default}
-          </div>
-        )}
         <br />
         <button
           className="unset testsubmission-button"
@@ -361,9 +349,8 @@ const TestSubmission = () => {
                   {status}&nbsp;
                   <div
                     aria-label={`Load Client Status: ${status}`}
-                    className={`testsubmission-clients-item-status-indicator status-${
-                      status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
-                    }`}
+                    className={`testsubmission-clients-item-status-indicator status-${status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
+                      }`}
                   />
                 </div>
                 <div>
@@ -406,12 +393,11 @@ const TestSubmission = () => {
                   <span className="testsubmission-clients-item-label">
                     Prometheus Enabled:&nbsp;
                   </span>
-                  {prometheus?.toString() ??
-                    CONFIG_OPTIONS[CONFIG.prometheus].default.toString()}
+                  {prometheus?.toString() ?? "false"}
                 </div>
                 <div>
                   <span className="testsubmission-clients-item-label">
-                    Log & App Insights Tag:&nbsp;
+                    Log &amp; App Insights Tag:&nbsp;
                   </span>
                   {tag || "--"}
                 </div>

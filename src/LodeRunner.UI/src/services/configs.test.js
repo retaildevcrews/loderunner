@@ -1,5 +1,5 @@
 import { checkConfigInputs } from "./configs";
-import { CONFIG } from "../models";
+import { CONFIG, addDefaultsToConfig, removeConfigDependencies, CONFIG_OPTIONS } from "../models";
 
 describe("checkConfigInputs", () => {
   it("should return no errors", () => {
@@ -39,4 +39,36 @@ describe("checkConfigInputs", () => {
       expect(err).toEqual(errors);
     }
   });
+});
+
+describe("addDefaultsToConfig", () => {
+  it("should replace all nulls with values", () => {
+    const config = { [CONFIG.id]: "123" };
+    addDefaultsToConfig(config);
+    Object.values(config).forEach(configValue => {
+      expect(configValue).not.toBeNull();
+    })
+    expect(Object.keys(config).length).toEqual(Object.keys(CONFIG_OPTIONS).length);
+  })
+});
+
+describe("removeConfigDependencies", () => {
+  it("should remove max errors", () => {
+    const config = { [CONFIG.id]: "123" };
+    addDefaultsToConfig(config);
+    config[CONFIG.runLoop] = true;
+    removeConfigDependencies(config);
+    expect(config[CONFIG.duration]).toEqual(CONFIG_OPTIONS[CONFIG.duration].default);
+    expect(config[CONFIG.randomize]).toEqual(CONFIG_OPTIONS[CONFIG.randomize].default);
+    expect(config[CONFIG.maxErrors]).toBeUndefined();
+  })
+  it("should remove duration and randomize", () => {
+    const config = { [CONFIG.id]: "123" };
+    addDefaultsToConfig(config);
+    config[CONFIG.runLoop] = false;
+    removeConfigDependencies(config);
+    expect(config[CONFIG.duration]).toBeUndefined();
+    expect(config[CONFIG.randomize]).toBeUndefined();
+    expect(config[CONFIG.maxErrors]).toEqual(CONFIG_OPTIONS[CONFIG.maxErrors].default);
+  })
 });
