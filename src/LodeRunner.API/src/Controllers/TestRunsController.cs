@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -199,7 +200,12 @@ namespace LodeRunner.API.Controllers
         /// <returns>List of error strings.</returns>
         private IEnumerable<string> CompileErrorList(IBaseService<TestRun> service, TestRun testRun)
         {
-            return service.Validator.ValidateEntity(testRun);
+            //return service.Validator.ValidateEntity(testRun);
+
+            var payloadErrorList = service.Validator.ValidateEntity(testRun);
+            var flagErrorList = testRun.LoadTestConfig.FlagValidator();
+            var errorList = flagErrorList.Concat<string>(payloadErrorList);
+            return errorList;
         }
 
         /// <summary>
