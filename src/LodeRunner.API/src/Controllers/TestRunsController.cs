@@ -200,8 +200,6 @@ namespace LodeRunner.API.Controllers
         /// <returns>List of error strings.</returns>
         private IEnumerable<string> CompileErrorList(IBaseService<TestRun> service, TestRun testRun)
         {
-            //return service.Validator.ValidateEntity(testRun);
-
             var payloadErrorList = service.Validator.ValidateEntity(testRun);
             var flagErrorList = testRun.LoadTestConfig.FlagValidator();
             var errorList = flagErrorList.Concat<string>(payloadErrorList);
