@@ -101,6 +101,7 @@ export const removeConfigDependencies = (config) => {
   Object.entries(CONFIG_OPTIONS).forEach(([configKey, { dependencies }]) => {
     dependencies.forEach(([dependentOn, shouldExist]) => {
       if (config[dependentOn] !== shouldExist) {
+        // eslint-disable-next-line no-param-reassign
         delete config[configKey];
       }
     });
@@ -109,6 +110,7 @@ export const removeConfigDependencies = (config) => {
 
 export const addDefaultsToConfig = (config) => {
   Object.entries(CONFIG_OPTIONS).forEach(([configKey, configOptions]) => {
+    // eslint-disable-next-line no-param-reassign
     config[configKey] ??= configOptions.default;
   })
 }
