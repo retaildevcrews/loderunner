@@ -99,7 +99,7 @@ const TestSubmission = () => {
         ({ [CLIENT.loadClientId]: clientId }) =>
           testRunClientRefs[clientId].current.checked
       )
-      .map( client => ({
+      .map(client => ({
         [LOAD_CLIENT.id]: client[CLIENT.loadClientId],
         [LOAD_CLIENT.name]: client[CLIENT.name],
         [LOAD_CLIENT.prometheus]: client[CLIENT.prometheus],
@@ -349,9 +349,8 @@ const TestSubmission = () => {
                   {status}&nbsp;
                   <div
                     aria-label={`Load Client Status: ${status}`}
-                    className={`testsubmission-clients-item-status-indicator status-${
-                      status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
-                    }`}
+                    className={`testsubmission-clients-item-status-indicator status-${status === CLIENT_STATUS_TYPES.ready ? "ready" : "pending"
+                      }`}
                   />
                 </div>
                 <div>
