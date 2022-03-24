@@ -143,6 +143,27 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
+        /// Determines whether this instance [returns correct response when it fails to post a test run with invalid loadtestconfig].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPostTestRunWithInvalidLoadTestConfig()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create testRun payload; update LoadTestConfig RunLoop and MaxErrors to make it invalid.
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            testRunPayload.LoadTestConfig.RunLoop = true;
+            testRunPayload.LoadTestConfig.MaxErrors = 21;
+
+            var returnedHttpResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
+
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, returnedHttpResponse);
+        }
+
+        /// <summary>
         /// Determines whether this instance [can update test run by identifier].
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -202,6 +223,30 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             testRunPayload.LoadTestConfig = postedTestRun.LoadTestConfig;
             testRunPayload.LoadClients = postedTestRun.LoadClients;
             testRunPayload.CompletedTime = DateTime.UtcNow;
+
+            // Update TestRun
+            var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, testRunPayload, this.output);
+            AssertExtension.EqualResponseStatusCode(HttpStatusCode.BadRequest, puttedResponse);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can update test run with an invalid loadtestconfig payload].
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        [Trait("Category", "Integration")]
+        public async Task CannotPutTestRunWithInvalidLoadTestConfig()
+        {
+            using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+
+            // Create a new TestRun
+            HttpResponseMessage postResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
+            var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
+
+            TestRunPayload testRunPayload = new ();
+            testRunPayload.SetMockData($"Updated TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+            testRunPayload.LoadTestConfig.RunLoop = true;
+            testRunPayload.LoadTestConfig.MaxErrors = 21;
 
             // Update TestRun
             var puttedResponse = await httpClient.PutTestRunById(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, testRunPayload, this.output);
