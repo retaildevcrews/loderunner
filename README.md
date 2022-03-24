@@ -63,3 +63,47 @@
 - [LodeRunner Unning and Debugging LodeRunner via Visual Studio 2019](./src/LodeRunner/README.md#running-and-debugging-loderunner-via-visual-studio-2019)
 - [LodeRunner.API Running the API](./src/LodeRunner.API/README.md#running-the-api)
 - [LodeRunner.UI Development Experience](./src/LodeRunner.UI/README.md#development-experience)
+
+## Running an Example Load Test
+
+- [Open LodeRunner UI](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#loderunner-ui-endpoints)
+- Create a Load Test Config
+  - Select `+` next to the `Load Test Configs` header at the top of the page
+  - Fill the `Name` input with an easily identifiable name
+  - Fill the `Servers` input with [NGSA endpoints](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#nsga-endpoints)
+    - Take note of the cluster name (Pre, Dev)
+  - Fill the `Names` input with filenames from [LodeRunner project](https://github.com/retaildevcrews/loderunner/tree/main/src/LodeRunner)
+    - benchmark.json
+    - baseline.json
+  - Select `Save` at the bottom of the modal
+- Create a Test Run
+  - Select `LodeRunner Client Mode` clients from the left-hand panel
+    - NOTE: the checkmark indicates a client has been selected
+  - Select the `Play Icon` on the right-hand side of the created Load Test Config
+  - Fill the `Name` input with an easily identifiable name
+  - Select `Submit` at the bottom of the modal
+  - Verify a successful message in the browser alert
+- See completion status of Test Run
+  - Navigate to Test Runs page
+    - Select `See All Test Runs` from the left-hand panel, between clients and incomplete test runs
+  - Select the `Pencil Icon` in created Test Run with the easily identifiable name
+  - Read `Load Test Completion Time` and `Requests` to determine status of Test Run
+  - Select the `Refresh Icon` at the top left-hand side of the page to view most up-to-date information
+- View spike in Grafana dashboard
+  - [Open Grafana](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#dashboards)
+    - NOTE: Open the Grafana that is in the same cluster as the NGSA endpoints (Pre, Dev)
+  - Navigate to the NGSA Azure Monitor dashboard
+    - Select the `Home` in the top left-hand corner
+    - Select the `NGSA` folder
+    - Select the `NGSA {DEV|PRE} - Azure Monitor` dashboard
+  - Hover over the graph with cursor to find the Test Run start and complete time
+  - Identify traffic spike
+  - NOTE: can select the `Refresh Icon` on the top,right-hand side of the page to refresh graph
+- TODO: View spike in Prometheus dashboard
+- View Test Run logs from LodeRunner in client mode
+  - Open [Log Analytics](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#shared-resources) in the same cluster the test run executed in (Pre, Dev)
+  - Navigate to Logs by selecting `General` > `Logs` in the left-hand panel
+  - Filter LodeRunner custom logs with the following query: `loderunner_CL
+| where k_app_s == "loderunner-clientmode";`
+  - Select the `Run` button to execute the query
+  - NOTE: Logs include `ClientStatusId_g` and `LoadClientId_g` properties which map to LodeRunner client statud ID and load client Id, respectively
