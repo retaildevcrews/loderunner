@@ -24,7 +24,8 @@ namespace LodeRunner.Core.CommandLine
             if (string.IsNullOrWhiteSpace(name))
             {
                 result.ErrorMessage = "result.Parent is null";
-                return null;
+
+                return GetHelpStringDefaultValues(result, defaultValue: null);
             }
 
             string val;
@@ -230,7 +231,7 @@ namespace LodeRunner.Core.CommandLine
             if (string.IsNullOrWhiteSpace(name))
             {
                 result.ErrorMessage = "result.Parent is null";
-                return -1;
+                return GetHelpIntDefaultValues(result, defaultValue: -1);
             }
 
             string errorMessage = $"--{result.Parent.Symbol.Name} must be an integer >= {minValue}";
@@ -307,6 +308,41 @@ namespace LodeRunner.Core.CommandLine
                 default:
                     return 0;
             }
+        }
+
+        /// <summary>
+        /// Gets the help int default values for specific arguments.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The default Int value.</returns>
+        private static int GetHelpIntDefaultValues(ArgumentResult result, int defaultValue)
+        {
+            var returnValue = result.Argument.Name.ToLower() switch
+            {
+                "sleep" or "duration" or "delay-start" => 0,
+                "timeout" => 30,
+                "max-concurrent" => 100,
+                "max-errors" => 10,
+                _ => defaultValue,
+            };
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Gets the help string default values for specific arguments.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The default String value.</returns>
+        private static string GetHelpStringDefaultValues(ArgumentResult result, string defaultValue)
+        {
+            var returnValue = result.Argument.Name.ToLower() switch
+            {
+                "secrets-volume" => "secrets",
+                _ => defaultValue,
+            };
+            return returnValue;
         }
     }
 }
