@@ -105,13 +105,13 @@ These are used for configuring a testing scenario.  `LoadTestConfig` will contai
 | EntityType      |   String   | Entity type used for filtering  | Yes | [`ClientStatus`, `LoadTestConfig`, `TestRun`] |
 | Id              |   String   | GUID used to retrieve the object directly. | Yes | |
 | Name            |   String   | Friendly name so that users may more easily identify configs | No | |
-| Files           |  String[]  | List of files to test (default: `Null`)  |   Yes     | match `--files` CLI flag |
+| Files           |  String[]  | List of files to test |   Yes     | match `--files` CLI flag |
 | StrictJson      |   Boolean  | Use strict json when parsing (default: `False`) | No | match to `--strict-json` CLI flag |
 | BaseURL         |   String   | Base url for files (default: `Null`) | No | match to `--base-url` CLI flag |
 | VerboseErrors   |   Boolean  | Displays validation error messages (default: `False`) | No | match to `--verbose-errors` CLI flag |
 | Randomize       |   Boolean  | Requires `RunLoop=True`. Dictates whether to process a load file top to bottom (default: `False`) or randomly | No | match to `--random` CLI flag |
 | Timeout         |    Int     | Request timeout in seconds (default: `30`) | No | match to `--timeout` CLI flag |
-| Server          |  String[]  | Server(s) to test (default: `Null`) | Yes | match to `--server` CLI flag |
+| Server          |  String[]  | Server(s) to test | Yes | match to `--server` CLI flag |
 | Tag             |   String   | Tag for log (default: `Null`)| No | match to `--tag` CLI flag |
 | Sleep           |   String   | Sleep (ms) between each request (default: `0`) | No | match to `--sleep` CLI flag |
 | RunLoop         |   Boolean  | Run test in an infinite loop (default: `False`) | No | match to `--run-loop` CLI flag |
