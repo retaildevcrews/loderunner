@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Use default dir for logs if not provided
-[ -z "${LOG_PATH}" ] && LOG_PATH="/logs/"
+[ -z "${LOG_PATH}" ] && LOG_PATH="/tmp/logs/" && mkdir -p ${LOG_PATH}
 # Error out if REGION is not provided
 [ -z "${REGION}" ] && echo "REGION env variable is not set" && exit 1
 
@@ -10,7 +10,7 @@ TIMESTAMP="$(date '+%Y-%m-%d-%H:%M:%S')"
 COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
 ENDPOINT="https://loderunner-${REGION}-dev.cse.ms/api/api"
 
-printf "%s\n{\"datetime\": \"$TIMESTAMP\",%s\n\"actions\": [" >> $LOG_FILE
+printf "%s{\"datetime\": \"$TIMESTAMP\",%s\"actions\": [" > $LOG_FILE
 
 make_api_call () {
     HTTP_CODE="${RES:${#RES}-3}"
@@ -18,9 +18,9 @@ make_api_call () {
 
     if [ $HTTP_CODE -eq $2 ]
     then
-        printf "%s\n{\"event\": \"$1\", \"success\": \"true\", \"code\": $HTTP_CODE}" >> $LOG_FILE
+        printf "%s{\"event\": \"$1\", \"success\": \"true\", \"code\": $HTTP_CODE}" >> $LOG_FILE
     else
-        printf "%s\n{\"event\": \"$1\", \"success\": \"false\", \"code\": \"$HTTP_CODE\", \"message\": $RES_BODY}%s\n]}" >> $LOG_FILE
+        printf "%s{\"event\": \"$1\", \"success\": \"false\", \"code\": \"$HTTP_CODE\", \"message\": $RES_BODY}%s]}" >> $LOG_FILE
         exit 0;
     fi
 
@@ -48,7 +48,7 @@ done
 # IF NO CLIENTS, LOG DID NOT EXECUTE TEST BECAUSE NO CLIENTS
 if [[ -z "$CLIENT" ]]
 then
-    printf ",%s\n{\"event\": \"use LoadClient for POST /testruns\", \"success\": \"false\", \"code\": null, \"message\": \"Unable to find a LoadClient with a status of 'Ready', 'Testing', or 'Starting'\"}%s\n]}" >> $LOG_FILE
+    printf ",%s{\"event\": \"use LoadClient for POST /testruns\", \"success\": \"false\", \"code\": null, \"message\": \"Unable to find a LoadClient with a status of 'Ready', 'Testing', or 'Starting'\"}%s]}" >> $LOG_FILE
     exit 0
 fi
 
@@ -84,4 +84,6 @@ printf "," >> $LOG_FILE
 # CLEAN UP: DELETE TESTRUN
 RES=$(curl -sw '%{http_code}' -X DELETE $ENDPOINT/testruns/$TESTRUN_ID)
 make_api_call "DELETE /testruns/:id" 204
-printf "%s\n]}" >> $LOG_FILE
+printf "%s]}" >> $LOG_FILE
+
+cat $LOG_FILE
