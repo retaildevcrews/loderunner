@@ -1,4 +1,4 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: soak-lrapi
@@ -10,16 +10,18 @@ spec:
   schedule: "*/5 * * * *"
   jobTemplate:
     spec:
-      containers:
-      - name: soak-lrapi
-        image: ghcr.io/retaildevcrews/lrapi-soak:latest
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "1000m"
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-      restartPolicy: never
-      nodeSelector:
-        agentpool: npuser01
+      template:
+        spec:
+          containers:
+          - name: soak-lrapi
+            image: ghcr.io/retaildevcrews/lrapi-soak:latest
+            resources:
+              limits:
+                memory: "512Mi"
+                cpu: "1000m"
+              requests:
+                memory: "512Mi"
+                cpu: "500m"
+          restartPolicy: Never
+          nodeSelector:
+            agentpool: npuser01
