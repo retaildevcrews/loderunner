@@ -36,6 +36,17 @@ spec:
               requests:
                 memory: "512Mi"
                 cpu: "500m"
+            env:
+            - name: REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: soak-config
+                  key: region
+            - name: LOG_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: soak-config
+                  key: log_path
             volumeMounts:
             - name: soak-lrapi-storage-volume
               mountPath: /logs
