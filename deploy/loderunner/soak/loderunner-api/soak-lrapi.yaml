@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: soak-lrapi
+  namespace: loderunner
+  labels:
+    workload: soak
+    type: api
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      containers:
+      - name: soak-lrapi
+        image: ghcr.io/retaildevcrews/lrapi-soak:latest
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+      restartPolicy: never
+      nodeSelector:
+        agentpool: npuser01

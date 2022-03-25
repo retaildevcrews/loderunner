@@ -1,0 +1,4 @@
+{
+    "Files":["baseline.json", "benchmark.json"],
+    "Server":["fake.notreal"]
+}
