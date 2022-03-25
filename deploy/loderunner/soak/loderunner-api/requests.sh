@@ -5,7 +5,7 @@
 # Error out if REGION is not provided
 [ -z "${REGION}" ] && echo "REGION env variable is not set" && exit 1
 
-LOG_FILE="${LOG_PATH}/log-$(date +'%Y-%m-%d-%H:%M').txt"
+LOG_FILE="${LOG_PATH}/log-$(date +'%Y-%m-%d').txt"
 TIMESTAMP="$(date '+%Y-%m-%d-%H:%M:%S')"
 COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
 ENDPOINT="https://loderunner-${REGION}-dev.cse.ms/api/api"

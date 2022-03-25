@@ -29,6 +29,7 @@ spec:
           containers:
           - name: soak-lrapi
             image: ghcr.io/retaildevcrews/lrapi-soak:latest
+            imagePullPolicy: Always
             resources:
               limits:
                 memory: "512Mi"
