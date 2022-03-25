@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: soak-lrapi-pvc
+  namespace: loderunner
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -22,6 +36,52 @@ spec:
               requests:
                 memory: "512Mi"
                 cpu: "500m"
+            volumeMounts:
+            - name: soak-lrapi-storage-volume
+              mountPath: /logs
           restartPolicy: Never
           nodeSelector:
             agentpool: npuser01
+          volumes:
+          - name: soak-lrapi-storage-volume
+            persistentVolumeClaim:
+              claimName: soak-lrapi-pvc
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soak-lrapi-jumpbox
+  namespace: loderunner
+  labels:
+    app: soak-lrapi-jumpbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: soak-lrapi-jumpbox
+  template:
+    metadata:
+      labels:
+        app: soak-lrapi-jumpbox
+    spec:
+      containers:
+        - name: jumpbox
+          image: acraks3i2qzkkxofr7c.azurecr.io/cse-labs/jumpbox:latest
+          volumeMounts:
+            - name: soak-lrapi-storage-volume
+              mountPath: /logs
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+      nodeSelector:
+        agentpool: npuser01
+      volumes:
+        - name: soak-lrapi-storage-volume
+          persistentVolumeClaim:
+            claimName: soak-lrapi-pvc

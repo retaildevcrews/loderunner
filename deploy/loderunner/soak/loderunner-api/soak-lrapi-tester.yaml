@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: soak-lrapi-tester
+  namespace: loderunner
+  labels:
+    workload: soak
+    type: api
+spec:
+  containers:
+  - name: soak-lrapi-tester
+    image: ghcr.io/retaildevcrews/lrapi-soak:latest
+    command:
+      - sleep
+    args:
+      - 9999d
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "1000m"
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+  restartPolicy: Never
+  nodeSelector:
+    agentpool: npuser01

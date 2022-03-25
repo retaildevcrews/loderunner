@@ -1,8 +1,10 @@
 #!/bin/bash 
-LOG_FILE="log-$(date +'%Y-%m-%d').txt"
+# TODO: env variable for log_file directory
+LOG_FILE="/logs/log-$(date +'%Y-%m-%d').txt"
 TIMESTAMP="$(date '+%Y-%m-%d')-$(date '+%H:%M:%S')"
 COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
-REGION="eastus"
+# TODO: env variable for region
+REGION="westus2"
 ENDPOINT="https://loderunner-$REGION-dev.cse.ms/api/api"
 
 printf ",%s\n{\"datetime\": $TIMESTAMP,%s\n\"actions\": [" >> $LOG_FILE
