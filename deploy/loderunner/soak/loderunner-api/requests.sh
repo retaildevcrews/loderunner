@@ -1,13 +1,16 @@
-#!/bin/bash 
-# TODO: env variable for log_file directory
-LOG_FILE="/logs/log-$(date +'%Y-%m-%d').txt"
-TIMESTAMP="$(date '+%Y-%m-%d')-$(date '+%H:%M:%S')"
-COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
-# TODO: env variable for region
-REGION="westus2"
-ENDPOINT="https://loderunner-$REGION-dev.cse.ms/api/api"
+#!/bin/bash
 
-printf ",%s\n{\"datetime\": $TIMESTAMP,%s\n\"actions\": [" >> $LOG_FILE
+# Use default dir for logs if not provided
+[ -z "${LOG_PATH}" ] && LOG_PATH="/logs/"
+# Error out if REGION is not provided
+[ -z "${REGION}" ] && echo "REGION env variable is not set" && exit 1
+
+LOG_FILE="${LOG_PATH}/log-$(date +'%Y-%m-%d-%H:%M').txt"
+TIMESTAMP="$(date '+%Y-%m-%d-%H:%M:%S')"
+COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
+ENDPOINT="https://loderunner-${REGION}-dev.cse.ms/api/api"
+
+printf "%s\n{\"datetime\": \"$TIMESTAMP\",%s\n\"actions\": [" >> $LOG_FILE
 
 make_api_call () {
     HTTP_CODE="${RES:${#RES}-3}"
