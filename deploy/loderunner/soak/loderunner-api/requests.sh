@@ -9,6 +9,7 @@ LOG_FILE="${LOG_PATH}/log-$(date +'%Y-%m-%d').txt"
 TIMESTAMP="$(date '+%Y-%m-%d-%H:%M:%S')"
 COSMOS_NAME="LR API SOAK ${TIMESTAMP}"
 ENDPOINT="https://loderunner-${REGION}-dev.cse.ms/api/api"
+NGSA_ENDPOINT="https://ngsa-memory-westus2-dev.cse.ms/version"
 
 printf "%s{\"datetime\": \"$TIMESTAMP\",%s\"actions\": [" > $LOG_FILE
 
@@ -84,6 +85,16 @@ printf "," >> $LOG_FILE
 # CLEAN UP: DELETE TESTRUN
 RES=$(curl -sw '%{http_code}' -X DELETE $ENDPOINT/testruns/$TESTRUN_ID)
 make_api_call "DELETE /testruns/:id" 204
+
+# CALL NGSA BURST FILTER
+RES=$(curl -sI $NGSA_ENDPOINT | grep x-load-feedback | tr -d '\r\n')
+if [[ -z "$RES" ]]
+then
+    printf ',{"event": "GET '$NGSA_ENDPOINT'", "success": "false", "code": null, "message": "cannot find burstheader on ngsa-mem-westus2"}' >> $LOG_FILE
+else
+    printf ',{"event": "GET '$NGSA_ENDPOINT'", "success": "true", "code": null, "message": "%s"}' "$RES" >> $LOG_FILE
+fi
+
 printf "%s]}" >> $LOG_FILE
 
 cat $LOG_FILE
