@@ -99,7 +99,18 @@
   - Hover over the graph with cursor to find the Test Run start and complete time
   - Identify traffic spike
   - NOTE: can select the `Refresh Icon` on the top,right-hand side of the page to refresh graph
-- TODO: View spike in Prometheus dashboard
+- View spike in Prometheus dashboard
+  - [Open Grafana](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#dashboards)
+    - NOTE: Open the Grafana that is in the same cluster as the NGSA endpoints (Pre, Dev)
+  - Navigate to the NGSA Prometheus dashboard
+    - Select the `Home` in the top left-hand corner
+    - Select the `NGSA` folder
+    - Select the `NGSA {DEV|PRE} - Prometheus` dashboard
+  - Select the appropriate `service` filter for the NGSA instance
+  - Select `read` or `write` mode filter for the expected Loderunner operations based on the test files
+  - Hover over the graph with cursor to find the Test Run start and complete time
+  - Identify traffic spike
+  - NOTE: can select the `Refresh Icon` on the top,right-hand side of the page to refresh graph
 - View Test Run logs from LodeRunner in client mode
   - Open [Log Analytics](https://github.com/retaildevcrews/wcnp/blob/main/docs/ResourceList.md#shared-resources) in the same cluster the test run executed in (Pre, Dev)
   - Navigate to Logs by selecting `General` > `Logs` in the left-hand panel
