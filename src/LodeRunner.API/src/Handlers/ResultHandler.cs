@@ -333,7 +333,6 @@ namespace LodeRunner.API.Middleware
         private static async Task<ActionResult> ValidateEntityId<TEntity>(string id, ILogger logger, HttpRequest request, Func<Task<ActionResult>> taskToExecute)
         where TEntity : class
         {
-            // TODO: Use by all id validators
             var errorlist = ParametersValidator<TEntity>.ValidateEntityId(id);
 
             if (errorlist.Count > 0)

@@ -104,7 +104,6 @@ namespace LodeRunner.Services
         /// <returns>The corresponding entity.</returns>
         public virtual async Task<HttpStatusCode> Delete(string id)
         {
-            // TODO: Change to APIResponse type once merged with other branch of code.
             var result = await this.CosmosDBRepository.DeleteDocumentAsync<TEntity>(id, this.entityType.ToString());
             return result.StatusCode;
         }

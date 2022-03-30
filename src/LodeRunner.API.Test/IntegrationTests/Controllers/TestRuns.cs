@@ -68,13 +68,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
             {
-                // TODO: Separate out to test GetAllTestRuns with OK response
                 var testRuns = await httpResponse.Content.ReadFromJsonAsync<List<TestRun>>(this.jsonOptions);
                 Assert.NotEmpty(testRuns);
             }
             else
             {
-                // TODO: Separate out to test GetAllTestRuns with No Content response
                 Assert.Equal(0, httpResponse.Content.Headers.ContentLength);
             }
         }
@@ -295,7 +293,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.Conflict, response);
 
-            // TODO: When TestRun feature is completed, refactor to add deletion test
             // Save the completed time and update CosmosDB
             testRun.CompletedTime = DateTime.UtcNow;
             _ = await testRunSvc.Post(testRun, System.Threading.CancellationToken.None);

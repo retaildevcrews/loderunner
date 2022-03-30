@@ -61,7 +61,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         [InlineData("/version", "text/plain")]
         public async Task CanGetEndpointsReturnSuccessAndCorrectContentType(string url, string expectedValue)
         {
-            // TODO: This does not test clients endpoint. Please move to different file.
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             var httpResponse = await httpClient.GetAsync(url);
@@ -127,8 +126,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
                 Assert.True(c.LastStatusChange >= minDate);
                 Assert.True(c.LastUpdated >= minDate);
             });
-
-            // TODO: Test for not found clients
         }
 
         /// <summary>

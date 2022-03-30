@@ -72,7 +72,6 @@ namespace LodeRunner.Services
             string sql = $"SELECT * FROM e WHERE e.entityType='TestRun' ";
             sql += $"and array_contains(e.loadClients, {{ \"id\": \"{loadClientId}\"}}, true) ";
 
-            // TODO: Update and add later once LoadResults schema is defined
             // sql + = $"and NOT array_contains(e.ClientResults, {{\"id\": \"{clientId}\"}}, true)";
             sql += $"and (NOT IS_DEFINED(e.completedTime) or IS_NULL(e.completedTime) or e.completedTime = '') ";
             sql += $"ORDER BY e.startTime ASC";
