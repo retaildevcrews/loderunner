@@ -106,11 +106,11 @@ export const removeConfigDependencies = (config) => {
       }
     });
   });
-}
+};
 
 export const addDefaultsToConfig = (config) => {
   Object.entries(CONFIG_OPTIONS).forEach(([configKey, configOptions]) => {
     // eslint-disable-next-line no-param-reassign
     config[configKey] ??= configOptions.default;
-  })
-}
+  });
+};
