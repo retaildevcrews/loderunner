@@ -18,3 +18,11 @@ kubectl apply -f soak-lrapi.yaml
 With this there should be a cronjob in `loderunner` namespace.
 
 It also creates a jumpbox which we can use to debug/capture logs.
+
+### Build burst service test script
+
+```bash
+
+docker build -f Dockerfile.burstservice .
+
+```

@@ -1,0 +1,6 @@
+FROM ghcr.io/cse-labs/jumpbox:latest
+WORKDIR /app
+
+COPY ["burst-service-requests.sh", "loadtestconfig-payload.json", "testrun-payload.json", "./"]
+
+ENTRYPOINT ["./burst-service-requests.sh"]
