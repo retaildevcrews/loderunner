@@ -110,14 +110,6 @@ const TestSubmission = () => {
         [LOAD_CLIENT.zone]: client[CLIENT.zone],
       }));
 
-    // TODO: When LR.API uses dictionary for TestRun.LoadClients
-    // const testRunClients = selectedClients
-    //   .filter(({ [CLIENT.loadClientId]: clientId }) => testRunClientRefs[clientId].current.checked)
-    //   .reduce((agg, client) => ({
-    //     ...agg,
-    //     [client[CLIENT.loadClientId]]: client,
-    //   }), {});
-
     addDefaultsToConfig(testRunConfig);
 
     removeConfigDependencies(testRunConfig);
