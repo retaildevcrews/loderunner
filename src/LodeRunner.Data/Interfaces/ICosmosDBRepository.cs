@@ -33,7 +33,6 @@ namespace LodeRunner.Data.Interfaces
         /// <summary>
         /// Gets a value indicating whether CosmosDB is ready or not.
         /// This caches the ready state from the initial check so it isn't checked every time.
-        /// TODO: Add a timer to refresh the ready state on a given interval.
         /// </summary>
         bool IsCosmosDBReady { get; }
 

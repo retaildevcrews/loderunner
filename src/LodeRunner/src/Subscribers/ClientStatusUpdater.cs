@@ -50,7 +50,6 @@ namespace LodeRunner.Subscribers
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public async void UpdateCosmosStatus(object sender, ClientStatusEventArgs args)
         {
-            // TODO: do we need a lock here?
             this.clientStatus.Message = args.Message;
             this.clientStatus.Status = args.Status;
 

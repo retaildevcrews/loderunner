@@ -111,8 +111,6 @@ namespace LodeRunner.API
             }
             catch (Exception ex)
             {
-                // TODO: Improved the call to LogError to handle InnerExceptions, since this is the Catch at the top level and all exceptions will bubble up to here.
-
                 // end app on error
                 GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
 

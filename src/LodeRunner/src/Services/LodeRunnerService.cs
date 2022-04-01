@@ -219,7 +219,6 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
-            // TODO Move to proper location when merging with DAL
             logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message}");
         }
 
@@ -230,7 +229,6 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            // TODO: Define expected behavior and handle exceptions when cosmos update fails
             // get TestRun document to update
             var testRun = await GetTestRunService().Get(args.TestRunId);
 
@@ -591,14 +589,11 @@ namespace LodeRunner.Services
             CancellationTokenSource cancel = new ();
             try
             {
-                // TODO: Ensure all paths (i.e. with/without errors) with run loop and run once use UpdateTestRun event so cosmos
                 // can be updated accordingly
                 _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, this.loadClient.Id, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
             }
             catch (Exception ex)
             {
-                // TODO: Handle specific exceptions (as needed)
-                // TODO: Revisit how to use/where to raise the TestRunComplete event when the test run fails with an exception
                 ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
             }
         }

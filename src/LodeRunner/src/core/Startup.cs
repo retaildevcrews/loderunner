@@ -64,7 +64,7 @@ namespace LodeRunner
             {
                 if (cancellationTokenSource != null && !cancellationTokenSource.IsCancellationRequested)
                 {
-                    cancellationTokenSource.Cancel(false); // TODO: Do we need to pass 'true' to throw and bubble up the exception?
+                    cancellationTokenSource.Cancel(false);
                 }
             });
 

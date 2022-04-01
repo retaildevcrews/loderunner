@@ -69,13 +69,11 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             if (httpResponse.StatusCode == HttpStatusCode.OK)
             {
-                // TODO: Separate out to test GetAllLoadTestConfig with OK response
                 var testRuns = await httpResponse.Content.ReadFromJsonAsync<List<LoadTestConfig>>(this.jsonOptions);
                 Assert.NotEmpty(testRuns);
             }
             else
             {
-                // TODO: Separate out to test GetAllLoadTestConfig with No Content response
                 Assert.Equal(0, httpResponse.Content.Headers.ContentLength);
             }
         }
