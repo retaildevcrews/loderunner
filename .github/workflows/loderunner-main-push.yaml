@@ -113,7 +113,7 @@ jobs:
         
     - name: AutoGitOps Pull
       run: |        
-        docker pull ghcr.io/bartr/autogitops
+        docker pull ghcr.io/retaildevcrews/autogitops:0.3.0
 
     - name: GitOps Deploy
       run: |        
@@ -121,5 +121,5 @@ jobs:
         --name ago \
         --rm \
         -v $(pwd)/autogitops:/ago/autogitops \
-        ghcr.io/bartr/autogitops -r /retaildevcrews/ngsa-asb -p ${{ secrets.GHCR_PAT }}
+        ghcr.io/retaildevcrews/autogitops:0.3.0 -r /retaildevcrews/ngsa-asb -p ${{ secrets.GHCR_PAT }}
 
