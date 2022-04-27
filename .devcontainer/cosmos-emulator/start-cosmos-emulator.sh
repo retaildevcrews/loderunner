@@ -24,7 +24,7 @@ cat /etc/hosts | grep "documents.azure.com" || echo "127.0.0.1  ${COSMOS_EMULATO
 
 # generate keys for NGINX
 openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
-  -keyout "${NGINX_CONFIG_PATH}/nginx.key" -out "${NGINX_CONFIG_PATH}/nginx.crt" -subj "/CN=${COSMOS_EMULATOR_URL}" -addext "subjectAltName=DNS:${COSMOS_EMULATOR_URL},DNS:${COSMOS_EMULATOR_URL},IP:127.0.0.1"
+  -keyout "${COSMOS_EMULATOR_URL}.key" -out "${COSMOS_EMULATOR_URL}.crt" -subj "/CN=${COSMOS_EMULATOR_URL}" -addext "subjectAltName=DNS:${COSMOS_EMULATOR_URL},DNS:localhost,DNS:${COSMOS_EMULATOR_URL}"
 
 # copy the crt file to trusted-local-cert-db
 sudo cp ${NGINX_CONFIG_PATH}/nginx.crt /usr/local/share/ca-certificates/

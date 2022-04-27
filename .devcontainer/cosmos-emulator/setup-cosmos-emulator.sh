@@ -6,7 +6,8 @@ COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 
 # wait for the cosmos emulator to start
 echo "Waiting for CosmosDB Emulator to start"
-while ! test $(docker logs ${COSMOS_EMULATOR_NAME} | grep -vE 'Started ' | grep -E '^Started' | head -n 1);do sleep 5;done
+timeout=60
+while ! test $(docker logs ${COSMOS_EMULATOR_NAME} | grep -vE 'Started ' | grep -E '^Started' | head -n 1);do sleep 5;timeout=$((timeout-5)); [[ $timeout == 0 ]] && break; done
 echo "CosmosDB Emulator started"
 
 # update SSL Certs
