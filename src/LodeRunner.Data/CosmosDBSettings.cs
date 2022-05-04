@@ -81,7 +81,7 @@ namespace LodeRunner.Data
         /// <value>
         /// The database cosmos connection check interval.
         /// </value>
-        public int CosmosDbConnectionCheckInterval { get; set; } = 60;
+        public int CosmosDbConnectionCheckInterval { get; set; } = 40;
 
         /// <summary>
         /// Gets or sets the cosmos database connection check retries.
@@ -89,7 +89,7 @@ namespace LodeRunner.Data
         /// <value>
         /// The cosmos database connection check retries.
         /// </value>
-        public int CosmosDbConnectionCheckRetries { get; set; } = 3;
+        public int CosmosDbConnectionCheckRetries { get; set; } = 3; // Max expected value.
 
         /// <summary>
         /// Validates this instance.

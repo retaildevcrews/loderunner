@@ -26,6 +26,7 @@ namespace LodeRunner.Data
         private static CosmosClient client;
         private readonly ICosmosDBSettings settings;
         private readonly ILogger logger;
+        private readonly CancellationTokenSource cancellationTokenSource;
 
         private readonly CosmosConfig options;
         private readonly object lockObj = new ();
@@ -35,18 +36,20 @@ namespace LodeRunner.Data
 
         private System.Timers.Timer dbConnectionHealthCheck = default;
 
-        private int dbCheckRetryCount = 1;
+        private int dbCheckFailuresCount = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDBRepository"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <exception cref="System.ApplicationException">Repository test for {this.Id} failed.</exception>
-        public CosmosDBRepository(ICosmosDBSettings settings, ILogger logger)
+        public CosmosDBRepository(ICosmosDBSettings settings, ILogger logger, CancellationTokenSource cancellationTokenSource)
         {
             this.settings = settings;
             this.logger = logger;
+            this.cancellationTokenSource = cancellationTokenSource;
 
             this.options = new CosmosConfig
             {
@@ -60,7 +63,7 @@ namespace LodeRunner.Data
                 throw new ApplicationException($"Repository test for {this.Id} failed.");
             }
 
-            this.InitDbCheck();
+            this.InitDbChecker();
         }
 
         /// <summary>
@@ -452,7 +455,7 @@ namespace LodeRunner.Data
         /// <summary>
         /// Initializes the database check.
         /// </summary>
-        private void InitDbCheck()
+        private void InitDbChecker()
         {
             this.dbConnectionHealthCheck = new ()
             {
@@ -460,6 +463,8 @@ namespace LodeRunner.Data
             };
 
             this.dbConnectionHealthCheck.Elapsed += this.DbConnectionHealthCheck_Elapsed;
+
+            this.dbConnectionHealthCheck.Start();
         }
 
         /// <summary>
@@ -470,34 +475,34 @@ namespace LodeRunner.Data
         /// <exception cref="System.ApplicationException">Db Connection Health Check reached out retry limit of [{this.settings.CosmosDbConnectionCheckRetries}] attempts.</exception>
         private void DbConnectionHealthCheck_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            bool cosmosIsRedy = this.IsCosmosDBReady;
+            bool cosmosIsReady = this.IsCosmosDBReady;
 
-            if (this.dbCheckRetryCount <= this.settings.CosmosDbConnectionCheckRetries && !cosmosIsRedy)
+            // The max value of CosmosDbConnectionCheckRetries is expected to be equals to 3.
+            if (this.dbCheckFailuresCount <= this.settings.CosmosDbConnectionCheckRetries && !cosmosIsReady)
             {
-                this.dbCheckRetryCount++;
-
-                this.logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(this.DbConnectionHealthCheck_Elapsed)), "DbConnection Health Check failure.");
-
-                // Retries twice more with decreasing interval between retries
+                // Retries twice more with decreasing interval between retries.
                 this.dbConnectionHealthCheck.Stop();
                 this.dbConnectionHealthCheck.Interval /= 2;
                 this.dbConnectionHealthCheck.Start();
+
+                this.logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(this.DbConnectionHealthCheck_Elapsed)), $"DBConnection Health Check failed.  Attempt {this.dbCheckFailuresCount}/{this.settings.CosmosDbConnectionCheckRetries}.");
+
+                this.dbCheckFailuresCount++;
             }
-            else if (cosmosIsRedy)
+            else if (cosmosIsReady)
             {
-                // reset retry count.
-                this.dbCheckRetryCount = 1;
+                // reset dbCheckFailures Count.
+                this.dbCheckFailuresCount = 1;
             }
 
-            // reach out retry limit.
-            else
+            // reached out retry limit.
+            if (this.dbCheckFailuresCount > this.settings.CosmosDbConnectionCheckRetries)
             {
                 this.dbConnectionHealthCheck.Stop();
 
-                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.DbConnectionHealthCheck_Elapsed)), $"DbConnection Health Check retry limit reached - [{this.settings.CosmosDbConnectionCheckRetries}]");
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.DbConnectionHealthCheck_Elapsed)), $"Unable to perform DBConnection Health Check after [{this.settings.CosmosDbConnectionCheckRetries}] attempts. Application will Terminate.");
 
-                // raise an exception that will raise an app terminate event that will request termination on main app toke and log event and action
-                throw new ApplicationException($"DbConnection Health Check retry limit reached - [{this.settings.CosmosDbConnectionCheckRetries}]");
+                this.cancellationTokenSource.Cancel(false);
             }
         }
     }
