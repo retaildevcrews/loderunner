@@ -459,6 +459,8 @@ namespace LodeRunner.Services
 
             serviceBuilder
                 .AddSingleton<Config>(this.config)
+                .AddSingleton<CancellationTokenSource>(this.cancellationTokenSource)
+                .AddSingleton<ILogger>(this.logger)
                 .AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>())
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
