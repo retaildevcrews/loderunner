@@ -65,11 +65,11 @@ namespace LodeRunner.Data.Interfaces
         int CosmosDbConnectionCheckInterval { get; set; }
 
         /// <summary>
-        /// Gets or sets the cosmos database connection retry limit.
+        /// Gets the cosmos database connection retry limit.
         /// </summary>
         /// <value>
         /// The cosmos database connection retry limit.
         /// </value>
-        int CosmosDbConnectionCheckRetryLimit { get; set; }
+        int CosmosDbConnectionCheckRetryLimit { get; }
     }
 }

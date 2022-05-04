@@ -15,7 +15,6 @@ namespace LodeRunner.Data
         private readonly ILogger logger;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly int retryLimit = 3;
-        private readonly int interval = 40;
 
         private readonly Func<bool> getIsCosmosDBReady;
         private int failuresCount = 1;
@@ -33,21 +32,21 @@ namespace LodeRunner.Data
         {
             this.getIsCosmosDBReady = getIsCosmosDBReady;
             this.retryLimit = retryLimit;
-            this.interval = interval;
             this.logger = logger;
             this.cancellationTokenSource = cancellationTokenSource;
 
-            this.InitDbChecker();
+            this.InitDbChecker(interval);
         }
 
         /// <summary>
-        /// Initializes the database check.
+        /// Initializes the database checker.
         /// </summary>
-        private void InitDbChecker()
+        /// <param name="interval">The interval.</param>
+        private void InitDbChecker(int interval)
         {
             this.dbConnectionHealthCheck = new ()
             {
-                Interval = this.interval * 1000,
+                Interval = interval * 1000,
             };
 
             this.dbConnectionHealthCheck.Elapsed += this.DbConnectionHealthCheck_Elapsed;
