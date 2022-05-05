@@ -47,7 +47,7 @@ namespace LodeRunner.API.Test.UnitTests
 
             var cosmosDBConnectionChecker = new CosmosDBConnectionChecker(this.GetCosmosDBReady, this.logger, cancellationTokenSource, intervalSeconds, retryLimit: 3);
 
-            bool cancellationRequested = await this.WaitUntilMaxWaitTimeIsReached(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
+            bool cancellationRequested = await this.DelayTimeout(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
 
             Assert.False(cancellationRequested, "Request cancellation is not expected");
         }
@@ -66,7 +66,7 @@ namespace LodeRunner.API.Test.UnitTests
 
             var cosmosDBConnectionChecker = new CosmosDBConnectionChecker(this.GetCosmosNotReady, this.logger, cancellationTokenSource, intervalSeconds, retryLimit: 3);
 
-            bool cancellationRequested = await this.WaitUntilMaxWaitTimeIsReached(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
+            bool cancellationRequested = await this.DelayTimeout(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
 
             Assert.True(cancellationRequested, "Request cancellation expected.");
         }
@@ -92,7 +92,7 @@ namespace LodeRunner.API.Test.UnitTests
         /// </summary>
         /// <param name="interval">The interval.</param>
         /// <returns>the max waiting time.</returns>
-        private static int CalculateMaxWaitingTime(int interval)
+        private static int CalculateTimeout(int interval)
         {
             int newInterval = interval;
 
@@ -107,14 +107,14 @@ namespace LodeRunner.API.Test.UnitTests
         }
 
         /// <summary>
-        /// Waits until maximum waiting time is reached.
+        /// Waits until maximum waiting time has reached.
         /// </summary>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <param name="intervalSeconds">The interval seconds.</param>
         /// <returns>Whether the cancellation was requested or not.</returns>
-        private async Task<bool> WaitUntilMaxWaitTimeIsReached(CancellationTokenSource cancellationTokenSource, int intervalSeconds)
+        private async Task<bool> DelayTimeout(CancellationTokenSource cancellationTokenSource, int intervalSeconds)
         {
-            int maxWaitingTime = CalculateMaxWaitingTime(intervalSeconds);
+            int maxWaitingTime = CalculateTimeout(intervalSeconds);
             await Task.Delay(maxWaitingTime * 1000).ConfigureAwait(false);
 
             bool cancellationRequested = cancellationTokenSource.IsCancellationRequested;
