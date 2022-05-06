@@ -121,12 +121,12 @@ namespace LodeRunner.API.Test.UnitTests
             // Validate error Messages for 3 attempts.
             for (int i = 1; i <= retryLimit; i++)
             {
-                this.ValidateLogMessages(outputStringList, expectedValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, retryLimit), string.Format(messageIfFailed, i));
+                this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, retryLimit), string.Format(messageIfFailed, i), expectedLogLevel: LogLevel.Warning.ToString());
             }
 
             // Validate App Terminating Error.
             messageIfFailed = "Failed to validate message 'Application Will Terminate'";
-            this.ValidateLogMessages(outputStringList, expectedValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckErrorMessage, retryLimit), messageIfFailed);
+            this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckErrorMessage, retryLimit), messageIfFailed, expectedLogLevel: LogLevel.Error.ToString());
         }
 
         /// <summary>
@@ -168,12 +168,18 @@ namespace LodeRunner.API.Test.UnitTests
         /// Validates the log messages.
         /// </summary>
         /// <param name="outputStringList">The output string list.</param>
-        /// <param name="expectedValue">The expected value.</param>
+        /// <param name="expectedMessageValue">The expected value.</param>
         /// <param name="messageIfFailed">The message if failed.</param>
-        private void ValidateLogMessages(List<string> outputStringList, string expectedValue, string messageIfFailed)
+        /// <param name="expectedLogLevel">The expected log level.</param>
+        private void ValidateLogMessages(List<string> outputStringList, string expectedMessageValue, string messageIfFailed, string expectedLogLevel)
         {
-            string actualValue = this.TryParseOutputAndGetValueFromFieldName(outputStringList, "LodeRunner.API.Test.UnitTests.IntervalCheckerTest", expectedValue, "message");
-            Assert.True(expectedValue.Equals(actualValue), messageIfFailed);
+            string actualMessageValue = this.TryParseOutputAndGetValueFromFieldName(outputStringList, "LodeRunner.API.Test.UnitTests.IntervalCheckerTest", expectedMessageValue, "message");
+
+            Assert.True(expectedMessageValue.Equals(actualMessageValue), messageIfFailed);
+
+            string actualLogLevelValue = this.TryParseOutputAndGetValueFromFieldName(outputStringList, "LodeRunner.API.Test.UnitTests.IntervalCheckerTest", expectedMessageValue, "logLevel");
+
+            Assert.True(expectedLogLevel.Equals(actualLogLevelValue), $"Log Level mismatched. Expected '{expectedLogLevel}', but found '{actualLogLevelValue}'");
         }
 
         /// <summary>
