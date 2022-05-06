@@ -112,6 +112,7 @@ namespace LodeRunner.API.Test.UnitTests
             Assert.True(outputStringList.Count == 4, "Output string count should be 4.");
 
             string messageIfFailed = "Failed to validate Check Failed message for Attempt {0}.";
+
             // Validate error Messages for 3 attempts.
             for (int i = 1; i <= 3; i++)
             {
@@ -197,7 +198,6 @@ namespace LodeRunner.API.Test.UnitTests
                         break;
                     }
                 }
-
             }
             else
             {
