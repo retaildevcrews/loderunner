@@ -71,6 +71,8 @@ namespace LodeRunner.API.Test.UnitTests
             Assert.True(outputStringList != null, "Output string list is null.");
 
             Assert.True(outputStringList.Count == 0, "Output string count should be 0.");
+
+            this.output.WriteLine($"'{outputStringList.Count}' messages found in Console.Output.");
         }
 
         /// <summary>
@@ -111,6 +113,8 @@ namespace LodeRunner.API.Test.UnitTests
 
             int expectedLogCount = retryLimit + 1;
             Assert.True(outputStringList.Count == expectedLogCount, $"Output string count should be {expectedLogCount}.");
+
+            this.output.WriteLine($"'{outputStringList.Count}' messages found in Console.Output.");
 
             string messageIfFailed = "Failed to validate Check Failed message for Attempt {0}.";
 
@@ -220,7 +224,7 @@ namespace LodeRunner.API.Test.UnitTests
             await Task.Delay(maxWaitingTime * 1000).ConfigureAwait(false);
 
             bool cancellationRequested = cancellationTokenSource.IsCancellationRequested;
-            this.output.WriteLine($"Total Wait time: {maxWaitingTime} secs.\tCancellation Requested:{cancellationRequested}\t");
+            this.output.WriteLine($"Total Wait time: {maxWaitingTime} secs.\tCancellation Requested: {cancellationRequested}\t");
             return cancellationRequested;
         }
 
