@@ -109,12 +109,13 @@ namespace LodeRunner.API.Test.UnitTests
 
             Assert.True(outputStringList != null, "Output string list is null.");
 
-            Assert.True(outputStringList.Count == 4, "Output string count should be 4.");
+            int expectedLogCount = retryLimit + 1;
+            Assert.True(outputStringList.Count == expectedLogCount, $"Output string count should be {expectedLogCount}.");
 
             string messageIfFailed = "Failed to validate Check Failed message for Attempt {0}.";
 
             // Validate error Messages for 3 attempts.
-            for (int i = 1; i <= 3; i++)
+            for (int i = 1; i <= retryLimit; i++)
             {
                 this.ValidateLogMessages(outputStringList, expectedValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, retryLimit), string.Format(messageIfFailed, i));
             }
