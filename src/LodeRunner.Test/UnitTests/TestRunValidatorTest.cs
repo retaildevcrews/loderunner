@@ -37,7 +37,7 @@ namespace LodeRunner.Test.UnitTests
             this.output = output;
             var mockedRepo = new Mock<ICosmosDBRepository>();
             this.service = new TestRunService(mockedRepo.Object);
-            mockedRepo.Setup(m => m.GetIsCosmosDBReady()).Returns(true);
+            mockedRepo.Setup(m => m.IsCosmosDBReady).Returns(true);
 
             LoadClient validLoadClient = new ();
             validLoadClient.Name = "placeholder client name";

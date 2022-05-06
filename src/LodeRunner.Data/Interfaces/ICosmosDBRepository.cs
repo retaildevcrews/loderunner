@@ -35,7 +35,7 @@ namespace LodeRunner.Data.Interfaces
         /// This caches the ready state from the initial check so it isn't checked every time.
         /// </summary>
         /// <returns>Returns true if ready, otherwise false.</returns>
-        bool GetIsCosmosDBReady();
+        bool IsCosmosDBReady { get; }
 
         /// <summary>
         /// Gets the by identifier asynchronous.

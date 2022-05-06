@@ -188,5 +188,15 @@ namespace LodeRunner.Core
         /// The load test request log name.
         /// </summary>
         public const string LoadTestRequestLogName = "LoadTestRequest";
+
+        /// <summary>
+        /// The check failed attempt.
+        /// </summary>
+        public const string IntervalCheckFailedAttemptMessage = "Check failed. Attempt {0}/{1}.";
+
+        /// <summary>
+        /// The interval check error.
+        /// </summary>
+        public const string IntervalCheckErrorMessage = "Unable to perform Check after [{0}] attempts. Application will Terminate.";
     }
 }

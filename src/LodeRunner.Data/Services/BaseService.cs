@@ -117,7 +117,7 @@ namespace LodeRunner.Services
         public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken)
         {
             // Update Entity if CosmosDB connection is ready
-            if (this.CosmosDBRepository.GetIsCosmosDBReady())
+            if (this.CosmosDBRepository.IsCosmosDBReady)
             {
                 return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
             }

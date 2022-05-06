@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
@@ -26,7 +27,7 @@ namespace LodeRunner.Data
         private static CosmosClient client;
         private readonly ICosmosDBSettings settings;
         private readonly ILogger logger;
-        private readonly CosmosDBConnectionChecker cosmosDBConnectionChecker;
+        private readonly IntervalChecker cosmosDBConnectionChecker;
 
         private readonly CosmosConfig options;
         private readonly object lockObj = new ();
@@ -57,8 +58,15 @@ namespace LodeRunner.Data
             {
                 throw new ApplicationException($"Repository test for {this.Id} failed.");
             }
+            else
+            {
+                // Perform initial check , this will also set IsCosmosDBReady property.
+                _ = this.CosmosDBReadyCheck();
 
-            this.cosmosDBConnectionChecker = new CosmosDBConnectionChecker(this.GetIsCosmosDBReady,  this.logger, cancellationTokenSource, this.settings.CosmosDbConnectionCheckInterval, this.settings.CosmosDbConnectionCheckRetryLimit);
+                // Create Interval checker;
+                this.cosmosDBConnectionChecker = new IntervalChecker(this.CosmosDBReadyCheck, this.logger, cancellationTokenSource, this.settings.CosmosDbConnectionCheckInterval, this.settings.CosmosDbConnectionCheckRetryLimit);
+                this.cosmosDBConnectionChecker.Start();
+            }
         }
 
         /// <summary>
@@ -101,6 +109,12 @@ namespace LodeRunner.Data
         /// </value>
         public string Id => $"{this.DatabaseName}:{this.CollectionName}";
 
+        /// <summary>
+        /// Gets a value indicating whether the CosmosDB connection is ready for use or not.
+        /// </summary>
+        /// <returns>if CosmosDB is ready.</returns>
+        public bool IsCosmosDBReady { get; private set; }
+
         // NOTE: CosmosDB library currently wraps the Newtonsoft JSON serializer.  Align Attributes and Converters to Newtonsoft on the domain models.
 
         /// <summary>
@@ -119,22 +133,6 @@ namespace LodeRunner.Data
                                                         IgnoreNullValues = true,
                                                     })
                                                     .Build();
-
-        /// <summary>
-        /// Gets a value indicating whether the CosmosDB connection is ready for use or not.
-        /// </summary>
-        /// <returns>if CosmosDB is ready.</returns>
-        public bool GetIsCosmosDBReady()
-        {
-            try
-            {
-                return this.CosmosDBReadyCheck().GetAwaiter().GetResult();
-            }
-            catch
-            {
-                return false;
-            }
-        }
 
         /// <summary>
         /// Resolves the partition key.
@@ -366,10 +364,20 @@ namespace LodeRunner.Data
         /// </returns>
         public async Task<bool> CosmosDBReadyCheck()
         {
-            Database database = this.Client.GetDatabase(this.settings.DatabaseName);
-            DatabaseResponse response = await database.ReadAsync();
+            try
+            {
+                Database database = this.Client.GetDatabase(this.settings.DatabaseName);
+                DatabaseResponse response = await database.ReadAsync();
 
-            return response.StatusCode == System.Net.HttpStatusCode.OK;
+                this.IsCosmosDBReady = response.StatusCode == System.Net.HttpStatusCode.OK;
+
+                return this.IsCosmosDBReady;
+            }
+            catch
+            {
+                this.IsCosmosDBReady = false;
+                return false;
+            }
         }
 
         /// <summary>
