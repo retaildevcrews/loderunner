@@ -19,18 +19,18 @@ namespace LodeRunner.API.Test.UnitTests
 
         private TextWriter savedOut;
         private TextWriter savedError;
-        private bool reset;
+        private bool redirected;
 
         /// <summary>
         /// Resets the output.
         /// </summary>
         public void ResetOutput()
         {
-            if (!this.reset)
+            if (this.redirected)
             {
                 Console.SetOut(this.savedOut);
                 Console.SetError(this.savedError);
-                this.reset = true;
+                this.redirected = false;
             }
         }
 
@@ -51,11 +51,15 @@ namespace LodeRunner.API.Test.UnitTests
         /// </summary>
         public void RedirectOutput()
         {
-            this.savedOut = Console.Out;
-            this.savedError = Console.Error;
+            if (!this.redirected)
+            {
+                this.savedOut = Console.Out;
+                this.savedError = Console.Error;
 
-            Console.SetOut(this.stringWriter);
-            Console.SetError(this.stringWriter);
+                Console.SetOut(this.stringWriter);
+                Console.SetError(this.stringWriter);
+                this.redirected = true;
+            }
         }
 
         /// <summary>

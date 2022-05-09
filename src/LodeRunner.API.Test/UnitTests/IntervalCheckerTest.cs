@@ -21,6 +21,9 @@ namespace LodeRunner.API.Test.UnitTests
     /// </summary>
     public class IntervalCheckerTest
     {
+        private const int IntervalSeconds = 4;
+        private const int RetryLimit = 3;
+
         private readonly ITestOutputHelper output;
         private readonly ILogger logger;
 
@@ -42,10 +45,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestNotInitiated()
         {
-            int intervalSeconds = 4;
-            int retryLimit = 3;
-
-            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanTrue, intervalSeconds, retryLimit);
+            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanTrue, IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.False(cancellationRequested, "Request cancellation is not expected.");
@@ -66,10 +66,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestInitiated()
         {
-            int intervalSeconds = 4;
-            int retryLimit = 3;
-
-            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanFalse, intervalSeconds, retryLimit);
+            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanFalse, IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
@@ -77,7 +74,7 @@ namespace LodeRunner.API.Test.UnitTests
             // Validate Output List
             Assert.True(outputStringList != null, "Output string list is null.");
 
-            int expectedLogCount = retryLimit + 1;
+            int expectedLogCount = RetryLimit + 1;
             Assert.True(outputStringList.Count == expectedLogCount, $"Output string count should be {expectedLogCount}.");
 
             this.output.WriteLine($"'{outputStringList.Count}' messages found in Console.Output.");
@@ -85,14 +82,14 @@ namespace LodeRunner.API.Test.UnitTests
             string messageIfFailed = "Failed to validate Check Failed message for Attempt {0}.";
 
             // Validate error Messages for 3 attempts.
-            for (int i = 1; i <= retryLimit; i++)
+            for (int i = 1; i <= RetryLimit; i++)
             {
-                this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, retryLimit), string.Format(messageIfFailed, i), expectedLogLevel: LogLevel.Warning.ToString());
+                this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, RetryLimit), string.Format(messageIfFailed, i), expectedLogLevel: LogLevel.Warning.ToString());
             }
 
             // Validate App Terminating Error.
             messageIfFailed = "Failed to validate message 'Application Will Terminate'";
-            this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckErrorMessage, retryLimit), messageIfFailed, expectedLogLevel: LogLevel.Error.ToString());
+            this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckErrorMessage, RetryLimit), messageIfFailed, expectedLogLevel: LogLevel.Error.ToString());
         }
 
         /// <summary>
