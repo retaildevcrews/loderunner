@@ -42,32 +42,15 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestNotInitiated()
         {
-            CancellationTokenSource cancellationTokenSource = new ();
-
             int intervalSeconds = 4;
             int retryLimit = 3;
-            List<string> outputStringList;
-            bool cancellationRequested;
 
-            using var consoleIORouter = new ConsoleIORouter();
-            try
-            {
-                consoleIORouter.RedirectOutput();
+            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanTrue, intervalSeconds, retryLimit);
 
-                using var intervalChecker = new IntervalChecker(this.GetBooleanTrue, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
-                intervalChecker.Start();
-
-                cancellationRequested = await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
-
-                outputStringList = consoleIORouter.GetOutputAsStringList();
-            }
-            finally
-            {
-                consoleIORouter.ResetOutput();
-            }
-
+            // Validate Cancellation Request
             Assert.False(cancellationRequested, "Request cancellation is not expected.");
 
+            // Validate Output List
             Assert.True(outputStringList != null, "Output string list is null.");
 
             Assert.True(outputStringList.Count == 0, "Output string count should be 0.");
@@ -83,32 +66,15 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestInitiated()
         {
-            CancellationTokenSource cancellationTokenSource = new ();
-
             int intervalSeconds = 4;
             int retryLimit = 3;
-            List<string> outputStringList;
-            bool cancellationRequested;
 
-            using var consoleIORouter = new ConsoleIORouter();
-            try
-            {
-                consoleIORouter.RedirectOutput();
+            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanFalse, intervalSeconds, retryLimit);
 
-                using var intervalChecker = new IntervalChecker(this.GetBooleanFalse, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
-                intervalChecker.Start();
-
-                cancellationRequested = await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
-
-                outputStringList = consoleIORouter.GetOutputAsStringList();
-            }
-            finally
-            {
-                consoleIORouter.ResetOutput();
-            }
-
+            // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
 
+            // Validate Output List
             Assert.True(outputStringList != null, "Output string list is null.");
 
             int expectedLogCount = retryLimit + 1;
@@ -162,6 +128,41 @@ namespace LodeRunner.API.Test.UnitTests
 
             // We will wait for Max Interval time plus 1 extra second.
             return interval + 1;
+        }
+
+        /// <summary>
+        /// Runs the interval checker and waits until timeout and get cancellation token status and console output.
+        /// </summary>
+        /// <param name="taskToExecute">The task to execute.</param>
+        /// <param name="intervalSeconds">The interval seconds.</param>
+        /// <param name="retryLimit">The retry limit.</param>
+        /// <returns>The cancellationToken status and the outputAsStringList.</returns>
+        private async Task<(bool, List<string>)> RunIntervalCheckerAndGetStatus(Func<Task<bool>> taskToExecute, int intervalSeconds = 4, int retryLimit = 3)
+        {
+            CancellationTokenSource cancellationTokenSource = new ();
+
+            List<string> outputStringList;
+            bool cancellationRequested;
+
+            using var consoleIORouter = new ConsoleIORouter();
+            try
+            {
+                consoleIORouter.RedirectOutput();
+
+                using var intervalChecker = new IntervalChecker(taskToExecute, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
+
+                intervalChecker.Start();
+
+                cancellationRequested = await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
+
+                outputStringList = consoleIORouter.GetOutputAsStringList();
+            }
+            finally
+            {
+                consoleIORouter.ResetOutput();
+            }
+
+            return (cancellationRequested, outputStringList);
         }
 
         /// <summary>
