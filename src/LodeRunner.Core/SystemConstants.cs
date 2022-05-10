@@ -197,6 +197,11 @@ namespace LodeRunner.Core
         /// <summary>
         /// The interval check error.
         /// </summary>
-        public const string IntervalCheckErrorMessage = "Unable to perform Check after [{0}] attempts. Application will Terminate.";
+        public const string IntervalCheckErrorMessage = "Unable to perform Check after [{0}] attempts. {1}";
+
+        /// <summary>
+        /// The application will terminate.
+        /// </summary>
+        public const string ApplicationWillTerminate = "Application will Terminate.";
     }
 }

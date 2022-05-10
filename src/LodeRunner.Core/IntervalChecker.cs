@@ -18,7 +18,7 @@ namespace LodeRunner.Core
         private readonly int retryLimit = 3;
 
         private readonly Func<Task<bool>> getBooleanCheck;
-        private int failuresCount = 1;
+        private int failuresCount = 0;
         private System.Timers.Timer intervalCheckTimer = default;
         private bool started = false;
 
@@ -93,36 +93,48 @@ namespace LodeRunner.Core
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.Timers.ElapsedEventArgs"/> instance containing the event data.</param>
-        private void CheckElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private async void CheckElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            bool checkResult = this.getBooleanCheck().Result;
+            bool checkResult = await this.RunBooleanCheckAsync();
 
-            if (this.failuresCount <= this.retryLimit && !checkResult)
+            if (checkResult)
+            {
+                // reset failures Count.
+                if (this.failuresCount > 0)
+                {
+                    this.failuresCount--;
+                }
+            }
+            else
             {
                 // Retries twice more with decreasing interval between retries.
                 this.intervalCheckTimer.Stop();
                 this.intervalCheckTimer.Interval /= 2;
                 this.intervalCheckTimer.Start();
 
-                this.logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(this.CheckElapsed)), string.Format(Core.SystemConstants.IntervalCheckFailedAttemptMessage, this.failuresCount, this.retryLimit));
+                this.logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(this.CheckElapsed)), string.Format(Core.SystemConstants.IntervalCheckFailedAttemptMessage, this.failuresCount + 1, this.retryLimit));
 
                 this.failuresCount++;
             }
-            else if (checkResult)
-            {
-                // reset failures Count.
-                this.failuresCount = 1;
-            }
 
             // reached out retry limit.
-            if (this.failuresCount > this.retryLimit)
+            if (this.failuresCount >= this.retryLimit)
             {
                 this.intervalCheckTimer.Stop();
 
-                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.CheckElapsed)), string.Format(Core.SystemConstants.IntervalCheckErrorMessage, this.retryLimit));
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.CheckElapsed)), string.Format(Core.SystemConstants.IntervalCheckErrorMessage, this.retryLimit, Core.SystemConstants.ApplicationWillTerminate));
 
                 this.cancellationTokenSource.Cancel(false);
             }
+        }
+
+        /// <summary>
+        /// Runs the boolean check asynchronous.
+        /// </summary>
+        /// <returns>the boolean check task result.</returns>
+        private async Task<bool> RunBooleanCheckAsync()
+        {
+            return await Task.Run(() => { return this.getBooleanCheck(); });
         }
     }
 }

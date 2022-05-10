@@ -45,17 +45,10 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestNotInitiated()
         {
-            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanTrue, IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(this.GetBooleanTrue, IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.False(cancellationRequested, "Request cancellation is not expected.");
-
-            // Validate Output List
-            Assert.True(outputStringList != null, "Output string list is null.");
-
-            Assert.True(outputStringList.Count == 0, "Output string count should be 0.");
-
-            this.output.WriteLine($"'{outputStringList.Count}' messages found in Console.Output.");
         }
 
         /// <summary>
@@ -66,30 +59,10 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestInitiated()
         {
-            (bool cancellationRequested, List<string> outputStringList) = await this.RunIntervalCheckerAndGetStatus(this.GetBooleanFalse, IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(this.GetBooleanFalse, IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
-
-            // Validate Output List
-            Assert.True(outputStringList != null, "Output string list is null.");
-
-            int expectedLogCount = RetryLimit + 1;
-            Assert.True(outputStringList.Count == expectedLogCount, $"Output string count should be {expectedLogCount}.");
-
-            this.output.WriteLine($"'{outputStringList.Count}' messages found in Console.Output.");
-
-            string messageIfFailed = "Failed to validate Check Failed message for Attempt {0}.";
-
-            // Validate error Messages for 3 attempts.
-            for (int i = 1; i <= RetryLimit; i++)
-            {
-                this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckFailedAttemptMessage, i, RetryLimit), string.Format(messageIfFailed, i), expectedLogLevel: LogLevel.Warning.ToString());
-            }
-
-            // Validate App Terminating Error.
-            messageIfFailed = "Failed to validate message 'Application Will Terminate'";
-            this.ValidateLogMessages(outputStringList, expectedMessageValue: string.Format(LodeRunner.Core.SystemConstants.IntervalCheckErrorMessage, RetryLimit), messageIfFailed, expectedLogLevel: LogLevel.Error.ToString());
         }
 
         /// <summary>
@@ -134,86 +107,15 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="intervalSeconds">The interval seconds.</param>
         /// <param name="retryLimit">The retry limit.</param>
         /// <returns>The cancellationToken status and the outputAsStringList.</returns>
-        private async Task<(bool, List<string>)> RunIntervalCheckerAndGetStatus(Func<Task<bool>> taskToExecute, int intervalSeconds = 4, int retryLimit = 3)
+        private async Task<bool> RunIntervalCheckerWaitAndGetCancellationStatus(Func<Task<bool>> taskToExecute, int intervalSeconds = 4, int retryLimit = 3)
         {
             CancellationTokenSource cancellationTokenSource = new ();
 
-            List<string> outputStringList;
-            bool cancellationRequested;
+            using var intervalChecker = new IntervalChecker(taskToExecute, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
 
-            using var consoleIORouter = new ConsoleIORouter();
-            try
-            {
-                consoleIORouter.RedirectOutput();
+            intervalChecker.Start();
 
-                using var intervalChecker = new IntervalChecker(taskToExecute, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
-
-                intervalChecker.Start();
-
-                cancellationRequested = await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds).ConfigureAwait(false);
-
-                outputStringList = consoleIORouter.GetOutputAsStringList();
-            }
-            finally
-            {
-                consoleIORouter.ResetOutput();
-            }
-
-            return (cancellationRequested, outputStringList);
-        }
-
-        /// <summary>
-        /// Validates the log messages.
-        /// </summary>
-        /// <param name="outputStringList">The output string list.</param>
-        /// <param name="expectedMessageValue">The expected value.</param>
-        /// <param name="messageIfFailed">The message if failed.</param>
-        /// <param name="expectedLogLevel">The expected log level.</param>
-        private void ValidateLogMessages(List<string> outputStringList, string expectedMessageValue, string messageIfFailed, string expectedLogLevel)
-        {
-            string actualMessageValue = this.TryParseOutputAndGetValueFromFieldName(outputStringList, "LodeRunner.API.Test.UnitTests.IntervalCheckerTest", expectedMessageValue, "message");
-
-            Assert.True(expectedMessageValue.Equals(actualMessageValue), messageIfFailed);
-
-            string actualLogLevelValue = this.TryParseOutputAndGetValueFromFieldName(outputStringList, "LodeRunner.API.Test.UnitTests.IntervalCheckerTest", expectedMessageValue, "logLevel");
-
-            Assert.True(expectedLogLevel.Equals(actualLogLevelValue), $"Log Level mismatched. Expected '{expectedLogLevel}', but found '{actualLogLevelValue}'");
-        }
-
-        /// <summary>
-        /// Parses the process output and to get a value for a given field.
-        /// </summary>
-        /// <param name="outputList">The Process outputList.</param>
-        /// <param name="logName">ThelogName to identify the line be parsed.</param>
-        /// <param name="marker">The marker string to identify the line be parsed.</param>
-        /// <param name="fieldName">The name of the field to get the value from Json object.</param>
-        /// <returns>The Task with the FieldValue.</returns>
-        private string TryParseOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName)
-        {
-            string fieldValue = null;
-
-            // NOTE: we  ignore case sensitive.
-            string targetOutputLine = outputList.FirstOrDefault(s => s.Contains($"logName\":\"{logName}\"", StringComparison.InvariantCultureIgnoreCase) && s.Contains(marker, StringComparison.InvariantCultureIgnoreCase));
-            if (!string.IsNullOrEmpty(targetOutputLine))
-            {
-                Newtonsoft.Json.Linq.JObject json = Newtonsoft.Json.Linq.JObject.Parse(targetOutputLine);
-
-                foreach (var e in json)
-                {
-                    if (e.Key.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        fieldValue = e.Value.ToString();
-                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing Output.\t'{fieldName}' Found in LogName '{logName}'.\tValue: '{fieldValue}'");
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing Output.\t'{fieldName}' Not Found in LogName '{logName}'.");
-            }
-
-            return fieldValue;
+            return await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds);
         }
 
         /// <summary>
