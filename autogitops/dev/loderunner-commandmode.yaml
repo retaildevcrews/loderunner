@@ -21,6 +21,14 @@ spec:
         - name: app
           image: {{gitops.lrImage}}
           imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 10001
           ports:
             - name: http
               containerPort: 8080
@@ -32,6 +40,14 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /version
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /version
+              port: http
           args:
           - -l
           - "1000"
@@ -43,6 +59,16 @@ spec:
           - -f
           - benchmark.json
           - -p
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - emptyDir: {}
+        name: tmp
 ---
 
 apiVersion: v1
