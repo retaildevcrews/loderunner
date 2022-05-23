@@ -17,7 +17,7 @@ namespace LodeRunner.Core
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly int retryLimit = 3;
 
-        private readonly Func<Task<bool>> getBooleanCheck;
+        private readonly Func<Task<bool>> booleanCheck;
         private int failuresCount = 0;
         private System.Timers.Timer intervalCheckTimer = default;
         private bool started = false;
@@ -25,14 +25,14 @@ namespace LodeRunner.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="IntervalChecker"/> class.
         /// </summary>
-        /// <param name="getBooleanCheck">The boolean function pointer to call, that must return 'true' indicating that the check passed and 'false' otherwise.</param>
+        /// <param name="booleanCheck">The boolean function pointer to call, that must return 'true' indicating that the check passed and 'false' otherwise.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="cancellationTokenSource">The cancellation token source.</param>
         /// <param name="interval">The interval (secs).</param>
         /// <param name="retryLimit">The retry limit.</param>
-        public IntervalChecker(Func<Task<bool>> getBooleanCheck, ILogger logger, CancellationTokenSource cancellationTokenSource, int interval = 60, int retryLimit = 3)
+        public IntervalChecker(Func<Task<bool>> booleanCheck, ILogger logger, CancellationTokenSource cancellationTokenSource, int interval = 60, int retryLimit = 3)
         {
-            this.getBooleanCheck = getBooleanCheck;
+            this.booleanCheck = booleanCheck;
             this.retryLimit = retryLimit;
             this.logger = logger;
             this.cancellationTokenSource = cancellationTokenSource;
@@ -95,7 +95,7 @@ namespace LodeRunner.Core
         /// <param name="e">The <see cref="System.Timers.ElapsedEventArgs"/> instance containing the event data.</param>
         private async void CheckElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            bool checkResult = await this.RunBooleanCheckAsync();
+            bool checkResult = await this.booleanCheck();
 
             if (checkResult)
             {
@@ -126,15 +126,6 @@ namespace LodeRunner.Core
 
                 this.cancellationTokenSource.Cancel(false);
             }
-        }
-
-        /// <summary>
-        /// Runs the boolean check asynchronous.
-        /// </summary>
-        /// <returns>the boolean check task result.</returns>
-        private async Task<bool> RunBooleanCheckAsync()
-        {
-            return await Task.Run(() => { return this.getBooleanCheck(); });
         }
     }
 }

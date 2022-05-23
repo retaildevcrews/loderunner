@@ -54,19 +54,10 @@ namespace LodeRunner.Data
                 Retries = this.settings.Retries,
             };
 
-            //if (!this.CreateClient().Result)
-            //{
-            //    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Unable to create Client for repository for {this.Id}. {Core.SystemConstants.ApplicationWillTerminate}");
-            //    this.cancellationTokenSource.Cancel();
-            //}
-            //else if (!this.CosmosDBReadyCheck().Result)
-            //{
-            //    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Initial CosmosDB Ready Check failed. {Core.SystemConstants.ApplicationWillTerminate}");
-            //    this.cancellationTokenSource.Cancel();
-            //}
+            // NOTE: CosmosClient component is "essential" and it must be fully operational and initialized at front for the correct functioning of CosmosDBRepository.
+            this.InitializeClient();
 
-            this.InitializeClientAsync();
-
+            // Create CosmosDB Ready Interval Checker.
             this.InitializeIntervalCheckerAsync();
         }
 
@@ -472,31 +463,27 @@ namespace LodeRunner.Data
         }
 
         /// <summary>
-        /// Initializes the client asynchronous.
+        /// Initialize Cosmos Client synchronously and performs the initial CosmosDBReady check then updates IsCosmosDBReady Public property.
         /// </summary>
-        private async void InitializeClientAsync()
+        private void InitializeClient()
         {
-            await Task.Run(async () =>
+            bool clientCreated = this.CreateClient().Result;
+
+            if (clientCreated)
             {
-                bool clientCreated = await this.CreateClient();
+                bool initialDbReadyCheckPassed = this.CosmosDBReadyCheck().Result;
 
-                if (clientCreated)
+                if (!initialDbReadyCheckPassed)
                 {
-                    bool initialDbReadyCheckPass = await this.CosmosDBReadyCheck();
-
-                    if (!initialDbReadyCheckPass)
-                    //if (this.CosmosDBReadyCheck().Result)
-                    {
-                        this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Initial CosmosDB Ready Check failed. {Core.SystemConstants.ApplicationWillTerminate}");
-                        this.cancellationTokenSource.Cancel();
-                    }
-                }
-                else
-                {
-                    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Unable to create Client for repository for {this.Id}. {Core.SystemConstants.ApplicationWillTerminate}");
+                    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Initial CosmosDB Ready Check failed. {Core.SystemConstants.ApplicationWillTerminate}");
                     this.cancellationTokenSource.Cancel();
                 }
-            });
+            }
+            else
+            {
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Unable to create Client for repository for {this.Id}. {Core.SystemConstants.ApplicationWillTerminate}");
+                this.cancellationTokenSource.Cancel();
+            }
         }
     }
 }
