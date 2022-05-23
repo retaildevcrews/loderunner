@@ -26,14 +26,18 @@ else
     __cosmos_port=$(echo $AZURE_COSMOS_EMULATOR_ARGS | grep -oE "/Port=[0-9]+" |  awk -F'Port=' '{print $2}')
 fi
 
-echo $__cosmos_port
-# TODO: Replace the domain name from DOMAIN_NAME_GLOB environment variable
+echo "Cosmos Port: $__cosmos_port"
 sed -e "s#\${__cosmos_port}#${__cosmos_port}#g" \
     -e "s#\${DOMAIN_NAME_GLOB}#${DOMAIN_NAME_GLOB}#g" \
     -e "s#\${__nginx_ssl_crt_path}#${__nginx_ssl_crt_path}#g" \
     -e "s#\${__nginx_ssl_key_path}#${__nginx_ssl_key_path}#g" /config/nginx-http-template.conf > /config/nginx-http.conf 
 
+# timeout=240
+# while ! test $(cat /tmp/output.log | grep -vE 'Started ' | grep -E '^Started' | head -n 1);do sleep 5;timeout=$((timeout-5)); [[ $timeout == 0 ]] && echo "Cosmos emulator is stalled. Exiting." && exit 1; done
+
+# sleep 10
 # Start Nginx in the background
 nginx -c /config/nginx-http.conf
-
-./start.sh
+echo "Starting cosmos emulator"
+./start.sh # | tee /tmp/output.log &
+# fg
