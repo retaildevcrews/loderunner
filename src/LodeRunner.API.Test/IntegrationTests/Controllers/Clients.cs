@@ -154,7 +154,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             l8rService.StopService();
             this.output.WriteLine($"Stopping LodeRunner (client mode) [ClientStatusId: {clientStatusId}]");
 
-            (HttpResponseMessage httpResponseTerminating, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output);
+            (HttpResponseMessage httpResponseTerminating, Client terminatingClient) = await httpClient.GetClientByIdRetriesAsync(SystemConstants.CategoryClientsPath, clientStatusId, ClientStatusType.Terminating, this.jsonOptions, this.output, 10, 500);
 
             AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, httpResponseTerminating);
 
