@@ -232,14 +232,16 @@ namespace LodeRunner.Services
             // get TestRun document to update
             var testRun = await GetTestRunService().Get(args.TestRunId);
 
-            LoadResult loadResult = new ();
-            loadResult.CompletedTime = args.CompletedTime;
-            loadResult.FailedRequests = args.FailedRequests;
-            loadResult.SuccessfulRequests = args.SuccessfulRequests;
-            loadResult.TotalRequests = args.TotalRequests;
-            loadResult.LoadClient = this.loadClient;
-            loadResult.StartTime = args.StartTime;
-            loadResult.ErrorMessage = args.ErrorMessage;
+            LoadResult loadResult = new ()
+            {
+                CompletedTime = args.CompletedTime,
+                FailedRequests = args.FailedRequests,
+                SuccessfulRequests = args.SuccessfulRequests,
+                TotalRequests = args.TotalRequests,
+                LoadClient = this.loadClient,
+                StartTime = args.StartTime,
+                ErrorMessage = args.ErrorMessage,
+            };
 
             testRun.ClientResults.Add(loadResult);
 

@@ -99,11 +99,12 @@ namespace LodeRunner.API
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
             // dictionary
-            Dictionary<string, object> data = new ();
-
-            // add instance and version
-            data.Add(Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown);
-            data.Add(Version, Middleware.VersionExtension.Version);
+            Dictionary<string, object> data = new ()
+            {
+                // add instance and version
+                { Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown },
+                { Version, Middleware.VersionExtension.Version },
+            };
 
             if (cancellationToken.IsCancellationRequested)
             {
