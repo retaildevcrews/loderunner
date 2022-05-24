@@ -85,7 +85,7 @@ namespace LodeRunner.Core.Models
             };
 
             int suffixIndex = loadClient.Id.Length - 4;
-            loadClient.Name = $"{loadClient.Region}-{loadClient.Zone}-{loadClient.Id.Substring(suffixIndex)}";
+            loadClient.Name = $"{loadClient.Region}-{loadClient.Zone}-{loadClient.Id[suffixIndex..]}";
             return loadClient;
         }
     }
