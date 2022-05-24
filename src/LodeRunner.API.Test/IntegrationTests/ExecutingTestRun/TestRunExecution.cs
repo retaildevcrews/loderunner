@@ -45,7 +45,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             this.jsonOptions = new ()
             {
-                IgnoreNullValues = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNameCaseInsensitive = true,

@@ -53,8 +53,10 @@ namespace LodeRunner.Test.UnitTests
             validLoadTestConfig.Server = new List<string> { "abc.com" };
 
             TestRun validTestRun = new ();
-            List<LoadClient> validLoadClients = new ();
-            validLoadClients.Add(validLoadClient);
+            List<LoadClient> validLoadClients = new ()
+            {
+                validLoadClient,
+            };
 
             validTestRun.CreatedTime = DateTime.UtcNow;
             validTestRun.StartTime = DateTime.UtcNow;
