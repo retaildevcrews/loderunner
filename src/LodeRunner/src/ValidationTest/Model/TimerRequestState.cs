@@ -192,7 +192,7 @@ namespace LodeRunner
             catch (Exception ex)
             {
                 // log and ignore any error
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(TimerEvent)), ex, $"{SystemConstants.Exception} - {ValidationTest.Now}\t{ex.Message}");
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(TimerEvent)), ex, SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.Exception} - {ValidationTest.Now}\t{ex.Message}");
             }
 
             // make sure to release the semaphore

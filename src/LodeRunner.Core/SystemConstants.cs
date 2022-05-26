@@ -188,5 +188,11 @@ namespace LodeRunner.Core
         /// The load test request log name.
         /// </summary>
         public const string LoadTestRequestLogName = "LoadTestRequest";
+
+        /// <summary>
+        /// Represents the Name of Message atttribute utilizes for logging.
+        /// It is utilized as 'format string' in the message template format.
+        /// </summary>
+        public const string LoggerMessageAttributeName = "{message}";
     }
 }

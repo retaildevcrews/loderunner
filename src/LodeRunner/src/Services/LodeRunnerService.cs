@@ -219,7 +219,7 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="ClientStatusEventArgs"/> instance containing the event data.</param>
         public void LogStatusChange(object sender, ClientStatusEventArgs args)
         {
-            logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), $"{args.Message}");
+            logger.LogInformation(new EventId((int)LogLevel.Information, nameof(LogStatusChange)), SystemConstants.LoggerMessageAttributeName, args.Message);
         }
 
         /// <summary>

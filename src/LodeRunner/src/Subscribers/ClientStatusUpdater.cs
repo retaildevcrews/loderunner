@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using LodeRunner.Core;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
@@ -68,7 +69,7 @@ namespace LodeRunner.Subscribers
                 {
                     string baseMessage = $"Unable to Update Client Status after {failures} attempts. Application will Terminate.";
 
-                    logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(UpdateCosmosStatus)), ex, baseMessage);
+                    logger.LogWarning(new EventId((int)LogLevel.Warning, nameof(UpdateCosmosStatus)), ex, SystemConstants.LoggerMessageAttributeName, baseMessage);
 
                     args.CancelTokenSource.Cancel(false);
                 }
