@@ -5,6 +5,7 @@
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>annotations</Nullable>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -41,7 +42,7 @@
 
   <ItemGroup>
     <None Update="LodeRunner.Core.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
