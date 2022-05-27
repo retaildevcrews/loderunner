@@ -5,6 +5,7 @@
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<EnableNETAnalyzers>false</EnableNETAnalyzers>
 	<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+	<DocumentationFile>LodeRunner.Data.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
