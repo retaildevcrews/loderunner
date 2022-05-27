@@ -6,6 +6,7 @@
 	<EnableNETAnalyzers>false</EnableNETAnalyzers>
 	<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
 	<DocumentationFile></DocumentationFile>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>	  
   </PropertyGroup>
 
   <ItemGroup>
