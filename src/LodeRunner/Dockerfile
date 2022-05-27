@@ -1,5 +1,5 @@
 ### build the app
-FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 
 # Copy the source
 COPY ./LodeRunner.sln /src/
@@ -19,7 +19,7 @@ RUN dotnet test ./LodeRunner.Test/ --collect:"XPlat Code Coverage" --logger "con
 
 
 ### build the runtime container
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS runtime
 
 ### create a user
 ### dotnet needs a home directory
