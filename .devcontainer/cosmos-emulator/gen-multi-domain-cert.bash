@@ -17,8 +17,8 @@ cert_prefix=nginx_cosmos
 while [ $# -gt 0 ]; do
     opt="$1" value="$2"
     case "$opt" in
-        --install-cert)
-            install_cert=true
+        --install-cert) # Installs certificate to system. Needs sudo
+            install_cert=true;;
         -san|--domains) # comma separated domain list
             domain_names="$value";;
         --cert-path) # cert output dir
