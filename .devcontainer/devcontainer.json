@@ -51,8 +51,9 @@
 	
 	"containerEnv": {
 		"COSMOS_EMULATOR_NAME":"cosmos-linux-emulator",
-		"COSMOS_EMULATOR_DATA_PATH":"workspaces/cosmos-emulator/data",
-		"NGINX_CONFIG_PATH":"workspaces/cosmos-emulator/nginx"
+		"COSMOS_EMULATOR_DATA_PATH":"/workspaces/cosmos-emulator/data",
+		"NGINX_CONFIG_PATH":"/workspaces/cosmos-emulator/nginx",
+		"SSL_CERT_DIR":"/workspaces/cosmos-emulator/nginx/ssl"
 	},
 
 	// Install extensions
