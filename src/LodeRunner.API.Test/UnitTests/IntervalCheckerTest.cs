@@ -45,7 +45,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestNotInitiated()
         {
-            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(this.GetBooleanTrue, IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(true), IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.False(cancellationRequested, "Request cancellation is not expected.");
@@ -59,7 +59,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestInitiated()
         {
-            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(this.GetBooleanFalse, IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(false), IntervalSeconds, RetryLimit);
 
             // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
@@ -101,6 +101,18 @@ namespace LodeRunner.API.Test.UnitTests
         }
 
         /// <summary>
+        /// Returns the scalar value as Function Task.
+        /// The IntervalChecker constructor requires a function pointer to a task with a boolean response, to perform the boolean Check.
+        /// </summary>
+        /// <typeparam name="T">The type of the scalar value.</typeparam>
+        /// <param name="response">The response to be wrapped in the function Task.</param>
+        /// <returns>The Task.</returns>
+        private static Func<Task<T>> ReturnScalarValueAsFunctionTask<T>(T response)
+        {
+            return new (() => Task.Run(() => { return response; }));
+        }
+
+        /// <summary>
         /// Runs the interval checker and waits until timeout and get cancellation token status and console output.
         /// </summary>
         /// <param name="taskToExecute">The task to execute.</param>
@@ -132,24 +144,6 @@ namespace LodeRunner.API.Test.UnitTests
             bool cancellationRequested = cancellationTokenSource.IsCancellationRequested;
             this.output.WriteLine($"Total Wait time: {maxWaitingTime} secs.\tCancellation Requested: {cancellationRequested}\t");
             return cancellationRequested;
-        }
-
-        /// <summary>
-        /// Gets a boolean true.
-        /// </summary>
-        /// <returns>true.</returns>
-        private Task<bool> GetBooleanTrue()
-        {
-            return Task.Run(() => { return true; });
-        }
-
-        /// <summary>
-        /// Gets a boolean false.
-        /// </summary>
-        /// <returns>false.</returns>
-        private Task<bool> GetBooleanFalse()
-        {
-            return Task.Run(() => { return false; });
         }
     }
 }
