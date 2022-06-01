@@ -10,10 +10,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Extensions.Logging;
 
 namespace LodeRunner.Data
 {
@@ -24,23 +26,26 @@ namespace LodeRunner.Data
     {
         private static CosmosClient client;
         private readonly ICosmosDBSettings settings;
-
+        private readonly ILogger logger;
         private readonly CosmosConfig options;
         private readonly object lockObj = new ();
+        private readonly CancellationTokenSource cancellationTokenSource;
+        private IntervalChecker cosmosDBConnectionChecker;
         private Container container;
         private ContainerProperties containerProperties;
         private PropertyInfo partitionKeyPI;
-        private bool cosmosIsReady = false;
-        private bool cosmosCheckCompleted = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosDBRepository"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        /// <exception cref="System.ApplicationException">Repository test for {this.Id} failed.</exception>
-        public CosmosDBRepository(ICosmosDBSettings settings)
+        /// <param name="logger">The logger.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source.</param>
+        public CosmosDBRepository(ICosmosDBSettings settings, ILogger logger, CancellationTokenSource cancellationTokenSource)
         {
             this.settings = settings;
+            this.logger = logger;
+            this.cancellationTokenSource = cancellationTokenSource;
 
             this.options = new CosmosConfig
             {
@@ -49,34 +54,11 @@ namespace LodeRunner.Data
                 Retries = this.settings.Retries,
             };
 
-            if (!this.CreateClient().Result)
-            {
-                throw new ApplicationException($"Repository test for {this.Id} failed.");
-            }
-        }
+            // NOTE: CosmosClient component is "essential" and it must be fully operational and initialized at front for the correct functioning of CosmosDBRepository.
+            this.InitializeClient();
 
-        /// <summary>
-        /// Gets a value indicating whether the CosmosDB connection is ready for use or not.
-        /// </summary>
-        public bool IsCosmosDBReady
-        {
-            get
-            {
-                if (!this.cosmosCheckCompleted)
-                {
-                    try
-                    {
-                        this.cosmosIsReady = this.CosmosDBReadyCheck().GetAwaiter().GetResult();
-                        this.cosmosCheckCompleted = true;
-                    }
-                    catch
-                    {
-                        this.cosmosCheckCompleted = false;
-                    }
-                }
-
-                return this.cosmosIsReady;
-            }
+            // Create CosmosDB Ready Interval Checker.
+            this.InitializeIntervalCheckerAsync();
         }
 
         /// <summary>
@@ -118,6 +100,12 @@ namespace LodeRunner.Data
         /// The identifier.
         /// </value>
         public string Id => $"{this.DatabaseName}:{this.CollectionName}";
+
+        /// <summary>
+        /// Gets a value indicating whether the CosmosDB connection is ready for use or not.
+        /// </summary>
+        /// <returns>if CosmosDB is ready.</returns>
+        public bool IsCosmosDBReady { get; private set; }
 
         // NOTE: CosmosDB library currently wraps the Newtonsoft JSON serializer.  Align Attributes and Converters to Newtonsoft on the domain models.
 
@@ -242,7 +230,9 @@ namespace LodeRunner.Data
         {
             if (string.IsNullOrEmpty(this.CollectionName))
             {
-                throw new ArgumentException($"CosmosCollection cannot be null");
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.CreateClient)), $"CosmosCollection cannot be null.");
+
+                return false;
             }
 
             // open and test a new client / container
@@ -252,30 +242,28 @@ namespace LodeRunner.Data
                 var containerNames = string.Join(',', containers);
                 if (containers.Any(x => x == this.CollectionName) == false)
                 {
-                    throw new ApplicationException();  // use same error path
+                    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.CreateClient)), $"CosmosCollection {this.CollectionName} not found.");
+
+                    return false;
                 }
 
                 return true;
             }
-            catch (CosmosException ex)
+            catch (CosmosException ce)
             {
-                var exceptionLogEntry = new ExceptionLogEntry() { Source = "CosmosException", StatusCode = ex.StatusCode, Message = ex.Message };
-                var options = new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
-
-                if (ex.StatusCode == HttpStatusCode.Forbidden || ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.BadGateway || ex.StatusCode == HttpStatusCode.GatewayTimeout)
+                var hint = Core.SystemConstants.ApplicationWillTerminate;
+                if (ce.StatusCode == HttpStatusCode.Forbidden || ce.StatusCode == HttpStatusCode.Unauthorized || ce.StatusCode == HttpStatusCode.BadGateway || ce.StatusCode == HttpStatusCode.GatewayTimeout)
                 {
-                    exceptionLogEntry.Hint = "Check Cosmos firewall settings for allowed IP address, network connectivity, permissions of identity being used, and/or Cosmos key config.";
+                    hint = $"Check Cosmos firewall settings for allowed IP address, network connectivity, permissions of identity being used, and/or Cosmos key config.";
                 }
 
-                Console.WriteLine(JsonSerializer.Serialize(exceptionLogEntry, options));
+                this.logger.LogError(new EventId((int)ce.StatusCode, nameof(this.CreateClient)), ce, "CosmosException", hint);
+
                 return false;
             }
             catch (Exception ex)
             {
-                var exceptionLogEntry = new ExceptionLogEntry() { Source = "Exception", Message = ex.Message };
-                var options = new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
-
-                Console.WriteLine(JsonSerializer.Serialize(exceptionLogEntry, options));
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.CreateClient)), ex, "Exception", ex.Message);
                 return false;
             }
         }
@@ -372,10 +360,20 @@ namespace LodeRunner.Data
         /// </returns>
         public async Task<bool> CosmosDBReadyCheck()
         {
-            Database database = this.Client.GetDatabase(this.settings.DatabaseName);
-            DatabaseResponse response = await database.ReadAsync();
+            try
+            {
+                Database database = this.Client.GetDatabase(this.settings.DatabaseName);
+                DatabaseResponse response = await database.ReadAsync();
 
-            return response.StatusCode == System.Net.HttpStatusCode.OK;
+                this.IsCosmosDBReady = response.StatusCode == System.Net.HttpStatusCode.OK;
+
+                return this.IsCosmosDBReady;
+            }
+            catch
+            {
+                this.IsCosmosDBReady = false;
+                return false;
+            }
         }
 
         /// <summary>
@@ -396,16 +394,17 @@ namespace LodeRunner.Data
                 this.partitionKeyPI = typeof(TEntity).GetProperty(partitionKeyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (this.partitionKeyPI is null)
                 {
-                    throw new ApplicationException($"Failed to find partition key property {partitionKeyName} on {typeof(TEntity).Name}.  Collection definition does not match Entity definition");
+                    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.GetContainer)), $"Failed to find partition key property {partitionKeyName} on {typeof(TEntity).Name}.  Collection definition does not match Entity definition");
+                    this.cancellationTokenSource.Cancel();
                 }
 
                 return container;
             }
             catch (Exception ex)
             {
-                var message = $"Failed to connect to CosmosDB {this.settings.DatabaseName}:{this.CollectionName}";
-
-                throw new ApplicationException(message, ex);
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(this.GetContainer)), ex, $"Failed to connect to CosmosDB {this.settings.DatabaseName}:{this.CollectionName}");
+                this.cancellationTokenSource.Cancel();
+                return null;
             }
         }
 
@@ -449,6 +448,42 @@ namespace LodeRunner.Data
             }
 
             return containerNames;
+        }
+
+        /// <summary>
+        /// Initializes the ready check.
+        /// </summary>
+        private async void InitializeIntervalCheckerAsync()
+        {
+            await Task.Run(() =>
+            {
+                this.cosmosDBConnectionChecker = new IntervalChecker(this.CosmosDBReadyCheck, this.logger, this.cancellationTokenSource, this.settings.CosmosDbConnectionCheckInterval, this.settings.CosmosDbConnectionCheckRetryLimit);
+                this.cosmosDBConnectionChecker.Start();
+            });
+        }
+
+        /// <summary>
+        /// Initialize Cosmos Client synchronously and performs the initial CosmosDBReady check then updates IsCosmosDBReady Public property.
+        /// </summary>
+        private void InitializeClient()
+        {
+            bool clientCreated = this.CreateClient().Result;
+
+            if (clientCreated)
+            {
+                bool initialDbReadyCheckPassed = this.CosmosDBReadyCheck().Result;
+
+                if (!initialDbReadyCheckPassed)
+                {
+                    this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Initial CosmosDB Ready Check failed. {Core.SystemConstants.ApplicationWillTerminate}");
+                    this.cancellationTokenSource.Cancel();
+                }
+            }
+            else
+            {
+                this.logger.LogError(new EventId((int)LogLevel.Error, nameof(CosmosDBRepository)), $"Unable to create Client for repository for {this.Id}. {Core.SystemConstants.ApplicationWillTerminate}");
+                this.cancellationTokenSource.Cancel();
+            }
         }
     }
 }
