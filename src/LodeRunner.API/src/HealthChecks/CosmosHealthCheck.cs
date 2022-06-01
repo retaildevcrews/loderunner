@@ -99,11 +99,12 @@ namespace LodeRunner.API
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
             // dictionary
-            Dictionary<string, object> data = new ();
-
-            // add instance and version
-            data.Add(Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown);
-            data.Add(Version, Middleware.VersionExtension.Version);
+            Dictionary<string, object> data = new ()
+            {
+                // add instance and version
+                { Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown },
+                { Version, Middleware.VersionExtension.Version },
+            };
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -144,7 +145,7 @@ namespace LodeRunner.API
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
-                this.logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
+                this.logger.LogError(LodeRunner.Core.SystemConstants.LoggerMessageAttributeName, $"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
 
                 data.Add("CosmosException", ce.Message);
 
@@ -153,7 +154,7 @@ namespace LodeRunner.API
             catch (Exception ex)
             {
                 // log and return unhealthy
-                this.logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
+                this.logger.LogError(LodeRunner.Core.SystemConstants.LoggerMessageAttributeName, $"{ex}\nException:Healthz:{ex.Message}");
                 data.Add("Exception", ex.Message);
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ex, data);
@@ -168,7 +169,7 @@ namespace LodeRunner.API
                 catch (Exception ex)
                 {
                     // ignore the exception here, since ttl feature should delete clientStatus record
-                    this.logger.LogError($"{ex}\nException:Delete Healthz test clientStatus:{ex.Message}");
+                    this.logger.LogError(LodeRunner.Core.SystemConstants.LoggerMessageAttributeName, $"{ex}\nException:Delete Healthz test clientStatus:{ex.Message}");
                 }
             }
         }

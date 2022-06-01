@@ -39,22 +39,28 @@ namespace LodeRunner.Test.UnitTests
             this.service = new TestRunService(mockedRepo.Object);
             mockedRepo.Setup(m => m.IsCosmosDBReady).Returns(true);
 
-            LoadClient validLoadClient = new ();
-            validLoadClient.Name = "placeholder client name";
-            validLoadClient.Version = "1.0";
-            validLoadClient.Region = "placeholder region";
-            validLoadClient.Zone = "placeholder zone";
-            validLoadClient.Prometheus = true;
-            validLoadClient.StartupArgs = "arg1";
-            validLoadClient.StartTime = DateTime.UtcNow;
+            LoadClient validLoadClient = new ()
+            {
+                Name = "placeholder client name",
+                Version = "1.0",
+                Region = "placeholder region",
+                Zone = "placeholder zone",
+                Prometheus = true,
+                StartupArgs = "arg1",
+                StartTime = DateTime.UtcNow,
+            };
 
-            LoadTestConfig validLoadTestConfig = new ();
-            validLoadTestConfig.Files = new List<string> { "abc.txt" };
-            validLoadTestConfig.Server = new List<string> { "abc.com" };
+            LoadTestConfig validLoadTestConfig = new ()
+            {
+                Files = new List<string> { "abc.txt" },
+                Server = new List<string> { "abc.com" },
+            };
 
             TestRun validTestRun = new ();
-            List<LoadClient> validLoadClients = new ();
-            validLoadClients.Add(validLoadClient);
+            List<LoadClient> validLoadClients = new ()
+            {
+                validLoadClient,
+            };
 
             validTestRun.CreatedTime = DateTime.UtcNow;
             validTestRun.StartTime = DateTime.UtcNow;

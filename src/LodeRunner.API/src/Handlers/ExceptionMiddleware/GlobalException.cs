@@ -43,7 +43,8 @@ namespace LodeRunner.API.Handlers.ExceptionMiddleware
             }
             catch (Exception ex)
             {
-                this.logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, "Global Exception"), ex, $"{ex.Message}");
+                this.logger.LogError(new EventId((int)HttpStatusCode.InternalServerError, "Global Exception"), ex, LodeRunner.Core.SystemConstants.LoggerMessageAttributeName, $"{ex.Message}");
+
                 await this.HandleExceptionAsync(httpContext, ex);
             }
         }

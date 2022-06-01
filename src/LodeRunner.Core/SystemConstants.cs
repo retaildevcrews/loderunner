@@ -190,6 +190,12 @@ namespace LodeRunner.Core
         public const string LoadTestRequestLogName = "LoadTestRequest";
 
         /// <summary>
+        /// Represents the Name of Message atttribute utilizes for logging.
+        /// It is utilized as 'format string' in the message template format.
+        /// </summary>
+        public const string LoggerMessageAttributeName = "{message}";
+
+        /// <summary>
         /// The check failed attempt.
         /// </summary>
         public const string IntervalCheckFailedAttemptMessage = "Check failed. Attempt {0}/{1}.";

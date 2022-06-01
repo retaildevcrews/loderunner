@@ -27,8 +27,8 @@ namespace LodeRunner.Core.Extensions
 
             return correlationVector.Version switch
             {
-                CorrelationVectorVersion.V1 => correlationVector.Value.Substring(0, 16),
-                _ => correlationVector.Value.Substring(0, 22),
+                CorrelationVectorVersion.V1 => correlationVector.Value[..16],
+                _ => correlationVector.Value[..22],
             };
         }
 
