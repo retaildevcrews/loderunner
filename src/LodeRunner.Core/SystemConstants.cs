@@ -194,7 +194,7 @@ namespace LodeRunner.Core
         /// It is utilized as 'format string' in the message template format.
         /// </summary>
         public const string LoggerMessageAttributeName = "{message}";
-        
+
         /// <summary>
         /// The check failed attempt.
         /// </summary>
