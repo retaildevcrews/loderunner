@@ -42,7 +42,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             this.output = output;
 
-            this.jsonOptions = new ()
+            this.jsonOptions = new()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -284,7 +284,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         private LoadTestConfigPayload GetLoadTestConfigPayloadWithDefaultMockData(string configNamePrefix, [CallerMemberName] string methodName = nameof(this.GetLoadTestConfigPayloadWithDefaultMockData))
         {
             string entityName = $"{configNamePrefix} - IntegrationTesting-{methodName}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
-            LoadTestConfig loadTestConfig = new ();
+            LoadTestConfig loadTestConfig = new();
             loadTestConfig.SetMockData(entityName);
             return loadTestConfig.MapLoadTestConfigToPayload();
         }

@@ -17,7 +17,7 @@ namespace LodeRunner.API.Extensions
         /// <returns>The Task</returns>
         public static async Task<IEnumerable<Client>> GetClients(this IClientStatusService clientStatusService)
         {
-            List<Client> result = new ();
+            List<Client> result = new();
 
             // client statuses
             var clientStatusList = await clientStatusService.GetAll();

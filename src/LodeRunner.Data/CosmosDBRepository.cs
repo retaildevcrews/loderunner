@@ -26,7 +26,7 @@ namespace LodeRunner.Data
         private readonly ICosmosDBSettings settings;
 
         private readonly CosmosConfig options;
-        private readonly object lockObj = new ();
+        private readonly object lockObj = new();
         private Container container;
         private ContainerProperties containerProperties;
         private PropertyInfo partitionKeyPI;

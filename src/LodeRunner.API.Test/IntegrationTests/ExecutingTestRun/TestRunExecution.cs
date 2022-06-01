@@ -43,7 +43,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             this.output = output;
 
-            this.jsonOptions = new ()
+            this.jsonOptions = new()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -74,7 +74,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     ProjectBasePath = "LodeRunner/LodeRunner.csproj",
                     ProjectArgs = $"--mode Client --secrets-volume {secretsVolume}",
                     ProjectBaseParentDirectoryName = "src",
-                }, this.output);
+                },
+                this.output);
 
             using var apiProcessContextCollection = new ApiProcessContextCollection(apiHostCount, secretsVolume, this.output);
 
@@ -101,19 +102,19 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 Assert.True(apiProcessContextCollection.Start(this.factory.GetNextAvailablePort), $"Api ProcessContext Collection.");
 
-                List<int> portList = new ();
+                List<int> portList = new();
 
-                foreach (var apiProcessContext in apiProcessContextCollection)
+                foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
                 {
-                    this.output.WriteLine($"Starting LodeRunner API for Host {apiProcessContext.hostId}.");
+                    this.output.WriteLine($"Starting LodeRunner API for Host {hostId}.");
 
-                    Assert.True(apiProcessContext.apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {apiProcessContext.hostId}.");
+                    Assert.True(apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {hostId}.");
 
-                    Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
+                    Assert.True(apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
 
-                    int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.apiProcessContext.Output);
+                    int apiListeningOnPort = await this.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.Output);
 
-                    Assert.True(apiListeningOnPort == apiProcessContext.portNumber, "Unable to get Port Number");
+                    Assert.True(apiListeningOnPort == portNumber, "Unable to get Port Number");
 
                     portList.Add(apiListeningOnPort);
                 }
@@ -122,7 +123,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
 
                 // Create Test Run
-                TestRunPayload testRunPayload = new ();
+                TestRunPayload testRunPayload = new();
 
                 string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
@@ -185,10 +186,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 lodeRunnerAppContext.End();
                 this.output.WriteLine($"Stopping LodeRunner Application (client mode) [ClientStatusId: {clientStatusId}]");
 
-                foreach (var apiProcessContext in apiProcessContextCollection)
+                foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
                 {
-                    Assert.True(apiProcessContext.apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {apiProcessContext.hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.apiProcessContext.Errors)}");
-                    this.output.WriteLine($"No errors found for API Host {apiProcessContext.hostId}.");
+                    Assert.True(apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
+                    this.output.WriteLine($"No errors found for API Host {hostId}.");
                 }
 
                 apiProcessContextCollection.End();
@@ -226,7 +227,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// </summary>
         /// <param name="testRun">The test run.</param>
         /// <returns>The Task.</returns>
-        private async Task<(bool result, string fieldName, string conditionalValue)> ValidateCompletedTime(TestRun testRun)
+        private async Task<(bool Result, string FieldName, string ConditionalValue)> ValidateCompletedTime(TestRun testRun)
         {
             return await Task.Run(() =>
             {

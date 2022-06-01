@@ -26,7 +26,7 @@ namespace LodeRunner.API.Test.IntegrationTests
     public class ApiWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-        private readonly ApiPortPoolManager apiPortPoolManager = new ();
+        private readonly ApiPortPoolManager apiPortPoolManager = new();
 
         /// <summary>
         /// Gets the next available port.
@@ -65,11 +65,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="builder">The <see cref="T:Microsoft.AspNetCore.Hosting.IWebHostBuilder" /> for the application.</param>
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            Config config = new ();
+            Config config = new();
 
             config.SecretsVolume = config.SecretsVolume.GetSecretVolume();
             Secrets.LoadSecrets(config);
-            CancellationTokenSource cancelTokenSource = new ();
+            CancellationTokenSource cancelTokenSource = new();
 
             builder.ConfigureServices(services =>
             {

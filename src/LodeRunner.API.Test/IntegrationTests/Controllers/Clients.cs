@@ -39,7 +39,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             this.output = output;
 
-            this.jsonOptions = new ()
+            this.jsonOptions = new()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

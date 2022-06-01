@@ -13,7 +13,7 @@ namespace LodeRunner.Core.NgsaLogger
     public sealed class NgsaLoggerProvider : ILoggerProvider
     {
         private readonly NgsaLoggerConfiguration config;
-        private readonly ConcurrentDictionary<string, NgsaLogger> loggers = new ();
+        private readonly ConcurrentDictionary<string, NgsaLogger> loggers = new();
         private readonly ILogValues logValues;
 
         /// <summary>

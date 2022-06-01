@@ -34,9 +34,9 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">Maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
         /// <returns>HttpResponseMessage and Client from response.</returns>
-        public static async Task<(HttpResponseMessage, Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
+        public static async Task<(HttpResponseMessage ResponseMessage, Client Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
-            HttpResponseMessage httpResponse = new ();
+            HttpResponseMessage httpResponse = new();
             Client client = null;
 
             var taskSource = new CancellationTokenSource();
@@ -86,7 +86,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>HttpResponseMessage after retries.</returns>
         public static async Task<HttpResponseMessage> GetRetryAsync(this HttpClient httpClient, string uri, string action, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {
-            HttpResponseMessage httpResponse = new ();
+            HttpResponseMessage httpResponse = new();
 
             var taskSource = new CancellationTokenSource();
 
@@ -167,11 +167,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>the task.</returns>
         public static async Task<HttpResponseMessage> PostTestRun(this HttpClient httpClient, string postTestRunsUri, ITestOutputHelper output)
         {
-            TestRunPayload testRunPayload = new ();
+            TestRunPayload testRunPayload = new();
             testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(PostTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
 
             string jsonTestRun = JsonConvert.SerializeObject(testRunPayload);
-            StringContent stringContent = new (jsonTestRun, Encoding.UTF8, "application/json");
+            StringContent stringContent = new(jsonTestRun, Encoding.UTF8, "application/json");
 
             var httpResponse = await httpClient.PostAsync(postTestRunsUri, stringContent);
 
@@ -199,7 +199,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>the task.</returns>
         public static async Task<HttpResponseMessage> PutTestRunById(this HttpClient httpClient, string testRunsUri, string testRunId, TestRunPayload testRunPayload, ITestOutputHelper output)
         {
-            StringContent stringContent = new (JsonConvert.SerializeObject(testRunPayload), Encoding.UTF8, "application/json");
+            StringContent stringContent = new(JsonConvert.SerializeObject(testRunPayload), Encoding.UTF8, "application/json");
 
             // Send Request
             var httpResponse = await httpClient.PutAsync($"{testRunsUri}/{testRunId}", stringContent);
@@ -288,7 +288,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             string jsonLoadTestConfig = JsonConvert.SerializeObject(entityPayload);
 
-            StringContent stringContent = new (jsonLoadTestConfig, Encoding.UTF8, "application/json");
+            StringContent stringContent = new(jsonLoadTestConfig, Encoding.UTF8, "application/json");
 
             var httpResponse = await httpClient.PostAsync(baseEntityUri, stringContent);
 
@@ -378,7 +378,7 @@ namespace LodeRunner.API.Test.IntegrationTests
              where TEntity : BaseEntityModel
         {
             string entityName = typeof(TEntity).Name;
-            StringContent stringContent = new (JsonConvert.SerializeObject(entityPayload), Encoding.UTF8, "application/json");
+            StringContent stringContent = new(JsonConvert.SerializeObject(entityPayload), Encoding.UTF8, "application/json");
 
             // Send Request
             var httpResponse = await httpClient.PutAsync($"{baseEntityUri}/{entityItemId}", stringContent);
@@ -409,12 +409,12 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenRequestsMs">The time between requests ms.</param>
         /// <returns>HttpResponseMessage and TEntity from response.</returns>
-        public static async Task<(HttpResponseMessage, TEntity)> GetEntityByIdRetries<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, Func<TEntity, Task<(bool result, string fieldName, string conditionalValue)>> validateCondition, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
+        public static async Task<(HttpResponseMessage ResponseMessage, TEntity Entity)> GetEntityByIdRetries<TEntity>(this HttpClient httpClient, string baseEntityUri, string itemId, JsonSerializerOptions jsonOptions, ITestOutputHelper output, Func<TEntity, Task<(bool Result, string FieldName, string ConditionalValue)>> validateCondition, int maxRetries = 10, int timeBetweenRequestsMs = 1000)
             where TEntity : BaseEntityModel
         {
             string entityName = typeof(TEntity).Name;
 
-            HttpResponseMessage httpResponse = new ();
+            HttpResponseMessage httpResponse = new();
             TEntity testRun = null;
 
             var taskSource = new CancellationTokenSource();

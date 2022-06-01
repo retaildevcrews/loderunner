@@ -56,7 +56,7 @@ namespace LodeRunner
             {
                 string path = this.config.BaseUrl + file;
 
-                using HttpClient client = new ();
+                using HttpClient client = new();
 
                 try
                 {
@@ -132,7 +132,7 @@ namespace LodeRunner
         private List<Request> LoadValidateRequests(List<string> fileList)
         {
             List<Request> list;
-            List<Request> fullList = new ();
+            List<Request> fullList = new();
 
             // read each json file
             foreach (string inputFile in fileList)
@@ -186,7 +186,7 @@ namespace LodeRunner
             {
                 List<Request> list = null;
                 InputJson data = null;
-                List<Request> l2 = new ();
+                List<Request> l2 = new();
 
                 try
                 {

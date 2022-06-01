@@ -41,7 +41,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
 
             this.output = output;
 
-            this.jsonOptions = new ()
+            this.jsonOptions = new()
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -130,7 +130,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             // Create testRun payload; update StartTime and CompletedTime to make it invalid.
-            TestRunPayload testRunPayload = new ();
+            TestRunPayload testRunPayload = new();
             testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
             testRunPayload.StartTime = DateTime.UtcNow.AddMinutes(10);
             testRunPayload.CompletedTime = DateTime.UtcNow;
@@ -151,7 +151,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
             // Create testRun payload; update LoadTestConfig RunLoop and MaxErrors to make it invalid.
-            TestRunPayload testRunPayload = new ();
+            TestRunPayload testRunPayload = new();
             testRunPayload.SetMockData($"Sample TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
             testRunPayload.LoadTestConfig.RunLoop = true;
             testRunPayload.LoadTestConfig.MaxErrors = 21;
@@ -175,7 +175,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
             var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
-            TestRunPayload testRunPayload = new ()
+            TestRunPayload testRunPayload = new()
             {
                 Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CanPutTestRuns)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 CreatedTime = postedTestRun.CreatedTime,
@@ -216,7 +216,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
             var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
-            TestRunPayload testRunPayload = new ()
+            TestRunPayload testRunPayload = new()
             {
                 Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CannotPutInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 CreatedTime = postedTestRun.CreatedTime,
@@ -245,7 +245,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             HttpResponseMessage postResponse = await httpClient.PostTestRun(SystemConstants.CategoryTestRunsPath, this.output);
             var postedTestRun = await postResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
 
-            TestRunPayload testRunPayload = new ();
+            TestRunPayload testRunPayload = new();
             testRunPayload.SetMockData($"Updated TestRun - IntegrationTesting-{nameof(this.CannotPostInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
             testRunPayload.LoadTestConfig.RunLoop = true;
             testRunPayload.LoadTestConfig.MaxErrors = 21;
@@ -265,7 +265,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
-            TestRunPayload testRunPayload = new ()
+            TestRunPayload testRunPayload = new()
             {
                 Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CannotPutInvalidTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 CreatedTime = DateTime.UtcNow,
@@ -322,7 +322,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
             Assert.Contains("Not Found", gottenMessage);
 
             // Ensure that PUT still works as expected (fails to update deleted item).
-            TestRunPayload testRunPayload = new ()
+            TestRunPayload testRunPayload = new()
             {
                 Name = $"Updated TestRun - IntegrationTesting-{nameof(this.CanDeleteTestRunById)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 CreatedTime = DateTime.UtcNow,

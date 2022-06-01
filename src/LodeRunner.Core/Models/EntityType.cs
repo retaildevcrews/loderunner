@@ -13,32 +13,32 @@ namespace LodeRunner.Core.Models
     public enum EntityType
     {
         /// <summary>
-        /// Represents a front end compatible representation of ClientStatus
+        /// Represents a front end compatible representation of ClientStatus.
         /// </summary>
         Client,
 
         /// <summary>
-        /// ClientStatus entity type
+        /// ClientStatus entity type.
         /// </summary>
         ClientStatus,
 
         /// <summary>
-        /// LoadTestConfig entity type
+        /// LoadTestConfig entity type.
         /// </summary>
         LoadTestConfig,
 
         /// <summary>
-        /// TestRun entity type
+        /// TestRun entity type.
         /// </summary>
         TestRun,
 
         /// <summary>
-        /// The load client
+        /// The load client.
         /// </summary>
         LoadClient,
 
         /// <summary>
-        /// Unassigned entity type
+        /// Unassigned entity type.
         /// </summary>
         Unassigned,
     }

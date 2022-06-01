@@ -89,7 +89,7 @@ namespace LodeRunner.Core
             }
 
             // get secrets from volume
-            Secrets sec = new ()
+            Secrets sec = new()
             {
                 Volume = volume,
                 CosmosCollection = GetSecretFromFile(volume, "CosmosCollection"),

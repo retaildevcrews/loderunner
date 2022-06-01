@@ -58,7 +58,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var args = new string[] { "--mode", "Client", "--secrets-volume", $"{secrets}", "--region", uniqueRegion };
 
-            LodeRunner.Config lrConfig = new ();
+            LodeRunner.Config lrConfig = new();
             RootCommand rootClient = LRCommandLine.BuildRootClientMode();
 
             LodeRunnerService l8rService = null;
@@ -74,7 +74,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
                 // Initialize and Start LodeRunner Service
                 Secrets.LoadSecrets(lrConfig);
-                CancellationTokenSource cancelTokenSource = new ();
+                CancellationTokenSource cancelTokenSource = new();
 
                 var logger = CreateLodeRunnerServiceLogger(lrConfig);
                 l8rService = new LodeRunnerService(lrConfig, cancelTokenSource, logger);

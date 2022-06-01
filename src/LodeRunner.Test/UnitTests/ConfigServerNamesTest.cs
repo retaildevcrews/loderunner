@@ -30,12 +30,12 @@ namespace LodeRunner.Test.UnitTests
         [InlineData(new string[] { "localhost", }, "Unable to match Server name 'localhost'")]
         public void CommandMode_ValidateLodeRunnerConfigServerDefaultValues(string[] serverNames, string messageIfFailed)
         {
-            Config lrConfig = new ()
+            Config lrConfig = new()
             {
                 Server = serverNames.ToList(),
             };
 
-            List<string> originalServerNames = new ();
+            List<string> originalServerNames = new();
 
             originalServerNames.AddRange(lrConfig.Server);
 

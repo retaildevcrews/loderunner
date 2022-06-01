@@ -16,7 +16,7 @@ namespace LodeRunner.API.Test.IntegrationTests
     {
         private readonly int lowerPortRange;
         private readonly int upperPortRange;
-        private readonly object getNextLock = new ();
+        private readonly object getNextLock = new();
         private Dictionary<int, bool> portPool = null;
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         {
             if (this.portPool == null)
             {
-                this.portPool = new ();
+                this.portPool = new();
                 for (int i = this.lowerPortRange; i <= this.upperPortRange; i++)
                 {
                     this.portPool.Add(i, true);

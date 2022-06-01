@@ -83,7 +83,7 @@ namespace LodeRunner.Core.NgsaLogger
                 return;
             }
 
-            Dictionary<string, object> d = new ()
+            Dictionary<string, object> d = new()
             {
                 { "date", DateTime.UtcNow },
                 { "logName", this.name },

@@ -99,7 +99,7 @@ namespace LodeRunner.API
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
             // dictionary
-            Dictionary<string, object> data = new ()
+            Dictionary<string, object> data = new()
             {
                 // add instance and version
                 { Instance, System.Environment.GetEnvironmentVariable(WebSiteRoleEnvVar) ?? SystemConstants.Unknown },
@@ -180,7 +180,7 @@ namespace LodeRunner.API
         /// <returns>ClientStatus.</returns>
         private static ClientStatus CreateClientStatus()
         {
-            LoadClient loadClient = new ()
+            LoadClient loadClient = new()
             {
                 Version = "1.0.0",
                 Region = $"CosmosHealthCheck-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",

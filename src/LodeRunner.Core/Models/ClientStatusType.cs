@@ -13,27 +13,27 @@ namespace LodeRunner.Core.Models
     public enum ClientStatusType
     {
         /// <summary>
-        /// Client status for indeterminate state or initial object state
+        /// Client status for indeterminate state or initial object state.
         /// </summary>
         Unknown,
 
         /// <summary>
-        /// Starting client status
+        /// Starting client status.
         /// </summary>
         Starting,
 
         /// <summary>
-        /// Ready client status
+        /// Ready client status.
         /// </summary>
         Ready,
 
         /// <summary>
-        /// Testing client status
+        /// Testing client status.
         /// </summary>
         Testing,
 
         /// <summary>
-        /// Terminating client status
+        /// Terminating client status.
         /// </summary>
         Terminating,
     }

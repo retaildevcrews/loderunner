@@ -16,7 +16,7 @@ namespace LodeRunner.API
     public partial class CosmosHealthCheck : IHealthCheck
     {
         private const int MaxResponseTime = 200;
-        private readonly Stopwatch stopwatch = new ();
+        private readonly Stopwatch stopwatch = new();
 
         private int CosmosTimeoutMs
         {
@@ -37,7 +37,7 @@ namespace LodeRunner.API
             this.stopwatch.Stop();
 
             // create the result
-            HealthzCheck result = new ()
+            HealthzCheck result = new()
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,

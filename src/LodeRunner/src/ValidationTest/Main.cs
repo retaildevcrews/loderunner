@@ -30,7 +30,7 @@ namespace LodeRunner
         /// <summary>
         /// Correlation Vector http header name.
         /// </summary>
-        private static readonly JsonSerializerOptions JsonOptions = new ()
+        private static readonly JsonSerializerOptions JsonOptions = new()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
@@ -40,7 +40,7 @@ namespace LodeRunner
         private static List<Request> requestList;
         private static SocketsHttpHandler httpSocketHandler;
 
-        private readonly Dictionary<string, PerfTarget> targets = new ();
+        private readonly Dictionary<string, PerfTarget> targets = new();
 
         private readonly ILogger logger;
 
@@ -75,7 +75,7 @@ namespace LodeRunner
             }
 
             // use socketshttphandler to avoid stale DNS and socket exhaustion problems
-            httpSocketHandler = new ()
+            httpSocketHandler = new()
             {
                 AllowAutoRedirect = false,
             };
@@ -289,12 +289,12 @@ namespace LodeRunner
 
             DisplayStartupMessage(config);
 
-            List<TimerRequestState> states = new ();
+            List<TimerRequestState> states = new();
 
             foreach (string svr in config.Server)
             {
                 // create the shared state
-                TimerRequestState state = new (this.logger, this.config)
+                TimerRequestState state = new(this.logger, this.config)
                 {
                     Server = svr,
                     Client = this.OpenHttpClient(svr),
@@ -415,7 +415,7 @@ namespace LodeRunner
             ValidationResult valid;
 
             // send the request
-            using (HttpRequestMessage req = new (new HttpMethod(request.Verb), request.Path))
+            using (HttpRequestMessage req = new(new HttpMethod(request.Verb), request.Path))
             {
                 DateTime dt = DateTime.UtcNow;
 
@@ -429,7 +429,7 @@ namespace LodeRunner
                 }
 
                 // create correlation vector and add to headers
-                CorrelationVector cv = new (CorrelationVectorVersion.V2);
+                CorrelationVector cv = new(CorrelationVectorVersion.V2);
                 req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
 
                 // add the body to the http request
@@ -506,7 +506,7 @@ namespace LodeRunner
             }
 
             // map the parameters
-            PerfLog log = new (validationResult.ValidationErrors)
+            PerfLog log = new(validationResult.ValidationErrors)
             {
                 Server = server,
                 Tag = this.config.Tag,
@@ -598,7 +598,7 @@ namespace LodeRunner
         /// </summary>
         private static void DisplayStartupMessage(Config config)
         {
-            Dictionary<string, object> msg = new ()
+            Dictionary<string, object> msg = new()
             {
                 { "Date", DateTime.UtcNow },
                 { "EventType", "Startup" },
@@ -641,7 +641,7 @@ namespace LodeRunner
         /// <returns>HttpClient.</returns>
         private HttpClient OpenHttpClient(string host)
         {
-            HttpClient client = new (httpSocketHandler, disposeHandler: false)
+            HttpClient client = new(httpSocketHandler, disposeHandler: false)
             {
                 Timeout = new TimeSpan(0, 0, this.config.Timeout),
                 BaseAddress = new Uri(host),
@@ -676,7 +676,7 @@ namespace LodeRunner
             // don't log ignore requests
             if (request.PerfTarget?.Category != "Ignore")
             {
-                Dictionary<string, object> logDict = new ()
+                Dictionary<string, object> logDict = new()
                 {
                     { "Date", perfLog.Date },
                     { "Server", perfLog.Server },
