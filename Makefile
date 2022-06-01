@@ -63,7 +63,7 @@ deploy :
 
 	# deploy prometheus and grafana
 	-kubectl apply -f deploy/monitoring
-	
+
 	# deploy fluentbit
 	-kubectl apply -f deploy/fluentbit/namespace.yaml
 	-kubectl create secret generic fluentbit-secrets --namespace fluentbit --from-literal=WorkspaceId=dev --from-literal=SharedKey=dev
@@ -163,7 +163,7 @@ jumpbox :
 	# start a jumpbox pod
 	@-kubectl delete pod jumpbox --ignore-not-found=true
 
-	@kubectl run jumpbox --image=ghcr.io/retaildevcrews/alpine --restart=Always -- /bin/sh -c "trap : TERM INT; sleep 9999999999d & wait"
+	@kubectl run jumpbox --image=ghcr.io/cse-labs/jumpbox --restart=Always
 	@kubectl wait pod jumpbox --for condition=ready --timeout=30s
 
 	# Run an interactive bash shell in the jumpbox
