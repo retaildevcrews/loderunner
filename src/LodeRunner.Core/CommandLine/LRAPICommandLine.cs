@@ -45,7 +45,7 @@ namespace LodeRunner.API
             root.AddOption(GetOption(new string[] { "--retries" }, "Cosmos 429 retries", 10, 0));
             root.AddOption(GetOption(new string[] { "--timeout" }, "Request timeout", 10, 1));
             root.AddOption(GetOption(new string[] { "--secrets-volume", "-v" }, "Secrets Volume Path", "secrets"));
-            root.AddOption(GetOption(new string[] { "--log-level", "-l" }, "Log Level", LogLevel.Error));
+            root.AddOption(GetOption(new string[] { "--log-level", "-l" }, "Log Level", LogLevel.Warning));
             root.AddOption(GetOption(new string[] { "--request-log-level", "-q" }, "Request Log Level", LogLevel.Information));
 
             // validate dependencies
