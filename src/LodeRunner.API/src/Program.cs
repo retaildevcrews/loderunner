@@ -19,6 +19,9 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
+using OpenTelemetry.Trace;
 
 namespace LodeRunner.API
 {
@@ -161,6 +164,7 @@ namespace LodeRunner.API
                     services.AddSingleton<CancellationTokenSource>(cancelTokenSource);
                     services.AddSingleton<Config>(config);
                     services.AddSingleton<ICosmosConfig>(provider => provider.GetRequiredService<Config>());
+                    services.AddOpenTelemetryTracing(b => b.AddAspNetCoreInstrumentation());
                 })
                 .UseUrls($"http://*:{config.Port}/")
                 .UseStartup<Startup>()
@@ -169,6 +173,8 @@ namespace LodeRunner.API
                 {
                     logger.Setup(logLevelConfig: config, logValues: config, projectName: projectName);
                 });
+
+            Sdk.SetDefaultTextMapPropagator(new B3Propagator());
 
             // build the host
             return builder.Build();
