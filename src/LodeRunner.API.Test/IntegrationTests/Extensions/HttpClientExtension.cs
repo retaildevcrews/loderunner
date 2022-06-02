@@ -32,7 +32,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="jsonOptions">The json options.</param>
         /// <param name="output">The output.</param>
         /// <param name="maxRetries">Maximum retries.</param>
-        /// <param name="timeBetweenRequestsMs">Wait time betweeen requests.</param>
+        /// <param name="timeBetweenRequestsMs">Wait time between requests.</param>
         /// <returns>HttpResponseMessage and Client from response.</returns>
         public static async Task<(HttpResponseMessage ResponseMessage, Client Client)> GetClientByIdRetriesAsync(this HttpClient httpClient, string clientsUri, string clientStatusId, ClientStatusType clientStatusType, JsonSerializerOptions jsonOptions, ITestOutputHelper output, int maxRetries = 10, int timeBetweenRequestsMs = 100)
         {

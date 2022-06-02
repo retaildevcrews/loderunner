@@ -98,7 +98,7 @@ namespace LodeRunner.API
                 SetupSigTermHandler(host);
 
                 // start the webserver
-                Task hostRun = host.RunAsync();
+                Task hostRun = host.RunAsync(cancelTokenSource.Token);
 
                 // log startup messages
                 GetLogger().LogInformation($"LodeRunner.API Backend Started", VersionExtension.Version);

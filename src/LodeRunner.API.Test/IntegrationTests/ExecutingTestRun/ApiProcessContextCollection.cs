@@ -129,7 +129,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     foreach (var (hostId, portNumber, apiProcessContext) in this.processContextList)
                     {
                         apiProcessContext.End();
-                        this.output.WriteLine($"Stopping LodeRunner API for Host {hostId}.");
+                        this.output.WriteLine($"Stopping LodeRunner API for Host {hostId}:{portNumber}");
                     }
 
                     // we remove any reference to the ApiProcess Context.

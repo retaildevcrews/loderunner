@@ -76,6 +76,22 @@ namespace LodeRunner.Data
         public string CollectionName { get; set; }
 
         /// <summary>
+        /// Gets or sets the database cosmos connection check interval.
+        /// </summary>
+        /// <value>
+        /// The database cosmos connection check interval.
+        /// </value>
+        public int CosmosDbConnectionCheckInterval { get; set; } = 60;
+
+        /// <summary>
+        /// Gets the cosmos database connection retry limit.
+        /// </summary>
+        /// <value>
+        /// The cosmos database connection retry limit.
+        /// </value>
+        public int CosmosDbConnectionCheckRetryLimit { get; } = 3; // 3 is the max expected value as per requirement.
+
+        /// <summary>
         /// Validates this instance.
         /// </summary>
         public void Validate()

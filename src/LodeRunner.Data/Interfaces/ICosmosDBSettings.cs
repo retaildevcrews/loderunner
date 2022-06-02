@@ -55,5 +55,21 @@ namespace LodeRunner.Data.Interfaces
         /// The name of the collection.
         /// </value>
         string CollectionName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the database cosmos connection check interval.
+        /// </summary>
+        /// <value>
+        /// The database cosmos connection check interval.
+        /// </value>
+        int CosmosDbConnectionCheckInterval { get; set; }
+
+        /// <summary>
+        /// Gets the cosmos database connection retry limit.
+        /// </summary>
+        /// <value>
+        /// The cosmos database connection retry limit.
+        /// </value>
+        int CosmosDbConnectionCheckRetryLimit { get; }
     }
 }
