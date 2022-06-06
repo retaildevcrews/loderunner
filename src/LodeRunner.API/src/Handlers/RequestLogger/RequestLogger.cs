@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text.Json;
@@ -267,6 +268,8 @@ namespace LodeRunner.API.Middleware
                     { "UserAgent", context.Request.Headers["User-Agent"].ToString() },
                     { "CVector", cv.Value },
                     { "CVectorBase", cv.GetBase() },
+                    { "TraceID", Activity.Current.Context.TraceId.ToString() },
+                    { "SpanID", Activity.Current.Context.SpanId.ToString() },
                     { "Category", category },
                     { "Mode", mode },
                 };
