@@ -19,7 +19,7 @@ docker build -t nginx-cosmos-emulator "${cwd}" -f "${cwd}"/Dockerfile
 # Generate Cert for three urls including internal k3d network
 "${cwd}/gen-multi-domain-cert.bash" \
     -san "${COSMOS_EMULATOR_URL},host.k3d.internal,localhost" \
-    --cert-path "${NGINX_CONFIG_PATH}" --cert-prefix "${COSMOS_EMULATOR_NAME}"
+    --cert-path "${NGINX_CONFIG_PATH}" --cert-prefix "${COSMOS_EMULATOR_NAME}" --install-cert
 
 # cp "${NGINX_CONFIG_PATH}/nginx_cosmos.crt" "${NGINX_CONFIG_PATH}/nginx_cosmos.pem"
 
