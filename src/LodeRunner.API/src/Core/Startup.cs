@@ -119,6 +119,7 @@ namespace LodeRunner.API
             {
                 context.Response.Headers.Add("X-B3-TraceId", Activity.Current.Context.TraceId.ToString());
                 context.Response.Headers.Add("X-B3-SpanId", Activity.Current.Context.SpanId.ToString());
+
                 // call next middleware handler
                 await next().ConfigureAwait(false);
             });
