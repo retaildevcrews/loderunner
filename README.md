@@ -36,10 +36,9 @@
       - Set CosmosDB URL: `export LR_URL=https://${COSMOS_EMULATOR_NAME}.documents.azure.com`
       - Set CosmosDB Key:
 
-         ```bash
-            export COSMOS_KEY_CMD="docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '\/Key=(\w.*) '|head -n 1 | awk -F' ' '{print \$1}' | awk -F 'Key=' '{print \$2}'"
-            export LR_KEY=$(eval $COSMOS_KEY_CMD)
-         ```
+        ```bash
+        export LR_KEY=$(docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '/Key=(\w.*) '|head -n 1 | awk -F' ' '{print $1}' | awk -F 'Key=' '{print $2}')
+        ```
 
    - Set CosmosDB using **shared dev DB**:
       - Set CosmosDB URL: `export LR_URL=https://ngsa-asb-dev-cosmos.documents.azure.com:443/`
@@ -52,7 +51,9 @@
 6. Start the k3d cluster `make create`
 7. Deploy pods
    - ~~`make all`: LodeRunner, LodeRunner.API, LodeRunner.UI, ngsa-app, prometheus, grafana, fluentbit, jumpbox~~ Note: monitoring and fluentbit namespaces are not ready
-   - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI
+   - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos in Azure
+   - `make lr-local-emul`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos Emulator
+   - `make lr-local-emul-api-only`: Only LodeRunner.API with Cosmos Emulator
 8. Set LodeRunner.API port visibility to public
    - In Codespaces, navigate to the `PORTS` terminal
    - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
