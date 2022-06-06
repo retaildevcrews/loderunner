@@ -38,7 +38,6 @@ spec:
           volumeMounts:
             - name: secrets
               mountPath: "/app/secrets"
-              volumeMounts:
             - name: cosmos-emul-secrets
               mountPath: /certs/
               readOnly: true
