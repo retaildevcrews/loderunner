@@ -6,6 +6,7 @@ COSMOS_EMULATOR_DATA_PATH="${COSMOS_EMULATOR_DATA_PATH:-/workspaces/cosmos-emula
 COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 NGINX_CONFIG_PATH="${NGINX_CONFIG_PATH:-/workspaces/cosmos-emulator/nginx}"
 
+cwd="$( dirname -- "${BASH_SOURCE[0]:-$0}" )"
 mkdir -p ${COSMOS_EMULATOR_DATA_PATH}
 mkdir -p ${NGINX_CONFIG_PATH}
 
@@ -13,10 +14,10 @@ ipaddr="`ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}' | head 
 echo "Emulator data path: ${COSMOS_EMULATOR_DATA_PATH}"
 
 # Build Cosmos Nginx emulator
-docker build -t nginx-cosmos-emulator .
+docker build -t nginx-cosmos-emulator "${cwd}" -f "${cwd}"/Dockerfile
 
 # Generate Cert for three urls including internal k3d network
-$(dirname $0)/gen-multi-domain-cert.bash \
+"${cwd}/gen-multi-domain-cert.bash" \
     -san "${COSMOS_EMULATOR_URL},host.k3d.internal,localhost" \
     --cert-path "${NGINX_CONFIG_PATH}" --cert-prefix "${COSMOS_EMULATOR_NAME}"
 
