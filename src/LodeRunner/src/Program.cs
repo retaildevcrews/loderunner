@@ -42,7 +42,7 @@ namespace LodeRunner
         /// <summary>
         /// Gets cancellation token.
         /// </summary>
-        private static readonly CancellationTokenSource CancelTokenSource = new ();
+        private static readonly CancellationTokenSource CancelTokenSource = new();
 
         /// <summary>
         /// Prevents a default instance of the <see cref="App"/> class from being created.

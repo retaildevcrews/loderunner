@@ -28,7 +28,7 @@ namespace LodeRunner.Data
         private readonly ICosmosDBSettings settings;
         private readonly ILogger logger;
         private readonly CosmosConfig options;
-        private readonly object lockObj = new ();
+        private readonly object lockObj = new();
         private readonly CancellationTokenSource cancellationTokenSource;
         private IntervalChecker cosmosDBConnectionChecker;
         private Container container;

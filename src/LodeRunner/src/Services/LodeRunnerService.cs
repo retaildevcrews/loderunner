@@ -232,7 +232,7 @@ namespace LodeRunner.Services
             // get TestRun document to update
             var testRun = await GetTestRunService().Get(args.TestRunId);
 
-            LoadResult loadResult = new ()
+            LoadResult loadResult = new()
             {
                 CompletedTime = args.CompletedTime,
                 FailedRequests = args.FailedRequests,
@@ -324,7 +324,7 @@ namespace LodeRunner.Services
                 await Task.Delay(this.config.DelayStart * 1000, this.cancellationTokenSource.Token).ConfigureAwait(false);
             }
 
-            ValidationTest lrt = new (this.config, this.logger);
+            ValidationTest lrt = new(this.config, this.logger);
 
             if (this.config.RunLoop)
             {
@@ -443,7 +443,7 @@ namespace LodeRunner.Services
 
             this.RegisterCancellationTokensForServices();
 
-            this.statusUpdateTimer = new ()
+            this.statusUpdateTimer = new()
             {
                 Interval = this.config.StatusUpdateInterval * 1000,
             };
@@ -556,7 +556,7 @@ namespace LodeRunner.Services
         /// <returns>List of available TestRuns to execute.</returns>
         private async Task<List<TestRun>> PollForTestRunsAsync()
         {
-            List<TestRun> testRuns = new ();
+            List<TestRun> testRuns = new();
             try
             {
                 var polledRuns = await GetTestRunService().GetNewTestRunsByLoadClientId(this.loadClient.Id);
@@ -590,7 +590,7 @@ namespace LodeRunner.Services
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
             DateTime startTime = DateTime.UtcNow;
 
-            CancellationTokenSource cancel = new ();
+            CancellationTokenSource cancel = new();
             try
             {
                 // can be updated accordingly

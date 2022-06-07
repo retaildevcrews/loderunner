@@ -109,7 +109,7 @@ namespace LodeRunner.API.Test.UnitTests
         /// <returns>The Task.</returns>
         private static Func<Task<T>> ReturnScalarValueAsFunctionTask<T>(T response)
         {
-            return new (() => Task.Run(() => { return response; }));
+            return new(() => Task.Run(() => { return response; }));
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LodeRunner.API.Test.UnitTests
         /// <returns>The cancellationToken status and the outputAsStringList.</returns>
         private async Task<bool> RunIntervalCheckerWaitAndGetCancellationStatus(Func<Task<bool>> taskToExecute, int intervalSeconds = 4, int retryLimit = 3)
         {
-            CancellationTokenSource cancellationTokenSource = new ();
+            CancellationTokenSource cancellationTokenSource = new();
 
             using var intervalChecker = new IntervalChecker(taskToExecute, this.logger, cancellationTokenSource, intervalSeconds, retryLimit);
 

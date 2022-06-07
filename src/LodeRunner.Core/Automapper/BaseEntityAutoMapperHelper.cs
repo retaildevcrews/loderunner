@@ -15,9 +15,9 @@ namespace LodeRunner.Core.Automapper
         where TSource : BaseEntityModel
         where TDestination : BaseEntityModel
     {
-        private static readonly Mapper OneToOneMapper = new (new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>()));
+        private static readonly Mapper OneToOneMapper = new(new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>()));
 
-        private static readonly Mapper OneToOneMapperIgnoringId = new (new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>().ForMember(dest => dest.Id, opt => opt.Ignore())));
+        private static readonly Mapper OneToOneMapperIgnoringId = new(new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>().ForMember(dest => dest.Id, opt => opt.Ignore())));
 
         /// <summary>
         /// Maps the specified source.

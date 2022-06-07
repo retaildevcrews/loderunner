@@ -43,7 +43,7 @@ namespace LodeRunner.Core.CommandLine
         /// <returns>RootCommand.</returns>
         public static RootCommand BuildRootCommandMode()
         {
-            RootCommand root = new ()
+            RootCommand root = new()
             {
                 Name = SystemConstants.LodeRunnerCommandMode,
                 Description = "Validate API responses",
@@ -86,7 +86,7 @@ namespace LodeRunner.Core.CommandLine
         /// <returns>RootCommand.</returns>
         public static RootCommand BuildRootClientMode()
         {
-            RootCommand root = new ()
+            RootCommand root = new()
             {
                 Name = SystemConstants.LodeRunnerClientMode,
                 Description = "Waits for a job",

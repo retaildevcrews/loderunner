@@ -101,7 +101,7 @@ namespace LodeRunner.API.Controllers
         /// <returns>HealthCheckResult.</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck(IClientStatusService clientStatusService, CancellationTokenSource cancellationTokenSource, ICosmosConfig cosmosConfig)
         {
-            CosmosHealthCheck chk = new (this.hcLogger, clientStatusService, cosmosConfig);
+            CosmosHealthCheck chk = new(this.hcLogger, clientStatusService, cosmosConfig);
 
             return await chk.CheckHealthAsync(new HealthCheckContext(), cancellationTokenSource.Token).ConfigureAwait(false);
         }

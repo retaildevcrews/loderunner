@@ -74,7 +74,7 @@ namespace LodeRunner.Core.Models
         /// <returns>a new LoadClient entity.</returns>
         public static LoadClient GetNew(ILRConfig config, DateTime lastUpdated)
         {
-            LoadClient loadClient = new ()
+            LoadClient loadClient = new()
             {
                 Version = Core.Version.AssemblyVersion,
                 Region = string.IsNullOrWhiteSpace(config.Region) == true ? SystemConstants.Unknown : config.Region,

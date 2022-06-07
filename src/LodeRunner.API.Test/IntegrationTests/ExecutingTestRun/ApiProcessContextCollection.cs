@@ -17,7 +17,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         private readonly string secretsVolume;
         private readonly ITestOutputHelper output;
         private bool disposedValue = false;
-        private List<(int hostId, int portNumber, ProcessContext apiProcessContext)> processContextList;
+        private List<(int HostId, int PortNumber, ProcessContext ApiProcessContext)> processContextList;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiProcessContextCollection"/> class.
@@ -51,7 +51,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// Gets the enumerator.
         /// </summary>
         /// <returns>The Enumerator for ApiProcessContextCollection Tuple. </returns>
-        public IEnumerator<(int hostId, int portNumber, ProcessContext apiProcessContext)> GetEnumerator()
+        public IEnumerator<(int HostId, int PortNumber, ProcessContext ApiProcessContext)> GetEnumerator()
         {
             foreach (var processContext in this.processContextList)
             {
@@ -85,7 +85,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         {
             if (!this.Started)
             {
-                this.processContextList = new ();
+                this.processContextList = new();
 
                 for (int hostId = 1; hostId <= this.apiHostCount; hostId++)
                 {
@@ -96,11 +96,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                         ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
                         ProjectArgs = $"--port {apiPortNumber} --secrets-volume {this.secretsVolume}",
                         ProjectBaseParentDirectoryName = "src",
-                    }, this.output);
+                    },
+                    this.output);
 
                     if (lodeRunnerAPIContext.Start())
                     {
-                        this.processContextList.Add(new (hostId, apiPortNumber, lodeRunnerAPIContext));
+                        this.processContextList.Add(new(hostId, apiPortNumber, lodeRunnerAPIContext));
                     }
                     else
                     {
@@ -125,10 +126,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 if (disposing)
                 {
-                    foreach (var apiProcessContext in this.processContextList)
+                    foreach (var (hostId, portNumber, apiProcessContext) in this.processContextList)
                     {
-                        apiProcessContext.apiProcessContext.End();
-                        this.output.WriteLine($"Stopping LodeRunner API for Host {apiProcessContext.hostId}.");
+                        apiProcessContext.End();
+                        this.output.WriteLine($"Stopping LodeRunner API for Host {hostId}:{portNumber}");
                     }
 
                     // we remove any reference to the ApiProcess Context.

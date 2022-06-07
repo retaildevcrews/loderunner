@@ -25,7 +25,7 @@ namespace LodeRunner.Core.Models.Validators
         public IEnumerable<string> ValidateEntity(TEntity entity)
         {
             var errors = this.Validate(entity)?.Errors.ToList();
-            List<string> errorMessages = new ();
+            List<string> errorMessages = new();
 
             if (errors.Count > 0)
             {

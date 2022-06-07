@@ -24,7 +24,7 @@ namespace LodeRunner.Core.Extensions
         {
             var properties = loadTestConfig.GetType().GetProperties().Where(prop => prop.IsDefined(typeof(DescriptionAttribute), false));
 
-            List<string> argsList = new ();
+            List<string> argsList = new();
 
             foreach (var prop in properties)
             {

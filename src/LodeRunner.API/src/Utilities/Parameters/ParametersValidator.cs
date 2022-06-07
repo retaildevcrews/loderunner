@@ -22,7 +22,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>List of error messages.</returns>
         public static List<string> ValidateEntityId(string entityId)
         {
-            List<string> errors = new ();
+            List<string> errors = new();
 
             string entityIdFieldName = $"{typeof(TEntity).Name}Id";
 

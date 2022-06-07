@@ -299,7 +299,7 @@ namespace LodeRunner.API.Middleware
         /// <returns>JsonResult.</returns>
         private static JsonResult CreateValidationErrorResponse(string type, string path, IEnumerable<string> errorList)
         {
-            Dictionary<string, object> data = new ()
+            Dictionary<string, object> data = new()
             {
                 { "title", type },
                 { "detail", type },

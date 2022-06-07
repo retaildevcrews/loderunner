@@ -22,7 +22,7 @@ namespace LodeRunner.API.Extensions
         /// <returns>The Task</returns>
         public static async Task<ApiResponse<TestRun>> GetTestRun(this TestRunService testRunService, string testRunId)
         {
-            ApiResponse<TestRun> result = new ();
+            ApiResponse<TestRun> result = new();
 
             // First get the object for verification
             TestRun existingTestRun = null;

@@ -102,7 +102,7 @@ namespace LodeRunner.API.Models
             {
                 HealthStatus.Healthy => "pass",
                 HealthStatus.Degraded => "warn",
-                _ => "fail"
+                _ => "fail",
             };
         }
     }

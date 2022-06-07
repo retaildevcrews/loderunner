@@ -18,7 +18,7 @@ namespace LodeRunner.API
     public sealed class LRAPICommandLine
     {
         // capture parse errors from env vars
-        private static readonly List<string> EnvVarErrors = new ();
+        private static readonly List<string> EnvVarErrors = new();
 
         /// <summary>
         /// Build the RootCommand for parsing.
@@ -26,7 +26,7 @@ namespace LodeRunner.API
         /// <returns>RootCommand.</returns>
         public static RootCommand BuildRootCommand()
         {
-            RootCommand root = new ()
+            RootCommand root = new()
             {
                 Name = "LodeRunner.API",
                 Description = "LodeRunner.API Validation App",
@@ -65,7 +65,7 @@ namespace LodeRunner.API
 
             T value = GetOptionValue(key, env, defaultValue);
 
-            Option<T> opt = new (names, () => value, description);
+            Option<T> opt = new(names, () => value, description);
 
             AddIntOptionValidators(opt, minValue, maxValue);
 

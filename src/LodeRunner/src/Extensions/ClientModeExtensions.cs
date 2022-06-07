@@ -25,7 +25,7 @@ namespace LodeRunner.Services.Extensions
         /// <returns>LodeRunnerService.</returns>
         public static async Task<int> CreateAndStartLodeRunnerCommandMode(string[] args, string clientStatusId, string loadClientId, string testRunId, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger)
         {
-            LodeRunner.Config lrConfig = new ();
+            LodeRunner.Config lrConfig = new();
             RootCommand rootClient = LRCommandLine.GetRootCommand(args);
 
             if (string.IsNullOrEmpty(clientStatusId))

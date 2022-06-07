@@ -21,7 +21,7 @@ namespace LodeRunner.Core.NgsaLogger
         /// <returns>Logging <paramref name="builder"/>.</returns>
         public static ILoggingBuilder AddNgsaLogger(this ILoggingBuilder builder, Action<NgsaLoggerConfiguration> configure, ILogValues logValues)
         {
-            NgsaLoggerConfiguration loggerConfig = new ();
+            NgsaLoggerConfiguration loggerConfig = new();
             configure(loggerConfig);
 
             builder.AddProvider(new NgsaLoggerProvider(loggerConfig, logValues));

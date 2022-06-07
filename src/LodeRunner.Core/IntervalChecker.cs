@@ -80,7 +80,7 @@ namespace LodeRunner.Core
         /// <param name="interval">The interval.</param>
         private void InitCheckTimer(int interval)
         {
-            this.intervalCheckTimer = new ()
+            this.intervalCheckTimer = new()
             {
                 Interval = interval * 1000,
             };

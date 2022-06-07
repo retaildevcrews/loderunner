@@ -15,7 +15,7 @@ namespace LodeRunner.Core.Automapper
         where TPayloadSource : BasePayload
         where TDestination : BaseEntityModel
     {
-        private static readonly Mapper OneToOneMapper = new (new MapperConfiguration(cfg => cfg.CreateMap<TPayloadSource, TDestination>()));
+        private static readonly Mapper OneToOneMapper = new(new MapperConfiguration(cfg => cfg.CreateMap<TPayloadSource, TDestination>()));
 
         /// <summary>
         /// Maps the specified source.

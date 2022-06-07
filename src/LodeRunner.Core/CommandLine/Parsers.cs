@@ -89,7 +89,7 @@ namespace LodeRunner.Core.CommandLine
                 return null;
             }
 
-            List<string> val = new ();
+            List<string> val = new();
 
             if (result.Tokens.Count == 0)
             {

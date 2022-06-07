@@ -229,7 +229,7 @@ namespace LodeRunner.API.Middleware
                 request.EnableBuffering();
 
                 string requestBodyString;
-                using (StreamReader reader = new (request.Body, leaveOpen: true))
+                using (StreamReader reader = new(request.Body, leaveOpen: true))
                 {
                     requestBodyString = reader.ReadToEndAsync().Result;
                     request.Body.Position = 0;
@@ -253,7 +253,7 @@ namespace LodeRunner.API.Middleware
                 (this.config.RequestLogLevel == LogLevel.Warning && context.Response.StatusCode >= 400) ||
                 context.Response.StatusCode >= 500))
             {
-                Dictionary<string, object> log = new ()
+                Dictionary<string, object> log = new()
                 {
                     { "Date", dt },
                     { "LogName", "LodeRunner.API.RequestLog" },

@@ -52,7 +52,7 @@ namespace LodeRunner.API
                 }
             }
 
-            ContentResult result = new ()
+            ContentResult result = new()
             {
                 Content = $"{IetfCheck.ToIetfStatus(healthCheckResult.Status)}{innerMessage}",
                 StatusCode = healthCheckResult.Status == HealthStatus.Healthy ? (int)System.Net.HttpStatusCode.OK : (int)System.Net.HttpStatusCode.ServiceUnavailable,
