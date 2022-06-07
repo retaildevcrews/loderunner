@@ -115,7 +115,7 @@ lr-local-emul-api-only:
 	# Create LodeRunner.API image from codebase
 	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
 	# Load new LodeRunner.API image to k3d registry
-	@#docker push k3d-registry.localhost:5000/loderunner-api:local
+	@docker push k3d-registry.localhost:5000/loderunner-api:local
 
 	# Delete previous deployed LodeRunner apps
 	-kubectl delete -f deploy/loderunner/local-cosmos/3-loderunner-api.yaml --ignore-not-found=true
