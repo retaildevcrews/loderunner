@@ -13,10 +13,11 @@ COSMOS_EMULATOR_NAME="${COSMOS_EMULATOR_NAME:-cosmos-linux-emulator}"
 COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 
 # update certs and host files for CosmosDB Emulator
+echo "  start CosmosDB Emulator with nginx" | tee -a ~/status
 ./$(dirname $0)/cosmos-emulator/setup-cosmos-emulator.sh 
 
 export COSMOS_KEY_CMD="docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '\/Key=(\w.*) '|head -n 1 | awk -F' ' '{print \$1}' | awk -F 'Key=' '{print \$2}'"
-echo "Populating CosmosDB with LodeRunner DB and Container"
+echo "  populating CosmosDB with LodeRunner DB and Container" | tee -a ~/status
 # create LodeRunnerDB and LodsdoeRunnerTestDB containers
 python3 $(dirname $0)/cosmos-emulator/cosmos-emulator-init.py -k $(eval $COSMOS_KEY_CMD) -u "https://${COSMOS_EMULATOR_URL}" --emulate
 

@@ -10,7 +10,6 @@ usage() {
                                 `sudo` required. (default: false)
     """
 }
-
 domain_names=localhost
 cert_path=.
 cert_prefix=nginx_cosmos
@@ -20,17 +19,17 @@ while [ $# -gt 0 ]; do
         --install-cert) # Installs certificate to system. Needs sudo
             install_cert=true;;
         -san|--domains) # comma separated domain list
-            domain_names="$value";;
+            domain_names="$value";shift 1;;
         --cert-path) # cert output dir
-            cert_path="$value";;
+            cert_path="$value";shift 1;;
         --cert-prefix) # cert file prefix
-            cert_prefix="$value";;
+            cert_prefix="$value";shift 1;;
         -h|--help)
             usage;exit 0;;
         *)
             usage; exit 1;;
     esac
-    shift 2
+    shift 1
 done
 
 IFS=',' domain_names_tkn=( $domain_names )
