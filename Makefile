@@ -118,7 +118,7 @@ lr-local-emul-api-only:
 	@#docker push k3d-registry.localhost:5000/loderunner-api:local
 
 	# Delete previous deployed LodeRunner apps
-	-kubectl delete -f deploy/loderunner/local-comos/3-loderunner-api.yaml --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner/local-cosmos/3-loderunner-api.yaml --ignore-not-found=true
 
 	-kubectl apply -f deploy/loderunner/local-cosmos/1-namespace.yaml
 	# Create lr-secrets for Cosmos Emulator
