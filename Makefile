@@ -113,7 +113,7 @@ clean :
 
 lr-local-emul-api-only:
 	# Create LodeRunner.API image from codebase
-	@#docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
+	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
 	# Load new LodeRunner.API image to k3d registry
 	@#docker push k3d-registry.localhost:5000/loderunner-api:local
 
