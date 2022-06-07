@@ -7,6 +7,15 @@ if (REACT_APP_SERVER && REACT_APP_SERVER.endsWith("/")) {
   REACT_APP_SERVER = REACT_APP_SERVER.slice(0, -1);
 }
 
+const generatePropagationHeaders = () => {
+  const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  return {
+    [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
+    'x-b3-traceid': genRanHex(32),
+    'x-b3-spanid': genRanHex(16),
+  }
+}
+
 const getResponseBody = async (res) => {
   const contentType = res.headers.get("content-type");
   let body;
@@ -40,10 +49,7 @@ const getResponseBody = async (res) => {
 const getApi = async (endpoint) => {
   try {
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
-      headers: {
-        [CorrelationVector.headerName]:
-          CorrelationVector.createCorrelationVector().value,
-      },
+      headers: generatePropagationHeaders(),
     });
     const body = await getResponseBody(res);
     return body;
@@ -61,8 +67,7 @@ const writeApi = (method, endpoint) => async (payload) => {
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
-        [CorrelationVector.headerName]:
-          CorrelationVector.createCorrelationVector().value,
+        ...generatePropagationHeaders(),
       },
       body: JSON.stringify(payload),
     });
@@ -82,10 +87,7 @@ const deleteApi = (endpoint) => async (id) => {
 
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}/${id}`, {
       method: "DELETE",
-      headers: {
-        [CorrelationVector.headerName]:
-          CorrelationVector.createCorrelationVector().value,
-      },
+      headers: generatePropagationHeaders(),
     });
     const body = await getResponseBody(res);
     return body;
