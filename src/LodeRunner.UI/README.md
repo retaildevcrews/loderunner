@@ -45,7 +45,7 @@ Launch the test runner, jest, in the interactive watch mode: `npm test`
 
 1. Verify dependencies that require fixing
    - `npm audit --production`
-   - Explanation: <https://github.com/facebook/create-react-app/issues/11174>
+   - Explanation [here](https://github.com/facebook/create-react-app/issues/11174)
    - NOTE: Please do not move react-scripts to devDependencies as suggested in the above article. This will break the docker image build.
 2. Automatically fix dependencies: `npm audit fix`
 
@@ -56,7 +56,7 @@ Launch the test runner, jest, in the interactive watch mode: `npm test`
 
 ## Contributing
 
-This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit [Microsoft Contributor License Agreement](https://cla.opensource.microsoft.com)
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 

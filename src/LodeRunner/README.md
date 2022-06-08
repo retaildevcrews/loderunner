@@ -34,7 +34,7 @@ LodeRunner may be run in **Command** mode or **Client** mode.  If no `--mode` ar
 
 ```bash
 
--s https://[Testing Target URL] -f baseline.json benchmark.json --delay-start 5 --run-loop true --duration 180
+-s https://<Testing Target URL> -f baseline.json benchmark.json --delay-start 5 --run-loop true --duration 180
 
 ```
 
