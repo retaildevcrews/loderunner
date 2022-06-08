@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
 using System.Text;
@@ -430,6 +431,14 @@ namespace LodeRunner
 
                 // create correlation vector and add to headers
                 CorrelationVector cv = new(CorrelationVectorVersion.V2);
+
+                // Create b3 traceId and spanId
+                var traceId = ActivityTraceId.CreateRandom().ToString();
+                var spanId = ActivitySpanId.CreateRandom().ToString();
+
+                // Put B3 TraceID and SpanID into request header
+                req.Headers.Add(SystemConstants.XB3TraceIdHeader, traceId);
+                req.Headers.Add(SystemConstants.XB3SpanIdHeader, spanId);
                 req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
 
                 // add the body to the http request
@@ -462,6 +471,8 @@ namespace LodeRunner
                     // add correlation vector to perf log
                     perfLog.CorrelationVector = cv.Value;
                     perfLog.CorrelationVectorBase = cv.GetBase();
+                    perfLog.B3TraceId = traceId;
+                    perfLog.B3SpanId = spanId;
                 }
                 catch (Exception ex)
                 {
@@ -688,6 +699,8 @@ namespace LodeRunner
                     { "ContentLength", perfLog.ContentLength },
                     { "CVector", perfLog.CorrelationVector },
                     { "CVectorBase", perfLog.CorrelationVectorBase },
+                    { "TraceID", perfLog.B3TraceId },
+                    { "SpanID", perfLog.B3SpanId },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
                     { SystemConstants.ClientStatusIdFieldName, perfLog.ClientStatusId },

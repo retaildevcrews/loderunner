@@ -209,5 +209,15 @@ namespace LodeRunner.Core
         /// The application will terminate.
         /// </summary>
         public const string ApplicationWillTerminate = "Application will Terminate.";
+
+        /// <summary>
+        /// B3 trace header name.
+        /// </summary>
+        public const string XB3TraceIdHeader = "X-B3-TraceId";
+
+        /// <summary>
+        /// B3 span header name.
+        /// </summary>
+        public const string XB3SpanIdHeader = "X-B3-SpanId";
     }
 }
