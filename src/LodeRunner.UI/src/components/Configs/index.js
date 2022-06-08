@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { A } from "hookrouter";
+import { A, navigate } from "hookrouter";
 import PlayIcon from "../PlayIcon";
 import PencilIcon from "../PencilIcon";
 import RefreshIcon from "../RefreshIcon";
@@ -104,7 +104,12 @@ const Configs = () => {
             [CONFIG.servers]: servers,
             [CONFIG.files]: files,
           }) => (
-            <div role="presentation" key={configId} className="card">
+            <div
+              role="presentation"
+              key={configId}
+              className="card"
+              onClick={() => navigate(`/configs/${configId}`)}
+            >
               <div>
                 <div>
                   <span className="card-key">Name:</span> {name || "--"}
