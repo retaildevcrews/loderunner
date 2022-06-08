@@ -1,18 +1,14 @@
 import React, { useContext } from "react";
-import PencilIcon from "../PencilIcon";
 import { ClientsContext, TestPageContext } from "../../contexts";
 import { CLIENT, CLIENT_STATUS_TYPES } from "../../models";
-import { MAIN_CONTENT, MODAL_CONTENT } from "../../utilities/constants";
+import { MAIN_CONTENT } from "../../utilities/constants";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import "./styles.css";
 
 const ClientDetails = () => {
-  const { setMainContent, setModalContent } = useContext(TestPageContext);
+  const { setMainContent } = useContext(TestPageContext);
   const { clients, setOpenedClientDetailsId, openedClientDetailsId } =
     useContext(ClientsContext);
-
-  const openPendingFeatureModal = () =>
-    setModalContent(MODAL_CONTENT.pendingFeature);
 
   const closeClientDetails = () => {
     setMainContent(MAIN_CONTENT.configs);
@@ -45,19 +41,6 @@ const ClientDetails = () => {
           <h1>
             <span className="clientdetails-key">Name:&nbsp;</span>
             {name || "--"}
-            <button
-              className="unset"
-              type="button"
-              onClick={openPendingFeatureModal}
-              onKeyDown={openPendingFeatureModal}
-              aria-label="Edit Load Client Name"
-            >
-              <PencilIcon
-                fillColor="var(--c-primary-dark)"
-                hoverColor="var(--c-primary)"
-                width="1em"
-              />
-            </button>
           </h1>
           <div>
             <span className="clientdetails-key">Updated: </span>
