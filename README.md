@@ -32,21 +32,22 @@
 4. Set environmental variables with CosmosDB values for K8S generic secret
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
    - Set CosmosDB Collection: `export LR_COL=LodeRunner`
-   - Set CosmosDB using **CosmosDB Emulator** running locally:
-      - Set CosmosDB URL: `export LR_URL=https://${COSMOS_EMULATOR_NAME}.documents.azure.com`
-      - Set CosmosDB Key:
+   - Setup either **shared dev DB** or **CosmosDB Emulator**
+     - Set CosmosDB using **shared dev DB**:
+        - Set CosmosDB URL: `export LR_URL=https://ngsa-asb-dev-cosmos.documents.azure.com:443/`
+        - Add Your IP Address To CosmosDB Firewall Allow List: [LodeRunner.Data](./src/LodeRunner.Data/README.md#solution)
+        - Set Command to Get CosmosDB Key with Read-Write permissions
+        - Log Into Azure: `az login --use-device-code`
+        - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
+        - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv)`
+     - Or Set CosmosDB using **CosmosDB Emulator** running locally:
+        - Set CosmosDB URL: `export LR_URL=https://${COSMOS_EMULATOR_NAME}.documents.azure.com`
+        - Set CosmosDB Key:
 
-        ```bash
-        export LR_KEY=$(docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '/Key=(\w.*) '|head -n 1 | awk -F' ' '{print $1}' | awk -F 'Key=' '{print $2}')
-        ```
+          ```bash
+          export LR_KEY=$(docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '/Key=(\w.*) '|head -n 1 | awk -F' ' '{print $1}' | awk -F 'Key=' '{print $2}')
+          ```
 
-   - Set CosmosDB using **shared dev DB**:
-      - Set CosmosDB URL: `export LR_URL=https://ngsa-asb-dev-cosmos.documents.azure.com:443/`
-      - Add Your IP Address To CosmosDB Firewall Allow List: [LodeRunner.Data](./src/LodeRunner.Data/README.md#solution)
-      - Set Command to Get CosmosDB Key with Read-Write permissions
-      - Log Into Azure: `az login --use-device-code`
-      - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
-      - Set Command: `export LR_KEY=$(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv)`
 5. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
 6. Start the k3d cluster `make create`
 7. Deploy pods

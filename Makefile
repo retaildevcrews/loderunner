@@ -125,10 +125,22 @@ lr-local-emul-api-only:
 	-kubectl delete secret lr-secrets cosmos-emul-secrets -n loderunner --ignore-not-found=true
 	@kubectl create secret generic lr-secrets -n loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${shell docker top ${COSMOS_EMULATOR_NAME} | grep  -oP '/Key=(\w.*) '| head -n 1 | awk -F' ' '{print $$1}' | awk -F 'Key=' '{print $$2}'} --from-literal=CosmosUrl=https://host.k3d.internal
 
+	# Check if cosmos emulator cert is available
+	@test $(cat ${NGINX_CONFIG_PATH}/emulatorcert.crt | grep 'CERTIFICATE') || curl -k "https://${COSMOS_EMULATOR_NAME}.documents.azure.com/_explorer/emulator.pem" >| "${NGINX_CONFIG_PATH}/emulatorcert.crt"
+
 	# Create NGINX secrets for Cosmos Emulator
 	@kubectl create secret generic cosmos-emul-secrets --namespace=loderunner --from-file=nginx_cosmos_cert=${NGINX_CONFIG_PATH}/cosmos-linux-emulator.crt --from-file=cosmos_emul_cert=${NGINX_CONFIG_PATH}/emulatorcert.crt
 	# Deploy loderunner API with Cosmos Emulator Secrets
 	-kubectl apply -f deploy/loderunner/local-cosmos/3-loderunner-api.yaml
+
+	# wait for pod to be ready
+	@sleep 5
+	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
+
+	# display the current LodeRunner.API version
+	-http localhost:32088/version
+	# check api/clients and make sure Cosmos Emulator can be accessed
+	-http localhost:32088/api/clients
 
 lr-local-emul:
 	# Create LodeRunner image from codebase
