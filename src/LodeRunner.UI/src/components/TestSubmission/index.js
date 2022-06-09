@@ -223,7 +223,7 @@ const TestSubmission = () => {
         <div>
           <span
             className="testsubmission-config-label"
-            title="Run test in an infinite loop"
+            title="Run test in a loop"
           >
             Run Loop:&nbsp;
           </span>
