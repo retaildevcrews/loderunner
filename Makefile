@@ -95,6 +95,7 @@ clean :
 	# delete the deployment
 	@# continue on error
 	-kubectl delete -f deploy/loderunner/local --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner/local-local --ignore-not-found=true
 	-kubectl delete -f deploy/loderunner --ignore-not-found=true
 	-kubectl delete secret lr-secrets --namespace loderunner --ignore-not-found=true
 	-kubectl delete -f deploy/ngsa --ignore-not-found=true
@@ -109,6 +110,75 @@ clean :
 
 	# show running pods
 	@kubectl get po -A
+
+lr-local-emul-api-only:
+	# Create LodeRunner.API image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
+	# Load new LodeRunner.API image to k3d registry
+	@docker push k3d-registry.localhost:5000/loderunner-api:local
+
+	# Delete previous deployed LodeRunner apps
+	-kubectl delete -f deploy/loderunner/local-cosmos/3-loderunner-api.yaml --ignore-not-found=true
+
+	-kubectl apply -f deploy/loderunner/local-cosmos/1-namespace.yaml
+	# Create lr-secrets for Cosmos Emulator
+	-kubectl delete secret lr-secrets cosmos-emul-secrets -n loderunner --ignore-not-found=true
+	@kubectl create secret generic lr-secrets -n loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${shell docker top ${COSMOS_EMULATOR_NAME} | grep  -oP '/Key=(\w.*) '| head -n 1 | awk -F' ' '{print $$1}' | awk -F 'Key=' '{print $$2}'} --from-literal=CosmosUrl=https://host.k3d.internal
+
+	# Check if cosmos emulator cert is available
+	@test $(cat ${NGINX_CONFIG_PATH}/emulatorcert.crt | grep 'CERTIFICATE') || curl -k "https://${COSMOS_EMULATOR_NAME}.documents.azure.com/_explorer/emulator.pem" >| "${NGINX_CONFIG_PATH}/emulatorcert.crt"
+
+	# Create NGINX secrets for Cosmos Emulator
+	@kubectl create secret generic cosmos-emul-secrets --namespace=loderunner --from-file=nginx_cosmos_cert=${NGINX_CONFIG_PATH}/cosmos-linux-emulator.crt --from-file=cosmos_emul_cert=${NGINX_CONFIG_PATH}/emulatorcert.crt
+	# Deploy loderunner API with Cosmos Emulator Secrets
+	-kubectl apply -f deploy/loderunner/local-cosmos/3-loderunner-api.yaml
+
+	# wait for pod to be ready
+	@sleep 5
+	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
+
+	# display the current LodeRunner.API version
+	-http localhost:32088/version
+	# check api/clients and make sure Cosmos Emulator can be accessed
+	-http localhost:32088/api/clients
+
+lr-local-emul:
+	# Create LodeRunner image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/ngsa-lr:local -f ./src/LodeRunner/Dockerfile
+	# Load new LodeRunner image to k3d registry
+	@docker push k3d-registry.localhost:5000/ngsa-lr:local
+
+	# Create LodeRunner.API image from codebase
+	@docker build ./src -t k3d-registry.localhost:5000/loderunner-api:local -f ./src/LodeRunner.API/Dockerfile
+	# Load new LodeRunner.API image to k3d registry
+	@docker push k3d-registry.localhost:5000/loderunner-api:local
+
+	# Create LodeRunner.UI image from codebase
+	@docker build ./src/LodeRunner.UI -t k3d-registry.localhost:5000/loderunner-ui:local
+	# Load new client image to k3d registry
+	@docker push k3d-registry.localhost:5000/loderunner-ui:local
+
+	# Delete previous deployed LodeRunner apps
+	-kubectl delete -f deploy/loderunner --ignore-not-found=true
+	-kubectl delete -f deploy/loderunner/local-cosmos --ignore-not-found=true
+
+	# deploy local LodeRunner, LodeRunner.API, and LodeRunner.UI
+	-kubectl apply -f deploy/loderunner/local-cosmos/1-namespace.yaml
+	# Create LodeRunner and NGNX for Cosmos Emulator
+	@kubectl create secret generic lr-secrets --namespace=loderunner --from-literal=CosmosCollection=${LR_COL} --from-literal=CosmosDatabase=${LR_DB} --from-literal=CosmosKey=${shell docker top ${COSMOS_EMULATOR_NAME} | grep  -oP '/Key=(\w.*) '| head -n 1 | awk -F' ' '{print $$1}' | awk -F 'Key=' '{print $$2}'} --from-literal=CosmosUrl=https://host.k3d.internal
+	@kubectl create secret generic cosmos-emul-secrets --namespace=loderunner --from-file=nginx_cosmos_cert=${NGINX_CONFIG_PATH}/cosmos-linux-emulator.crt --from-file=cosmos_emul_cert=${NGINX_CONFIG_PATH}/emulatorcert.crt
+	-kubectl apply -f deploy/loderunner/local-cosmos
+
+	# wait for pod to be ready
+	@sleep 5
+	@kubectl wait pod -n loderunner --all --for condition=ready --timeout=60s
+
+	@kubectl get po -n loderunner
+
+	# display the current LodeRunner.API version
+	-http localhost:32088/version
+	# hit the LodeRunner.UI endpoint
+	-http -h localhost:32080
 
 lr-local:
 	# Create LodeRunner image from codebase

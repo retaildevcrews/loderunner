@@ -131,8 +131,7 @@ namespace LodeRunner.Core
                 throw new Exception($"CosmosUrl cannot be empty");
             }
 
-            if (!sec.CosmosServer.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
-                !sec.CosmosServer.Contains(".documents.azure.com", StringComparison.OrdinalIgnoreCase))
+            if (!sec.CosmosServer.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 throw new Exception($"Invalid value for CosmosUrl: {sec.CosmosServer}");
             }
