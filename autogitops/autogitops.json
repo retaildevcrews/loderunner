@@ -11,7 +11,7 @@
     "lrClientName": "loderunner-clientmode",
     "lrImage": "ghcr.io/retaildevcrews/ngsa-lr:beta",
     "lrApiName": "loderunner-api",
-    "lrApiImage": "ghcr.io/retaildevcrews/lr-api:beta",
+    "lrApiImage": "ghcr.io/retaildevcrews/lr-api:temp",
     "lrUiName": "loderunner-ui",
     "lrUiImage": "ghcr.io/retaildevcrews/lr-ui:beta"
 }
