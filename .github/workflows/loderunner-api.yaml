@@ -80,7 +80,7 @@ jobs:
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
 
     - name: LodeRunner.API Integration Testing
-      if: ${{ inputs.run_and_test }}
+      if: false
       run: |
         cd src/LodeRunner.API.Test
         dotnet test --filter "Category=Integration"
