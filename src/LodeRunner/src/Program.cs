@@ -22,8 +22,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
 
 namespace LodeRunner
 {
@@ -142,7 +140,6 @@ namespace LodeRunner
                 .AddSingleton<CancellationTokenSource>(CancelTokenSource)
                 .AddSingleton<LodeRunnerService>()
                 .AddSingleton<ILodeRunnerService>(provider => provider.GetRequiredService<LodeRunnerService>());
-            Sdk.SetDefaultTextMapPropagator(new B3Propagator());
         }
 
         /// <summary>
