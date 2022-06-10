@@ -6,6 +6,8 @@ COSMOS_EMULATOR_DATA_PATH="${COSMOS_EMULATOR_DATA_PATH:-/workspaces/cosmos-emula
 COSMOS_EMULATOR_URL="${COSMOS_EMULATOR_NAME}.documents.azure.com"
 NGINX_CONFIG_PATH="${NGINX_CONFIG_PATH:-/workspaces/cosmos-emulator/nginx}"
 
+echo_tee() { echo -e "$@" | tee -a ~/status; }
+
 cwd="$( dirname -- "${BASH_SOURCE[0]:-$0}" )"
 mkdir -p ${COSMOS_EMULATOR_DATA_PATH}
 mkdir -p ${NGINX_CONFIG_PATH}
@@ -14,9 +16,11 @@ ipaddr="`ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}' | head 
 echo "Emulator data path: ${COSMOS_EMULATOR_DATA_PATH}"
 
 # Build Cosmos Nginx emulator
+echo_tee "  Building Cosmos Emulator Docker"
 docker build -t nginx-cosmos-emulator "${cwd}" -f "${cwd}"/Dockerfile
 
 # Generate Cert for three urls including internal k3d network
+echo_tee "  Generating nginx certificate for emulator"
 "${cwd}/gen-multi-domain-cert.bash" \
     -san "${COSMOS_EMULATOR_URL},host.k3d.internal,localhost" \
     --cert-path "${NGINX_CONFIG_PATH}" --cert-prefix "${COSMOS_EMULATOR_NAME}" --install-cert
@@ -24,10 +28,12 @@ docker build -t nginx-cosmos-emulator "${cwd}" -f "${cwd}"/Dockerfile
 # cp "${NGINX_CONFIG_PATH}/nginx_cosmos.crt" "${NGINX_CONFIG_PATH}/nginx_cosmos.pem"
 
 # add <cosmos-emulator>.documents.azure.com as a host DNS
+echo_tee "  Adding <cosmos-emulator>.documents.azure.com to /etc/hosts"
 cat /etc/hosts | grep "documents.azure.com" || echo "127.0.0.1  ${COSMOS_EMULATOR_NAME}.documents.azure.com" | sudo tee -a /etc/hosts
 
 # see https://docs.microsoft.com/en-us/azure/cosmos-db/linux-emulator?tabs=ssl-netstd21#run-on-linux
 # it will take a minute to finish
+echo_tee "  Running Cosmos Emulator in detached mode"
 docker run -itd --restart=always -m 3g --cpus=2.0 \
   -v "${COSMOS_EMULATOR_DATA_PATH}":/tmp/cosmos/appdata \
   --name="${COSMOS_EMULATOR_NAME}" -e AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10 \
