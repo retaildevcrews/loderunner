@@ -130,7 +130,7 @@ namespace LodeRunner.API
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint($"{config.UrlPrefix}{SwaggerPath}", SwaggerTitle);
-                options.RoutePrefix = config.UrlPrefix.Trim('/');
+                options.RoutePrefix = string.Empty;
             })
             .UseEndpoints(ep =>
                 {
