@@ -99,6 +99,7 @@ const ResultsOverviewPage = () => {
           return (
             <div
               key={testId}
+              role="presentation"
               className="unset card"
               onClick={() => navigate(`/results/${testId}`)}
             >
