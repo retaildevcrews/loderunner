@@ -57,7 +57,7 @@ More details on [Unit Testing](https://github.com/microsoft/code-with-engineerin
 
 ## Design Reviews
 
-- [ ] Process for conducting design reviews is included in the [Working Agreement](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/working-agreements.md)
+- [ ] Process for conducting design reviews is included in the [Working Agreement](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/advanced-topics/team-agreements/working-agreements.md)
 - [ ] Design reviews for each major component of the solution are carried out and documented, including alternatives.
 - [ ] Stories and/or PRs link to the design document.
 - [ ] Each user story includes a task for design review by default, which is assigned or removed during sprint planning.
@@ -81,7 +81,7 @@ More details on [Code Reviews](https://github.com/microsoft/code-with-engineerin
 - [ ] Experiments have owners and are added to project backlog.
 - [ ] Longer retrospective for Milestones and project completion.
 
-More details on [Retrospectives](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/retrospectives.md)
+More details on [Retrospectives](https://scrumguides.org/scrum-guide.html#sprint-retrospective)
 
 ## Engineering Feedback
 
