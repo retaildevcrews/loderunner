@@ -261,7 +261,7 @@ const ResultPage = ({ testRunId }) => {
                 <span className="result-item-label">Max Errors:</span>&nbsp;
                 {test[TEST_RUN.config][CONFIG.maxErrors]}
               </div>
-              <div title="Run test in an infinite loop">
+              <div title="Run test in a loop">
                 <span className="result-item-label">Run Loop:</span>&nbsp;
                 {test[TEST_RUN.config][CONFIG.runLoop] === undefined
                   ? "--"

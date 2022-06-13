@@ -183,7 +183,7 @@ const ConfigForm = ({
       <div className="configform-runloop">
         <BooleanInput
           label="Run Loop"
-          description="Run test in an infinite loop"
+          description="Run load test in a loop"
           elRef={runLoopFlag}
           inputName="runLoopFlag"
           onChange={onRunLoopFlagChange}
@@ -193,7 +193,7 @@ const ConfigForm = ({
             <div className="configform-runloop-dependent">
               <IntegerInput
                 label="Duration"
-                description="Test duration"
+                description="Run load test in a loop for this duration (set to 0 to run in an infinite loop)"
                 elRef={durationFlag}
                 inputName="durationFlag"
                 units="second(s)"
