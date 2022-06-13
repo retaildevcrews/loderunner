@@ -25,6 +25,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 
+using LRCoreSystemConstants = LodeRunner.Core.SystemConstants;
+
 namespace LodeRunner.API
 {
     /// <summary>
@@ -117,8 +119,8 @@ namespace LodeRunner.API
 
             app.Use(async (context, next) =>
             {
-                context.Response.Headers.Add("X-B3-TraceId", Activity.Current.Context.TraceId.ToString());
-                context.Response.Headers.Add("X-B3-SpanId", Activity.Current.Context.SpanId.ToString());
+                context.Response.Headers.Add(LRCoreSystemConstants.XB3TraceIdHeader, Activity.Current.Context.TraceId.ToString());
+                context.Response.Headers.Add(LRCoreSystemConstants.XB3SpanIdHeader, Activity.Current.Context.SpanId.ToString());
 
                 // call next middleware handler
                 await next().ConfigureAwait(false);

@@ -61,6 +61,16 @@ namespace LodeRunner.Model
         public string CorrelationVectorBase { get; set; }
 
         /// <summary>
+        /// Gets or sets the B3 TraceId for distributed tracing.
+        /// </summary>
+        public string B3TraceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the B3 SpanId  for distributed tracing.
+        /// </summary>
+        public string B3SpanId { get; set; }
+
+        /// <summary>
         /// Gets the error count.
         /// </summary>
         public int ErrorCount => this.Errors == null ? 0 : this.Errors.Count;
