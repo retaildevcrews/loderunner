@@ -5,6 +5,9 @@
 		},
 		{
 			"pattern": "https://github.com/retaildevcrews/wcnp"
+		},
+		{
+			"pattern": "https://www.microsoft.com/en-us/"
 		}
 	]
 }

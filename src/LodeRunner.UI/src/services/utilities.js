@@ -8,13 +8,17 @@ if (REACT_APP_SERVER && REACT_APP_SERVER.endsWith("/")) {
 }
 
 const generatePropagationHeaders = () => {
-  const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  const genRanHex = (size) =>
+    [...Array(size)]
+      .map(() => Math.floor(Math.random() * 16).toString(16))
+      .join("");
   return {
-    [CorrelationVector.headerName]: CorrelationVector.createCorrelationVector().value,
-    'x-b3-traceid': genRanHex(32),
-    'x-b3-spanid': genRanHex(16),
-  }
-}
+    [CorrelationVector.headerName]:
+      CorrelationVector.createCorrelationVector().value,
+    "x-b3-traceid": genRanHex(32),
+    "x-b3-spanid": genRanHex(16),
+  };
+};
 
 const getResponseBody = async (res) => {
   const contentType = res.headers.get("content-type");

@@ -85,6 +85,7 @@ a.navigation:hover {
 .card:hover {
   background-color: var(--c-primary);
   color: var(--c-neutral-lightest);
+  cursor: pointer;
 }
 .card-key {
   color: var(--c-primary-light);

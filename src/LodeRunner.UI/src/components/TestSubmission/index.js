@@ -223,7 +223,7 @@ const TestSubmission = () => {
         <div>
           <span
             className="testsubmission-config-label"
-            title="Run test in an infinite loop"
+            title="Run load test in a loop"
           >
             Run Loop:&nbsp;
           </span>
@@ -237,7 +237,7 @@ const TestSubmission = () => {
             </span>
             {testRunConfig[CONFIG.duration] ??
               CONFIG_OPTIONS[CONFIG.duration].default}{" "}
-            second(s)
+            second(s) { testRunConfig[CONFIG.duration] === 0 ? "(runs in an infinite loop)" : " "}
           </div>
         )}
         {showDependentConfig([CONFIG.randomize]) && (

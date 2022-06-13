@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { A } from "hookrouter";
+import { A, navigate } from "hookrouter";
 import RefreshIcon from "../RefreshIcon";
 import TrashIcon from "../TrashIcon";
 import PencilIcon from "../PencilIcon";
@@ -97,7 +97,12 @@ const ResultsOverviewPage = () => {
           }
 
           return (
-            <div key={testId} className="unset card">
+            <div
+              key={testId}
+              role="presentation"
+              className="unset card"
+              onClick={() => navigate(`/results/${testId}`)}
+            >
               <div className="resultsoverview-item-details">
                 <div>
                   <span className="card-key">Name:</span> {testName}

@@ -13,7 +13,7 @@
 - New changes in smoke test for 48hrs (ongoing)
 - Create task for required artifacts
 
-Engineering Playbook [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/team-agreements/definition-of-done.md)
+Engineering Playbook [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/main/docs/agile-development/advanced-topics/team-agreements/definition-of-done.md)
 
 ## Markdown (md files)
 
