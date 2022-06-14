@@ -7,7 +7,7 @@ const Modal = ({ children, content, setContent }) => {
 
   return (
     <>
-      <div role="presentation" className="modal-wrapper" onClick={closeModal}></div>
+      <div role="presentation" className="modal-wrapper" onClick={closeModal} />
       <div
         role="presentation"
         className={`modal modal-${content.toLowerCase()}`}

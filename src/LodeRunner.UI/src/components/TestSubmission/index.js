@@ -237,7 +237,10 @@ const TestSubmission = () => {
             </span>
             {testRunConfig[CONFIG.duration] ??
               CONFIG_OPTIONS[CONFIG.duration].default}{" "}
-            second(s) { testRunConfig[CONFIG.duration] === 0 ? "(runs in an infinite loop)" : " "}
+            second(s){" "}
+            {testRunConfig[CONFIG.duration] === 0
+              ? "(runs in an infinite loop)"
+              : " "}
           </div>
         )}
         {showDependentConfig([CONFIG.randomize]) && (
