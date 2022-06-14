@@ -2,6 +2,9 @@
   padding: 6px 2em;
   line-height: 1.5em;
 }
+.result-nav:not(:last-child) {
+  margin-right: 1em;
+}
 .result th {
   text-align: left;
 }

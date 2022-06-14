@@ -5,6 +5,14 @@ metadata:
   namespace: {{gitops.namespace}}
   labels:
     app.kubernetes.io/name: {{gitops.lrUiName}}
+  annotations:
+    checkov.io/skip1: CKV_K8S_37=LR UI requires privileged permissions
+    checkov.io/skip2: CKV_K8S_20=LR UI requires privileged permissions
+    checkov.io/skip3: CKV_K8S_40=LR UI requires privileged permissions
+    checkov.io/skip4: CKV_K8S_22=LR UI requires writing to fs
+    checkov.io/skip6: CKV_K8S_28=LR UI needs NET_RAW
+    checkov.io/skip7: CKV_K8S_30=LR UI requires privileged permissions
+    checkov.io/skip8: CKV_K8S_23=LR UI requires privileged permissions
 spec:
   replicas: 1
   selector:
@@ -46,6 +54,10 @@ spec:
             httpGet:
               path: /
               port: 80
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       nodeSelector:
         agentpool: npuser01
         
