@@ -42,6 +42,8 @@ spec:
           volumeMounts:
             - name: secrets
               mountPath: "/app/secrets"
+            - mountPath: /tmp
+              name: tmp
           readinessProbe:
             initialDelaySeconds: 5
             httpGet:
@@ -53,6 +55,18 @@ spec:
             httpGet:
               path: /healthz
               port: 8080
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 10001
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
         - name: secrets
           csi:
@@ -60,6 +74,8 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: lr-secrets
+        - name: tmp
+          emptyDir: {}
       nodeSelector:
         agentpool: npuser01
 
