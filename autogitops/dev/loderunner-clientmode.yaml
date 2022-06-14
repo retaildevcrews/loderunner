@@ -5,6 +5,9 @@ metadata:
   namespace: {{gitops.namespace}}
   labels:
     app.kubernetes.io/name: {{gitops.lrClientName}}
+  annotations:
+    checkov.io/skip1: CKV_K8S_7=LR Client does not have liveness endpoint
+    checkov.io/skip2: CKV_K8S_8=LR Client does not have readiness endpoint
 spec:
   replicas: 1
   selector:
