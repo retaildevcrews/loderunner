@@ -25,6 +25,7 @@ const ResultPage = ({ testRunId }) => {
       .then((r) => setTest(r))
       .catch(() => setTest())
       .finally(() => setIsPending(false));
+    // eslint-disable-next-line
   }, [fetchTestTrigger]);
 
   return (
@@ -51,231 +52,31 @@ const ResultPage = ({ testRunId }) => {
         </A>
       </div>
       {test ? (
-        <div>
+        <>
           <div className="result-section">
-            <div>
-              <div>
-                <span className="result-item-label">Load Test Name:</span>&nbsp;
-                {test[TEST_RUN.name]}
-                <button
-                  type="button"
-                  className="unset"
-                  onClick={() => setModalContent(MODAL_CONTENT.pendingFeature)}
-                >
-                  <PencilIcon width="1.5em" />
-                </button>
-              </div>
-              <div>
-                <span className="result-item-label">Load Test ID:</span>&nbsp;
-                {test[TEST_RUN.id]}
-              </div>
-            </div>
-            <div>
-              <div>
-                <span className="result-item-label">Creation Time:</span>&nbsp;
-                {getMMMDYYYYhmma(test[TEST_RUN.createdTime]) || "--"}
-              </div>
-              <div>
-                <span className="result-item-label">Scheduled Start Time:</span>
-                &nbsp;
-                {getMMMDYYYYhmma(test[TEST_RUN.scheduledStartTime]) || "--"}
-              </div>
-              <div>
-                <span className="result-item-label">
-                  Overall Completion Time:
-                </span>
-                &nbsp;
-                {getMMMDYYYYhmma(test[RESULT.completionTime]) || "--"}
-              </div>
-            </div>
-          </div>
-          <div className="result-section-loadclients">
-            {test[TEST_RUN.clients].map(
-              ({
-                [LOAD_CLIENT.id]: clientId,
-                [LOAD_CLIENT.name]: clientName,
-                [LOAD_CLIENT.region]: clientRegion,
-                [LOAD_CLIENT.zone]: clientZone,
-                [LOAD_CLIENT.prometheus]: clientPrometheus,
-                [LOAD_CLIENT.tag]: clientTag,
-                [LOAD_CLIENT.startTime]: clientStart,
-                [LOAD_CLIENT.version]: clientVersion,
-              }) => (
-                <div key={`${test[TEST_RUN.id]}-${clientId}`}>
-                  <div>
-                    <div>
-                      <span className="result-item-label">
-                        Load Client Name:
-                      </span>
-                      &nbsp;
-                      {clientName || "--"}
-                    </div>
-                    <div>
-                      <span className="result-item-label">Load Client ID:</span>
-                      &nbsp;
-                      {clientId || "--"}
-                    </div>
-                  </div>
-                  <RequestCounts
-                    counts={test[TEST_RUN.results].find(
-                      (counts) =>
-                        counts[RESULT.client][LOAD_CLIENT.id] === clientId
-                    )}
-                  />
-                  <div>
-                    <div>
-                      <span className="result-item-label">Region:</span>&nbsp;
-                      {clientRegion || "--"}
-                    </div>
-                    <div>
-                      <span className="result-item-label">Zone:</span>&nbsp;
-                      {clientZone || "--"}
-                    </div>
-                    <div>
-                      <span className="result-item-label">
-                        Prometheus Enabled:
-                      </span>
-                      &nbsp;
-                      {clientPrometheus === undefined
-                        ? "--"
-                        : clientPrometheus.toString()}
-                    </div>
-                    <div>
-                      <span className="result-item-label">
-                        Log & App Insights Tag:
-                      </span>
-                      &nbsp;
-                      {clientTag || "--"}
-                    </div>
-                  </div>
-                  <div>
-                    <div>
-                      <span className="result-item-label">Deployed:</span>&nbsp;
-                      {getMMMDYYYYhmma(clientStart) || "--"}
-                    </div>
-                    <div>
-                      <span className="result-item-label">
-                        LodeRunner Version:
-                      </span>
-                      &nbsp;
-                      {clientVersion || "--"}
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
+            <TestRun test={test} setModalContent={setModalContent} />
           </div>
           <div className="result-section">
-            <div title="User friendly name for config settings">
-              <div>
-                <span className="result-item-label">Config Name:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.name] || "--"}
-              </div>
-              <div>
-                <span className="result-item-label">Config ID:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.id] || "--"})
-              </div>
-            </div>
-            <div title="Servers to test">
-              <span className="result-item-label">Servers:</span>
-              <ul>
-                {test[TEST_RUN.config][CONFIG.servers].map((s, index) => (
-                  <li
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={`${test[TEST_RUN.config][CONFIG.id]}-server-${index}`}
-                  >
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <div title=" Use strict  rules when parsing json. JSON property names are case sensitive. Exceptions will occur for trailing commas and comments in JSON.">
-                <span className="result-item-label">
-                  Parse with Strict JSON:
-                </span>
-                &nbsp;
-                {test[TEST_RUN.config][CONFIG.strictJson] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.strictJson].toString()}
-              </div>
-              <div title="Base URL for load test files">
-                <span className="result-item-label">Base URL:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.baseUrl] || "--"}
-              </div>
-              <div title="Load test file to test">
-                <span className="result-item-label">Load Test Files:</span>
-                <ul>
-                  {test[TEST_RUN.config][CONFIG.files].map((f, index) => (
-                    <li
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={`${test[TEST_RUN.config][CONFIG.id]}-file-${index}`}
-                    >
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div>
-              <div title="Add a tag to the log">
-                <span className="result-item-label">Tag:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.tag] || "--"}
-              </div>
-              <div title="Validate settings with target clients without running load test">
-                <span className="result-item-label">Dry Run:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.dryRun] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.dryRun].toString()}
-              </div>
-              <div title="Display validation error messages">
-                <span className="result-item-label">Verbose Errors:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.verboseErrors] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.verboseErrors].toString()}
-              </div>
-            </div>
-            <div>
-              <div title="Test duration">
-                <span className="result-item-label">Duration:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.duration] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.duration]}
-                &nbsp;s
-              </div>
-              <div title="Request timeout">
-                <span className="result-item-label">Timeout:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.timeout] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.timeout]}
-                &nbsp;s
-              </div>
-              <div title="Sleep between each request">
-                <span className="result-item-label">Sleep:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.sleep] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.sleep]}
-                &nbsp;ms
-              </div>
-              <div title="Maximum validation errors">
-                <span className="result-item-label">Max Errors:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.maxErrors]}
-              </div>
-              <div title="Run test in a loop">
-                <span className="result-item-label">Run Loop:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.runLoop] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.runLoop].toString()}
-              </div>
-              <div title="Processes load file randomly instead of from top to bottom">
-                <span className="result-item-label">Randomize:</span>&nbsp;
-                {test[TEST_RUN.config][CONFIG.randomize] === undefined
-                  ? "--"
-                  : test[TEST_RUN.config][CONFIG.randomize].toString()}
-              </div>
-            </div>
+            <Config test={test} />
           </div>
-        </div>
+          <div className="result-section">
+            {test[TEST_RUN.clients].map((client) => (
+              <div
+                key={`${test[TEST_RUN.id]}-${client[LOAD_CLIENT.id]}`}
+                className="result-client"
+              >
+                <Client
+                  client={client}
+                  results={test[TEST_RUN.results].find(
+                    (counts) =>
+                      counts[RESULT.client][LOAD_CLIENT.id] ===
+                      client[LOAD_CLIENT.id]
+                  )}
+                />
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <NotFound />
       )}
@@ -289,38 +90,308 @@ ResultPage.propTypes = {
 
 export default ResultPage;
 
-const RequestCounts = ({ counts }) => {
-  const {
-    [RESULT.completionTime]: completionTime,
-    [RESULT.requestCount]: requestCount,
-    [RESULT.successfulRequestCount]: successCount,
-    [RESULT.failedRequestCount]: failedCount,
-  } = counts;
+const TableWrapper = ({ children }) => (
+  <table>
+    <tbody>{children}</tbody>
+  </table>
+);
+
+TableWrapper.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+};
+
+const TestRun = ({ test, setModalContent }) => (
+  <TableWrapper>
+    <tr>
+      <th>Test Run Name:</th>
+      <td className="result-column-spaced">
+        {test[TEST_RUN.name]}
+        <button
+          type="button"
+          className="unset"
+          onClick={() => setModalContent(MODAL_CONTENT.pendingFeature)}
+        >
+          <PencilIcon width="1em" />
+        </button>
+      </td>
+      <th>Creation Time:</th>
+      <td>{getMMMDYYYYhmma(test[TEST_RUN.createdTime]) || "--"}</td>
+    </tr>
+    <tr>
+      <th>Test Run ID:</th>
+      <td className="result-column-spaced">{test[TEST_RUN.id]}</td>
+      <th>Scheduled Start Time:</th>
+      <td>{getMMMDYYYYhmma(test[TEST_RUN.scheduledStartTime]) || "--"}</td>
+    </tr>
+    <tr>
+      <td />
+      <td />
+      <th>Total Completion Time:</th>
+      <td>{getMMMDYYYYhmma(test[TEST_RUN.finalCompletionTime]) || "--"}</td>
+    </tr>
+    {!test[TEST_RUN.finalCompletionTime] &&
+      test[TEST_RUN.config][CONFIG.runLoop] && (
+        <tr>
+          <td />
+          <td />
+          <th>Duration:</th>
+          <td>
+            {test[TEST_RUN.config][CONFIG.duration] === 0
+              ? "Infinite"
+              : `${test[TEST_RUN.config][CONFIG.duration]} s`}
+          </td>
+        </tr>
+      )}
+  </TableWrapper>
+);
+
+TestRun.propTypes = {
+  test: PropTypes.shape({
+    [TEST_RUN.name]: PropTypes.string,
+    [TEST_RUN.config]: PropTypes.shape({
+      [CONFIG.runLoop]: PropTypes.bool,
+      [CONFIG.duration]: PropTypes.number,
+    }),
+    [TEST_RUN.createdTime]: PropTypes.string,
+    [TEST_RUN.scheduledStartTime]: PropTypes.string,
+    [TEST_RUN.finalCompletionTime]: PropTypes.string,
+  }).isRequired,
+  setModalContent: PropTypes.func.isRequired,
+};
+
+const Config = ({ test }) => {
+  let duration = "";
+
+  if (test[TEST_RUN.config][CONFIG.duration] === undefined) {
+    duration = "--";
+  } else if (test[TEST_RUN.config][CONFIG.duration] === 0) {
+    duration = "Infinite";
+  } else {
+    duration = `${test[TEST_RUN.config][CONFIG.duration]} s`;
+  }
 
   return (
-    <div>
-      <div>
-        <span className="result-item-label">Load Test Completion Time:</span>
-        &nbsp;{getMMMDYYYYhmma(completionTime) || "--"}
-      </div>
-      <div>
-        <span className="result-item-label">Total Requests:</span>&nbsp;
-        {requestCount === undefined ? "--" : requestCount}
-      </div>
-      <div>
-        <span className="result-item-label">Successful Requests:</span>&nbsp;
-        {successCount === undefined ? "--" : successCount}
-      </div>
-      <div>
-        <span className="result-item-label">Failed Requests:</span>&nbsp;
-        {failedCount === undefined ? "--" : failedCount}
-      </div>
-    </div>
+    <>
+      <TableWrapper>
+        <tr>
+          <th>Config Name:</th>
+          <td>{test[TEST_RUN.config][CONFIG.name] || "--"}</td>
+        </tr>
+        <tr>
+          <th>Config ID:</th>
+          <td>{test[TEST_RUN.config][CONFIG.id] || "--"}</td>
+        </tr>
+      </TableWrapper>
+      <br />
+      <TableWrapper>
+        <tr>
+          <th className="result-column-spaced">Servers:</th>
+          <th>Load Test Files:</th>
+        </tr>
+        <tr>
+          <td className="result-column-spaced">
+            <ul>
+              {test[TEST_RUN.config][CONFIG.servers].map((s, index) => (
+                <li
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${test[TEST_RUN.config][CONFIG.id]}-server-${index}`}
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              {test[TEST_RUN.config][CONFIG.files].map((f, index) => (
+                <li
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${test[TEST_RUN.config][CONFIG.id]}-file-${index}`}
+                >
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </td>
+        </tr>
+      </TableWrapper>
+      <br />
+      <TableWrapper>
+        <tr>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Run Loop:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.runLoop] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.runLoop].toString()}
+          </td>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Tag:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.tag] || "--"}
+          </td>
+          <td>
+            <span className="result-item-label">Verbose Errors:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.verboseErrors] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.verboseErrors].toString()}
+          </td>
+        </tr>
+        <tr>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Duration:&nbsp;</span>
+            {duration}
+          </td>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Sleep:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.sleep] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.sleep]}
+            &nbsp;ms
+          </td>
+          <td>
+            <span className="result-item-label">
+              Parse with Strict JSON:&nbsp;
+            </span>
+            {test[TEST_RUN.config][CONFIG.strictJson] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.strictJson].toString()}
+          </td>
+        </tr>
+        <tr>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Max Errors: &nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.maxErrors] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.maxErrors]}
+          </td>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Randomize:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.randomize] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.randomize].toString()}
+          </td>
+          <td>
+            <span className="result-item-label">Dry Run:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.dryRun] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.dryRun].toString()}
+          </td>
+        </tr>
+        <tr>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Timeout:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.timeout] === undefined
+              ? "--"
+              : test[TEST_RUN.config][CONFIG.timeout]}
+            &nbsp;s
+          </td>
+          <td className="result-column-spaced">
+            <span className="result-item-label">Base URL:&nbsp;</span>
+            {test[TEST_RUN.config][CONFIG.baseUrl] || "--"}
+          </td>
+        </tr>
+      </TableWrapper>
+    </>
   );
 };
 
-RequestCounts.propTypes = {
-  counts: PropTypes.shape({
+Config.propTypes = {
+  test: PropTypes.shape({
+    [TEST_RUN.config]: PropTypes.shape({
+      [CONFIG.name]: PropTypes.string,
+      [CONFIG.id]: PropTypes.string,
+      [CONFIG.files]: PropTypes.arrayOf(PropTypes.string),
+      [CONFIG.runLoop]: PropTypes.bool,
+      [CONFIG.tag]: PropTypes.string,
+      [CONFIG.verboseErrors]: PropTypes.bool,
+      [CONFIG.duration]: PropTypes.number,
+      [CONFIG.sleep]: PropTypes.number,
+      [CONFIG.strictJson]: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
+};
+
+const Client = ({
+  client: {
+    [LOAD_CLIENT.id]: clientId,
+    [LOAD_CLIENT.name]: clientName,
+    [LOAD_CLIENT.region]: clientRegion,
+    [LOAD_CLIENT.zone]: clientZone,
+    [LOAD_CLIENT.prometheus]: clientPrometheus,
+    [LOAD_CLIENT.tag]: clientTag,
+    [LOAD_CLIENT.startTime]: clientStart,
+    [LOAD_CLIENT.version]: clientVersion,
+  },
+  results,
+}) => (
+  <>
+    <TableWrapper>
+      <tr>
+        <th>Client Name:</th>
+        <td className="result-column-spaced">{clientName || "--"}</td>
+        <th>Completion Time:</th>
+        <td className="result-column-spaced">
+          {getMMMDYYYYhmma(results[RESULT.completionTime]) || "--"}
+        </td>
+        <th>Deployed:</th>
+        <td>{getMMMDYYYYhmma(clientStart) || "--"}</td>
+      </tr>
+      <tr>
+        <th>Client ID:</th>
+        <td className="result-column-spaced">{clientId || "--"}</td>
+        <th>Total Requests:</th>
+        <td className="result-column-spaced">
+          {results[RESULT.requestCount] === undefined
+            ? "--"
+            : results[RESULT.requestCount]}
+        </td>
+        <th>LodeRunner Version:</th>
+        <td>{clientVersion || "--"}</td>
+      </tr>
+      <tr>
+        <th>Region:</th>
+        <td className="result-column-spaced">{clientRegion || "--"}</td>
+        <th>Successful Requests:</th>
+        <td className="result-column-spaced">
+          {results[RESULT.successfulRequestCount] === undefined
+            ? "--"
+            : results[RESULT.successfulRequestCount]}
+        </td>
+        <th>Log & App Insights Tag:</th>
+        <td>{clientTag || "--"}</td>
+      </tr>
+      <tr>
+        <th>Zone:</th>
+        <td className="result-column-spaced">{clientZone || "--"}</td>
+        <th className="result-column-spaced">Failed Requests:</th>
+        <td>
+          {results[RESULT.failedRequestCount] === undefined
+            ? "--"
+            : results[RESULT.failedRequestCount]}
+        </td>
+        <th>Prometheus Enabled:</th>
+        <td>
+          {clientPrometheus === undefined ? "--" : clientPrometheus.toString()}
+        </td>
+      </tr>
+    </TableWrapper>
+  </>
+);
+
+Client.propTypes = {
+  client: {
+    [LOAD_CLIENT.id]: PropTypes.string,
+    [LOAD_CLIENT.name]: PropTypes.string,
+    [LOAD_CLIENT.region]: PropTypes.string,
+    [LOAD_CLIENT.zone]: PropTypes.string,
+    [LOAD_CLIENT.prometheus]: PropTypes.bool,
+    [LOAD_CLIENT.tag]: PropTypes.string,
+    [LOAD_CLIENT.startTime]: PropTypes.string,
+    [LOAD_CLIENT.version]: PropTypes.string,
+  }.isRequired,
+  results: PropTypes.shape({
     [RESULT.completionTime]: PropTypes.string,
     [RESULT.requestCount]: PropTypes.number,
     [RESULT.successfulRequestCount]: PropTypes.number,
@@ -328,6 +399,6 @@ RequestCounts.propTypes = {
   }),
 };
 
-RequestCounts.defaultProps = {
-  counts: {},
+Client.defaultProps = {
+  results: {},
 };

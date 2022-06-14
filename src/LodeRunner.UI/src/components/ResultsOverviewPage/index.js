@@ -6,7 +6,7 @@ import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
 import { getTestRuns, deleteTestRun } from "../../services/testRuns";
 import getMMMDYYYYhmma from "../../utilities/datetime";
-import { RESULT, TEST_RUN } from "../../models";
+import { CONFIG, RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
 
 const ResultsOverviewPage = () => {
@@ -73,6 +73,10 @@ const ResultsOverviewPage = () => {
           [TEST_RUN.scheduledStartTime]: scheduledStartTime,
           [TEST_RUN.finalCompletionTime]: finalCompletionTime,
           [TEST_RUN.results]: clientResults,
+          [TEST_RUN.config]: {
+            [CONFIG.runLoop]: isRunLoop,
+            [CONFIG.duration]: testDuration,
+          },
         }) => {
           let [totalRequest, totalSuccessfulRequest, totalFailedRequest] =
             Array(3).fill("--");
@@ -119,6 +123,12 @@ const ResultsOverviewPage = () => {
                   <span className="card-key">Final Completion Time:</span>&nbsp;
                   {getMMMDYYYYhmma(finalCompletionTime) || "--"}
                 </div>
+                {!finalCompletionTime && isRunLoop && (
+                  <div>
+                    <span className="card-key">Duration:</span>&nbsp;
+                    {testDuration === 0 ? "Infinite" : `${testDuration} s`}
+                  </div>
+                )}
               </div>
               <div className="resultsoverview-item-counts">
                 <div>
