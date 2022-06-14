@@ -62,7 +62,7 @@ const ResultsOverviewPage = () => {
           Test Run Overview
         </h1>
         <A href="/" className="unset navigation">
-          Load Test Submission
+          Create Test Run
         </A>
       </div>
       {results.map(

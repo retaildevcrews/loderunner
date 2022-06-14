@@ -46,9 +46,14 @@ const ResultPage = ({ testRunId }) => {
           </button>
           Load Test
         </h1>
-        <A href="/results" className="unset navigation">
-          Test Run Overview
-        </A>
+        <div>
+          <A href="/results" className="unset navigation result-nav">
+            See All Test Runs
+          </A>
+          <A href="/" className="unset navigation result-nav">
+            Create Test Run
+          </A>
+        </div>
       </div>
       {test ? (
         <div>
