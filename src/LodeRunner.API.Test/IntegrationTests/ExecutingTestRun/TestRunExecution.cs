@@ -157,6 +157,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 Assert.False(string.IsNullOrEmpty(testRunId), "Unable to get TestRunId when Executing TestRun.");
 
                 // Validate that all 3 ids were logged in LodeRunner-Command output.
+                this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.ClientStatusIdFieldName}, {LodeRunner.Core.SystemConstants.LoadClientIdFieldName}  and {LodeRunner.Core.SystemConstants.TestRunIdFieldName} for LodeRunner-Command Log");
                 string lodeRunnerCmdOutputMarker = string.Format(SystemConstants.BaseUriLocalHostPort, portList[0]);
                 clientStatusId = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, 10, 500);
                 Assert.False(string.IsNullOrEmpty(clientStatusId), "Unable to get ClientStatusId from LodeRunner-Command output");
@@ -166,6 +167,28 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 testRunId = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName, 10, 500);
                 Assert.False(string.IsNullOrEmpty(testRunId), "Unable to get TestRunId from LodeRunner-Command output");
+
+                // Validate that TraceId and SpanId were logged in LodeRunner-Command output.
+                this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner-Command Log");
+                var traceId = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, 10, 500);
+                Assert.False(string.IsNullOrEmpty(traceId), "Unable to get B3TraceId from LodeRunner-Command output");
+
+                var spanId = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, 10, 500);
+                Assert.False(string.IsNullOrEmpty(spanId), "Unable to get B3SpanId from LodeRunner-Command output");
+
+                // Validate traceId and SpanId were logged in LodeRunner.API log
+                foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
+                {
+                    this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner API Log for Host {hostId}.");
+
+                    string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
+
+                    traceId = await this.TryParseProcessOutputAndGetValueFromFieldName(apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, 10, 500);
+                    Assert.False(string.IsNullOrEmpty(traceId), "Unable to get B3TraceId from LodeRunner.API output");
+
+                    spanId = await this.TryParseProcessOutputAndGetValueFromFieldName(apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, 10, 500);
+                    Assert.False(string.IsNullOrEmpty(spanId), "Unable to get B3SpanId from LodeRunner.API output");
+                }
 
                 // Validate results
                 int expectedLoadClientCount = 1;

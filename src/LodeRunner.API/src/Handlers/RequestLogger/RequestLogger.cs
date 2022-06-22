@@ -256,7 +256,7 @@ namespace LodeRunner.API.Middleware
                 Dictionary<string, object> log = new()
                 {
                     { "Date", dt },
-                    { "LogName", "LodeRunner.API.RequestLog" },
+                    { "LogName", LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName },
                     { "StatusCode", context.Response.StatusCode },
                     { "TTFB", ttfb },
                     { "Duration", duration },
@@ -268,8 +268,8 @@ namespace LodeRunner.API.Middleware
                     { "UserAgent", context.Request.Headers["User-Agent"].ToString() },
                     { "CVector", cv.Value },
                     { "CVectorBase", cv.GetBase() },
-                    { "TraceID", Activity.Current.Context.TraceId.ToString() },
-                    { "SpanID", Activity.Current.Context.SpanId.ToString() },
+                    { LodeRunner.Core.SystemConstants.B3TraceIdFieldName, Activity.Current.Context.TraceId.ToString() },
+                    { LodeRunner.Core.SystemConstants.B3SpanIdFieldName, Activity.Current.Context.SpanId.ToString() },
                     { "Category", category },
                     { "Mode", mode },
                 };
