@@ -599,6 +599,7 @@ namespace LodeRunner.Services
             catch (Exception ex)
             {
                 ProcessingEventBus.OnTestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, testRun.Id, 0, 0, ex.Message));
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(ExecuteNewTestRunAsync)), ex, SystemConstants.Exception);
             }
         }
     }
