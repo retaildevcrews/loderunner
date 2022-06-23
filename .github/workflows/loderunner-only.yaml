@@ -69,7 +69,7 @@ jobs:
     - name: Docker Run and Test LodeRunner Command mode - In-Memory
       if: ${{ inputs.run_and_test }}
       run: |
-        docker run -d --rm -p 80:8080 --name ngsa ghcr.io/retaildevcrews/ngsa-app:beta --in-memory
+        docker run -d -p 80:8080 --name ngsa ghcr.io/retaildevcrews/ngsa-app:beta --in-memory
 
         echo "Waiting for ngsa-app to start ..."
 
@@ -79,10 +79,17 @@ jobs:
         # wait up to 30 seconds for ngsa-app to start
         while true
         do
-          if curl localhost:80/version ; then
+          if curl -s localhost:80/version ; then
             echo -e "\n ngsa-app is running"
             break
           fi
+
+          # check if container is still running
+          if [ -z "$(docker ps -q -f name=ngsa)" ]; then
+            docker logs ngsa
+            exit 1
+          fi
+
           if [ $wait_time -gt 30 ] ; then
             echo -e "\n timeout waiting for ngsa-app to start"
             exit 1

@@ -51,7 +51,7 @@ jobs:
       if: ${{ inputs.run_and_test }}    
       run: |
 
-        docker run -d --rm --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
+        docker run -d --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
 
         echo "Waiting for LodeRunner API to start ..."
 
@@ -61,10 +61,17 @@ jobs:
         # wait up to 30 seconds for LodeRunner API to start
         while true
         do
-          if curl localhost:8080/version ; then
+          if curl -s localhost:8080/version ; then
             echo -e "\n LodeRunner API is running"
             break
           fi
+
+          # check if container is still running
+          if [ -z "$(docker ps -q -f name=loderunnerAPI)" ]; then
+            docker logs loderunnerAPI
+            exit 1
+          fi
+
           if [ $wait_time -gt 30 ] ; then
             echo -e "\n timeout waiting for LodeRunner API to start"
             exit 1

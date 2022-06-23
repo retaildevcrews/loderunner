@@ -49,7 +49,7 @@ jobs:
       run: |
 
         # LRAPI_DNS here is a dummy variable just to run LRUI
-        docker run --name l8rui -d --rm -p 8080:80 -e LRAPI_DNS="http://localhost:9090" imageui 
+        docker run --name l8rui -d -p 8080:80 -e LRAPI_DNS="http://localhost:9090" imageui 
 
         echo "Waiting for web server to start ..."
     
@@ -58,10 +58,17 @@ jobs:
         # wait up to 30 seconds for web server to start
         while true
         do
-            if curl localhost:8080 ; then
+            if curl -s localhost:8080 ; then
                 echo -e "\n LodeRunner.UI is running"
                 break
             fi
+
+            # check if container is still running
+            if [ -z "$(docker ps -q -f name=l8rui)" ]; then
+              docker logs l8rui
+              exit 1
+            fi
+
             if [ $wait_time -gt 30 ] ; then
               echo -e "\n timeout waiting for LodeRunner-UI to start"
               exit 1
