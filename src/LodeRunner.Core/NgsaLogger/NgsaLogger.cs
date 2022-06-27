@@ -8,9 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using LodeRunner.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
-using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
 namespace LodeRunner.Core.NgsaLogger
 {
@@ -68,7 +66,7 @@ namespace LodeRunner.Core.NgsaLogger
         }
 
         /// <summary>
-        /// Log event and include correlation vector if exists.
+        /// Log event.
         /// </summary>
         /// <typeparam name="TState">State type.</typeparam>
         /// <param name="logLevel">Log level.</param>
@@ -135,22 +133,7 @@ namespace LodeRunner.Core.NgsaLogger
 
                 for (int i = list.Count - 1; i >= 0; i--)
                 {
-                    // get correlation vector from HttpContext.Items
-                    if (c == null && list[i].Value is HttpContext)
-                    {
-                        c = list[i].Value as HttpContext;
-
-                        if (c != null && c.Items != null)
-                        {
-                            CorrelationVector cv = CorrelationVectorExtensions.GetCorrelationVectorFromContext(c);
-
-                            if (cv != null)
-                            {
-                                d.Add("CVector", cv.Value);
-                            }
-                        }
-                    }
-                    else
+                    if (c != null || list[i].Value is not HttpContext)
                     {
                         d.Add(list[i].Key.ToString(), list[i].Value == null ? string.Empty : list[i].Value.ToString());
                     }

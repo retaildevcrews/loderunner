@@ -2,11 +2,11 @@
 
 ## Logs and Metrics
 
-Both the in-memory and the CosmosDB connected versions of the NGSA application and the LodeRunner application achieve observability by emitting logs and exposing a Prometheus endpoint. In both cases the intent and expectation is that all logs will be stored in the same log store and all metrics will be stored in the same metrics store for all clusters and all applications.  This provides a convenient all-up and comparative view of the data being sent.  Additionally, for log entries, it provides a means to inspect that values for a single request flow using the Correlation Vector (CVector).
+Both the in-memory and the CosmosDB connected versions of the NGSA application and the LodeRunner application achieve observability by emitting logs and exposing a Prometheus endpoint. In both cases the intent and expectation is that all logs will be stored in the same log store and all metrics will be stored in the same metrics store for all clusters and all applications.  This provides a convenient all-up and comparative view of the data being sent.  Additionally, for log entries, it provides a means to inspect that values for a single request flow using OpenTelemetry Supported Tracing IDs (B3 Headers).
 
 ### Logs
 
-Logs are emitted via `stdout` with a correlation vector that provides a means to look a single request flow when inspecting log data.  The logs are in a app specific JSON format shown in the following example:
+Logs are emitted via `stdout` with tracing IDs (TraceID, SpanID) that provides a means to look a single request flow when inspecting log data.  The logs are in a app specific JSON format shown in the following example:
 
 ```json
 {
@@ -20,8 +20,8 @@ Logs are emitted via `stdout` with a correlation vector that provides a means to
    "Host": "ngsa-in-memory.ms-ngsa.svc.cluster.local:8080",
    "ClientIP": "11.16.171.149",
    "UserAgent": "l8r/0.3.0",
-   "CVector": "iJxHfTgSfkSDeGFKnWA9tQ.0.0",
-   "CVectorBase": "iJxHfTgSfkSDeGFKnWA9tQ",
+   "TraceID": "4cdb0b5f5f52da6e378a7f375c421ccb",
+   "SpanID": "6fd8bf34de19ba09",
    "Category": "Movies",
    "Subcategory": "Movies",
    "Mode": "Direct",
