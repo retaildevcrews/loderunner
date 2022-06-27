@@ -219,5 +219,20 @@ namespace LodeRunner.Core
         /// B3 span header name.
         /// </summary>
         public const string XB3SpanIdHeader = "X-B3-SpanId";
+
+        /// <summary>
+        /// B3 traceId log field name.
+        /// </summary>
+        public const string B3TraceIdFieldName = "TraceID";
+
+        /// <summary>
+        /// B3 spanId log field name.
+        /// </summary>
+        public const string B3SpanIdFieldName = "SpanID";
+
+        /// <summary>
+        /// The LodeRunner API request log name.
+        /// </summary>
+        public const string LodeRunnerAPIRequestLogName = "LodeRunner.API.RequestLog";
     }
 }
