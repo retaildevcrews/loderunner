@@ -25,13 +25,13 @@ jobs:
         content-filepath: ./.github/ISSUE_TEMPLATE/found-dead-links.md
         labels: Documentation, Bug
 
-    - name: Create Project Card
-      if: ${{ failure() }}
-      uses: peter-evans/create-or-update-project-card@v1
-      with:
-        token: ${{ secrets.BOT_PAT }}
-        project-location: retaildevcrews
-        project-name: WCNP Sprint Board
-        project-number: '12'
-        column-name: 'Triage'
-        issue-number: ${{ steps.ciff.outputs.issue-number }}
+    # - name: Create Project Card
+    #   if: ${{ failure() }}
+    #   uses: peter-evans/create-or-update-project-card@v1
+    #   with:
+    #     token: ${{ secrets.BOT_PAT }}
+    #     project-location: retaildevcrews
+    #     project-name: WCNP Sprint Board
+    #     project-number: '12'
+    #     column-name: 'Triage'
+    #     issue-number: ${{ steps.ciff.outputs.issue-number }}
