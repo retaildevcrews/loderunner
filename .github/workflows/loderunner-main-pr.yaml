@@ -98,8 +98,8 @@ jobs:
       tag_and_push: false
       run_and_test: true    
     secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-api:
     needs: evaluate-changes
@@ -110,8 +110,8 @@ jobs:
       tag_and_push: false
       run_and_test: true    
     secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-ui:
     needs: evaluate-changes
