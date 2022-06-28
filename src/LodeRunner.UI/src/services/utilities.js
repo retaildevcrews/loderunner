@@ -1,5 +1,3 @@
-import { CorrelationVector } from "mscv";
-
 const STATUS_CODE_NO_CONTENT = 204;
 
 let { REACT_APP_SERVER } = process.env;
@@ -13,8 +11,6 @@ const generatePropagationHeaders = () => {
       .map(() => Math.floor(Math.random() * 16).toString(16))
       .join("");
   return {
-    [CorrelationVector.headerName]:
-      CorrelationVector.createCorrelationVector().value,
     "x-b3-traceid": genRanHex(32),
     "x-b3-spanid": genRanHex(16),
   };

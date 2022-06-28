@@ -12,11 +12,9 @@ using System.Web;
 using LodeRunner.API.Middleware.Validation;
 using LodeRunner.Core.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Prometheus;
-using CorrelationVectorExtensions = LodeRunner.Core.Extensions.CorrelationVectorExtensions;
 
 namespace LodeRunner.API.Middleware
 {
@@ -138,7 +136,6 @@ namespace LodeRunner.API.Middleware
             double duration = 0;
             double ttfb = 0;
 
-            CorrelationVector cv = CorrelationVectorExtensions.Extend(context);
 
             // Buffering needs to be enabled to allow payload to be read from request body before next is called.
             var payload = GetRequestPayloadObject(context.Request);
@@ -157,7 +154,7 @@ namespace LodeRunner.API.Middleware
             // compute request duration
             duration = Math.Round(DateTime.Now.Subtract(dtStart).TotalMilliseconds, 2);
 
-            this.LogRequest(context, cv, ttfb, duration, payload);
+            this.LogRequest(context, ttfb, duration, payload);
         }
 
         // convert StatusCode for metrics
@@ -242,7 +239,7 @@ namespace LodeRunner.API.Middleware
         }
 
         // log the request
-        private void LogRequest(HttpContext context, CorrelationVector cv, double ttfb, double duration, object payload)
+        private void LogRequest(HttpContext context, double ttfb, double duration, object payload)
         {
             DateTime dt = DateTime.UtcNow;
 
@@ -266,8 +263,6 @@ namespace LodeRunner.API.Middleware
                     { "ClientIP", GetClientIp(context, out string xff) },
                     { "XFF", xff },
                     { "UserAgent", context.Request.Headers["User-Agent"].ToString() },
-                    { "CVector", cv.Value },
-                    { "CVectorBase", cv.GetBase() },
                     { LodeRunner.Core.SystemConstants.B3TraceIdFieldName, Activity.Current.Context.TraceId.ToString() },
                     { LodeRunner.Core.SystemConstants.B3SpanIdFieldName, Activity.Current.Context.SpanId.ToString() },
                     { "Category", category },

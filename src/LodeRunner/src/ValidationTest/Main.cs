@@ -16,9 +16,7 @@ using LodeRunner.Core.Events;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Model;
 using LodeRunner.Validators;
-using Microsoft.CorrelationVector;
 using Microsoft.Extensions.Logging;
-using Ngsa.Middleware;
 using Prometheus;
 
 namespace LodeRunner
@@ -29,7 +27,7 @@ namespace LodeRunner
     public partial class ValidationTest
     {
         /// <summary>
-        /// Correlation Vector http header name.
+        /// Tracing IDs http header name.
         /// </summary>
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
@@ -429,9 +427,6 @@ namespace LodeRunner
                     }
                 }
 
-                // create correlation vector and add to headers
-                CorrelationVector cv = new(CorrelationVectorVersion.V2);
-
                 // Create b3 traceId and spanId
                 var traceId = ActivityTraceId.CreateRandom().ToString();
                 var spanId = ActivitySpanId.CreateRandom().ToString();
@@ -439,7 +434,6 @@ namespace LodeRunner
                 // Put B3 TraceID and SpanID into request header
                 req.Headers.Add(SystemConstants.XB3TraceIdHeader, traceId);
                 req.Headers.Add(SystemConstants.XB3SpanIdHeader, spanId);
-                req.Headers.Add(CorrelationVector.HeaderName, cv.Value);
 
                 // add the body to the http request
                 if (!string.IsNullOrWhiteSpace(request.Body))
@@ -468,9 +462,7 @@ namespace LodeRunner
                     // check the performance
                     perfLog = this.CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
 
-                    // add correlation vector to perf log
-                    perfLog.CorrelationVector = cv.Value;
-                    perfLog.CorrelationVectorBase = cv.GetBase();
+                    // add tracing IDs to perf log
                     perfLog.B3TraceId = traceId;
                     perfLog.B3SpanId = spanId;
                 }
@@ -697,8 +689,6 @@ namespace LodeRunner
                     { "Errors", perfLog.ErrorCount },
                     { "Duration", Math.Round(perfLog.Duration, 2) },
                     { "ContentLength", perfLog.ContentLength },
-                    { "CVector", perfLog.CorrelationVector },
-                    { "CVectorBase", perfLog.CorrelationVectorBase },
                     { SystemConstants.B3TraceIdFieldName, perfLog.B3TraceId },
                     { SystemConstants.B3SpanIdFieldName, perfLog.B3SpanId },
                     { "Quartile", perfLog.Quartile },

@@ -51,16 +51,6 @@ namespace LodeRunner.Model
         public bool Validated { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the correlation vector for distributed tracing.
-        /// </summary>
-        public string CorrelationVector { get; set; }
-
-        /// <summary>
-        /// Gets or sets the correlation vector base for distributed tracing.
-        /// </summary>
-        public string CorrelationVectorBase { get; set; }
-
-        /// <summary>
         /// Gets or sets the B3 TraceId for distributed tracing.
         /// </summary>
         public string B3TraceId { get; set; }
