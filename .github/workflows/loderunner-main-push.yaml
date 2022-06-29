@@ -78,8 +78,8 @@ jobs:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}
     secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
       ghcr_id: ${{ secrets.GHCR_ID }}
       ghcr_pat: ${{ secrets.GHCR_PAT }}
 
@@ -90,8 +90,8 @@ jobs:
       tag_and_push : true
       run_and_test: ${{ needs.evaluate-changes.outputs.RunAndTestAll == 'true' }}    
     secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_DEV_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_DEV_COSMOS_URL }}
+      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
       ghcr_id: ${{ secrets.GHCR_ID }}
       ghcr_pat: ${{ secrets.GHCR_PAT }}
 

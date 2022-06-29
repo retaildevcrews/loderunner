@@ -46,6 +46,8 @@
     az cosmosdb sql container create -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_TEST_DB -n $LR_COSMOS_COL -p "/partitionKey" -g $LR_RG --subscription $LR_SUBSCRIPTION --ttl -1
 ```
 
+Note: After the Cosmos DB and containers have been set up using the steps above, go to the Cosmos DB account's home page in Azure Portal. Under ***Settings --> Networking***, ensure that ***Accept connections from within public Azure datacenters*** is selected.
+
 ## Delete CosmosDB Manually
 
 ```bash
