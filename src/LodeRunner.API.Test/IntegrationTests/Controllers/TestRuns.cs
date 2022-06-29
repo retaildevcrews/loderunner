@@ -52,9 +52,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can get test runs].
+        /// Determines whether this instance can get test runs from the specified endpoint.
         /// </summary>
-        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        /// <returns><see cref="Task"/> list of test runs; status code OK if test runs are returned, NoContent if no test runs are returned. </returns>
         [Fact]
         [Trait("Category", "Integration")]
         public async Task CanGetTestRuns()

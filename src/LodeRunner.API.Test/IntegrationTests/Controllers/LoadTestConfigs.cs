@@ -53,9 +53,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Controllers
         }
 
         /// <summary>
-        /// Determines whether this instance [can get Load Test Configs].
+        /// Determines whether this instance can get Load Test Configs from the specified endpoint.
         /// </summary>
-        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        /// <returns><see cref="Task"/> list of Load Test Configs; status code OK if Load Test Configs are returned, NoContent if no Load Test Configs are returned. </returns>
         [Fact]
         [Trait("Category", "Integration")]
         public async Task CanGetLoadTestConfigs()
