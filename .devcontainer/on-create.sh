@@ -34,4 +34,8 @@ popd
 # install Azure Cosmos SDK
 pip3 install azure-cosmos
 
+# Setup omnisharp global configuration
+mkdir -p $HOME/.omnisharp
+ln -s /workspaces/loderunner/omnisharp.json $HOME/.omnisharp
+
 echo "on-create complete" >> ~/status
