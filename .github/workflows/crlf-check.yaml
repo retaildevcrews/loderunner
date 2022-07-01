@@ -33,4 +33,5 @@ jobs:
     name: Check files for CRLF
     steps:
     - name: Validate files
-      run: find . -type f -iname '*.cs' -exec file -- {} ';' | grep CRLF
+      run: ./.github/scripts.sh
+      shell: bash 
