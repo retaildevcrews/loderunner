@@ -34,7 +34,9 @@ jobs:
     steps:
     - name: Checkout repository contents
       uses: actions/checkout@v1
-      
+
     - name: Validate files
-      run: ./.github/crlf-check.sh
+      run: |
+        chmod +x "./.github/crlf-check.sh"
+        ./.github/crlf-check.sh
       shell: bash 
