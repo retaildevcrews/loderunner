@@ -2,14 +2,26 @@ name: Check Line Endings (find CRLF)
 
 on: push
 
+# jobs:
+#   example-workflow:
+#     name: Example workflow using the Check CRLF action
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository contents
+#         uses: actions/checkout@v1
+
+#       - name: Use action to check for CRLF endings
+#         uses: erclu/check-crlf@v1
+
 jobs:
-  example-workflow:
-    name: Example workflow using the Check CRLF action
+  check_pull_request_job:
     runs-on: ubuntu-latest
-
+    name: Check files for CRLF
     steps:
-      - name: Checkout repository contents
-        uses: actions/checkout@v1
-
-      - name: Use action to check for CRLF endings
-        uses: erclu/check-crlf@v1
+    - name: Validate files
+      with:
+        repoToken: ${{ secrets.GITHUB_TOKEN }}
+        excludeFiles: '**/**.csproj;**/**.json'
+      id: validate
+      uses: microsoftgraph/eol-blocker@v1.0.8
