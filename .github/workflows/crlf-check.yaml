@@ -33,5 +33,5 @@ jobs:
     name: Check files for CRLF
     steps:
     - name: Validate files
-      run: ./.github/scripts.sh
+      run: ${GITHUB_WORKSPACE}/.github/scripts.sh
       shell: bash 
