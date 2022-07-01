@@ -14,14 +14,23 @@ on: push
 #       - name: Use action to check for CRLF endings
 #         uses: erclu/check-crlf@v1
 
+# jobs:
+#   check_pull_request_job:
+#     runs-on: ubuntu-latest
+#     name: Check files for CRLF
+#     steps:
+#     - name: Validate files
+#       with:
+#         repoToken: ${{ secrets.GITHUB_TOKEN }}
+#         excludeFiles: '**/**.csproj;**/**.json'
+#       id: validate
+#       uses: microsoftgraph/eol-blocker@v1.0.8
+
+
 jobs:
   check_pull_request_job:
     runs-on: ubuntu-latest
     name: Check files for CRLF
     steps:
     - name: Validate files
-      with:
-        repoToken: ${{ secrets.GITHUB_TOKEN }}
-        excludeFiles: '**/**.csproj;**/**.json'
-      id: validate
-      uses: microsoftgraph/eol-blocker@v1.0.8
+      run: find . -type f -iname '*.cs' -exec file -- {} ';' | grep CRLF
