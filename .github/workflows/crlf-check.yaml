@@ -32,6 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Check files for CRLF
     steps:
+    - name: Checkout repository contents
+      uses: actions/checkout@v1
+      
     - name: Validate files
       run: ./.github/crlf-check.sh
       shell: bash 
