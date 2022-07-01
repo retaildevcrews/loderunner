@@ -60,6 +60,15 @@
    - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
    - Hover over `Port Visibility` and select `Public`
 
+## Debug in Codespaces
+
+We added Omnisharp and added Build & Debugger settings.
+To  debug:
+
+- Go to `Run and Debug` tab on the left side of VSCode
+- At the top of that pane, select the prjoect you want to debug from the dropdown
+- Click the play button or press f5
+
 ## Development of a loderunner Component
 
 - [LodeRunner Unning and Debugging LodeRunner via Visual Studio 2019](./src/LodeRunner/README.md#running-and-debugging-loderunner-via-visual-studio-2019)
