@@ -5,7 +5,7 @@ then
     echo "No files found with CRLF line endings"
     exit 0
 else
-    echo "Files with CRLF endings:\n"
+    echo "Files with CRLF endings:"
     echo $files_with_crlf
     exit 1
 fi
