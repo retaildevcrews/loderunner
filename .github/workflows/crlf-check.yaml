@@ -18,7 +18,7 @@ jobs:
         ./.github/crlf-check.sh
 
     - name: Use action to check for CRLF endings
-        uses: erclu/check-crlf@v1
+      uses: erclu/check-crlf@v1
     
     - name: Validate files with MS Graph
       with:
