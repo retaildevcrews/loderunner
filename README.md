@@ -60,19 +60,46 @@
    - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
    - Hover over `Port Visibility` and select `Public`
 
-## Debug in Codespaces
+## Developing in Codespaces
 
-We added Omnisharp and added Build & Debugger settings.
-To  debug:
+For better development environment we have added:
+
+- C\# Extension (OmniSharp) on create
+- Test Explorer UI extension
+- Editorconfig extension for `.editorconfig` support
+- YAML Extension for deployment files
+- Settings for several IDE features (e.g. `using` sort on save)
+- Debuggger profile for LodeRunner.API and LodeRunner in `launch.json`
+
+### Change C\# Project/Solution
+
+Since we have multiple projects and solutions, intellisense will not work
+if a file is not included the selected project. For example, if you open `src/LodeRunner/src/Program.cs`
+file and your selected solution is `LodeRunner.API.sln`, then for obvious reason it won't have intellisense.
+
+Hence, selecting correct project/solution is necessary.
+
+To select a project/solution:
+
+- There should already be a project selected in the `Status Bar` on the bottom of VSCode
+- Clicking on the selected project should present a list of available projects
+
+### To debug
 
 - Go to `Run and Debug` tab on the left side of VSCode
 - At the top of that pane, select the prjoect you want to debug from the dropdown
-- Click the play button or press f5
+- Click the `Run` &#9658; button or press `F5` to start debugging
 
-## Development of a loderunner Component
+### To run unit/integration tests
 
-- [LodeRunner Unning and Debugging LodeRunner via Visual Studio 2019](./src/LodeRunner/README.md#running-and-debugging-loderunner-via-visual-studio-2019)
-- [LodeRunner.API Running the API](./src/LodeRunner.API/README.md#running-the-api)
+- Click on `Testing` tab on the left side of VSCode.
+  - Or on the status bar click on the `# tests` icon to goto the test explorer
+- Click `Run` &#9658; button to start any test
+
+## Development of individual loderunner components
+
+- [Running and debugging LodeRunner via Visual Studio 2019](./src/LodeRunner/README.md#running-and-debugging-loderunner-via-visual-studio-2019)
+- [Running LodeRunner.API](./src/LodeRunner.API/README.md#running-the-api)
 - [LodeRunner.UI Development Experience](./src/LodeRunner.UI/README.md#development-experience)
 
 ## Running an Example Load Test
