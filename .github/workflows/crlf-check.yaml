@@ -16,13 +16,9 @@ jobs:
       run: |
         chmod +x "./.github/crlf-check.sh"
         ./.github/crlf-check.sh
-
-    - name: Use action to check for CRLF endings
-      uses: erclu/check-crlf@v1
     
     - name: Validate files with MS Graph
       with:
         repoToken: ${{ secrets.GITHUB_TOKEN }}
-        excludeFiles: '**/**.csproj;**/**.json'
       id: validate
       uses: microsoftgraph/eol-blocker@v1.0.8
