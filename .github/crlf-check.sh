@@ -6,6 +6,6 @@ then
     exit 0
 else
     echo "Files with CRLF endings:"
-    echo $files_with_crlf
+    echo "$files_with_crlf"
     exit 1
 fi
