@@ -1,0 +1,80 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+            "name": "Debug LodeRunner API",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build LodeRunner API",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/LodeRunner.API/bin/Debug/net6.0/LodeRunner.API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/LodeRunner.API",
+            "stopAtEntry": false,
+            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+            // "serverReadyAction": {
+            //     "action": "openExternally",
+            //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            // },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+            "name": "Debug LodeRunner (Client Mode)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build LodeRunner",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/LodeRunner/bin/Debug/net6.0/LodeRunner.dll",
+            "args": ["--mode", "Client", "--secrets-volume", "secrets"],
+            "cwd": "${workspaceFolder}/src/LodeRunner",
+            "stopAtEntry": false,
+            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+            // "serverReadyAction": {
+            //     "action": "openExternally",
+            //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            // },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+            "name": "Debug LodeRunner (Command Mode)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build LodeRunner",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/LodeRunner/bin/Debug/net6.0/LodeRunner.dll",
+            "args": ["--mode", "Command", "-s", "localhost:8081/", "-f", "baseline.json", "benchmark.json", "--delay-start", "5", "--run-loop", "true", "--duration", "180"],
+            "cwd": "${workspaceFolder}/src/LodeRunner",
+            "stopAtEntry": false,
+            // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+            // "serverReadyAction": {
+            //     "action": "openExternally",
+            //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            // },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        }
+    ]
+}
