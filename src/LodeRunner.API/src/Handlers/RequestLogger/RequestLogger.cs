@@ -136,7 +136,6 @@ namespace LodeRunner.API.Middleware
             double duration = 0;
             double ttfb = 0;
 
-
             // Buffering needs to be enabled to allow payload to be read from request body before next is called.
             var payload = GetRequestPayloadObject(context.Request);
 

@@ -160,101 +160,106 @@ namespace LodeRunner
 
             DateTime startTime = DateTime.UtcNow;
 
-            // loop through each server
-            for (int ndx = 0; ndx < config.Server.Count; ndx++)
+            try
             {
-                // reset error counts
-                if (config.Server.Count > 0)
+                // loop through each server
+                for (int ndx = 0; ndx < config.Server.Count; ndx++)
                 {
-                    if (ndx > 0)
+                    // reset error counts
+                    if (config.Server.Count > 0)
                     {
-                        // Note: We are separating console output.
-                        Console.WriteLine();
-                        errorCount = 0;
-                        validationFailureCount = 0;
+                        if (ndx > 0)
+                        {
+                            // Note: We are separating console output.
+                            Console.WriteLine();
+                            errorCount = 0;
+                            validationFailureCount = 0;
+                        }
                     }
-                }
 
-                using HttpClient client = this.OpenClient(ndx);
+                    using HttpClient client = this.OpenClient(ndx);
 
-                // send each request
-                foreach (Request r in requestList)
-                {
-                    try
+                    // send each request
+                    foreach (Request r in requestList)
                     {
-                        if (token.IsCancellationRequested)
+                        try
                         {
-                            break;
-                        }
-
-                        // stop after MaxErrors errors
-                        if ((errorCount + validationFailureCount) >= config.MaxErrors)
-                        {
-                            break;
-                        }
-
-                        // execute the request
-                        pl = await this.ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
-
-                        requestCount++;
-
-                        if (pl.Failed)
-                        {
-                            errorCount++;
-                        }
-
-                        if (!pl.Failed && !pl.Validated)
-                        {
-                            validationFailureCount++;
-                        }
-
-                        // sleep if configured
-                        if (config.Sleep > 0)
-                        {
-                            duration = config.Sleep - (int)pl.Duration;
-
-                            if (duration > 0)
+                            if (token.IsCancellationRequested)
                             {
-                                await Task.Delay(duration, token).ConfigureAwait(false);
+                                break;
+                            }
+
+                            // stop after MaxErrors errors
+                            if ((errorCount + validationFailureCount) >= config.MaxErrors)
+                            {
+                                break;
+                            }
+
+                            // execute the request
+                            pl = await this.ExecuteRequest(client, config.Server[ndx], r).ConfigureAwait(false);
+
+                            requestCount++;
+
+                            if (pl.Failed)
+                            {
+                                errorCount++;
+                            }
+
+                            if (!pl.Failed && !pl.Validated)
+                            {
+                                validationFailureCount++;
+                            }
+
+                            // sleep if configured
+                            if (config.Sleep > 0)
+                            {
+                                duration = config.Sleep - (int)pl.Duration;
+
+                                if (duration > 0)
+                                {
+                                    await Task.Delay(duration, token).ConfigureAwait(false);
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        // ignore any exception caused by ctl-c or stop signal
-                        if (token.IsCancellationRequested)
+                        catch (Exception ex)
                         {
-                            break;
+                            // ignore any exception caused by ctl-c or stop signal
+                            if (token.IsCancellationRequested)
+                            {
+                                break;
+                            }
+
+                            // log error and keep processing
+                            logger.LogError(new EventId((int)LogLevel.Error, nameof(RunOnce)), ex, SystemConstants.Exception);
+
+                            errorCount++;
                         }
-
-                        // log error and keep processing
-                        logger.LogError(new EventId((int)LogLevel.Error, nameof(RunOnce)), ex, SystemConstants.Exception);
-
-                        errorCount++;
                     }
-                }
 
-                // log validation failure count
-                if (validationFailureCount > 0)
-                {
-                    Console.WriteLine($"Validation Errors: {validationFailureCount}");
-                }
+                    // log validation failure count
+                    if (validationFailureCount > 0)
+                    {
+                        Console.WriteLine($"Validation Errors: {validationFailureCount}");
+                    }
 
-                // log error count
-                if (errorCount > 0)
-                {
-                    Console.WriteLine($"Failed: {errorCount} Errors");
-                }
+                    // log error count
+                    if (errorCount > 0)
+                    {
+                        Console.WriteLine($"Failed: {errorCount} Errors");
+                    }
 
-                // log MaxErrors exceeded
-                if (errorCount + validationFailureCount >= config.MaxErrors)
-                {
-                    Console.Write($"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
+                    // log MaxErrors exceeded
+                    if (errorCount + validationFailureCount >= config.MaxErrors)
+                    {
+                        Console.Write($"Failed: Errors: {errorCount + validationFailureCount} >= MaxErrors: {config.MaxErrors}");
+                    }
                 }
             }
-
-            // fire event
-            TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
+            finally
+            {
+                // fire event
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
+            }
 
             // return non-zero exit code on failure
             return errorCount > 0 || validationFailureCount >= config.MaxErrors ? errorCount + validationFailureCount : 0;
@@ -290,31 +295,31 @@ namespace LodeRunner
 
             List<TimerRequestState> states = new();
 
-            foreach (string svr in config.Server)
-            {
-                // create the shared state
-                TimerRequestState state = new(this.logger, this.config)
-                {
-                    Server = svr,
-                    Client = this.OpenHttpClient(svr),
-                    MaxIndex = requestList.Count,
-                    Test = this,
-                    RequestList = requestList,
-
-                    // current hour
-                    CurrentLogTime = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, DateTime.UtcNow.Hour, 0, 0),
-
-                    Token = token,
-                    Random = config.Random,
-                };
-
-                states.Add(state);
-
-                state.Run(config.Sleep, config.MaxConcurrent);
-            }
-
             try
             {
+                foreach (string svr in config.Server)
+                {
+                    // create the shared state
+                    TimerRequestState state = new(this.logger, this.config)
+                    {
+                        Server = svr,
+                        Client = this.OpenHttpClient(svr),
+                        MaxIndex = requestList.Count,
+                        Test = this,
+                        RequestList = requestList,
+
+                        // current hour
+                        CurrentLogTime = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, DateTime.UtcNow.Hour, 0, 0),
+
+                        Token = token,
+                        Random = config.Random,
+                    };
+
+                    states.Add(state);
+
+                    state.Run(config.Sleep, config.MaxConcurrent);
+                }
+
                 // run the wait loop
                 if (dtMax == DateTime.MaxValue)
                 {
