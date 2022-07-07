@@ -229,33 +229,44 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            // get TestRun document to update
-            var testRun = await GetTestRunService().Get(args.TestRunId);
-
-            LoadResult loadResult = new()
+            try
             {
-                CompletedTime = args.CompletedTime,
-                FailedRequests = args.FailedRequests,
-                SuccessfulRequests = args.SuccessfulRequests,
-                TotalRequests = args.TotalRequests,
-                LoadClient = this.loadClient,
-                StartTime = args.StartTime,
-                ErrorMessage = args.ErrorMessage,
-            };
+                // get TestRun document to update
+                var testRun = await GetTestRunService().Get(args.TestRunId);
 
-            testRun.ClientResults.Add(loadResult);
+                LoadResult loadResult = new()
+                {
+                    CompletedTime = args.CompletedTime,
+                    FailedRequests = args.FailedRequests,
+                    SuccessfulRequests = args.SuccessfulRequests,
+                    TotalRequests = args.TotalRequests,
+                    LoadClient = this.loadClient,
+                    StartTime = args.StartTime,
+                    ErrorMessage = args.ErrorMessage,
+                };
 
-            // update TestRun CompletedTime if last client to report results
-            if (testRun.ClientResults.Count == testRun.LoadClients.Count)
-            {
-                testRun.CompletedTime = args.CompletedTime;
+                testRun.ClientResults.Add(loadResult);
+
+                // update TestRun CompletedTime if last client to report results
+                if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+                {
+                    testRun.CompletedTime = args.CompletedTime;
+                }
+
+                // post updates
+                _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+
+                // remove TestRun from pending list since upload is complete
+                this.pendingTestRuns.Remove(testRun.Id);
             }
-
-            // post updates
-            _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
-
-            // remove TestRun from pending list since upload is complete
-            this.pendingTestRuns.Remove(testRun.Id);
+            catch (CosmosException ce)
+            {
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
+            }
         }
 
         /// <summary>
@@ -468,7 +479,7 @@ namespace LodeRunner.Services
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>());
 
-                // Add other System objects required during Constructor
+            // Add other System objects required during Constructor
 
             // We need to create service provider here since it utilized when Validating Settings
             this.ServiceProvider = serviceBuilder.BuildServiceProvider();
