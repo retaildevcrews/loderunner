@@ -62,7 +62,11 @@
 		"ms-azuretools.vscode-docker",
 		"mutantdino.resourcemonitor",
 		"humao.rest-client",
-		"jebbs.plantuml"
+		"jebbs.plantuml",
+		"ms-dotnettools.csharp", // Adds C# Intellisense
+		"redhat.vscode-yaml", // YAML editing
+		"editorconfig.editorconfig",
+		"formulahendry.dotnet-test-explorer"
 	],
 	// Run Bash script in .devcontainer directory
 	// Use 'onCreateCommand' to run commands on container creation.
