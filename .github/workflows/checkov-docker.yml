@@ -13,7 +13,7 @@ jobs:
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: src/
+          directory: .
           framework: dockerfile
           quiet: true
           output_format: github_failed_only
