@@ -42,3 +42,4 @@ EXPOSE 8080
 USER ngsa
 
 ENTRYPOINT [ "dotnet",  "../LodeRunner.dll" ]
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed

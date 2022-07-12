@@ -40,3 +40,4 @@ USER ngsa
 COPY --from=build /app .
 
 ENTRYPOINT [ "dotnet",  "LodeRunner.API.dll" ]
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed

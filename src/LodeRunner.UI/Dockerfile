@@ -30,3 +30,5 @@ EXPOSE 80
 STOPSIGNAL SIGQUIT
 
 ENTRYPOINT ["/start-nginx.sh"]
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed
+#checkov:skip=CKV_DOCKER_3: No user is needed 

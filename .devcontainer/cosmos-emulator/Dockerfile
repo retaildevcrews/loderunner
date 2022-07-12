@@ -14,3 +14,7 @@ COPY pre-startup.bash /usr/local/bin/cosmos/
 COPY nginx-http-template.conf /config/
 
 ENTRYPOINT [ "./pre-startup.bash" ]
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed 
+#checkov:skip=CKV_DOCKER_3: No user is needed 
+#checkov:skip=CKV_DOCKER_7: Alright to use "latest" tag
+#checkov:skip=CKV_DOCKER_9: APT runs with -y option
