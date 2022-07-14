@@ -92,9 +92,25 @@ To select a project/solution:
 
 ### To run unit/integration tests
 
-- Click on `Testing` tab on the left side of VSCode.
-  - Or on the status bar click on the `# tests` icon to goto the test explorer
-- Click `Run` &#9658; button to start any test
+```bash
+# cd into test directory
+cd src/LodeRunner.API.Test  # or cd src/LodeRunner.Test if you want to run the LodeRunner tests and not LodeRunner.API
+
+# add cosmos key to secrets
+echo $(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv) > secrets/CosmosKey
+
+# copy all secrets to /tmp/secrets
+cp -R secrets /tmp/
+
+# run all tests (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test
+
+# run integration tests only (only in src/LodeRunner.API.Test))
+dotnet test --filter='Category=Integration'
+
+# run unit tests only (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test --filter='Category=Unit'
+```
 
 ## Development of individual loderunner components
 
