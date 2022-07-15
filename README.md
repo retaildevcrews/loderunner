@@ -90,7 +90,23 @@ To select a project/solution:
 - At the top of that pane, select the prjoect you want to debug from the dropdown
 - Click the `Run` &#9658; button or press `F5` to start debugging
 
-### To run unit/integration tests
+### To run unit/integration tests from GUI
+
+- Setup: Add Cosmos Key to secrets and copy to local tmp directory
+
+  ```bash
+    # add cosmos key to secrets
+    echo $(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv) > src/LodeRunner/secrets/CosmosKey
+
+    # copy all secrets to /tmp/secrets
+    cp -R src/LodeRunner/secrets /tmp/
+  ```
+
+- Click on `Testing` tab on the left side of VSCode.
+  - Or on the status bar click on the `# tests` icon to go to the test explorer
+- Click `Run` &#9658; button to start any test
+
+### To run unit/integration tests from  command line
 
 ```bash
 # cd into test directory
