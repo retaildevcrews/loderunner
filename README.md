@@ -90,7 +90,7 @@ To select a project/solution:
 - At the top of that pane, select the prjoect you want to debug from the dropdown
 - Click the `Run` &#9658; button or press `F5` to start debugging
 
-### To run unit/integration tests from GUI
+### To run unit/integration tests from the GUI
 
 - Setup: Add Cosmos Key to secrets and copy to local tmp directory
 
@@ -106,7 +106,7 @@ To select a project/solution:
   - Or on the status bar click on the `# tests` icon to go to the test explorer
 - Click `Run` &#9658; button to start any test
 
-### To run unit/integration tests from  command line
+### To run unit/integration tests from the command line
 
 ```bash
 # cd into test directory
