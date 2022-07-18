@@ -117,6 +117,12 @@ namespace LodeRunner.API
                 // end app on error
                 GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
 
+                // log inner exception
+                if (ex.InnerException != null)
+                {
+                    GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex.InnerException, "InnerException");
+                }
+
                 return -1;
             }
         }
