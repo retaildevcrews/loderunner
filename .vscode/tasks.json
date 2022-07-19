@@ -59,6 +59,20 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run Checkov image",
+            "type": "docker-run",
+            "dockerRun": {
+              "customOptions": "--tty",
+              "image": "bridgecrew/checkov",
+              "command": "-d /loderunner --framework 'yaml' 'kubernetes' 'dockerfile' | grep 'Failed checks:' 1>&2 && exit 1",
+              "volumes": [{
+                "localPath": "${workspaceFolder}/loderunner",
+                "containerPath": "/loderunner"
+              }],
+              "remove": true
+            }
         }
     ]
 }
