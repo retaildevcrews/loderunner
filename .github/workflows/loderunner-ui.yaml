@@ -43,6 +43,21 @@ jobs:
     - name: Docker Build LodeRunner.UI
       run: |
         docker build ./src/LodeRunner.UI --target nginx-prod -t imageui
+    
+    - name: Grype Scan LodeRunner.UI for Vulnerabilities
+      uses: anchore/scan-action@v3
+      id: grype
+      with:
+        image: "imageui"
+        severity-cutoff: critical
+        acs-report-enable: true
+        fail-build: true
+
+    - name: Upload LodeRunner.UI Grype Vulnerability SARIF report
+      if: always()
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.grype.outputs.sarif }}
 
     - name: Docker Run and Test LodeRunner.UI
       if: ${{ inputs.run_and_test }}
