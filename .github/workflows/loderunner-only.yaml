@@ -43,6 +43,21 @@ jobs:
       run: |
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
 
+    - name: Grype Scan LodeRunner for Vulnerabilities
+      uses: anchore/scan-action@v3
+      id: grype
+      with:
+        image: "image"
+        severity-cutoff: critical
+        acs-report-enable: true
+        fail-build: true
+
+    - name: Upload LodeRunner Grype Vulnerability SARIF report
+      if: always()
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.grype.outputs.sarif }}
+
     - name: Set Secrets
       if: ${{ inputs.run_and_test }}
       run: |
