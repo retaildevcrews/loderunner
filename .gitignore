@@ -16,6 +16,8 @@ IaC/AKS/cluster/charts/smoker/helm-config.yaml
 LodeRunner.Core.xml
 LodeRunnerApi.xml
 
+results_cli.txt
+
 # Worksapce files
 workspaces/
 
