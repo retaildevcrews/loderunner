@@ -82,7 +82,7 @@
         {
             "label": "SubTask-Waiting for Checkov scan results file",
             "type": "shell",
-            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);code -r ${workspaceFolder}/loderunner/results_cli.txt"
+            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);code -r ${workspaceFolder}/results_cli.txt"
         },
         {
             "label": "Run Checkov Scan",
