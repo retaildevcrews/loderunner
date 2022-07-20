@@ -70,6 +70,7 @@ For better development environment we have added:
 - YAML Extension for deployment files
 - Settings for several IDE features (e.g. `using` sort on save)
 - Debuggger profile for LodeRunner.API and LodeRunner in `launch.json`
+- Code analysis tool 'Checkov' for scanning infrastructure as code (IaC)
 
 ### Change C\# Project/Solution
 
@@ -95,6 +96,31 @@ To select a project/solution:
 - Click on `Testing` tab on the left side of VSCode.
   - Or on the status bar click on the `# tests` icon to goto the test explorer
 - Click `Run` &#9658; button to start any test
+
+### To run Checkov scan
+
+- Navigate to `Codespaces main menu` (top left icon with three horizontal lines)
+- Click on `Terminal` menu item, then `Run Task`
+- From tasks menu locate `Run Checkov Scan` and click on it
+- Task terminal will show up executing substasks and indicating whne scan completed
+- Scan results file `results_cli.txt` will be created at root level
+- Review the file an evaluate failed checks. For instance:
+
+```bash
+  kubernetes scan results:
+
+  Passed checks: 860, Failed checks: 146, Skipped checks: 0
+  ...
+  ...
+
+  dockerfile scan results:
+
+  Passed checks: 22, Failed checks: 4, Skipped checks: 0
+
+  ...
+  ...
+
+```
 
 ## Development of individual loderunner components
 
