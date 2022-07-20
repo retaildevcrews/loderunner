@@ -82,7 +82,8 @@
         {
             "label": "Run Checkov Scan",
             "dependsOrder": "sequence",
-            "dependsOn": ["SubTask-Run Checkov image", "SubTask-echo Checkov Scan Complete"]
+            "dependsOn": ["SubTask-Run Checkov image", "SubTask-echo Checkov Scan Complete"],
+            "problemMatcher": []
         }
     ]
 }
