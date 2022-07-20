@@ -71,7 +71,7 @@
                 "localPath": "${workspaceFolder}",
                 "containerPath": "/loderunner"
               }],
-              "remove": false
+              "remove": true
             }
         },
         {
