@@ -76,7 +76,7 @@
         },
         {
             "label": "SubTask-echo Checkov Scan Complete",
-            "command": "\"echo Scan Complete - Please review results_cli.txt for details.\"",
+            "command": "echo Scan Complete - Please review results_cli.txt for details.",
             "type": "shell"
         },
         {
