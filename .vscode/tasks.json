@@ -61,10 +61,10 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Run Checkov image",
+            "label": "SubTask-Run Checkov image",
             "type": "docker-run",
             "dockerRun": {
-              "customOptions": "echo 'Scan Complete - Review results_cli.txt' --tty",
+              "customOptions": "--tty",
               "image": "bridgecrew/checkov",
               "command": "-d /loderunner --output-file-path /loderunner --framework 'kubernetes' 'dockerfile'",
               "volumes": [{
@@ -73,6 +73,16 @@
               }],
               "remove": false
             }
+        },
+        {
+            "label": "SubTask-echo Checkov Scan Complete",
+            "command": "\"echo Scan Complete - Please review results_cli.txt for details.\"",
+            "type": "shell"
+        },
+        {
+            "label": "Run Checkov Scan",
+            "dependsOrder": "sequence",
+            "dependsOn": ["SubTask-Run Checkov image", "SubTask-echo Checkov Scan Complete"]
         }
     ]
 }
