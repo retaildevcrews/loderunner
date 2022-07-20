@@ -64,7 +64,7 @@
             "label": "Run Checkov image",
             "type": "docker-run",
             "dockerRun": {
-              "customOptions": "--tty",
+              "customOptions": "echo 'Scan Complete - Review results_cli.txt' --tty",
               "image": "bridgecrew/checkov",
               "command": "-d /loderunner --output-file-path /loderunner --framework 'kubernetes' 'dockerfile'",
               "volumes": [{
