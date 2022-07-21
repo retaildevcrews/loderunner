@@ -1,6 +1,8 @@
 ### build the app
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed
+
 # Copy the source
 COPY ./LodeRunner.sln /src/
 COPY ./LodeRunner /src/LodeRunner
@@ -42,4 +44,3 @@ EXPOSE 8080
 USER ngsa
 
 ENTRYPOINT [ "dotnet",  "../LodeRunner.dll" ]
-#checkov:skip=CKV_DOCKER_2: No healthcheck is needed
