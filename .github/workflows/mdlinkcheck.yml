@@ -14,4 +14,3 @@ jobs:
         config-file: 'mlc_config.json'
         check-modified-files-only: 'yes'
         base-branch: 'main'
-        accept-encoding: 'zstd, br, gzip, deflate'
