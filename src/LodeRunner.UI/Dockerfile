@@ -1,5 +1,9 @@
 ### build prod app
 FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:14 AS build
+
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed
+#checkov:skip=CKV_DOCKER_3: No user is needed
+
 ENV NODE_ENV production
 WORKDIR /app
 
