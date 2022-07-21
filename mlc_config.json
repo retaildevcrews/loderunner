@@ -9,13 +9,5 @@
 		{
 			"pattern": "https://www.microsoft.com/en-us/"
 		}
-	],
-	"httpHeaders": [
-		{
-		  "urls": ["https://docs.github.com/"],
-		  "headers": {
-			"Accept-Encoding": "zstd, br, gzip, deflate"
-		  }
-		}
-	  ]
+	]
 }
