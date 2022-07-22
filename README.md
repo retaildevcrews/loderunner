@@ -24,7 +24,7 @@
 2. Verify in the loderunner directory `pwd`
 3. Set the endpoint LodeRunner.UI makes API calls to
    - In Codespaces, navigate to the `PORTS` terminal
-   - Identify port `LodeRunner API (32088)` and hover over the `Local Address`
+   - Identify port `LodeRunner API (k8s nodeport) : 32088` and hover over the `Local Address`
    - Click on the clipboard icon to copy the local address
    - Open `deploy/loderunner/local/4-loderunner-ui.yaml`
    - Under `env` > `name: "LRAPI_DNS"`, set the `value` to copied LodeRunner.API URL
@@ -57,7 +57,7 @@
    - `make lr-local-emul-api-only`: Only LodeRunner.API with Cosmos Emulator
 8. Set LodeRunner.API port visibility to public
    - In Codespaces, navigate to the `PORTS` terminal
-   - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
+   - Identify port `LodeRunner API (k8s nodeport) : 32088` and right-click on the `Visibility`
    - Hover over `Port Visibility` and select `Public`
 
 ## Developing in Codespaces
@@ -95,6 +95,14 @@ To select a project/solution:
 - Click on `Testing` tab on the left side of VSCode.
   - Or on the status bar click on the `# tests` icon to goto the test explorer
 - Click `Run` &#9658; button to start any test
+
+### Setting Port Visbility
+
+- In Codespaces, navigate to the `PORTS` terminal
+- Identify desired port and right-click on the `Visibility`
+- Hover over `Port Visibility` and select `Public`
+
+For detailed instruction, follow this [github doc](https://docs.github.com/en/codespaces/developing-in-codespaces/forwarding-ports-in-your-codespace#sharing-a-port).
 
 ## Development of individual loderunner components
 
