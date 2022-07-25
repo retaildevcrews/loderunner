@@ -102,9 +102,9 @@ To select a project/solution:
 - Navigate to `Codespaces main menu` (top left icon with three horizontal lines)
 - Click on `Terminal` menu item, then `Run Task`
 - From tasks menu locate `Run Checkov Scan` and click on it
-- Task terminal will show up executing substasks and indicating whne scan completed
-- Scan results file `checkov_scan_results` will be created at root level
-- Review the file an evaluate failed checks. For instance:
+- Task terminal will show up executing substasks and indicating when scan completed
+- Scan results file `checkov_scan_results` will be created at root level, and automatically will get open by VSCode
+- Review the file and evaluate failed checks. For instance:
 
 ```bash
   kubernetes scan results:
