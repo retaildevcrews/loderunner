@@ -17,6 +17,7 @@ LodeRunner.Core.xml
 LodeRunnerApi.xml
 
 results_cli.txt
+checkov_scan_results.txt
 
 # Worksapce files
 workspaces/
