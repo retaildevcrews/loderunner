@@ -90,13 +90,45 @@ To select a project/solution:
 - At the top of that pane, select the prjoect you want to debug from the dropdown
 - Click the `Run` &#9658; button or press `F5` to start debugging
 
-### To run unit/integration tests
+### To run unit/integration tests from the GUI
+
+- Setup: Add Cosmos Key to secrets and copy to local tmp directory
+
+  ```bash
+    # add cosmos key to secrets
+    echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > src/LodeRunner/secrets/CosmosKey
+
+    # copy all secrets to /tmp/secrets
+    cp -R src/LodeRunner/secrets /tmp/
+  ```
 
 - Click on `Testing` tab on the left side of VSCode.
-  - Or on the status bar click on the `# tests` icon to goto the test explorer
+  - Or on the status bar click on the `# tests` icon to go to the test explorer
 - Click `Run` &#9658; button to start any test
 
-### Setting Port Visbility
+### To run unit/integration tests from the command line
+
+```bash
+# cd into test directory
+cd src/LodeRunner.API.Test  # or cd src/LodeRunner.Test if you want to run the LodeRunner tests and not LodeRunner.API
+
+# add cosmos key to secrets
+echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > secrets/CosmosKey
+
+# copy all secrets to /tmp/secrets
+cp -R secrets /tmp/
+
+# run all tests (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test
+
+# run integration tests only (only in src/LodeRunner.API.Test))
+dotnet test --filter='Category=Integration'
+
+# run unit tests only (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test --filter='Category=Unit'
+```
+
+### Setting Port Visibility
 
 - In Codespaces, navigate to the `PORTS` terminal
 - Identify desired port and right-click on the `Visibility`
