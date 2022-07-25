@@ -76,13 +76,13 @@
         },
         {
             "label": "SubTask-echo Checkov Scan Complete",
-            "command": "echo Scan Complete - Please review results_cli.txt for details.",
+            "command": "echo Scan Complete - Please review 'checkov_scan_results.txt' for details.",
             "type": "shell"
         },
         {
             "label": "SubTask-Waiting for Checkov scan results file",
             "type": "shell",
-            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);code -r ${workspaceFolder}/results_cli.txt"
+            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);mv results_cli.txt checkov_scan_results.txt;sleep 2;code -r ${workspaceFolder}/checkov_scan_results.txt"
         },
         {
             "label": "Run Checkov Scan",
