@@ -82,7 +82,7 @@
         {
             "label": "SubTask-Waiting for Checkov scan results file",
             "type": "shell",
-            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);for i in {1..3}; do mv results_cli.txt checkov_scan_results.txt && break || sleep 1; done;for i in {1..3}; do test -f /workspaces/loderunner/checkov_scan_results.txt && break || sleep 1; done;code -r ${workspaceFolder}/checkov_scan_results.txt"
+            "command": "time (echo Waiting 5 seconds for Checkov Scan Results file to get created...; sleep 5);for i in {1..3}; do mv results_cli.txt checkov_scan_results.txt && break || sleep 1; done;for i in {1..3}; do test -f checkov_scan_results.txt && break || sleep 1; done;code -r ${workspaceFolder}/checkov_scan_results.txt"
         },
         {
             "label": "Run Checkov Scan",
