@@ -32,11 +32,29 @@ create : delete
 	@sleep 5
 	@kubectl wait pod -A --all --for condition=ready --timeout=60s
 
-deploy :
+	# install istio
+	@/usr/local/istio/bin/istioctl install --set profile=demo -y
+
+	@kubectl create namespace ngsa
+
+	@kubectl label namespace ngsa istio-injection=enabled --overwrite
+
+	-@rm -r burst_header.wasm
+	# download burst header wasm filter
+	@wget https://raw.githubusercontent.com/retaildevcrews/ngsa-asb/main/wasm/burst_header.wasm
+
+	# add burst header config map
+	@kubectl create cm burst-wasm-filter --from-file=./burst_header.wasm -n ngsa
+
+deploy-ngsa :
 	# deploy ngsa-app
 	@# continue on most errors
 	-kubectl apply -f deploy/ngsa
 
+	# create HPA for ngsa deployment for testing
+	@kubectl autoscale deployment ngsa --cpu-percent=40 --min=1 --max=2 -n ngsa
+
+deploy : deploy-ngsa
 	# Delete LodeRunner.UI node_modules for docker context
 	@rm -rf ./src/LodeRunner.UI/node_modules
 

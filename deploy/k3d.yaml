@@ -16,7 +16,7 @@ ports:
   - port: 30000:30000
     nodeFilters:
       - server[0]
-  - port: 30080:30080
+  - port: 30080:30080 # NGSA
     nodeFilters:
       - server[0]
   - port: 30088:30088
@@ -29,6 +29,9 @@ ports:
     nodeFilters:
       - server[0]
   - port: 32088:32088
+    nodeFilters:
+      - server[0]
+  - port: 30800:30800 # Burst Metrics Service
     nodeFilters:
       - server[0]
 
