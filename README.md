@@ -24,7 +24,7 @@
 2. Verify in the loderunner directory `pwd`
 3. Set the endpoint LodeRunner.UI makes API calls to
    - In Codespaces, navigate to the `PORTS` terminal
-   - Identify port `LodeRunner API (32088)` and hover over the `Local Address`
+   - Identify port `LodeRunner API (k8s nodeport) : 32088` and hover over the `Local Address`
    - Click on the clipboard icon to copy the local address
    - Open `deploy/loderunner/local/4-loderunner-ui.yaml`
    - Under `env` > `name: "LRAPI_DNS"`, set the `value` to copied LodeRunner.API URL
@@ -57,7 +57,7 @@
    - `make lr-local-emul-api-only`: Only LodeRunner.API with Cosmos Emulator
 8. Set LodeRunner.API port visibility to public
    - In Codespaces, navigate to the `PORTS` terminal
-   - Identify port `LodeRunner API (32088)` and right-click on the `Visibility`
+   - Identify port `LodeRunner API (k8s nodeport) : 32088` and right-click on the `Visibility`
    - Hover over `Port Visibility` and select `Public`
 
 ## Developing in Codespaces
@@ -91,36 +91,51 @@ To select a project/solution:
 - At the top of that pane, select the prjoect you want to debug from the dropdown
 - Click the `Run` &#9658; button or press `F5` to start debugging
 
-### To run unit/integration tests
+### To run unit/integration tests from the GUI
+
+- Setup: Add Cosmos Key to secrets and copy to local tmp directory
+
+  ```bash
+    # add cosmos key to secrets
+    echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > src/LodeRunner/secrets/CosmosKey
+
+    # copy all secrets to /tmp/secrets
+    cp -R src/LodeRunner/secrets /tmp/
+  ```
 
 - Click on `Testing` tab on the left side of VSCode.
-  - Or on the status bar click on the `# tests` icon to goto the test explorer
+  - Or on the status bar click on the `# tests` icon to go to the test explorer
 - Click `Run` &#9658; button to start any test
 
-### To run Checkov scan
-
-- Navigate to `Codespaces main menu` (top left icon with three horizontal lines)
-- Click on `Terminal` menu item, then `Run Task`
-- From tasks menu locate `Run Checkov Scan` and click on it
-- Task terminal will show up executing substasks and indicating when scan completed
-- Scan results file `checkov_scan_results` will be created at root level, and automatically will get open by VSCode
-- Review the file and evaluate failed checks. For instance:
+### To run unit/integration tests from the command line
 
 ```bash
-  kubernetes scan results:
+# cd into test directory
+cd src/LodeRunner.API.Test  # or cd src/LodeRunner.Test if you want to run the LodeRunner tests and not LodeRunner.API
 
-  Passed checks: 860, Failed checks: 146, Skipped checks: 0
-  ...
-  ...
+# add cosmos key to secrets
+echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > secrets/CosmosKey
 
-  dockerfile scan results:
+# copy all secrets to /tmp/secrets
+cp -R secrets /tmp/
 
-  Passed checks: 22, Failed checks: 4, Skipped checks: 0
+# run all tests (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test
 
-  ...
-  ...
+# run integration tests only (only in src/LodeRunner.API.Test))
+dotnet test --filter='Category=Integration'
 
+# run unit tests only (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
+dotnet test --filter='Category=Unit'
 ```
+
+### Setting Port Visibility
+
+- In Codespaces, navigate to the `PORTS` terminal
+- Identify desired port and right-click on the `Visibility`
+- Hover over `Port Visibility` and select `Public`
+
+For detailed instruction, follow this [github doc](https://docs.github.com/en/codespaces/developing-in-codespaces/forwarding-ports-in-your-codespace#sharing-a-port).
 
 ## Development of individual loderunner components
 
