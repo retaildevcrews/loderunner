@@ -211,6 +211,11 @@ namespace LodeRunner.Core
         public const string ApplicationWillTerminate = "Application will Terminate.";
 
         /// <summary>
+        /// Burst Header  name.
+        /// </summary>
+        public const string XBurstLoadFeedback = "X-Load-Feedback";
+
+        /// <summary>
         /// B3 trace header name.
         /// </summary>
         public const string XB3TraceIdHeader = "X-B3-TraceId";
