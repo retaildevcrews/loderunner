@@ -5,7 +5,9 @@ help :
 	@echo "   make all              - create a cluster and deploy the apps"
 	@echo "   make create           - create a kind cluster"
 	@echo "   make delete           - delete the kind cluster"
-	@echo "   make deploy           - deploy the apps to the cluster"
+	@echo "   make deploy           - deploy all apps to the cluster"
+	@echo "   make deploy-ngsa      - deploy ngsa app to the cluster"
+	@echo "   make deploy-burst     - deploy burst metrics app to the cluster"
 	@echo "   make check            - curl endpoints cluster"
 	@echo "   make clean            - delete deployments"
 	@echo "   make lr-local         - build and deploy all local loderunner images"
@@ -69,7 +71,7 @@ deploy-ngsa :
 	@# continue on most errors
 	-kubectl apply -f deploy/ngsa
 
-deploy : deploy-ngsa
+deploy : deploy-burst
 	# Delete LodeRunner.UI node_modules for docker context
 	@rm -rf ./src/LodeRunner.UI/node_modules
 

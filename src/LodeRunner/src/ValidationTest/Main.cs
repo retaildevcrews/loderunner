@@ -474,7 +474,10 @@ namespace LodeRunner
                     perfLog.B3TraceId = traceId;
                     perfLog.B3SpanId = spanId;
                     // add burst header value to perf log
-                    perfLog.BurstLoadFeedback = burstHeaderValue.FirstOrDefault();
+                    if (burstHeaderValue != null)
+                    {
+                        perfLog.BurstLoadFeedback = burstHeaderValue.FirstOrDefault();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -707,16 +710,8 @@ namespace LodeRunner
                     { SystemConstants.LoadClientIdFieldName, perfLog.LoadClientId },
                     { SystemConstants.TestRunIdFieldName, perfLog.TestRunId },
                     { "LogName", SystemConstants.LoadTestRequestLogName },
-
-                    // TODO: Should add empty item if header not present?
                     { SystemConstants.XBurstLoadFeedback, perfLog.BurstLoadFeedback },
                 };
-
-                // TODO: Or Do not add X-Load-Feedback to log if header not present like below?
-                // if (!string.IsNullOrEmpty(perfLog.BurstLoadFeedback))
-                // {
-                //     logDict[SystemConstants.XBurstLoadFeedback] = perfLog.BurstLoadFeedback;
-                // }
 
                 // add zone, region tag
                 if (!string.IsNullOrWhiteSpace(this.config.Zone))
