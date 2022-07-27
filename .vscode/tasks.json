@@ -62,27 +62,8 @@
         },
         {
             "label": "SubTask-Run Checkov image",
-            "type": "docker-run",
-            "dockerRun": {
-              "customOptions": "--tty",
-              "image": "bridgecrew/checkov",
-              "command": "-d /loderunner --output-file-path /loderunner --framework 'kubernetes' 'dockerfile'",
-              "volumes": [{
-                "localPath": "${workspaceFolder}",
-                "containerPath": "/loderunner"
-              }],
-              "remove": true
-            }
-        },
-        {
-            "label": "SubTask-Waiting for Checkov scan results file",
             "type": "shell",
-            "command": "time (echo Waiting up to 15 seconds for Checkov Scan Results file to get created...; for i in {1..15}; do test -f results_cli.txt && break || sleep 1 && echo $i; done);for i in {1..3}; do mv results_cli.txt checkov_scan_results.txt && break || sleep 1 && echo Renaming file attempt: $i; done;for i in {1..3}; do test -f checkov_scan_results.txt && break || sleep 1 && echo Check if file exists attempt: $i ; done;code -r ${workspaceFolder}/checkov_scan_results.txt"
-        },
-        {
-            "label": "SubTask-echo Checkov Scan Complete",
-            "command": "echo Scan Complete - Please review 'checkov_scan_results.txt' for details.",
-            "type": "shell"
+            "command": "docker run -it --name checkov-lr -v /workspaces/loderunner:/loderunner --rm bridgecrew/checkov -d /loderunner --output-file-path /loderunner --framework 'kubernetes' 'dockerfile' ; returncode=$?; mv results_cli.txt checkov_scan_results.txt; code -r ${workspaceFolder}/checkov_scan_results.txt;echo Scan Complete - Please review 'checkov_scan_results.txt' for details.; exit $returncode"
         },
         {
             "label": "SubTask-summary Checkov Scan Completion Summary",
@@ -99,11 +80,10 @@
                 "cwd": "${workspaceFolder}"
               }
         },
-
         {
             "label": "Run Checkov Scan",
             "dependsOrder": "sequence",
-            "dependsOn": ["SubTask-Run Checkov image", "SubTask-Waiting for Checkov scan results file", "SubTask-echo Checkov Scan Complete", "SubTask-summary Checkov Scan Completion Summary"],
+            "dependsOn": ["SubTask-Run Checkov image", "SubTask-summary Checkov Scan Completion Summary"],
             "problemMatcher": []
         }
     ]
