@@ -85,9 +85,25 @@
             "type": "shell"
         },
         {
+            "label": "SubTask-summary Checkov Scan Completion Summary",
+            "command": "time(echo '-------------------------- Checkov Results Summary --------------------------';for i in {1..15};do test -f checkov_scan_results.txt && break || sleep 1;done;for i in {1..3};do sed -n '/results:/{p;n;n;p;n;n;}' checkov_scan_results.txt && break || sleep 1;done;echo '-------------------------- Checkov Results Summary --------------------------';)",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "focus": true,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+              }
+        },
+
+        {
             "label": "Run Checkov Scan",
             "dependsOrder": "sequence",
-            "dependsOn": ["SubTask-Run Checkov image", "SubTask-Waiting for Checkov scan results file", "SubTask-echo Checkov Scan Complete"],
+            "dependsOn": ["SubTask-Run Checkov image", "SubTask-Waiting for Checkov scan results file", "SubTask-echo Checkov Scan Complete", "SubTask-summary Checkov Scan Completion Summary"],
             "problemMatcher": []
         }
     ]
