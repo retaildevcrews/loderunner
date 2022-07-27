@@ -35,10 +35,8 @@ create : delete
 	# install istio
 	@/usr/local/istio/bin/istioctl install --set profile=demo -y
 
-	@kubectl create namespace ngsa
-
-	@kubectl label namespace ngsa istio-injection=enabled --overwrite
-
+deploy-burst: deploy-ngsa
+	# remove wasm filter if exists
 	-@rm -r burst_header.wasm
 	# download burst header wasm filter
 	@wget https://raw.githubusercontent.com/retaildevcrews/ngsa-asb/main/wasm/burst_header.wasm
@@ -46,13 +44,26 @@ create : delete
 	# add burst header config map
 	@kubectl create cm burst-wasm-filter --from-file=./burst_header.wasm -n ngsa
 
+	# wait on ngsa-memory pods
+	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
+
+	# patch ngsa-memory
+	@# this will create a new ngsa deployment and terminate the old one
+	@kubectl patch deployment -n ngsa ngsa-memory -p '{"spec":{"template":{"metadata":{"annotations":{"sidecar.istio.io/userVolume":"[{\"name\":\"wasmfilters-dir\",\"configMap\": {\"name\": \"burst-wasm-filter\"}}]","sidecar.istio.io/userVolumeMount":"[{\"mountPath\":\"/var/local/lib/wasm-filters\",\"name\":\"wasmfilters-dir\"}]"}}}}}'
+
+	# wait on ngsa-memory pods
+	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
+
+	# apply burst metrics and turn the wasm filter on
+	@kubectl apply -f deploy/burst/
+
+	# create HPA for ngsa deployment for testing
+	@kubectl autoscale deployment ngsa-memory --cpu-percent=40 --min=1 --max=2 -n ngsa
+
 deploy-ngsa :
 	# deploy ngsa-app
 	@# continue on most errors
 	-kubectl apply -f deploy/ngsa
-
-	# create HPA for ngsa deployment for testing
-	@kubectl autoscale deployment ngsa --cpu-percent=40 --min=1 --max=2 -n ngsa
 
 deploy : deploy-ngsa
 	# Delete LodeRunner.UI node_modules for docker context
@@ -117,6 +128,7 @@ clean :
 	-kubectl delete -f deploy/loderunner --ignore-not-found=true
 	-kubectl delete secret lr-secrets --namespace loderunner --ignore-not-found=true
 	-kubectl delete -f deploy/ngsa --ignore-not-found=true
+	-kubectl delete -f deploy/burst --ignore-not-found=true
 	-kubectl delete -f deploy/monitoring --ignore-not-found=true
 	-kubectl delete ns monitoring --ignore-not-found=true
 	-kubectl delete -f deploy/fluentbit/fluentbit-pod.yaml --ignore-not-found=true
