@@ -69,7 +69,7 @@ For better development environment we have added:
 - Editorconfig extension for `.editorconfig` support
 - YAML Extension for deployment files
 - Settings for several IDE features (e.g. `using` sort on save)
-- Debuggger profile for LodeRunner.API and LodeRunner in `launch.json`
+- Debugger profile for LodeRunner.API and LodeRunner in `launch.json`
 - Code analysis tool 'Checkov' for scanning infrastructure as code (IaC)
 
 ### Change C\# Project/Solution
@@ -136,6 +136,31 @@ dotnet test --filter='Category=Unit'
 - Hover over `Port Visibility` and select `Public`
 
 For detailed instruction, follow this [github doc](https://docs.github.com/en/codespaces/developing-in-codespaces/forwarding-ports-in-your-codespace#sharing-a-port).
+
+### To run Checkov scan
+
+- Navigate to `Codespaces main menu` (top left icon with three horizontal lines)
+- Click on `Terminal` menu item, then `Run Task`
+- From tasks menu locate `Run Checkov Scan` and click on it
+- Task terminal will show up executing substasks and indicating when scan completed
+- Scan results file `checkov_scan_results` will be created at root level, and automatically will get open by VSCode
+- Review the file and evaluate failed checks. For instance:
+
+```bash
+  kubernetes scan results:
+
+  Passed checks: 860, Failed checks: 146, Skipped checks: 0
+  ...
+  ...
+
+  dockerfile scan results:
+
+  Passed checks: 22, Failed checks: 4, Skipped checks: 0
+
+  ...
+  ...
+
+```
 
 ## Development of individual loderunner components
 
