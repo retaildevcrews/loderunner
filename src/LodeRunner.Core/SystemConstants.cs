@@ -231,6 +231,11 @@ namespace LodeRunner.Core
         public const string B3SpanIdFieldName = "SpanID";
 
         /// <summary>
+        /// B3 parentSpanId log field name.
+        /// </summary>
+        public const string B3ParentSpanIdFieldName = "ParentSpanID";
+
+        /// <summary>
         /// The LodeRunner API request log name.
         /// </summary>
         public const string LodeRunnerAPIRequestLogName = "LodeRunner.API.RequestLog";
