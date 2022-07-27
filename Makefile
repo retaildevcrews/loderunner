@@ -36,6 +36,9 @@ create : delete
 	@/usr/local/istio/bin/istioctl install --set profile=demo -y
 
 deploy-burst: deploy-ngsa
+	# deploy burst metrics
+	@kubectl apply -f deploy/burst/burst-dev.yaml
+
 	# remove wasm filter if exists
 	-@rm -r burst_header.wasm
 	# download burst header wasm filter
@@ -47,6 +50,9 @@ deploy-burst: deploy-ngsa
 	# wait on ngsa-memory pods
 	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
 
+	# create HPA for ngsa deployment for testing
+	@kubectl autoscale deployment ngsa-memory --cpu-percent=40 --min=1 --max=2 -n ngsa
+
 	# patch ngsa-memory
 	@# this will create a new ngsa deployment and terminate the old one
 	@kubectl patch deployment -n ngsa ngsa-memory -p '{"spec":{"template":{"metadata":{"annotations":{"sidecar.istio.io/userVolume":"[{\"name\":\"wasmfilters-dir\",\"configMap\": {\"name\": \"burst-wasm-filter\"}}]","sidecar.istio.io/userVolumeMount":"[{\"mountPath\":\"/var/local/lib/wasm-filters\",\"name\":\"wasmfilters-dir\"}]"}}}}}'
@@ -54,11 +60,9 @@ deploy-burst: deploy-ngsa
 	# wait on ngsa-memory pods
 	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
 
-	# apply burst metrics and turn the wasm filter on
-	@kubectl apply -f deploy/burst/
+	# turn the wasm filter on
+	@kubectl apply -f deploy/burst/ngsa-filter-sidecar.yaml
 
-	# create HPA for ngsa deployment for testing
-	@kubectl autoscale deployment ngsa-memory --cpu-percent=40 --min=1 --max=2 -n ngsa
 
 deploy-ngsa :
 	# deploy ngsa-app
