@@ -92,6 +92,9 @@ To select a project/solution:
 
 ### To run unit/integration tests from the GUI
 
+- If not done as part of prior step:
+  - Log Into Azure: `az login --use-device-code`
+  - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
 - Setup: Add Cosmos Key to secrets and copy to local tmp directory
 
   ```bash
@@ -109,6 +112,10 @@ To select a project/solution:
 
 ### To run unit/integration tests from the command line
 
+- If not done as part of prior step:
+  - Log Into Azure: `az login --use-device-code`
+  - Set Subscription: `az account set -s COSMOSDB_SUBSCRIPTION_NAME_OR_ID`
+  
 ```bash
 # cd into test directory
 cd src/LodeRunner.API.Test  # or cd src/LodeRunner.Test if you want to run the LodeRunner tests and not LodeRunner.API
