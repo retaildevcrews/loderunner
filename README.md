@@ -96,7 +96,8 @@ To select a project/solution:
 
   ```bash
     # add cosmos key to secrets
-    echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > src/LodeRunner/secrets/CosmosKey
+    # NOTE: ensure that resource name used in the command to get the key matches the resource whose URL is listed in the src/LodeRunner/secrets/CosmosURL file
+    echo $(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv) > src/LodeRunner/secrets/CosmosKey
 
     # copy all secrets to /tmp/secrets
     cp -R src/LodeRunner/secrets /tmp/
@@ -113,7 +114,8 @@ To select a project/solution:
 cd src/LodeRunner.API.Test  # or cd src/LodeRunner.Test if you want to run the LodeRunner tests and not LodeRunner.API
 
 # add cosmos key to secrets
-echo $(eval az cosmosdb keys list -n ngsa-asb-test-cosmos -g rg-ngsa-asb-test-cosmos --query primaryMasterKey -o tsv) > secrets/CosmosKey
+# NOTE: ensure that resource name used in the command to get the key matches the resource whose URL is listed in the src/LodeRunner.API.Test/secrets/CosmosURL file
+echo $(eval az cosmosdb keys list -n ngsa-asb-dev-cosmos -g rg-ngsa-asb-dev-cosmos --query primaryMasterKey -o tsv) > secrets/CosmosKey
 
 # copy all secrets to /tmp/secrets
 cp -R secrets /tmp/
