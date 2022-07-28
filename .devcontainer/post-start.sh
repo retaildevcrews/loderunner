@@ -21,8 +21,4 @@ echo "  populating CosmosDB with LodeRunner DB and Container" | tee -a ~/status
 # create LodeRunnerDB and LodsdoeRunnerTestDB containers
 python3 $(dirname $0)/cosmos-emulator/cosmos-emulator-init.py -k $(eval $COSMOS_KEY_CMD) -u "https://${COSMOS_EMULATOR_URL}" --emulate
 
-# Checkov
-docker pull bridgecrew/checkov
-docker run --tty --volume /mnt/c/Users/gortega/_git/repos/loderunner:/loderunner bridgecrew/checkov -d /loderunner --framework 'yaml' 'kubernetes' 'dockerfile' | grep 'Failed checks:' 1>&2 && exit 1
-
 echo "post-start complete" >> ~/status
