@@ -470,7 +470,6 @@ namespace LodeRunner
                     // add tracing IDs to perf log
                     perfLog.B3TraceId = traceId;
                     perfLog.B3SpanId = spanId;
-                    perfLog.B3ParentSpanId = spanId;
                 }
                 catch (Exception ex)
                 {
@@ -697,7 +696,6 @@ namespace LodeRunner
                     { "ContentLength", perfLog.ContentLength },
                     { SystemConstants.B3TraceIdFieldName, perfLog.B3TraceId },
                     { SystemConstants.B3SpanIdFieldName, perfLog.B3SpanId },
-                    { SystemConstants.B3ParentSpanIdFieldName, perfLog.B3ParentSpanId },
                     { "Quartile", perfLog.Quartile },
                     { "Category", perfLog.Category },
                     { SystemConstants.ClientStatusIdFieldName, perfLog.ClientStatusId },
