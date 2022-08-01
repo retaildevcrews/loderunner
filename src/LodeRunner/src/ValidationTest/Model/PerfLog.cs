@@ -66,11 +66,6 @@ namespace LodeRunner.Model
         public string B3SpanId { get; set; }
 
         /// <summary>
-        /// Gets or sets the B3 ParentSpanId  for distributed tracing.
-        /// </summary>
-        public string B3ParentSpanId { get; set; }
-
-        /// <summary>
         /// Gets the error count.
         /// </summary>
         public int ErrorCount => this.Errors == null ? 0 : this.Errors.Count;
