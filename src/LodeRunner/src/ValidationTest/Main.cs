@@ -473,7 +473,6 @@ namespace LodeRunner
                     // add tracing IDs to perf log
                     perfLog.B3TraceId = traceId;
                     perfLog.B3SpanId = spanId;
-                    perfLog.B3ParentSpanId = spanId;
 
                     // add burst header value to perf log
                     if (burstHeaderValue != null)
