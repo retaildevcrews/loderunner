@@ -183,7 +183,7 @@ namespace LodeRunner.API
             services.AddAutoMapper(typeof(LoadTestPayloadProfile));
 
             services
-                .AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<App>>())
+                .AddSingleton<ILogger>(provider => provider.GetRequiredService<ILogger<Program>>())
                 .AddSingleton<CosmosDBSettings>(x => new CosmosDBSettings(x.GetRequiredService<ICosmosConfig>()))
                 .AddSingleton<ICosmosDBSettings>(provider => provider.GetRequiredService<CosmosDBSettings>())
                 .AddTransient<ISettingsValidator>(provider => provider.GetRequiredService<CosmosDBSettings>())
