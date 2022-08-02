@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Trace;
+using LRLoggingExtensions = LodeRunner.Core.Extensions.LoggingBuilderExtensions;
 
 namespace LodeRunner.API
 {
@@ -49,6 +50,11 @@ namespace LodeRunner.API
         /// The logger application.
         /// </summary>
         private static ILogger logger = null;
+
+        /// <summary>
+        /// The App Configuration.
+        /// </summary>
+        private static Config config = null;
 
         /// <summary>
         /// Gets or sets json serialization options.
@@ -89,6 +95,9 @@ namespace LodeRunner.API
         {
             try
             {
+                // Assign private member since could be utilized in the case of an exception is thrown.
+                App.config = config;
+
                 // This method builds the host and registers related services such as App Logger.
                 Init(config);
 
@@ -114,8 +123,15 @@ namespace LodeRunner.API
             }
             catch (Exception ex)
             {
-                // end app on error
-                GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
+                if (GetLogger() == null)
+                {
+                    Console.WriteLine($"Unable to create App logger object.{Environment.NewLine}Exception:{ex}");
+                }
+                else
+                {
+                    // end app on error
+                    GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
+                }
 
                 return -1;
             }
@@ -127,9 +143,13 @@ namespace LodeRunner.API
         /// <returns>The App ILogger.</returns>
         private static ILogger GetLogger()
         {
-            if (logger == null)
+            if (logger == null && host != null)
             {
                 logger = host.Services.GetRequiredService<ILogger<App>>();
+            }
+            else if (logger == null && App.config != null)
+            {
+                logger = LRLoggingExtensions.CreateLogger<App>(logLevelConfig: App.config, logValues: App.config);
             }
 
             return logger;
