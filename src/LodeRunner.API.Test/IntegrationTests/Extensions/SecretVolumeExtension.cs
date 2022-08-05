@@ -45,10 +45,21 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
             string integrationTestSecrestsFolderName = "IntegrationTestSecrets";
             if (System.OperatingSystem.IsLinux())
             {
-                if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
-                {
-                    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
-                }
+                // if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
+                // {
+                //    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
+                // }
+                System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WorkingDirectory = "/tmp";
+                process.FileName = "mkdir";
+                process.Arguments = $"-p /tmp/{integrationTestSecrestsFolderName}";
+                process.RedirectStandardOutput = true;
+
+                System.Diagnostics.Process cmd = System.Diagnostics.Process.Start(process);
+
+                // waiting to complete
+                cmd.WaitForExit();
 
                 return integrationTestSecrestsFolderName;
             }
