@@ -35,5 +35,32 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
                 return volume;
             }
         }
+
+        /// <summary>
+        /// Create integration test secrets folder.
+        /// </summary>
+        /// <returns>new secrets path.</returns>
+        public static string CreateIntegrationTestSecretsFolder()
+        {
+            string integrationTestSecrestsFolderName = "IntegrationTestSecrets";
+            if (System.OperatingSystem.IsLinux())
+            {
+                if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
+                {
+                    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
+                }
+
+                return integrationTestSecrestsFolderName;
+            }
+            else
+            {
+                if (!Directory.Exists($"../../../../LodeRunner.API/{integrationTestSecrestsFolderName}"))
+                {
+                    Directory.CreateDirectory($"../../../../LodeRunner.API/{integrationTestSecrestsFolderName}");
+                }
+
+                return integrationTestSecrestsFolderName;
+            }
+        }
     }
 }

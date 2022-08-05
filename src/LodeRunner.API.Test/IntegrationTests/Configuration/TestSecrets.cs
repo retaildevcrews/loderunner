@@ -65,7 +65,8 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
         [InlineData(1)]
         public async Task CanStartLodeRunnerAPIInstance(int apiHostCount)
         {
-            string secretsVolume = "secrets".GetSecretVolume();
+            // string secretsVolume = "secrets".GetSecretVolume();
+            string secretsVolume = SecretVolumeExtension.CreateIntegrationTestSecretsFolder();
 
             using var apiProcessContextCollection = new ApiProcessContextCollection(apiHostCount, secretsVolume, this.output);
 
@@ -82,9 +83,6 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
                     Assert.True(apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
 
                     int apiListeningOnPort = await LogOutputExtension.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.Output, this.output);
-
-                    // Parse errors.
-                    Assert.True(apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
 
                     this.output.WriteLine($"No errors found for API Host {hostId}.");
 
