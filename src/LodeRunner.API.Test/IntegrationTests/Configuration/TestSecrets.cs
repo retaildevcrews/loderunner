@@ -125,12 +125,35 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
                     bool errorsFound = await LogOutputExtension.TryParseProcessErrors(apiProcessContext.Errors, this.output);
 
                     Assert.True(errorsFound, $"Expected errors, but no Errors found in LodeRunner API - Host {hostId} Output.");
+
+                    // Get Exception message.
+                    string exceptionMessage = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(apiProcessContext.Errors, "LodeRunner.API.App", "Exception", "Exception", this.output);
+
+                    bool validMessageFound = ValidateSecretsErrorMessage(exceptionMessage);
+
+                    Assert.True(validMessageFound, $"Expected error message not found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
                 }
             }
             finally
             {
                 apiProcessContextCollection.End();
             }
+        }
+
+        /// <summary>
+        /// Validate that the exception message correspond to a Secrests validatiion.
+        /// </summary>
+        /// <param name="exceptionMessage">The exception message.</param>
+        /// <returns>whether message is Secrets validation.</returns>
+        private static bool ValidateSecretsErrorMessage(string exceptionMessage)
+        {
+            return exceptionMessage.Contains(LodeRunner.Core.SystemConstants.UnableToReadSecretsFromVolume) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.CosmosCollectionCannotBeEmpty) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.CosmosDatabaseCannotBeEmpty) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.CosmosKeyCannotBeEmpty) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.CosmosUrlCannotBeEmpty) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.InvalidCosmosUrl) ||
+                exceptionMessage.Contains(LodeRunner.Core.SystemConstants.InvalidCosmosKey);
         }
     }
 }

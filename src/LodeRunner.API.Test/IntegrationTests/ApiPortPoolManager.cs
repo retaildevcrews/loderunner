@@ -14,8 +14,8 @@ namespace LodeRunner.API.Test.IntegrationTests
     /// </summary>
     internal class ApiPortPoolManager : IDisposable
     {
+        private static readonly object GetInstanceLock = new();
         private static ApiPortPoolManager instance = null;
-        private static object getInstance = new();
 
         private readonly int lowerPortRange;
         private readonly int upperPortRange;
@@ -40,7 +40,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <returns>Singleton.</returns>
         public static ApiPortPoolManager GetInstance()
         {
-            lock (getInstance)
+            lock (GetInstanceLock)
             {
                 if (instance == null)
                 {
