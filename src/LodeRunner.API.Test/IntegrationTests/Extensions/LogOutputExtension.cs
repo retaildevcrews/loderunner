@@ -57,7 +57,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Parses the process output and to get client status id.
+        /// Parses the process output and to get the specified fieldName value.
         /// </summary>
         /// <param name="outputList">The Process outputList.</param>
         /// <param name="logName">ThelogName to identify the line be parsed.</param>
@@ -105,6 +105,39 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
             });
 
             return fieldValue;
+        }
+
+        /// <summary>
+        /// Parses the process errors to determine if errors exist.
+        /// </summary>
+        /// <param name="errorsList">The Process errorsList.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="maxRetries">The maximum retries.</param>
+        /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
+        /// <returns>Task value whether errors found.</returns>
+        public static async Task<bool> TryParseProcessErrors(List<string> errorsList, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        {
+            bool errorsFound = false;
+            var taskSource = new CancellationTokenSource();
+
+            await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
+            {
+                await Task.Run(() =>
+                {
+                    if (errorsList.Count > 0)
+                    {
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner.API Errors.\tErrors Found.\tErrors Count: '{errorsList.Count}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                        errorsFound = true;
+                        taskSource.Cancel();
+                    }
+                    else
+                    {
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner.API Errors.\tNo Errors found.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                    }
+                });
+            });
+
+            return errorsFound;
         }
     }
 }

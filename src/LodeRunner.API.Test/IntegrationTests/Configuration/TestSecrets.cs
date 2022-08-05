@@ -63,9 +63,51 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
         [Trait("Category", "Integration")]
         [Theory]
         [InlineData(1)]
-        public async Task CanStartLodeRunnerAPIInstance(int apiHostCount)
+        public async Task CanStartLodeRunnerAPIInstanceWhenSecretsInPlace(int apiHostCount)
         {
-            // string secretsVolume = "secrets".GetSecretVolume();
+            string secretsVolume = "secrets".GetSecretVolume();
+
+            using var apiProcessContextCollection = new ApiProcessContextCollection(apiHostCount, secretsVolume, this.output);
+
+            try
+            {
+                Assert.True(apiProcessContextCollection.Start(this.factory.GetNextAvailablePort), $"Api ProcessContext Collection.");
+
+                foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
+                {
+                    this.output.WriteLine($"Starting LodeRunner API for Host {hostId}.");
+
+                    Assert.True(apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {hostId}.");
+
+                    bool errorsFound = await LogOutputExtension.TryParseProcessErrors(apiProcessContext.Errors, this.output);
+
+                    Assert.False(errorsFound, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
+
+                    int apiListeningOnPort = await LogOutputExtension.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.Output, this.output);
+
+                    this.output.WriteLine($"No errors found for API Host {hostId}.");
+
+                    Assert.True(apiListeningOnPort == portNumber, "Unable to get Port Number");
+                }
+
+                this.output.WriteLine($"LodeRunner.API is up and running. Passed validation.");
+            }
+            finally
+            {
+                apiProcessContextCollection.End();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the LR.APIinstance [cannot start when secrests are missing].
+        /// </summary>
+        /// <param name="apiHostCount">The number API hosts to utilized.</param>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Trait("Category", "Integration")]
+        [Theory]
+        [InlineData(1)]
+        public async Task CanNotStartLodeRunnerAPIInstanceWhenSecretsAreMissing(int apiHostCount)
+        {
             string secretsVolume = SecretVolumeExtension.CreateIntegrationTestSecretsFolder();
 
             using var apiProcessContextCollection = new ApiProcessContextCollection(apiHostCount, secretsVolume, this.output);
@@ -80,16 +122,10 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
 
                     Assert.True(apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {hostId}.");
 
-                    Assert.True(apiProcessContext.Errors.Count == 0, $"Errors found in LodeRunner API - Host {hostId} Output.{Environment.NewLine}{string.Join(",", apiProcessContext.Errors)}");
+                    bool errorsFound = await LogOutputExtension.TryParseProcessErrors(apiProcessContext.Errors, this.output);
 
-                    int apiListeningOnPort = await LogOutputExtension.TryParseProcessOutputAndGetAPIListeningPort(apiProcessContext.Output, this.output);
-
-                    this.output.WriteLine($"No errors found for API Host {hostId}.");
-
-                    Assert.True(apiListeningOnPort == portNumber, "Unable to get Port Number");
+                    Assert.True(errorsFound, $"Expected errors, but no Errors found in LodeRunner API - Host {hostId} Output.");
                 }
-
-                this.output.WriteLine($"LodeRunner.API is up and running. Passed validation.");
             }
             finally
             {

@@ -16,6 +16,9 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
     /// </summary>
     internal static class SecretVolumeExtension
     {
+        private const string LinuxPath = "/tmp/";
+        private const string WindowsPath = "../../../../LodeRunner.API/";
+
         /// <summary>
         /// Gets the secret volume.
         ///  Note that this logic is utilizing the existing directory convention from "Set Secrets" step in CI/CD.
@@ -28,7 +31,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         {
             if (System.OperatingSystem.IsLinux())
             {
-                return $"/tmp/secrets";
+                return $"{LinuxPath}secrets";
             }
             else
             {
@@ -39,36 +42,24 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         /// <summary>
         /// Create integration test secrets folder.
         /// </summary>
+        /// <param name="integrationTestSecrestsFolderName">The integration TestSecrests Folder Name.</param>
         /// <returns>new secrets path.</returns>
-        public static string CreateIntegrationTestSecretsFolder()
+        public static string CreateIntegrationTestSecretsFolder(string integrationTestSecrestsFolderName = "IntegrationTestSecrets")
         {
-            string integrationTestSecrestsFolderName = "IntegrationTestSecrets";
             if (System.OperatingSystem.IsLinux())
             {
-                if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
+                if (!Directory.Exists($"{LinuxPath}{integrationTestSecrestsFolderName}"))
                 {
-                    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
+                    Directory.CreateDirectory($"{LinuxPath}{integrationTestSecrestsFolderName}");
                 }
 
-                // Console.WriteLine("Debug: before to try to create folder");
-                // System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
-                // process.UseShellExecute = false;
-                // process.WorkingDirectory = "/tmp";
-                // process.FileName = "mkdir";
-                // process.Arguments = $"-p /tmp/{integrationTestSecrestsFolderName}";
-                // process.RedirectStandardOutput = true;
-
-                // System.Diagnostics.Process cmd = System.Diagnostics.Process.Start(process);
-
-                //// waiting to complete
-                // cmd.WaitForExit();
-                return $"/tmp/{integrationTestSecrestsFolderName}";
+                return $"{LinuxPath}{integrationTestSecrestsFolderName}";
             }
             else
             {
-                if (!Directory.Exists($"../../../../LodeRunner.API/{integrationTestSecrestsFolderName}"))
+                if (!Directory.Exists($"{WindowsPath}{integrationTestSecrestsFolderName}"))
                 {
-                    Directory.CreateDirectory($"../../../../LodeRunner.API/{integrationTestSecrestsFolderName}");
+                    Directory.CreateDirectory($"{WindowsPath}{integrationTestSecrestsFolderName}");
                 }
 
                 return integrationTestSecrestsFolderName;
