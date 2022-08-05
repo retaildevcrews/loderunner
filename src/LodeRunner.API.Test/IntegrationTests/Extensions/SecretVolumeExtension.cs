@@ -45,23 +45,24 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
             string integrationTestSecrestsFolderName = "IntegrationTestSecrets";
             if (System.OperatingSystem.IsLinux())
             {
-                // if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
-                // {
-                //    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
-                // }
-                System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
-                process.UseShellExecute = false;
-                process.WorkingDirectory = "/tmp";
-                process.FileName = "mkdir";
-                process.Arguments = $"-p /tmp/{integrationTestSecrestsFolderName}";
-                process.RedirectStandardOutput = true;
+                if (!Directory.Exists($"/tmp/{integrationTestSecrestsFolderName}"))
+                {
+                    Directory.CreateDirectory($"/tmp/{integrationTestSecrestsFolderName}");
+                }
 
-                System.Diagnostics.Process cmd = System.Diagnostics.Process.Start(process);
+                // Console.WriteLine("Debug: before to try to create folder");
+                // System.Diagnostics.ProcessStartInfo process = new System.Diagnostics.ProcessStartInfo();
+                // process.UseShellExecute = false;
+                // process.WorkingDirectory = "/tmp";
+                // process.FileName = "mkdir";
+                // process.Arguments = $"-p /tmp/{integrationTestSecrestsFolderName}";
+                // process.RedirectStandardOutput = true;
 
-                // waiting to complete
-                cmd.WaitForExit();
+                // System.Diagnostics.Process cmd = System.Diagnostics.Process.Start(process);
 
-                return integrationTestSecrestsFolderName;
+                //// waiting to complete
+                // cmd.WaitForExit();
+                return $"/tmp/{integrationTestSecrestsFolderName}";
             }
             else
             {
