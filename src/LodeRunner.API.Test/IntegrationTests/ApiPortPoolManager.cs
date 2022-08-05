@@ -14,6 +14,9 @@ namespace LodeRunner.API.Test.IntegrationTests
     /// </summary>
     internal class ApiPortPoolManager : IDisposable
     {
+        private static ApiPortPoolManager instance = null;
+        private static object getInstance = new();
+
         private readonly int lowerPortRange;
         private readonly int upperPortRange;
         private readonly object getNextLock = new();
@@ -24,7 +27,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// </summary>
         /// <param name="lowerPortRange">The lower port range.</param>
         /// <param name="upperPortRange">The upper port range.</param>
-        public ApiPortPoolManager(int lowerPortRange = 8085, int upperPortRange = 8099)
+        private ApiPortPoolManager(int lowerPortRange = 8085, int upperPortRange = 8099)
         {
             this.lowerPortRange = lowerPortRange;
             this.upperPortRange = upperPortRange;
@@ -32,10 +35,20 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="ApiPortPoolManager"/> class from being created.
+        /// Get Singleton.
         /// </summary>
-        private ApiPortPoolManager()
+        /// <returns>Singleton.</returns>
+        public static ApiPortPoolManager GetInstance()
         {
+            lock (getInstance)
+            {
+                if (instance == null)
+                {
+                    instance = new ApiPortPoolManager();
+                }
+            }
+
+            return instance;
         }
 
         /// <summary>
