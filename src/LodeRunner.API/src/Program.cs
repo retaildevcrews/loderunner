@@ -143,13 +143,16 @@ namespace LodeRunner.API
         /// <returns>The App ILogger.</returns>
         private static ILogger GetLogger()
         {
-            if (logger == null && host != null)
+            if (logger == null)
             {
-                logger = host.Services.GetRequiredService<ILogger<App>>();
-            }
-            else if (logger == null && App.config != null)
-            {
-                logger = LRLoggingExtensions.CreateLogger<App>(logLevelConfig: App.config, logValues: App.config);
+                if (host != null)
+                {
+                    logger = host.Services.GetRequiredService<ILogger<App>>();
+                }
+                else if (App.config != null)
+                {
+                    logger = LRLoggingExtensions.CreateLogger<App>(logLevelConfig: App.config, logValues: App.config);
+                }
             }
 
             return logger;
