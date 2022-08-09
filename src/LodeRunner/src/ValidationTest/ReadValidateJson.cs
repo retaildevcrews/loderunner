@@ -168,7 +168,7 @@ namespace LodeRunner
 
             if (!string.IsNullOrWhiteSpace(content))
             {
-                return JsonSerializer.Deserialize<Dictionary<string, PerfTarget>>(content, App.JsonSerializerOptions);
+                return JsonSerializer.Deserialize<Dictionary<string, PerfTarget>>(content, Program.JsonSerializerOptions);
             }
 
             // return empty dictionary - perf targets are not required
@@ -191,13 +191,13 @@ namespace LodeRunner
                 try
                 {
                     // try to parse the json
-                    data = JsonSerializer.Deserialize<InputJson>(json, App.JsonSerializerOptions);
+                    data = JsonSerializer.Deserialize<InputJson>(json, Program.JsonSerializerOptions);
                 }
                 catch
                 {
                     // try to read the array of Requests style document
                     // this is being deprecated in v1.4
-                    list = JsonSerializer.Deserialize<List<Request>>(json, App.JsonSerializerOptions);
+                    list = JsonSerializer.Deserialize<List<Request>>(json, Program.JsonSerializerOptions);
                 }
 
                 // replace placedholders with environment variables
@@ -211,7 +211,7 @@ namespace LodeRunner
                         }
 
                         // reload from json
-                        data = JsonSerializer.Deserialize<InputJson>(json, App.JsonSerializerOptions);
+                        data = JsonSerializer.Deserialize<InputJson>(json, Program.JsonSerializerOptions);
                     }
 
                     list = data.Requests;

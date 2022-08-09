@@ -28,7 +28,7 @@ namespace LodeRunner.API
     /// <summary>
     /// Main application class.
     /// </summary>
-    public sealed partial class App
+    public sealed class Program
     {
         /// <summary>
         /// File containing ASCII art.
@@ -74,7 +74,7 @@ namespace LodeRunner.API
 
             // build the System.CommandLine.RootCommand
             RootCommand root = LRAPICommandLine.BuildRootCommand();
-            root.Handler = CommandHandler.Create((Config cfg) => App.RunApp(cfg));
+            root.Handler = CommandHandler.Create((Config cfg) => Program.RunApp(cfg));
 
             // run the app
             return await root.InvokeAsync(args).ConfigureAwait(false);
@@ -129,7 +129,7 @@ namespace LodeRunner.API
         {
             if (logger == null)
             {
-                logger = host.Services.GetRequiredService<ILogger<App>>();
+                logger = host.Services.GetRequiredService<ILogger<Program>>();
             }
 
             return logger;

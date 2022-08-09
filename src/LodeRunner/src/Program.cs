@@ -28,7 +28,7 @@ namespace LodeRunner
     /// <summary>
     /// Main application class.
     /// </summary>
-    public sealed partial class App
+    public sealed class Program
     {
         /// <summary>
         /// File path for ascii art display.
@@ -46,10 +46,10 @@ namespace LodeRunner
         private static readonly CancellationTokenSource CancelTokenSource = new();
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="App"/> class from being created.
+        /// Prevents a default instance of the <see cref="Program"/> class from being created.
         /// Private constructor to prevent instantiation.
         /// </summary>
-        private App()
+        private Program()
         {
         }
 
@@ -79,7 +79,7 @@ namespace LodeRunner
             // build the System.CommandLine.RootCommand
             RootCommand root = LRCommandLine.GetRootCommand(args);
 
-            root.Handler = CommandHandler.Create((Config cfg) => App.Run(cfg, root.Name == SystemConstants.LodeRunnerClientMode));
+            root.Handler = CommandHandler.Create((Config cfg) => Program.Run(cfg, root.Name == SystemConstants.LodeRunnerClientMode));
 
             // run the command handler
             return await root.InvokeAsync(args).ConfigureAwait(false);
