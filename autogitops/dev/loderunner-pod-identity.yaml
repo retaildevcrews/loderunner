@@ -6,7 +6,7 @@ metadata:
   namespace: {{gitops.namespace}}
 spec:
   type: 0
-  resourceID: /subscriptions/{{gitops.tenantid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrMiName}}
+  resourceID: /subscriptions/{{gitops.subscriptionid}}/resourcegroups/{{gitops.resourceGroup}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{gitops.lrMiName}}
   clientID: {{gitops.lrMiClientId}}
 
 ---
