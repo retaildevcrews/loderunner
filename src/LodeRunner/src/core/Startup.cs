@@ -57,7 +57,7 @@ namespace LodeRunner
 
             var config = app.ApplicationServices.GetRequiredService<Config>();
 
-            var logger = app.ApplicationServices.GetRequiredService<ILogger<App>>();
+            var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
 
             // signal run loop
             life.ApplicationStopping.Register(() =>
