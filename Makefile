@@ -44,8 +44,8 @@ deploy-burst: deploy-ngsa
 	# remove wasm filter if exists
 	-@rm -r burst_header.wasm
 	# download burst header wasm filter
-    # We're using direct HASHED link instead of the main branch link (https://raw.githubusercontent.com/retaildevcrews/ngsa-asb/main/wasm/burst_header.wasm)
-    # In this way we will download specific version of burst wasm binary and have consistent results
+	@# We're using direct HASHED link instead of the main branch link (https://raw.githubusercontent.com/retaildevcrews/ngsa-asb/main/wasm/burst_header.wasm)
+	@# In this way we will download specific version of burst wasm binary and have consistent results
 	@wget https://github.com/retaildevcrews/ngsa-asb/raw/c0a04c7b76f7aeff68e4e522a59828603b9dacd4/wasm/burst_header.wasm
 
 	# add burst header config map

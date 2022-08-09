@@ -39,7 +39,11 @@ spec:
             runAsUser: 1000
           resources:
             limits:
-              cpu: "500m"
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 512Mi
 
 ---
 apiVersion: v1
