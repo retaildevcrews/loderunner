@@ -168,7 +168,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 testRunId = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, 10, 500);
                 Assert.False(string.IsNullOrEmpty(testRunId), "Unable to get TestRunId from LodeRunner-Command output");
 
-                // Validate that TraceId, SpanId, and ParentSpanId were logged in LodeRunner-Command output.
+                // Validate that TraceId and SpanId were logged in LodeRunner-Command output.
                 this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner-Command Log");
                 var traceId = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output, 10, 500);
                 Assert.False(string.IsNullOrEmpty(traceId), "Unable to get B3TraceId from LodeRunner-Command output");
@@ -176,10 +176,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 var spanId = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output, 10, 500);
                 Assert.False(string.IsNullOrEmpty(spanId), "Unable to get B3SpanId from LodeRunner-Command output");
 
-                // Validate traceId, SpanId, and parentSpanId were logged in LodeRunner.API log
+                // Validate traceId and SpanId were logged in LodeRunner.API log
                 foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
                 {
-                    this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName}, {LodeRunner.Core.SystemConstants.B3SpanIdFieldName}, and {LodeRunner.Core.SystemConstants.B3ParentSpanIdFieldName} for LodeRunner API Log for Host {hostId}.");
+                    this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner API Log for Host {hostId}.");
 
                     string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
 

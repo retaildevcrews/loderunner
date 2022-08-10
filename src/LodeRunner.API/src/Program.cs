@@ -29,7 +29,7 @@ namespace LodeRunner.API
     /// <summary>
     /// Main application class.
     /// </summary>
-    public sealed partial class App
+    public sealed class Program
     {
         /// <summary>
         /// File containing ASCII art.
@@ -80,7 +80,7 @@ namespace LodeRunner.API
 
             // build the System.CommandLine.RootCommand
             RootCommand root = LRAPICommandLine.BuildRootCommand();
-            root.Handler = CommandHandler.Create((Config cfg) => App.RunApp(cfg));
+            root.Handler = CommandHandler.Create((Config cfg) => Program.RunApp(cfg));
 
             // run the app
             return await root.InvokeAsync(args).ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace LodeRunner.API
             try
             {
                 // Assign private member since could be utilized in the case of an exception is thrown.
-                App.config = config;
+                Program.config = config;
 
                 // This method builds the host and registers related services such as App Logger.
                 Init(config);
@@ -147,11 +147,11 @@ namespace LodeRunner.API
             {
                 if (host != null)
                 {
-                    logger = host.Services.GetRequiredService<ILogger<App>>();
+                    logger = host.Services.GetRequiredService<ILogger<Program>>();
                 }
-                else if (App.config != null)
+                else if (Program.config != null)
                 {
-                    logger = LRLoggingExtensions.CreateLogger<App>(logLevelConfig: App.config, logValues: App.config);
+                    logger = LRLoggingExtensions.CreateLogger<Program>(logLevelConfig: Program.config, logValues: Program.config);
                 }
             }
 
