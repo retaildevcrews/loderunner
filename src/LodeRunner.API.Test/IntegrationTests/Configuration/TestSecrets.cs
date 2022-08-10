@@ -127,7 +127,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
                     Assert.True(errorsFound, $"Expected errors, but no Errors found in LodeRunner API - Host {hostId} Output.");
 
                     // Get Exception message.
-                    string exceptionMessage = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(apiProcessContext.Errors, "LodeRunner.API.App", "Exception", "Exception", this.output);
+                    string exceptionMessage = await LogOutputExtension.TryParseProcessOutputAndGetValueFromFieldName(apiProcessContext.Errors, "LodeRunner.API.Program", "Exception", "Exception", this.output);
 
                     bool validMessageFound = ValidateSecretsErrorMessage(exceptionMessage);
 
