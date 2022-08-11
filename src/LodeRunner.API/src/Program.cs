@@ -127,10 +127,7 @@ namespace LodeRunner.API
         /// <returns>The App ILogger.</returns>
         private static ILogger GetLogger()
         {
-            if (logger == null)
-            {
-                logger = host.Services.GetRequiredService<ILogger<Program>>();
-            }
+            logger ??= host.Services.GetRequiredService<ILogger<Program>>();
 
             return logger;
         }

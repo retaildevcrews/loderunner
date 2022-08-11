@@ -70,10 +70,7 @@ namespace LodeRunner.Validators
             }
 
             // make sure the validators don't throw an exception but still fail
-            if (body == null)
-            {
-                body = string.Empty;
-            }
+            body ??= string.Empty;
 
             // run validation rules
             result.Add(ValidateLength((long)response.Content.Headers.ContentLength, r.Validation));
@@ -104,10 +101,7 @@ namespace LodeRunner.Validators
             if (v != null)
             {
                 // make sure the validators don't throw an exception but still fail
-                if (body == null)
-                {
-                    body = string.Empty;
-                }
+                body ??= string.Empty;
 
                 result.Add(ValidateContains(v.Contains, body));
                 result.Add(ValidateNotContains(v.NotContains, body));
@@ -137,10 +131,7 @@ namespace LodeRunner.Validators
             }
 
             // make sure the validators don't throw an exception but still fail
-            if (body == null)
-            {
-                body = string.Empty;
-            }
+            body ??= string.Empty;
 
             try
             {
@@ -148,10 +139,7 @@ namespace LodeRunner.Validators
                 IDictionary<string, object> dict = JsonSerializer.Deserialize<ExpandoObject>(body, Program.JsonSerializerOptions);
 
                 // set to new so validation fails
-                if (dict == null)
-                {
-                    dict = new Dictionary<string, object>();
-                }
+                dict ??= new Dictionary<string, object>();
 
                 foreach (JsonItem property in properties)
                 {
@@ -217,10 +205,7 @@ namespace LodeRunner.Validators
             }
 
             // make sure the validators don't throw an exception but still fail
-            if (body == null)
-            {
-                body = string.Empty;
-            }
+            body ??= string.Empty;
 
             try
             {
@@ -349,10 +334,7 @@ namespace LodeRunner.Validators
             }
 
             // make sure the validators don't throw an exception but still fail
-            if (body == null)
-            {
-                body = string.Empty;
-            }
+            body ??= string.Empty;
 
             // compare values
             if (body != exactMatch)
@@ -379,10 +361,7 @@ namespace LodeRunner.Validators
             }
 
             // make sure the validators don't throw an exception but still fail
-            if (body == null)
-            {
-                body = string.Empty;
-            }
+            body ??= string.Empty;
 
             // validate each rule
             foreach (string c in containsList)
