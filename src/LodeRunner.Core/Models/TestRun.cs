@@ -67,5 +67,10 @@ namespace LodeRunner.Core.Models
         /// The client results.
         /// </value>
         public List<LoadResult> ClientResults { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Hard Stop the Test Run.
+        /// </summary>
+        public bool HardStop { get; set; } = false;
     }
 }
