@@ -82,16 +82,19 @@ namespace LodeRunner
                 // get current TestRun document
                 var testRun = await this.testRunService.Get(this.testRunId);
 
+                // hardStop value should be set by API.
                 if (testRun.HardStop)
                 {
                     // update HardStop
-                    testRun.HardStop = false;
+                    testRun.HardStopTime = DateTime.UtcNow;
                     CancellationTokenSource hardStopToken = new();
 
                     // NOTE: We update the TestRun item before to request a cancellation since LodeRunner Service will throw a TaskCanceledException that we handle already and also call ProcessingEventBus.OnTestRunComplete.
                     await this.testRunService.Post(testRun, hardStopToken.Token);
 
                     this.cancelTestRunExecution.Cancel(false);
+
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"Cancellation requested for TestRunId: {this.testRunId} at '{testRun.HardStopTime:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}'");
                 }
 
                 return true;
