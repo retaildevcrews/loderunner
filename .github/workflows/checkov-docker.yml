@@ -1,0 +1,20 @@
+name: Checkov Docker Vulnerability Scan
+
+on: 
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2      
+      - name: Run Checkov on Dockerfiles
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: dockerfile
+          quiet: true
+          output_format: github_failed_only
+          soft_fail: false

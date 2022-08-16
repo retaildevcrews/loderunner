@@ -79,6 +79,7 @@ namespace LodeRunner.Services
             {
                 config.LoadClientId = this.loadClient.Id;
                 config.ClientStatusId = this.clientStatus.Id;
+                config.TestRunId = Guid.NewGuid().ToString();
             }
 
             this.cancellationTokenSource = cancellationTokenSource;
@@ -294,7 +295,7 @@ namespace LodeRunner.Services
                         })
                         .ConfigureLogging(logger =>
                         {
-                            logger.Setup(logLevelConfig: config, logValues: config, projectName: App.ProjectName);
+                            logger.Setup(logLevelConfig: config, logValues: config, projectName: Program.ProjectName);
                         })
                         .UseConsoleLifetime()
                         .Build();

@@ -133,7 +133,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 AssertExtension.EqualResponseStatusCode(HttpStatusCode.Created, postedResponse);
 
-               // Validate Test Run Entity
+                // Validate Test Run Entity
                 var postedTestRun = await postedResponse.Content.ReadFromJsonAsync<TestRun>(this.jsonOptions);
                 var gottenHttpResponse = await httpClient.GetItemById<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.output);
 

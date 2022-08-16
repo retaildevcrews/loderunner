@@ -264,6 +264,7 @@ namespace LodeRunner.API.Middleware
                     { "UserAgent", context.Request.Headers["User-Agent"].ToString() },
                     { LodeRunner.Core.SystemConstants.B3TraceIdFieldName, Activity.Current.Context.TraceId.ToString() },
                     { LodeRunner.Core.SystemConstants.B3SpanIdFieldName, Activity.Current.Context.SpanId.ToString() },
+                    { LodeRunner.Core.SystemConstants.B3ParentSpanIdFieldName, Activity.Current.ParentId?.Substring(36, 16) },
                     { "Category", category },
                     { "Mode", mode },
                 };
