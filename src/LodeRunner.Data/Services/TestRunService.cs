@@ -74,9 +74,9 @@ namespace LodeRunner.Services
 
             sql += $"and (NOT IS_DEFINED(e.completedTime) or IS_NULL(e.completedTime) or e.completedTime = '') ";
 
-            sql += $"and(NOT IS_DEFINED(e.hardStopTime) or IS_NULL(e.hardStopTime) or e.hardStopTime = '') ";
+            sql += $"and (NOT IS_DEFINED(e.hardStopTime) or IS_NULL(e.hardStopTime) or e.hardStopTime = '') ";
 
-            sql += $"and(NOT IS_DEFINED(e.hardStop) or IS_NULL(e.hardStop) or e.hardStop = '' or e.hardStop = 'false')";
+            sql += $"and (NOT IS_DEFINED(e.hardStop) or IS_NULL(e.hardStop) or e.hardStop = '' or e.hardStop = false)";
 
             sql += $"ORDER BY e.startTime ASC";
 
