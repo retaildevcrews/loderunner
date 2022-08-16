@@ -283,7 +283,7 @@ namespace LodeRunner
             }
 
             // set json options based on --strict-json
-            App.JsonSerializerOptions = new JsonSerializerOptions
+            Program.JsonSerializerOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNameCaseInsensitive = !this.StrictJson,

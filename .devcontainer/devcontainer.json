@@ -38,12 +38,12 @@
 	// add labels
 	"portsAttributes": {
 		"6443": {"label": "k3d" },
-		"30000": { "label": "Prometheus" },
-		"30080": { "label": "Ngsa-Memory" },
-		"30088": { "label": "LodeRunner" },
-		"32000": { "label": "Grafana" },
-		"32080": { "label": "LodeRunner UI" },
-		"32088": { "label": "LodeRunner API" },
+		"30000": { "label": "Prometheus (k8s nodeport)" },
+		"30080": { "label": "Ngsa-Memory (k8s nodeport)" },
+		"30088": { "label": "LodeRunner (k8s nodeport)" },
+		"32000": { "label": "Grafana (k8s nodeport)" },
+		"32080": { "label": "LodeRunner UI (k8s nodeport)" },
+		"32088": { "label": "LodeRunner API (k8s nodeport)" },
 		"3000": { "label": "Local Dev LodeRunner UI"},
 		"8080": { "label": "Local Dev LodeRunner API"},
 		"9090": { "label": "CosmosDB Emulator", "protocol": "https"}

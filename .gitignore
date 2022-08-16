@@ -16,6 +16,10 @@ IaC/AKS/cluster/charts/smoker/helm-config.yaml
 LodeRunner.Core.xml
 LodeRunnerApi.xml
 
+# Checkov scan result files
+results_cli.txt
+checkov_scan_results.txt
+
 # Worksapce files
 workspaces/
 

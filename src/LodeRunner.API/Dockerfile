@@ -1,6 +1,8 @@
 ### Build and Test the App
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 
+#checkov:skip=CKV_DOCKER_2: No healthcheck is needed
+
 ### copy the source and tests
 COPY ./LodeRunner.sln /src/
 COPY ./LodeRunner /src/LodeRunner
