@@ -83,7 +83,7 @@ namespace LodeRunner
                 var testRun = await this.testRunService.Get(this.testRunId);
 
                 // hardStop value should be set by API.
-                if (testRun.HardStop)
+                if (testRun.HardStop && testRun.HardStopTime == null)
                 {
                     // update HardStop
                     testRun.HardStopTime = DateTime.UtcNow;
