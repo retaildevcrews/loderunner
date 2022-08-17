@@ -260,7 +260,7 @@ namespace LodeRunner
                 if (token.IsCancellationRequested)
                 {
                     // fire event
-                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, "Test Run Execution Stopped."));
+                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TestRunExecutionStoppedMessage));
                 }
                 else
                 {
@@ -351,7 +351,7 @@ namespace LodeRunner
             }
             catch (TaskCanceledException tce)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TaskCanceledException));
 
                 // log exception
                 if (!tce.Task.IsCompleted)
@@ -366,7 +366,7 @@ namespace LodeRunner
             }
             catch (OperationCanceledException oce)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.OperationCanceledException));
 
                 // log exception
                 if (!token.IsCancellationRequested)
@@ -399,7 +399,7 @@ namespace LodeRunner
 
             if (token.IsCancellationRequested)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, "Test Run Execution Stopped."));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TestRunExecutionStoppedMessage));
             }
             else
             {

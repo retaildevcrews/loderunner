@@ -236,12 +236,13 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="apiHostCount">The number API hosts to utilized.</param>
         /// <param name="sleepMs">The sleep time between requests in ms.</param>
         /// <param name="runLoop">Detemines if should run in loop.</param>
+        /// <param name="expectedCancellationErrorMessage">The Expected Cancellation Error Message.</param>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
         [Trait("Category", "Integration")]
         [Theory]
-        [InlineData(1, 10000, false)]
-        //[InlineData(1, 2000, true)]
-        public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop)
+        [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage)]
+        [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException)]
+        public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop, string expectedCancellationErrorMessage)
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
 
@@ -330,6 +331,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 Assert.False(string.IsNullOrEmpty(testRunId), "Unable to get TestRunId when Received TestRun");
 
                 // Async method to set HardStop to true.
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tRequesting Test Run Cancellation...");
+
                 await this.SetHardStopTrueRetryAsync(testRunId);
 
                 // Attempt to get TestRun for N retries or until condition has met.
@@ -338,6 +341,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // Get LodeRunner TestRun Id when Executing
                 testRunId = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, lodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, 10, apiHostCount * 3000);
                 Assert.False(string.IsNullOrEmpty(testRunId), "Unable to get TestRunId when Executing TestRun.");
+
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating Test Run Request Cancellation results ...");
 
                 // Validate that HardStop Request was loggged in LodeRunner-Command output.
                 var testRunCancellationRequestMessage = await this.TryParseProcessOutputAndGetValueFromFieldName(lodeRunnerAppContext.Output, lodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestedMessage, "message", 10, 500);
@@ -350,11 +355,18 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 int expectedLoadClientCount = 1;
                 AssertExtension.EqualResponseStatusCode(HttpStatusCode.OK, testRunResponse);
 
-                Assert.True(readyTestRun.CompletedTime == null, $"CompletedTime is {readyTestRun.CompletedTime}, and should be null.");
+                Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
                 Assert.True(readyTestRun.LoadClients.Count == expectedLoadClientCount, $"LoadClients.Count do not match the expected value [{expectedLoadClientCount}]");
-                Assert.True(readyTestRun.ClientResults.Count == 0, "ClientResults.Count should be Zero");
+                Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
 
-                this.output.WriteLine($"Validation for TestRun Cancellation passed.");
+                var clientResult = readyTestRun.ClientResults[0];
+                Assert.True(clientResult.ErrorMessage == expectedCancellationErrorMessage, $"Actual error message found '{clientResult.ErrorMessage}', instead of expected message '{expectedCancellationErrorMessage}'");
+
+                Assert.True(clientResult.TotalRequests == 0, "Total Requests should be equals to 0.");
+                Assert.True(clientResult.FailedRequests == 0, "Failed Requests should be equals to 0.");
+                Assert.True(clientResult.SuccessfulRequests == 0, "Successful Requests should be equals to 0.");
+
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidation for TestRun Cancellation passed.");
 
                 // Verify that ClientStatus is Ready again.
                 await this.VerifyLodeRunnerClientStatusIsReady(httpClient, clientStatusId);
@@ -412,7 +424,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             });
         }
 
-
         /// <summary>
         /// Validates the hardstop time.
         /// </summary>
@@ -455,7 +466,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                         taskSource.Cancel();
                     }
 
-                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tTestRun HardStop field was alredy set to: '{testRun.HardStop}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tTestRun HardStop field was already set to: '{testRun.HardStop}'\tAttempts: {attemptCount} [{timeBetweenRequestsMs}ms between requests]");
                 });
             });
         }

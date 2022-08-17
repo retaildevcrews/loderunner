@@ -244,5 +244,10 @@ namespace LodeRunner.Core
         ///  Test Run Cancellation Requested message.
         /// </summary>
         public const string TestRunCancellationRequestedMessage = "Cancellation requested for TestRunId:";
+
+        /// <summary>
+        ///  Test Run Execution Stopped.
+        /// </summary>
+        public const string TestRunExecutionStoppedMessage = "Test Run Execution Stopped";
     }
 }

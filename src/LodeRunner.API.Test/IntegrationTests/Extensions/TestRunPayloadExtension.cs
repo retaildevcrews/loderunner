@@ -46,6 +46,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                 Server = new List<string>(),
                 Sleep = sleepMs,
                 RunLoop = runLoop,
+                Duration = runLoop ? 60 : 0,
             };
 
             foreach (var hostPort in apiServerPort)
