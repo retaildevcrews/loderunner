@@ -56,6 +56,11 @@ namespace LodeRunner.Model
         public string B3TraceId { get; set; }
 
         /// <summary>
+        /// Gets or sets the Burst Load Feedback Value.
+        /// </summary>
+        public string BurstLoadFeedback { get; set; }
+
+        /// <summary>
         /// Gets or sets the B3 SpanId  for distributed tracing.
         /// </summary>
         public string B3SpanId { get; set; }

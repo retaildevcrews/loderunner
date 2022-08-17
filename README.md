@@ -52,6 +52,7 @@
 6. Start the k3d cluster `make create`
 7. Deploy pods
    - ~~`make all`: LodeRunner, LodeRunner.API, LodeRunner.UI, ngsa-app, prometheus, grafana, fluentbit, jumpbox~~ Note: monitoring and fluentbit namespaces are not ready
+   - `make deploy-burst`: Deploy burst metrics and ngsa with burst wasm sidecar filter
    - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos in Azure
    - `make lr-local-emul`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos Emulator
    - `make lr-local-emul-api-only`: Only LodeRunner.API with Cosmos Emulator
@@ -137,6 +138,20 @@ dotnet test --filter='Category=Integration'
 # run unit tests only (in both src/LodeRunner.Test and src/LodeRunner.API.Test)
 dotnet test --filter='Category=Unit'
 ```
+
+### To test NGSA with burst metrics header
+
+We need to use an NGSA server which has burst metrics enabled.
+
+To deploy NGSA with burst enabled we can follow [step 7 of 'Running the System Via Codespaces'](#running-the-system-via-codespaces).
+
+It will create a K3d cluster with NGSA deployed. Afterwards, we can use this NGSA as server.
+
+<!-- markdown-link-check-disable-next-line -->
+Follow, [individual component development section](#development-of-individual-loderunner-components) and use <http://localhost:30080> as NGSA server.
+
+<!-- markdown-link-check-disable-next-line -->
+We can also use a pre-prod deployment which has burst metrics. For example: ngsa-cosmos deployment in WestUS2 dev cluster (Link: <https://ngsa-cosmos-westus2-dev.cse.ms>).
 
 ### Setting Port Visibility
 

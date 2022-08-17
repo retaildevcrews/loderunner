@@ -3,4 +3,5 @@ kind: Namespace
 metadata:
   labels:
     name: ngsa
+    istio-injection: enabled
   name: ngsa
