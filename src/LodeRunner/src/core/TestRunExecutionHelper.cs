@@ -94,7 +94,7 @@ namespace LodeRunner
 
                     this.cancelTestRunExecution.Cancel(false);
 
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"Cancellation requested for TestRunId: {this.testRunId} at '{testRun.HardStopTime:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}'");
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestedMessage} {this.testRunId}");
                 }
 
                 return true;

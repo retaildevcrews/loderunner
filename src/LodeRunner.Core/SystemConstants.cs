@@ -239,5 +239,10 @@ namespace LodeRunner.Core
         /// The LodeRunner API request log name.
         /// </summary>
         public const string LodeRunnerAPIRequestLogName = "LodeRunner.API.RequestLog";
+
+        /// <summary>
+        ///  Test Run Cancellation Requested message.
+        /// </summary>
+        public const string TestRunCancellationRequestedMessage = "Cancellation requested for TestRunId:";
     }
 }

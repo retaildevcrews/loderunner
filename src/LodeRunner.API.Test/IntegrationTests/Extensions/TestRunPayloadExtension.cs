@@ -33,7 +33,9 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="name">The name.</param>
         /// <param name="loadClientId">The loadClient Id from LodeRunner Client.</param>
         /// <param name="apiServerPort">The list of API ports for servers to target during load test.</param>
-        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string loadClientId, List<int> apiServerPort)
+        /// <param name="sleepMs">The sleep time between requests in ms.</param>
+        /// <param name="runLoop">Detemines if should run in loop.</param>
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string loadClientId, List<int> apiServerPort, int sleepMs = 0, bool runLoop = false)
         {
             testRunPayload.SetNameAndTime(name);
 
@@ -42,6 +44,8 @@ namespace LodeRunner.API.Test.IntegrationTests
                 Name = $"Sample LoadTestConfig - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}",
                 Files = new List<string>() { "LodeRunner.Api-benchmark.json" },
                 Server = new List<string>(),
+                Sleep = sleepMs,
+                RunLoop = runLoop,
             };
 
             foreach (var hostPort in apiServerPort)

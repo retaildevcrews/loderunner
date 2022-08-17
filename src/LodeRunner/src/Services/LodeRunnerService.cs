@@ -599,7 +599,7 @@ namespace LodeRunner.Services
 
             // NOTE: We create a new dummy Cancellation token for IntervalChecker to prevent to cancel the execution in the case testRunExecutionChecker.HardStopCheck has reached out the retry limit.
             // In any case, the current implementation of testRunExecutionChecker.HardStopCheck function will never return 'false'
-            using var intervalChecker = new IntervalChecker(testRunExecutionHelper.HardStopCheck, this.logger, new(), interval: 10);
+            using var intervalChecker = new IntervalChecker(testRunExecutionHelper.HardStopCheck, this.logger, new(), interval: this.config.HardStopCheckInterval);
             intervalChecker.Start();
 
             try
