@@ -254,6 +254,12 @@ namespace LodeRunner.Services
                 if (testRun.ClientResults.Count == testRun.LoadClients.Count)
                 {
                     testRun.CompletedTime = args.CompletedTime;
+
+                    // Only set HardStopTime if all loadClients completed
+                    if (testRun.HardStop && testRun.HardStopTime == null)
+                    {
+                        testRun.HardStopTime = DateTime.UtcNow;
+                    }
                 }
 
                 // post updates
@@ -595,7 +601,7 @@ namespace LodeRunner.Services
 
             CancellationTokenSource cancelTestRunExecution = new();
 
-            using var testRunExecutionHelper = new TestRunExecutionHelper(GetTestRunService(), logger, cancelTestRunExecution, testRun.Id);
+            using var testRunExecutionHelper = new TestRunExecutionHelper(GetTestRunService(), this.logger, cancelTestRunExecution, testRun.Id);
 
             // NOTE: We create a new dummy Cancellation token for IntervalChecker to prevent to cancel the execution in the case testRunExecutionChecker.HardStopCheck has reached out the retry limit.
             // In any case, the current implementation of testRunExecutionChecker.HardStopCheck function will never return 'false'

@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,8 @@ namespace LodeRunner
         private readonly ITestRunService testRunService;
         private readonly string testRunId;
         private readonly CancellationTokenSource cancelTestRunExecution;
+        private bool cancellationRequestReceived = false;
+        private bool disposedValue = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunExecutionHelper"/> class.
@@ -66,6 +69,7 @@ namespace LodeRunner
 
         public void Dispose()
         {
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -83,22 +87,46 @@ namespace LodeRunner
                 var testRun = await this.testRunService.Get(this.testRunId);
 
                 // hardStop value should be set by API.
-                if (testRun.HardStop && testRun.HardStopTime == null)
+                if (testRun.HardStop)
                 {
-                    // update HardStop
-                    testRun.HardStopTime = DateTime.UtcNow;
-                    CancellationTokenSource hardStopToken = new();
+                    if (testRun.HardStopTime == null && !cancellationRequestReceived)
+                    {
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestReceivedMessage} {this.testRunId}");
 
-                    // NOTE: We update the TestRun item before to request a cancellation since LodeRunner Service will throw a TaskCanceledException that we handle already and also call ProcessingEventBus.OnTestRunComplete.
-                    await this.testRunService.Post(testRun, hardStopToken.Token);
+                        //Initiate Cancellation.
+                        this.cancelTestRunExecution.Cancel(false);
 
-                    this.cancelTestRunExecution.Cancel(false);
+                        cancellationRequestReceived = true;
+                    }
 
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestedMessage} {this.testRunId}");
+                    // This check prevents to log the meessage in the case the Interval Thicks before cancellation has triggered UpdateTestRun and testRun.HardStopTime has not been updated yet/
+                    //if (testRun.HardStopTime != null)
+                    else if (testRun.HardStopTime != null)
+                    {
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
+                    }
                 }
 
                 return true;
             });
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool disposing)
+        {
+            if (!this.disposedValue)
+            {
+                if (disposing)
+                {
+                    // Call HardStopCheck one last time to Set testRun.HardStopTime if applicable when the current LodeRunnerCommand completes.
+                    _ = HardStopCheck();
+                }
+
+                this.disposedValue = true;
+            }
         }
     }
 }

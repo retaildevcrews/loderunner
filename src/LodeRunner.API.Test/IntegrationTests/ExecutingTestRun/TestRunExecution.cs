@@ -68,7 +68,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         [InlineData(2)]
         public async Task CanCreateAndExecuteTestRun(int apiHostCount)
         {
-            await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs: 0, runLoop: false, async (HttpClient httpClient, TestRun postedTestRun, ProcessContext lodeRunnerAppContext, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
+            await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs: 0, runLoop: false, loadClientCount: 1, async (HttpClient httpClient, TestRun postedTestRun, ProcessContext lodeRunnerAppContext, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
             {
                 // Attempt to get TestRun for N retries or until condition has met.
                 (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 3000);
@@ -131,7 +131,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException)]
         public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop, string expectedCancellationErrorMessage)
         {
-            await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs, runLoop, async (HttpClient httpClient, TestRun postedTestRun, ProcessContext lodeRunnerAppContext, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
+            await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs, runLoop, loadClientCount: 1, async (HttpClient httpClient, TestRun postedTestRun, ProcessContext lodeRunnerAppContext, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
             {
                 // Async method to set HardStop to true.
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tRequesting Test Run Cancellation...");
@@ -146,14 +146,25 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating Test Run Request Cancellation results ...");
 
-                // Validate that HardStop Request was loggged in LodeRunner-Command output.
-                var testRunCancellationRequestMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestedMessage, "message", "Unable to get TestRun Cancellation Request Message from LodeRunner-Command output");
+                // Validate that Request for HardStop was received was loggged in LodeRunner-Command output.
+                var testRunCancellationRequestReceivedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestReceivedMessage, "message", "Unable to get TestRun Cancellation Request Received Message from LodeRunner-Command output");
 
                 // Validate that the cancellation message match the current TestRunId
-                Assert.True(testRunCancellationRequestMessage.Contains(testRunId), "Unable to match TestRunId for the Cancellation Request Message found in LodeRunner-Command output");
+                Assert.True(testRunCancellationRequestReceivedMessage.Contains(testRunId), "Unable to match TestRunId for Cancellation Request Message in LodeRunner-Command output");
+
+                (HttpResponseMessage stoppedTestRunResponse, TestRun stoppedTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateHardStopTime, 10, apiHostCount * 500);
+
+                // Validate Hard Stop completed message was loggged in LodeRunner-Command output.
+                var testRunHardStopCommpletedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 2000);
+
+                // Validate that the cancellation message match the current TestRunId
+                Assert.True(testRunHardStopCommpletedMessage.Contains(testRunId), "Unable to match TestRunId for Hard Stop Completed in LodeRunner-Command output");
 
                 // Validate results
                 ValidateTestRunResults(readyTestRun, testRunResponse);
+
+                // Validate Hard Stop values in TestRun item.
+                Assert.True(stoppedTestRun.HardStop && stoppedTestRun.HardStopTime != null, $"TestRun was requested to be cancelled, however HardStop is set to '{stoppedTestRun.HardStop}' and HardStopTime is set to '{stoppedTestRun.HardStopTime}'.");
 
                 var clientResult = readyTestRun.ClientResults[0];
 
@@ -260,7 +271,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
                 {
-                    // TODO: At this time API endpoint is not ready yet, Should we replace testRun Service with API call instead once it becomes available?
                     var testRunSvc = ComponentsFactory.GetTestRunService(this.factory);
 
                     // get current TestRun document
@@ -377,11 +387,13 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="apiHostCount">The number API hosts to utilized.</param>
         /// <param name="sleepMs">The sleep time between requests in ms.</param>
         /// <param name="runLoop">Detemines if should run in loop.</param>
+        /// <param name="loadClientCount">The number of loadClients to create for the TestRun.</param>
         /// <param name="concreteTestRunTaskToExecute">The concrete task to be executed in this block.</param>
         /// <returns>A task for the in-line code block.</returns>
-        private async Task TryCreateExecuteDisposeTestRun(int apiHostCount, int sleepMs, bool runLoop, Func<HttpClient, TestRun, ProcessContext, ApiProcessContextCollection, List<int>, Task> concreteTestRunTaskToExecute)
+        private async Task TryCreateExecuteDisposeTestRun(int apiHostCount, int sleepMs, bool runLoop, int loadClientCount, Func<HttpClient, TestRun, ProcessContext, ApiProcessContextCollection, List<int>, Task> concreteTestRunTaskToExecute)
         {
             using var httpClient = ComponentsFactory.CreateLodeRunnerAPIHttpClient(this.factory);
+            // TODO: create a LRProcessContextCollection similar to ApiProcessContextCollection , so we can handle multiple loadClients
 
             // Execute dotnet run against LodeRunner project in Client Mode
             string secretsVolume = "secrets".GetSecretVolume();
@@ -441,7 +453,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 string testRunName = $"Sample TestRun - IntegrationTesting-{nameof(this.CanCreateAndExecuteTestRun)}-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}";
 
                 // NOTE: InData parameters detemine that we create a long running test for each run mode (run-loop and run-once)
-                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, loadClientId, portList, sleepMs, runLoop);
+                testRunPayload.SetMockDataToLoadTestLodeRunnerApi(testRunName, loadClientId, loadClientCount, portList, sleepMs, runLoop);
 
                 HttpResponseMessage postedResponse = await httpClient.PostEntity<TestRun, TestRunPayload>(testRunPayload, SystemConstants.CategoryTestRunsPath, this.output);
 

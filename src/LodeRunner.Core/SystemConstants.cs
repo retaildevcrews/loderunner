@@ -241,9 +241,14 @@ namespace LodeRunner.Core
         public const string LodeRunnerAPIRequestLogName = "LodeRunner.API.RequestLog";
 
         /// <summary>
-        ///  Test Run Cancellation Requested message.
+        ///  Test Run Hard Stop completed.
         /// </summary>
-        public const string TestRunCancellationRequestedMessage = "Cancellation requested for TestRunId:";
+        public const string TestRunHardStopCompletedMessage = "TestRun Hard Stop completed for TestRunId:";
+
+        /// <summary>
+        ///  Test Run Cancellation Request received message.
+        /// </summary>
+        public const string TestRunCancellationRequestReceivedMessage = "TestRun Cancellation request received for TestRunId:";
 
         /// <summary>
         ///  Test Run Execution Stopped.
