@@ -3,22 +3,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.API.Test.IntegrationTests.Extensions;
-using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
+using CommonTest = LodeRunner.API.Test.IntegrationTests.Common;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
@@ -27,8 +25,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     /// </summary>
     public class TestRunExecution : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
-        private const string LodeRunnerServiceLogName = "LodeRunner.Services.LodeRunnerService";
-        private const string LodeRunnerAppName = "LodeRunner";
         private const string LodeRunnerAPIAppName = "LodeRunner.API";
 
         private readonly ApiWebApplicationFactory<Startup> factory;
@@ -75,24 +71,24 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 3000);
 
                 // Get LodeRunner TestRun Id when Executing
-                var testRunId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
+                var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
 
                 // Validate that all 3 ids were logged in LodeRunner-Command output.
                 this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.ClientStatusIdFieldName}, {LodeRunner.Core.SystemConstants.LoadClientIdFieldName}  and {LodeRunner.Core.SystemConstants.TestRunIdFieldName} for LodeRunner-Command Log");
                 string lodeRunnerCmdOutputMarker = string.Format(SystemConstants.BaseUriLocalHostPort, portList[0]);
 
-                var clientStatusId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName);
+                var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output);
 
-                var loadClientId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.LoadClientIdFieldName);
+                var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output);
 
-                testRunId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName);
+                testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output);
 
                 // Validate that TraceId and SpanId were logged in LodeRunner-Command output.
                 this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner-Command Log");
 
-                var traceId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName);
+                var traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
-                var spanId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName);
+                var spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
 
                 // Validate traceId and SpanId were logged in LodeRunner.API log
                 foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
@@ -101,9 +97,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
 
-                    traceId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName);
+                    traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
-                    spanId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName);
+                    spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
                 }
 
                 // Validate results
@@ -143,12 +139,12 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateHardStopTime, 10, apiHostCount * 3000);
 
                 // Get LodeRunner TestRun Id when Executing
-                var testRunId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
+                var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
 
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating Test Run Request Cancellation results ...");
 
                 // Validate that Request for HardStop was received was loggged in LodeRunner-Command output.
-                var testRunCancellationRequestReceivedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestReceivedMessage, "message", "Unable to get TestRun Cancellation Request Received Message from LodeRunner-Command output");
+                var testRunCancellationRequestReceivedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestReceivedMessage, "message", this.output, "Unable to get TestRun Cancellation Request Received Message from LodeRunner-Command output");
 
                 // Validate that the cancellation message match the current TestRunId
                 Assert.True(testRunCancellationRequestReceivedMessage.Contains(testRunId), "Unable to match TestRunId for Cancellation Request Message in LodeRunner-Command output");
@@ -156,7 +152,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 (HttpResponseMessage stoppedTestRunResponse, TestRun stoppedTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateHardStopTime, 10, apiHostCount * 500);
 
                 // Validate Hard Stop completed message was loggged in LodeRunner-Command output.
-                var testRunHardStopCommpletedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 1000);
+                var testRunHardStopCommpletedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", this.output, "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 1000);
 
                 // Validate that the cancellation message match the current TestRunId
                 Assert.True(testRunHardStopCommpletedMessage.Contains(testRunId), "Unable to match TestRunId for Hard Stop Completed in LodeRunner-Command output");
@@ -191,31 +187,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             Assert.True(readyTestRun.CompletedTime != null, "CompletedTime is null.");
             Assert.True(readyTestRun.LoadClients.Count == expectedLoadClientCount, $"LoadClients.Count do not match the expected value [{expectedLoadClientCount}]");
             Assert.True(readyTestRun.ClientResults.Count == readyTestRun.LoadClients.Count, "ClientResults.Count do not match LoadClients.Count");
-        }
-
-        /// <summary>
-        /// Parses the Output and validates that the Value for a given field is not null.
-        /// </summary>
-        /// <param name="appName">The name of the application that the log is from.</param>
-        /// <param name="outputList">The Process outputList.</param>
-        /// <param name="logName">The logName to identify the line be parsed.</param>
-        /// <param name="outputMarker">The marker string to identify the line be parsed.</param>
-        /// <param name="fieldName">The name of the field to get the value from..</param>
-        /// <param name="failErrorMessage">The message to display when validation fails.</param>
-        /// <param name="maxRetries">The maximum retries.</param>
-        /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
-        /// <returns>The field value.</returns>
-        private async Task<string> ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(string appName, List<string> outputList, string logName, string outputMarker, string fieldName, string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
-        {
-            var fieldValue = await this.TryParseProcessOutputAndGetValueFromFieldName(outputList, logName, outputMarker, fieldName, maxRetries, timeBetweenTriesMs);
-            if (string.IsNullOrEmpty(failErrorMessage))
-            {
-                failErrorMessage = $"Unable to get {fieldName} from {appName}-Command output";
-            }
-
-            Assert.False(string.IsNullOrEmpty(fieldValue), failErrorMessage);
-
-            return fieldValue;
         }
 
         /// <summary>
@@ -270,7 +241,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 var taskSource = new CancellationTokenSource();
 
-                await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+                await LodeRunner.Core.Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
                 {
                     var testRunSvc = ComponentsFactory.GetTestRunService(this.factory);
 
@@ -304,7 +275,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             int portNumber = 0;
 
             var taskSource = new CancellationTokenSource();
-            await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
+            await LodeRunner.Core.Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
             {
                 await Task.Run(() =>
                 {
@@ -329,56 +300,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             });
 
             return portNumber;
-        }
-
-        /// <summary>
-        /// Parses the process output and to get client status id.
-        /// </summary>
-        /// <param name="outputList">The Process outputList.</param>
-        /// <param name="logName">ThelogName to identify the line be parsed.</param>
-        /// <param name="marker">The marker string to identify the line be parsed.</param>
-        /// <param name="fieldName">The name of the field to get the value from Json object.</param>
-        /// <param name="maxRetries">The maximum retries.</param>
-        /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
-        /// <returns>The Task with the FieldValue.</returns>
-        private async Task<string> TryParseProcessOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName, int maxRetries = 10, int timeBetweenTriesMs = 500)
-        {
-            string fieldValue = null;
-            var taskSource = new CancellationTokenSource();
-
-            await Common.RunAndRetry(maxRetries, timeBetweenTriesMs, taskSource, async (int attemptCount) =>
-            {
-                await Task.Run(() =>
-                {
-                    // NOTE: we  ignore case sensitive.
-                    string targetOutputLine = outputList.FirstOrDefault(s => s.Contains($"logName\":\"{logName}\"", StringComparison.InvariantCultureIgnoreCase) && s.Contains(marker, StringComparison.InvariantCultureIgnoreCase));
-                    if (!string.IsNullOrEmpty(targetOutputLine))
-                    {
-                        Newtonsoft.Json.Linq.JObject json = Newtonsoft.Json.Linq.JObject.Parse(targetOutputLine);
-
-                        foreach (var e in json)
-                        {
-                            if (e.Key.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                fieldValue = e.Value.ToString();
-                                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t'{fieldName}' Found in LogName '{logName}'.\tValue: '{fieldValue}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                                break;
-                            }
-                        }
-
-                        if (fieldValue != null)
-                        {
-                            taskSource.Cancel();
-                        }
-                    }
-                    else
-                    {
-                        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t'{fieldName}' Not Found in LogName '{logName}'.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
-                    }
-                });
-            });
-
-            return fieldValue;
         }
 
         /// <summary>
@@ -418,10 +339,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 Assert.True(lodeRunnerAppContext.Start(), "Unable to start LodeRunner App Context.");
 
                 // Get LodeRunner Client Status Id when Initializing Client
-                var clientStatusId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, "Unable to get ClientStatusId when Initializing Client.");
+                var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, "Unable to get ClientStatusId when Initializing Client.");
 
                 // Get LodeRunner LoadClient Id when Initializing Client
-                var loadClientId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, "Unable to get loadClientId when Initializing Client", 10, apiHostCount * 2000);
+                var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output, "Unable to get loadClientId when Initializing Client", 10, apiHostCount * 2000);
 
                 // We should not have any error at time we are going to Verify Id
                 Assert.True(lodeRunnerAppContext.Errors.Count == 0, $"Errors found in LodeRunner Output.{Environment.NewLine}{string.Join(",", lodeRunnerAppContext.Errors)}");
@@ -472,7 +393,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 gottenTestRunId = gottenTestRun.Id;
 
                 // Get LodeRunner TestRun Id when Received
-                var testRunId = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ReceivedNewTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, "Unable to get TestRunId when Received TestRun", 10, apiHostCount * 3000);
+                var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ReceivedNewTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, "Unable to get TestRunId when Received TestRun", 10, apiHostCount * 3000);
 
                 // Execute Task for Concrete TestRun Implementation.
                 await concreteTestRunTaskToExecute(httpClient, postedTestRun, lodeRunnerAppContext, apiProcessContextCollection, portList);
