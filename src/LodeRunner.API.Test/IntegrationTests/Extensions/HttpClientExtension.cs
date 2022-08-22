@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using Newtonsoft.Json;
 using Xunit.Abstractions;

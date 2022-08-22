@@ -2,13 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
 using LodeRunner.Data.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
@@ -70,6 +67,7 @@ namespace LodeRunner
         public void Dispose()
         {
             this.Dispose(disposing: true);
+
             GC.SuppressFinalize(this);
         }
 
@@ -98,13 +96,6 @@ namespace LodeRunner
 
                         cancellationRequestReceived = true;
                     }
-
-                    // This check prevents to log the meessage in the case the Interval Thicks before cancellation has triggered UpdateTestRun and testRun.HardStopTime has not been updated yet/
-                    //if (testRun.HardStopTime != null)
-                    else if (testRun.HardStopTime != null)
-                    {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
-                    }
                 }
 
                 return true;
@@ -121,12 +112,48 @@ namespace LodeRunner
             {
                 if (disposing)
                 {
-                    // Call HardStopCheck one last time to Set testRun.HardStopTime if applicable when the current LodeRunnerCommand completes.
-                    _ = HardStopCheck();
+                    // Call RetryLogHardStopTime to set testRun.HardStopTime if applicable when the current LodeRunnerCommand completes.
+                    _ = RetryLogHardStopTime();
                 }
 
                 this.disposedValue = true;
             }
+        }
+
+        /// <summary>
+        /// Determines whether the TestRun has HardStopTime set and logs an information message..
+        /// </summary>
+        /// <returns>Whether or not HardStopTim log succeded.</returns>
+        private async Task RetryLogHardStopTime()
+        {
+            var taskSource = new CancellationTokenSource();
+
+            await Common.RunAndRetry(maxRetries: 10, maxDelay: 500, taskSource, async (int attemptCount) =>
+            {
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
+
+                bool logged = await TryCatchException(logger, nameof(RetryLogHardStopTime), async () =>
+                {
+                    // get current TestRun document
+                    var testRun = await this.testRunService.Get(this.testRunId);
+
+                    // Check if HardStop was requested and CancellationWas Received and HardStopTime was set.
+                    if (testRun.HardStop && cancellationRequestReceived && testRun.HardStopTime != null)
+                    {
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+                if (logged)
+                {
+                    taskSource.Cancel();
+                }
+            });
         }
     }
 }

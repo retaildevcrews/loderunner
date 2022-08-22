@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
 using LodeRunner.API.Test.IntegrationTests.Extensions;
+using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -155,7 +156,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 (HttpResponseMessage stoppedTestRunResponse, TestRun stoppedTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateHardStopTime, 10, apiHostCount * 500);
 
                 // Validate Hard Stop completed message was loggged in LodeRunner-Command output.
-                var testRunHardStopCommpletedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 2000);
+                var testRunHardStopCommpletedMessage = await this.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 1000);
 
                 // Validate that the cancellation message match the current TestRunId
                 Assert.True(testRunHardStopCommpletedMessage.Contains(testRunId), "Unable to match TestRunId for Hard Stop Completed in LodeRunner-Command output");

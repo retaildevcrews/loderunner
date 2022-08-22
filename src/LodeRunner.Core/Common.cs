@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LodeRunner.API.Test.IntegrationTests
+namespace LodeRunner.Core
 {
     /// <summary>
     /// REpresent common use functions.
