@@ -25,13 +25,14 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="outputMarker">The marker string to identify the line be parsed.</param>
         /// <param name="fieldName">The name of the field to get the value from..</param>
         /// <param name="output">The output.</param>
+        /// <param name="instanceId">The intance identifier.</param>
         /// <param name="failErrorMessage">The message to display when validation fails.</param>
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>The field value.</returns>
-        public static async Task<string> ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(string appName, List<string> outputList, string logName, string outputMarker, string fieldName, ITestOutputHelper output, string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        public static async Task<string> ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(string appName, List<string> outputList, string logName, string outputMarker, string fieldName, ITestOutputHelper output, string instanceId = "", string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
-            var fieldValue = await TryParseProcessOutputAndGetValueFromFieldName(outputList, logName, outputMarker, fieldName, output, maxRetries, timeBetweenTriesMs);
+            var fieldValue = await TryParseProcessOutputAndGetValueFromFieldName(outputList, logName, outputMarker, fieldName, output, instanceId, maxRetries, timeBetweenTriesMs);
             if (string.IsNullOrEmpty(failErrorMessage))
             {
                 failErrorMessage = $"Unable to get {fieldName} from {appName}-Command output";
@@ -50,10 +51,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="marker">The marker string to identify the line be parsed.</param>
         /// <param name="fieldName">The name of the field to get the value from Json object.</param>
         /// <param name="output">The output.</param>
+        /// <param name="instanceId">The intance identifier.</param>
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>The Task with the FieldValue.</returns>
-        private static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        private static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, string instanceId = "", int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             string fieldValue = null;
             var taskSource = new CancellationTokenSource();
@@ -73,7 +75,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                             if (e.Key.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase))
                             {
                                 fieldValue = e.Value.ToString();
-                                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t'{fieldName}' Found in LogName '{logName}'.\tValue: '{fieldValue}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                                output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t{instanceId}\t'{fieldName}' Found in LogName '{logName}'.\tValue: '{fieldValue}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                                 break;
                             }
                         }
@@ -85,7 +87,7 @@ namespace LodeRunner.API.Test.IntegrationTests
                     }
                     else
                     {
-                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t'{fieldName}' Not Found in LogName '{logName}'.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
+                        output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner Process Output.\t{instanceId}\t'{fieldName}' Not Found in LogName '{logName}'.\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                     }
                 });
             });

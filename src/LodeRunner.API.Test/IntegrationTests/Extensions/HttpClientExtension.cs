@@ -11,7 +11,6 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.API.Models;
-using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using Newtonsoft.Json;
 using Xunit.Abstractions;
@@ -42,7 +41,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await LodeRunner.Core.Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{clientsUri}/{clientStatusId}");
 
@@ -91,7 +90,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await LodeRunner.Core.Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{uri}");
 
@@ -420,7 +419,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             var taskSource = new CancellationTokenSource();
 
-            await Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
+            await LodeRunner.Core.Common.RunAndRetry(maxRetries, timeBetweenRequestsMs, taskSource, async (int attemptCount) =>
             {
                 httpResponse = await httpClient.GetAsync($"{baseEntityUri}/{itemId}");
 

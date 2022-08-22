@@ -23,7 +23,10 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             testRunPayload.LoadTestConfig = CreateLoadTestConfig();
 
-            testRunPayload.LoadClients = CreateLoadClients(2);
+            // Initialize a loadClient list with 2 random Guids just to mock data, we do not really care about the loadClientId in this case.
+            List<string> loadClientIds = new() { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+
+            testRunPayload.LoadClients = CreateLoadClients(loadClientIds);
         }
 
         /// <summary>
@@ -31,12 +34,11 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// </summary>
         /// <param name="testRunPayload">The test run payload.</param>
         /// <param name="name">The name.</param>
-        /// <param name="loadClientId">The loadClient Id from LodeRunner Client.</param>
-        /// <param name="loadClientCount">The number of loadClients to create for the TestRun.</param>
+        /// <param name="loadClientIds">The loadClient Id list from real up and running LodeRunner Client Instances.</param>
         /// <param name="apiServerPort">The list of API ports for servers to target during load test.</param>
         /// <param name="sleepMs">The sleep time between requests in ms.</param>
         /// <param name="runLoop">Detemines if should run in loop.</param>
-        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, string loadClientId, int loadClientCount, List<int> apiServerPort, int sleepMs = 0, bool runLoop = false)
+        public static void SetMockDataToLoadTestLodeRunnerApi(this TestRunPayload testRunPayload, string name, List<string> loadClientIds, List<int> apiServerPort, int sleepMs = 0, bool runLoop = false)
         {
             testRunPayload.SetNameAndTime(name);
 
@@ -57,7 +59,7 @@ namespace LodeRunner.API.Test.IntegrationTests
 
             testRunPayload.LoadTestConfig = loadTestConfig;
 
-            testRunPayload.LoadClients = CreateLoadClients(loadClientCount, loadClientId);
+            testRunPayload.LoadClients = CreateLoadClients(loadClientIds);
         }
 
         /// <summary>
@@ -86,23 +88,22 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <summary>
         /// Creates the load clients.
         /// </summary>
-        /// <param name="count">The count.</param>
-        /// <param name="loadClientId">The loadClient Id from LodeRunner Client.</param>
+        /// <param name="loadClientIdList">The loadClient Id from LodeRunner Client.</param>
         /// <returns>List of N clients with mock data.</returns>
-        private static List<LoadClient> CreateLoadClients(int count, string loadClientId = null)
+        private static List<LoadClient> CreateLoadClients(List<string> loadClientIdList)
         {
             var result = new List<LoadClient>();
-
-            for (int i = 1; i <= count; i++)
+            int loadClientCount = 0;
+            foreach (var loadClientId in loadClientIdList)
             {
-                var mockedLoadClient = new LoadClient();
-
-                if (!string.IsNullOrEmpty(loadClientId))
+                var mockedLoadClient = new LoadClient
                 {
-                    mockedLoadClient.Id = loadClientId;
-                }
+                    Id = loadClientId,
+                };
 
-                mockedLoadClient.SetMockData($"Sample LoadClient [{i}] - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
+                loadClientCount++;
+
+                mockedLoadClient.SetMockData($"Sample LoadClient [{loadClientCount}] - IntegrationTesting-{DateTime.UtcNow:yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK}");
                 result.Add(mockedLoadClient);
             }
 

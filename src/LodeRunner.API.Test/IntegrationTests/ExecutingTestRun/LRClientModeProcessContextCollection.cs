@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using CommonTest = LodeRunner.API.Test.IntegrationTests.Common;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
+    //............... TODO: create base clase for LRClientModeProcessContextCollection and ApiProcessContextCollection
+
     /// <summary>
     /// Represents the LodeRunner Client Mode Process Context Collection class.
     /// </summary>
@@ -19,7 +22,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         private readonly string secretsVolume;
         private readonly ITestOutputHelper output;
         private bool disposedValue = false;
-        private List<(int InstanceId, string ClientStatusId, ProcessContext LodeRunnerProcessContext)> processContextList;
+        private List<(int InstanceId, ProcessContext LodeRunnerProcessContext)> processContextList;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LRClientModeProcessContextCollection"/> class.
@@ -53,12 +56,21 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// Gets the enumerator.
         /// </summary>
         /// <returns>The Enumerator for LodeRunnerProcessContextCollection Tuple. </returns>
-        public IEnumerator<(int InstanceId, string ClientStatusId, ProcessContext LodeRunnerProcessContext)> GetEnumerator()
+        public IEnumerator<(int InstanceId, ProcessContext LodeRunnerProcessContext)> GetEnumerator()
         {
             foreach (var processContext in this.processContextList)
             {
                 yield return processContext;
             }
+        }
+
+        /// <summary>
+        /// Get First or Default instance.
+        /// </summary>
+        /// <returns>The first or default instance created.</returns>
+        public ProcessContext FirstOrDefault()
+        {
+            return this.processContextList.FirstOrDefault().LodeRunnerProcessContext;
         }
 
         /// <summary>
@@ -101,13 +113,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     if (lodeRunnerContext.Start())
                     {
-                        Task.Run(async () =>
-                        {
-                            // Get LodeRunner Client Status Id when Initializing Client
-                            var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, "Unable to get ClientStatusId when Initializing Client.");
-
-                            this.processContextList.Add(new(instanceId, clientStatusId, lodeRunnerContext));
-                        });
+                        this.processContextList.Add(new(instanceId, lodeRunnerContext));
                     }
                     else
                     {
@@ -132,10 +138,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 if (disposing)
                 {
-                    foreach (var (instanceId, clientStatusId, lodeRunnerProcessContext) in this.processContextList)
+                    foreach (var (instanceId, lodeRunnerProcessContext) in this.processContextList)
                     {
                         lodeRunnerProcessContext.End();
-                        this.output.WriteLine($"Stopping LodeRunner Client Mode for Instance: {instanceId}, ClientStatusId: {clientStatusId}");
+                        this.output.WriteLine($"Stopping LodeRunner Client Mode for Instance: {instanceId}");
                     }
 
                     // we remove any reference to the lodeRunnerProcess Context.

@@ -21,7 +21,6 @@ namespace LodeRunner
         private readonly string testRunId;
         private readonly CancellationTokenSource cancelTestRunExecution;
         private bool cancellationRequestReceived = false;
-        private bool disposedValue = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunExecutionHelper"/> class.
@@ -66,8 +65,6 @@ namespace LodeRunner
 
         public void Dispose()
         {
-            this.Dispose(disposing: true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -103,32 +100,14 @@ namespace LodeRunner
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
-        {
-            if (!this.disposedValue)
-            {
-                if (disposing)
-                {
-                    // Call RetryLogHardStopTime to set testRun.HardStopTime if applicable when the current LodeRunnerCommand completes.
-                    _ = RetryLogHardStopTime();
-                }
-
-                this.disposedValue = true;
-            }
-        }
-
-        /// <summary>
         /// Determines whether the TestRun has HardStopTime set and logs an information message..
         /// </summary>
         /// <returns>Whether or not HardStopTim log succeded.</returns>
-        private async Task RetryLogHardStopTime()
+        public async Task RetryLogHardStopTime()
         {
             var taskSource = new CancellationTokenSource();
 
-            await Common.RunAndRetry(maxRetries: 10, maxDelay: 500, taskSource, async (int attemptCount) =>
+            await Common.RunAndRetry(maxRetries: 15, maxDelay: 1000, taskSource, async (int attemptCount) =>
             {
                 logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
 

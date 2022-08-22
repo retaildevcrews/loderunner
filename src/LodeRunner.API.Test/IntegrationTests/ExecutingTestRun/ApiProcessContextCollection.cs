@@ -7,6 +7,8 @@ using Xunit.Abstractions;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
+    //............... TODO: create base clase for LRClientModeProcessContextCollection and ApiProcessContextCollection
+
     /// <summary>
     /// Represents the Api Process Context Collection class.
     /// </summary>
