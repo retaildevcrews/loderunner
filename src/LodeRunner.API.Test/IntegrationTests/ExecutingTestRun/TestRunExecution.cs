@@ -158,7 +158,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating Test Run Request Cancellation results ...");
 
                     // Validate that Request for HardStop was received was loggged in LodeRunner-Command output.
-                    var testRunCancellationRequestReceivedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestReceivedMessage, "message", this.output, instanceIdentifier, "Unable to get TestRun Cancellation Request Received Message from LodeRunner-Command output");
+                    var testRunCancellationRequestReceivedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunCancellationRequestReceivedMessage, "message", this.output, instanceIdentifier, "Unable to get TestRun Cancellation Request Received Message from LodeRunner-Command output", loadClientCount * 2000);
 
                     // Validate that the cancellation message match the current TestRunId
                     Assert.True(testRunCancellationRequestReceivedMessage.Contains(testRunId), "Unable to match TestRunId for Cancellation Request Message in LodeRunner-Command output");
@@ -166,7 +166,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     (HttpResponseMessage stoppedTestRunResponse, TestRun stoppedTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateHardStopTime, 10, apiHostCount * 500);
 
                     // Validate Hard Stop completed message was loggged in LodeRunner-Command output.
-                    var testRunHardStopCommpletedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", this.output, instanceIdentifier, "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, readyTestRun.LoadClients.Count * 1000);
+                    var testRunHardStopCommpletedMessage = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.TestRunHardStopCompletedMessage, "message", this.output, instanceIdentifier, "Unable to get TestRun Hard Stop Completed Message from LodeRunner-Command output", 10, loadClientCount * 1000);
 
                     // Validate that the cancellation message match the current TestRunId
                     Assert.True(testRunHardStopCommpletedMessage.Contains(testRunId), "Unable to match TestRunId for Hard Stop Completed in LodeRunner-Command output");
@@ -359,7 +359,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     Assert.True(lrClientProcessContext.Errors.Count == 0, $"Errors found in LodeRunner Client - Instance {instanceId} Output.{Environment.NewLine}{string.Join(",", lrClientProcessContext.Errors)}");
 
                     // Get LodeRunner Client Status Id when Initializing Client
-                    var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, instanceIdentifier, "Unable to get ClientStatusId when Initializing Client.");
+                    var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, instanceIdentifier, "Unable to get ClientStatusId when Initializing Client.", 10, loadClientCount * 2000);
 
                     // Get LodeRunner LoadClient Id when Initializing Client
                     var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output, instanceIdentifier, "Unable to get loadClientId when Initializing Client.");

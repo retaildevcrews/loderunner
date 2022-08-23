@@ -109,21 +109,29 @@ namespace LodeRunner
 
             await Common.RunAndRetry(maxRetries: 15, maxDelay: 1000, taskSource, async (int attemptCount) =>
             {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
-
                 bool logged = await TryCatchException(logger, nameof(RetryLogHardStopTime), async () =>
                 {
                     // get current TestRun document
                     var testRun = await this.testRunService.Get(this.testRunId);
 
-                    // Check if HardStop was requested and CancellationWas Received and HardStopTime was set.
-                    if (testRun.HardStop && cancellationRequestReceived && testRun.HardStopTime != null)
+                    if (testRun.HardStop)
                     {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
-                        return true;
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
+
+                        // Check if HardStop was requested and CancellationWas Received and HardStopTime was set.
+                        if (cancellationRequestReceived && testRun.HardStopTime != null)
+                        {
+                            logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                     else
                     {
+                        taskSource.Cancel();
                         return false;
                     }
                 });
