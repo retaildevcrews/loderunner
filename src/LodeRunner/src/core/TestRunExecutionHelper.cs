@@ -81,18 +81,15 @@ namespace LodeRunner
                 // get current TestRun document
                 var testRun = await this.testRunService.Get(this.testRunId);
 
-                // hardStop value should be set by API.
-                if (testRun.HardStop)
+                // Check if hardStop was requested.
+                if (testRun.HardStop && testRun.HardStopTime == null && !cancellationRequestReceived)
                 {
-                    if (testRun.HardStopTime == null && !cancellationRequestReceived)
-                    {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestReceivedMessage} {this.testRunId}");
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestReceivedMessage} {this.testRunId}");
 
-                        //Initiate Cancellation.
-                        this.cancelTestRunExecution.Cancel(false);
+                    //Initiate Cancellation.
+                    this.cancelTestRunExecution.Cancel(false);
 
-                        cancellationRequestReceived = true;
-                    }
+                    cancellationRequestReceived = true;
                 }
 
                 return true;
