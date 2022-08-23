@@ -6,22 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using CommonTest = LodeRunner.API.Test.IntegrationTests.Common;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
-    //............... TODO: create base clase for LRClientModeProcessContextCollection and ApiProcessContextCollection
-
     /// <summary>
     /// Represents the LodeRunner Client Mode Process Context Collection class.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal class LRClientModeProcessContextCollection : IDisposable
+    internal class LRClientModeProcessContextCollection : BaseProcessContextCollection
     {
-        private readonly int instanceCount;
-        private readonly string secretsVolume;
-        private readonly ITestOutputHelper output;
-        private bool disposedValue = false;
         private List<(int InstanceId, ProcessContext LodeRunnerProcessContext)> processContextList;
 
         /// <summary>
@@ -31,26 +24,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="secretsVolume">The secrets volume.</param>
         /// <param name="output">The output.</param>
         public LRClientModeProcessContextCollection(int instanceCount, string secretsVolume, ITestOutputHelper output)
-        {
-            this.instanceCount = instanceCount;
-            this.secretsVolume = secretsVolume;
-            this.output = output;
-        }
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="LRClientModeProcessContextCollection"/> class from being created.
-        /// </summary>
-        private LRClientModeProcessContextCollection()
+            : base(instanceCount, secretsVolume, output)
         {
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance started.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance started; otherwise, <c>false</c>.
-        /// </value>
-        public bool Started { get; private set; } = false;
 
         /// <summary>
         /// Gets the enumerator.
@@ -74,23 +50,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Ends this instance.
-        /// </summary>
-        public void End()
-        {
-            this.Dispose();
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         /// Starts a new LodeRunner Client mode Instance.
         /// </summary>
         /// <returns>whether or not the collection process started.</returns>
@@ -100,16 +59,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 this.processContextList = new();
 
-                for (int instanceId = 1; instanceId <= this.instanceCount; instanceId++)
+                for (int instanceId = 1; instanceId <= this.InstanceCount; instanceId++)
                 {
                     var lodeRunnerContext = new ProcessContext(
                     new ProcessContextParams()
                     {
                         ProjectBasePath = "LodeRunner/LodeRunner.csproj",
-                        ProjectArgs = $"--mode Client --secrets-volume {this.secretsVolume}",
+                        ProjectArgs = $"--mode Client --secrets-volume {this.SecretsVolume}",
                         ProjectBaseParentDirectoryName = "src",
                     },
-                    this.output);
+                    this.Output);
 
                     if (lodeRunnerContext.Start())
                     {
@@ -122,7 +81,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 }
 
                 // if the number of requested apiHostCount to be created is equals to the number of ProcessContext created and successfully started.
-                this.Started = this.processContextList.Count == this.instanceCount;
+                this.Started = this.processContextList.Count == this.InstanceCount;
             }
 
             return this.Started;
@@ -132,16 +91,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!this.disposedValue)
+            if (!this.DisposedValue)
             {
                 if (disposing)
                 {
                     foreach (var (instanceId, lodeRunnerProcessContext) in this.processContextList)
                     {
                         lodeRunnerProcessContext.End();
-                        this.output.WriteLine($"Stopping LodeRunner Client Mode for Instance: {instanceId}");
+                        this.Output.WriteLine($"Stopping LodeRunner Client Mode for Instance: {instanceId}");
                     }
 
                     // we remove any reference to the lodeRunnerProcess Context.
@@ -150,7 +109,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     this.processContextList = null;
                 }
 
-                this.disposedValue = true;
+                this.DisposedValue = true;
             }
         }
     }

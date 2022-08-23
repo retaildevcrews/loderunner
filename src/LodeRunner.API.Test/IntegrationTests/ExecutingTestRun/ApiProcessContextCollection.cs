@@ -7,18 +7,12 @@ using Xunit.Abstractions;
 
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
-    //............... TODO: create base clase for LRClientModeProcessContextCollection and ApiProcessContextCollection
-
     /// <summary>
     /// Represents the Api Process Context Collection class.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal class ApiProcessContextCollection : IDisposable
+    internal class ApiProcessContextCollection : BaseProcessContextCollection
     {
-        private readonly int apiHostCount;
-        private readonly string secretsVolume;
-        private readonly ITestOutputHelper output;
-        private bool disposedValue = false;
         private List<(int HostId, int PortNumber, ProcessContext ApiProcessContext)> processContextList;
 
         /// <summary>
@@ -28,26 +22,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="secretsVolume">The secrets volume.</param>
         /// <param name="output">The output.</param>
         public ApiProcessContextCollection(int apiHostCount, string secretsVolume, ITestOutputHelper output)
-        {
-            this.apiHostCount = apiHostCount;
-            this.secretsVolume = secretsVolume;
-            this.output = output;
-        }
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="ApiProcessContextCollection"/> class from being created.
-        /// </summary>
-        private ApiProcessContextCollection()
+            : base(apiHostCount, secretsVolume, output)
         {
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance started.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance started; otherwise, <c>false</c>.
-        /// </value>
-        public bool Started { get; private set; } = false;
 
         /// <summary>
         /// Gets the enumerator.
@@ -62,23 +39,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         }
 
         /// <summary>
-        /// Ends this instance.
-        /// </summary>
-        public void End()
-        {
-            this.Dispose();
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         /// Starts the specified next available port.
         /// </summary>
         /// <param name="getNextAvailablePort">The next available port.</param>
@@ -89,17 +49,17 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             {
                 this.processContextList = new();
 
-                for (int hostId = 1; hostId <= this.apiHostCount; hostId++)
+                for (int hostId = 1; hostId <= this.InstanceCount; hostId++)
                 {
                     int apiPortNumber = getNextAvailablePort();
                     var lodeRunnerAPIContext = new ProcessContext(
                     new ProcessContextParams()
                     {
                         ProjectBasePath = "LodeRunner.API/LodeRunner.API.csproj",
-                        ProjectArgs = $"--port {apiPortNumber} --secrets-volume {this.secretsVolume}",
+                        ProjectArgs = $"--port {apiPortNumber} --secrets-volume {this.SecretsVolume}",
                         ProjectBaseParentDirectoryName = "src",
                     },
-                    this.output);
+                    this.Output);
 
                     if (lodeRunnerAPIContext.Start())
                     {
@@ -112,7 +72,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 }
 
                 // if the number of requested apiHostCount to be created is equals to the number of ProcessContext created and successfully started.
-                this.Started = this.processContextList.Count == this.apiHostCount;
+                this.Started = this.processContextList.Count == this.InstanceCount;
             }
 
             return this.Started;
@@ -122,16 +82,16 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!this.disposedValue)
+            if (!this.DisposedValue)
             {
                 if (disposing)
                 {
                     foreach (var (hostId, portNumber, apiProcessContext) in this.processContextList)
                     {
                         apiProcessContext.End();
-                        this.output.WriteLine($"Stopping LodeRunner API for Host {hostId}:{portNumber}");
+                        this.Output.WriteLine($"Stopping LodeRunner API for Host {hostId}:{portNumber}");
                     }
 
                     // we remove any reference to the ApiProcess Context.
@@ -140,7 +100,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     this.processContextList = null;
                 }
 
-                this.disposedValue = true;
+                this.DisposedValue = true;
             }
         }
     }

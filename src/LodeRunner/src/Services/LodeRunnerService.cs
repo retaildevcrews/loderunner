@@ -614,7 +614,7 @@ namespace LodeRunner.Services
                 // can be updated accordingly
                 _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, this.loadClient.Id, testRun.Id, cancelTestRunExecution, (ILogger<LodeRunnerService>)this.logger);
 
-                // Retry to log HardStopTime message
+                // Retry to log HardStopTime message if HardStop requested.
                 await testRunExecutionHelper.RetryLogHardStopTime();
             }
             catch (Exception ex)
