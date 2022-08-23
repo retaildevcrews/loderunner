@@ -114,12 +114,12 @@ namespace LodeRunner
                     // get current TestRun document
                     var testRun = await this.testRunService.Get(this.testRunId);
 
-                    if (testRun.HardStop)
+                    if (testRun.HardStop && cancellationRequestReceived)
                     {
                         logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
 
                         // Check if HardStop was requested and CancellationWas Received and HardStopTime was set.
-                        if (cancellationRequestReceived && testRun.HardStopTime != null)
+                        if (testRun.HardStopTime != null)
                         {
                             logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
                             return true;
