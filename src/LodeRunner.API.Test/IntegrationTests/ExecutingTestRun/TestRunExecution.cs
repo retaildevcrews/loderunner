@@ -132,9 +132,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
         [Trait("Category", "Integration")]
         [Theory]
-        [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 1)]
         [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 2)]
-        [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 1)]
         [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 2)]
         public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop, string expectedCancellationErrorMessage, int loadClientCount)
         {
