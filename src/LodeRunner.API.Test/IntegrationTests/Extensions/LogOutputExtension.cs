@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace LodeRunner.API.Test.IntegrationTests.Extensions
 {
     /// <summary>
-    /// Rpresents LogOutputExtension.
+    /// Represents LogOutputExtension.
     /// </summary>
     public static class LogOutputExtension
     {

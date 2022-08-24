@@ -35,9 +35,10 @@ namespace LodeRunner.API.Test.IntegrationTests
         }
 
         /// <summary>
-        /// Get Singleton.
+        /// Get the Singleton instace of ApiPortPoolManager.
+        /// We utilized a lock to prevent that when different Integration Tests for TestRunExecution are running simultaneously create more that one ApiPortPoolManager instance when calling GetNextAvailablePort.
         /// </summary>
-        /// <returns>Singleton.</returns>
+        /// <returns>ApiPortPoolManager Singleton Instance.</returns>
         public static ApiPortPoolManager GetInstance()
         {
             lock (GetInstanceLock)

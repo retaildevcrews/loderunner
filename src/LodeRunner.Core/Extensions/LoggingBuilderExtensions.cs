@@ -45,7 +45,7 @@ namespace LodeRunner.Core.Extensions
         }
 
         /// <summary>
-        /// Create Logger.
+        /// Creates a standalone Logger for the given Type.
         /// </summary>
         /// <typeparam name="T">The log app type. </typeparam>
         /// <param name="logLevelConfig">The log level.</param>
