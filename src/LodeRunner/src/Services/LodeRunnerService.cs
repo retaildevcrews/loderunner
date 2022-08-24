@@ -13,14 +13,12 @@ using LodeRunner.Core.Events;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
 using LodeRunner.Services.Extensions;
 using LodeRunner.Subscribers;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
