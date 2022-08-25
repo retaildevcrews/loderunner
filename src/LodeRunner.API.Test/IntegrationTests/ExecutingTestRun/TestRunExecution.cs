@@ -21,7 +21,7 @@ using CommonTest = LodeRunner.API.Test.IntegrationTests.Common;
 namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 {
     /// <summary>
-    /// Represents LoadTestConfigs.
+    /// Represents TestRunExecution.
     /// </summary>
     public class TestRunExecution : IClassFixture<ApiWebApplicationFactory<Startup>>
     {

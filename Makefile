@@ -5,7 +5,9 @@ help :
 	@echo "   make all              - create a cluster and deploy the apps"
 	@echo "   make create           - create a kind cluster"
 	@echo "   make delete           - delete the kind cluster"
-	@echo "   make deploy           - deploy the apps to the cluster"
+	@echo "   make deploy           - deploy all apps to the cluster"
+	@echo "   make deploy-ngsa      - deploy ngsa app to the cluster"
+	@echo "   make deploy-burst     - deploy burst metrics app to the cluster"
 	@echo "   make check            - curl endpoints cluster"
 	@echo "   make clean            - delete deployments"
 	@echo "   make lr-local         - build and deploy all local loderunner images"
@@ -32,11 +34,46 @@ create : delete
 	@sleep 5
 	@kubectl wait pod -A --all --for condition=ready --timeout=60s
 
-deploy :
+	# install istio
+	@/usr/local/istio/bin/istioctl install --set profile=demo -y
+
+deploy-burst: deploy-ngsa
+	# deploy burst metrics
+	@kubectl apply -f deploy/burst/burst-dev.yaml
+
+	# remove wasm filter if exists
+	-@rm -r burst_header.wasm
+	# download burst header wasm filter
+	@# We're using direct HASHED link instead of the main branch link (https://raw.githubusercontent.com/retaildevcrews/ngsa-asb/main/wasm/burst_header.wasm)
+	@# In this way we will download specific version of burst wasm binary and have consistent results
+	@wget https://github.com/retaildevcrews/ngsa-asb/raw/c0a04c7b76f7aeff68e4e522a59828603b9dacd4/wasm/burst_header.wasm
+
+	# add burst header config map
+	@kubectl create cm burst-wasm-filter --from-file=./burst_header.wasm -n ngsa
+
+	# wait on ngsa-memory pods
+	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
+
+	# create HPA for ngsa deployment for testing
+	@kubectl autoscale deployment ngsa-memory --cpu-percent=40 --min=1 --max=2 -n ngsa
+
+	# patch ngsa-memory
+	@# this will create a new ngsa deployment and terminate the old one
+	@kubectl patch deployment -n ngsa ngsa-memory -p '{"spec":{"template":{"metadata":{"annotations":{"sidecar.istio.io/userVolume":"[{\"name\":\"wasmfilters-dir\",\"configMap\": {\"name\": \"burst-wasm-filter\"}}]","sidecar.istio.io/userVolumeMount":"[{\"mountPath\":\"/var/local/lib/wasm-filters\",\"name\":\"wasmfilters-dir\"}]"}}}}}'
+
+	# wait on ngsa-memory pods
+	kubectl wait po -n ngsa --all --for condition=ready --timeout=60s
+
+	# turn the wasm filter on
+	@kubectl apply -f deploy/burst/ngsa-filter-sidecar.yaml
+
+
+deploy-ngsa :
 	# deploy ngsa-app
 	@# continue on most errors
 	-kubectl apply -f deploy/ngsa
 
+deploy : deploy-burst
 	# Delete LodeRunner.UI node_modules for docker context
 	@rm -rf ./src/LodeRunner.UI/node_modules
 
@@ -99,6 +136,7 @@ clean :
 	-kubectl delete -f deploy/loderunner --ignore-not-found=true
 	-kubectl delete secret lr-secrets --namespace loderunner --ignore-not-found=true
 	-kubectl delete -f deploy/ngsa --ignore-not-found=true
+	-kubectl delete -f deploy/burst --ignore-not-found=true
 	-kubectl delete -f deploy/monitoring --ignore-not-found=true
 	-kubectl delete ns monitoring --ignore-not-found=true
 	-kubectl delete -f deploy/fluentbit/fluentbit-pod.yaml --ignore-not-found=true

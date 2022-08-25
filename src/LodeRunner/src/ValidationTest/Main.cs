@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -479,12 +480,21 @@ namespace LodeRunner
                     // validate the response
                     valid = ResponseValidator.Validate(request, resp, body);
 
+                    // Get the Burst header value from HTTP Headers
+                    resp.Headers.TryGetValues(SystemConstants.XBurstLoadFeedback, out var burstHeaderValue);
+
                     // check the performance
                     perfLog = this.CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
 
                     // add tracing IDs to perf log
                     perfLog.B3TraceId = traceId;
                     perfLog.B3SpanId = spanId;
+
+                    // add burst header value to perf log
+                    if (burstHeaderValue != null)
+                    {
+                        perfLog.BurstLoadFeedback = burstHeaderValue.FirstOrDefault();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -717,6 +727,7 @@ namespace LodeRunner
                     { SystemConstants.LoadClientIdFieldName, perfLog.LoadClientId },
                     { SystemConstants.TestRunIdFieldName, perfLog.TestRunId },
                     { "LogName", SystemConstants.LoadTestRequestLogName },
+                    { SystemConstants.XBurstLoadFeedback, perfLog.BurstLoadFeedback },
                 };
 
                 // add zone, region tag
