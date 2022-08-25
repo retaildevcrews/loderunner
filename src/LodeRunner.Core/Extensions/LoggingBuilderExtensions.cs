@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System.Reflection;
 using System.Text.Json;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.NgsaLogger;
@@ -41,6 +42,24 @@ namespace LodeRunner.Core.Extensions
             }
 
             return logger;
+        }
+
+        /// <summary>
+        /// Creates a standalone Logger for the given Type.
+        /// </summary>
+        /// <typeparam name="T">The log app type. </typeparam>
+        /// <param name="logLevelConfig">The log level.</param>
+        /// <param name="logValues">Log Values.</param>
+        /// <returns>The looger.</returns>
+        public static ILogger<T> CreateLogger<T>(ICommonConfig logLevelConfig, ILogValues logValues)
+        {
+            string projectName = Assembly.GetCallingAssembly().GetName().Name;
+            using var loggerFactory = LoggerFactory.Create(logger =>
+            {
+                logger.Setup(logLevelConfig: logLevelConfig, logValues: logValues, projectName: projectName);
+            });
+
+            return loggerFactory.CreateLogger<T>();
         }
     }
 }

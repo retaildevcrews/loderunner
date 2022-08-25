@@ -2,9 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +10,7 @@ using LodeRunner.Core.Extensions;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+using LRLoggingExtensions = LodeRunner.Core.Extensions.LoggingBuilderExtensions;
 
 namespace LodeRunner.API.Test.UnitTests
 {
@@ -34,7 +32,10 @@ namespace LodeRunner.API.Test.UnitTests
         public IntervalCheckerTest(ITestOutputHelper output)
         {
             this.output = output;
-            this.logger = CreateLogger(new Config() { LogLevel = LogLevel.Warning });
+
+            var config = new Config() { LogLevel = LogLevel.Warning };
+
+            this.logger = LRLoggingExtensions.CreateLogger<IntervalCheckerTest>(logLevelConfig: config, logValues: config);
         }
 
         /// <summary>
@@ -63,22 +64,6 @@ namespace LodeRunner.API.Test.UnitTests
 
             // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
-        }
-
-        /// <summary>
-        ///  Create IntervalCheckerTest Logger.
-        /// </summary>
-        /// <param name="config">The config.</param>
-        /// <returns>The logger.</returns>
-        private static ILogger<IntervalCheckerTest> CreateLogger(Config config)
-        {
-            string projectName = Assembly.GetCallingAssembly().GetName().Name;
-            using var loggerFactory = LoggerFactory.Create(logger =>
-            {
-                logger.Setup(logLevelConfig: config, logValues: config, projectName: projectName);
-            });
-
-            return loggerFactory.CreateLogger<IntervalCheckerTest>();
         }
 
         /// <summary>

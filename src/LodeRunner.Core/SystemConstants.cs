@@ -244,5 +244,40 @@ namespace LodeRunner.Core
         /// The LodeRunner API request log name.
         /// </summary>
         public const string LodeRunnerAPIRequestLogName = "LodeRunner.API.RequestLog";
+
+        /// <summary>
+        /// Secrets validation CosmosCollectionCannotBeEmpty.
+        /// </summary>
+        public const string CosmosCollectionCannotBeEmpty = "CosmosCollection cannot be empty";
+
+        /// <summary>
+        /// Secrets validation CosmosDatabaseCannotBeEmpty.
+        /// </summary>
+        public const string CosmosDatabaseCannotBeEmpty = "CosmosDatabase cannot be empty";
+
+        /// <summary>
+        /// Secrets validation CosmosKeyCannotBeEmpty.
+        /// </summary>
+        public const string CosmosKeyCannotBeEmpty = "CosmosKey cannot be empty";
+
+        /// <summary>
+        /// Secrets validation CosmosUrlCannotBeEmpty.
+        /// </summary>
+        public const string CosmosUrlCannotBeEmpty = "CosmosUrl cannot be empty";
+
+        /// <summary>
+        /// Secrets validation UnableToReadSecretsFromVolume.
+        /// </summary>
+        public const string UnableToReadSecretsFromVolume = "Unable to read secrets from volume:";
+
+        /// <summary>
+        /// Secrets validation InvalidCosmosUrl.
+        /// </summary>
+        public const string InvalidCosmosUrl = "Invalid value for CosmosUrl:";
+
+        /// <summary>
+        /// Secrets validation InvalidCosmosKey.
+        /// </summary>
+        public const string InvalidCosmosKey = "Invalid value for CosmosKey:";
     }
 }
