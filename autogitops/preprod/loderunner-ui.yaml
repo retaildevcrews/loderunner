@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{gitops.lrUiName}}
+  namespace: {{gitops.namespace}}
+  labels:
+    app.kubernetes.io/name: {{gitops.lrUiName}}
+  annotations:
+    checkov.io/skip1: CKV_K8S_37=LR UI requires privileged permissions
+    checkov.io/skip2: CKV_K8S_20=LR UI requires privileged permissions
+    checkov.io/skip3: CKV_K8S_40=LR UI requires privileged permissions
+    checkov.io/skip4: CKV_K8S_22=LR UI requires writing to fs
+    checkov.io/skip6: CKV_K8S_28=LR UI needs NET_RAW
+    checkov.io/skip7: CKV_K8S_30=LR UI requires privileged permissions
+    checkov.io/skip8: CKV_K8S_23=LR UI requires privileged permissions
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {{gitops.lrUiName}}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{gitops.lrUiName}}
+        deploy: {{gitops.deploy}}
+        version: beta-{{gitops.version}}
+    spec:
+      containers:
+        - name: app
+          image: {{gitops.lrUiImage}}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+          - name: "LRAPI_DNS"
+            value: "https://{{gitops.name}}-{{gitops.config.region}}-pre.{{gitops.config.domain}}/api"
+          readinessProbe:
+            initialDelaySeconds: 5
+            httpGet:
+              path: /
+              port: 80
+          livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 300
+            httpGet:
+              path: /
+              port: 80
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      nodeSelector:
+        agentpool: npuser01
+        
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{gitops.lrUiName}}
+  namespace: {{gitops.namespace}}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http 
+    protocol: TCP
+    name: http
+  selector:
+    app: {{gitops.lrUiName}}
+    
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{gitops.namespace}}-vs
+  namespace: {{gitops.namespace}}
+spec:
+  gateways:
+  - istio-system/istio-gateway
+  hosts:
+  - {{gitops.name}}-{{gitops.config.region}}-pre.{{gitops.config.domain}}
+  http:
+  - match:
+    - uri:
+        prefix: /api/
+    - uri:
+        exact: /api
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: {{gitops.lrApiName}}
+        port:
+          number: 8080
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{gitops.lrUiName}}
+        port:
+          number: 80
