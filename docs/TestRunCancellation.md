@@ -20,7 +20,7 @@ The following documentation describes workflow, logging and data maintenance tas
 - Then after, if a `Cancellation Request` was received, the Retry HardStopTime checker will attempt up to 15 times to determine if the HardStop completed for the given TestRun and upon success a `TestRun Hard Stop completed` message will be logged.
   - Note: The retry operation will log a message for every attempt per Load Client.
 
-For information about how to view logs please refer to section `View Test Run logs from LodeRunner in client mode` under [Running an Example Load Test](/README.md#running-an-example-load-test)
+For information about how to view logs please refer to section `View Test Run logs from LodeRunner in client mode` under [Running an Example Load Test](../README.md#running-an-example-load-test)
 
 ### Data Maintenance
 
