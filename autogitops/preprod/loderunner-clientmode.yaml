@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{gitops.lrClientName}}
+  namespace: {{gitops.namespace}}
+  labels:
+    app.kubernetes.io/name: {{gitops.lrClientName}}
+  annotations:
+    checkov.io/skip1: CKV_K8S_8=LR Client does not have liveness endpoint
+    checkov.io/skip2: CKV_K8S_9=LR Client does not have readiness endpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{gitops.lrClientName}}
+  template:
+    metadata:
+      labels:
+        app: {{gitops.lrClientName}}
+        aadpodidbinding: {{gitops.lrMiName}}
+        deploy: {{gitops.deploy}}
+        version: beta-{{gitops.version}}
+    spec:
+      containers:
+        - name: app
+          image: {{gitops.lrImage}}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+          args: 
+          - --mode 
+          - Client
+          - --secrets-volume
+          - /app/secrets
+          - --prometheus
+          - --zone
+          - {{gitops.config.zone}}
+          - --region
+          - {{gitops.config.region}}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/app/secrets"
+            - mountPath: /tmp
+              name: tmp
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 10001
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: lr-secrets
+        - name: tmp
+          emptyDir: {}
+      nodeSelector:
+        agentpool: npuser01
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{gitops.lrClientName}}
+  namespace: {{gitops.namespace}}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http 
+      protocol: TCP
+      name: http
+  selector:
+    app: {{gitops.lrClientName}}
