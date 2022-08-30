@@ -5,7 +5,11 @@ import StopIcon from "../StopIcon";
 import TrashIcon from "../TrashIcon";
 import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
-import { getTestRuns, deleteTestRun, stopTestRun } from "../../services/testRuns";
+import {
+  getTestRuns,
+  deleteTestRun,
+  stopTestRun,
+} from "../../services/testRuns";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { CONFIG, RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
@@ -207,8 +211,7 @@ const ResultsOverviewPage = () => {
                       hoverColor="var(--c-neutral-lightest)"
                     />
                   </button>
-                )
-                }
+                )}
               </div>
             </div>
           );

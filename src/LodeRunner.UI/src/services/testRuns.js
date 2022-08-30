@@ -52,7 +52,6 @@ const postTestRun = async (inputs) => {
 const stopTestRun = async (id) => {
   const inputs = await getTestRunById(id);
   inputs.hardStop = true;
-  console.log(inputs);
   return writeApi("PUT", "TestRuns")(inputs);
 };
 

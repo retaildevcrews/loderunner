@@ -63,24 +63,27 @@ const getApi = async (endpoint) => {
 };
 
 const writeApi = (method, endpoint) => async (payload) => {
+  const resourceId = method === "PUT" ? `/${payload[TEST_RUN.id]}` : "";
   try {
-    endpoint =
-      method === "PUT"
-        ? `${endpoint}/${payload[TEST_RUN.id]}`
-        : endpoint;
-    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
-      method,
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        ...generatePropagationHeaders(),
-      },
-      body: JSON.stringify(payload),
-    });
+    const res = await fetch(
+      `${REACT_APP_SERVER}/api/${endpoint}${resourceId}`,
+      {
+        method,
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          ...generatePropagationHeaders(),
+        },
+        body: JSON.stringify(payload),
+      }
+    );
     return await getResponseBody(res);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(`Issue with ${method} request at ${endpoint}`, err);
+    console.error(
+      `Issue with ${method} request at ${endpoint}${resourceId}`,
+      err
+    );
     throw err;
   }
 };
