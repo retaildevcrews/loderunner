@@ -49,4 +49,11 @@ const postTestRun = async (inputs) => {
   return writeApi("POST", "TestRuns")(inputs);
 };
 
-export { deleteTestRun, getTestRunById, getTestRuns, postTestRun };
+const stopTestRun = async (id) => {
+  const inputs = await getTestRunById(id);
+  inputs.hardStop = true;
+  console.log(inputs);
+  return writeApi("PUT", "TestRuns")(inputs);
+};
+
+export { deleteTestRun, getTestRunById, getTestRuns, postTestRun, stopTestRun };

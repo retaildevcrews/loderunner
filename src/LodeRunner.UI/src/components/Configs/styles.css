@@ -17,6 +17,7 @@ button.configs-newitem:hover {
   display: flex;
   align-items: center;
 }
-.configs-item-options > button.runtest {
+.configs-item-options > button.runtest,
+.resultsoverview-item-options > button.stoprun {
   margin-left: 0.4em;
 }

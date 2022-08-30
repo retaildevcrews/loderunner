@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { A, navigate } from "hookrouter";
 import RefreshIcon from "../RefreshIcon";
+import StopIcon from "../StopIcon";
 import TrashIcon from "../TrashIcon";
 import PencilIcon from "../PencilIcon";
 import { AppContext } from "../../contexts";
-import { getTestRuns, deleteTestRun } from "../../services/testRuns";
+import { getTestRuns, deleteTestRun, stopTestRun } from "../../services/testRuns";
 import getMMMDYYYYhmma from "../../utilities/datetime";
 import { CONFIG, RESULT, TEST_RUN } from "../../models";
 import "./styles.css";
@@ -30,6 +31,31 @@ const ResultsOverviewPage = () => {
           // eslint-disable-next-line no-alert
           alert(
             `Unable to delete load test run, ${name} (${id})\n\n${err.message}`
+          );
+        })
+        .finally(() => {
+          setFetchResultsTrigger(Date.now());
+          setIsPending(false);
+        });
+    }
+  };
+
+  const handleStopTestRun = (id, name) => (e) => {
+    e.stopPropagation();
+
+    // eslint-disable-next-line no-alert
+    const isStopTestRun = window.confirm(
+      `Stop load test run, ${name} (${id})?`
+    );
+
+    if (isStopTestRun) {
+      setIsPending(true);
+
+      stopTestRun(id)
+        .catch((err) => {
+          // eslint-disable-next-line no-alert
+          alert(
+            `Unable to stop load test run, ${name} (${id})\n\n${err.message}`
           );
         })
         .finally(() => {
@@ -161,6 +187,19 @@ const ResultsOverviewPage = () => {
                   aria-label="Delete Test Run"
                 >
                   <TrashIcon
+                    width="2em"
+                    fillColor="var(--c-neutral-light)"
+                    hoverColor="var(--c-neutral-lightest)"
+                  />
+                </button>
+                <button
+                  className="unset stoprun"
+                  type="button"
+                  onClick={handleStopTestRun(testId, testName)}
+                  onKeyDown={handleStopTestRun(testId, testName)}
+                  aria-label="Stop Test Run"
+                >
+                  <StopIcon
                     width="2em"
                     fillColor="var(--c-neutral-light)"
                     hoverColor="var(--c-neutral-lightest)"
