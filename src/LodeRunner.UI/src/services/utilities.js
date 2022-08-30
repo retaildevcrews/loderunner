@@ -1,3 +1,5 @@
+import { TEST_RUN } from "../models";
+
 const STATUS_CODE_NO_CONTENT = 204;
 
 let { REACT_APP_SERVER } = process.env;
@@ -62,6 +64,10 @@ const getApi = async (endpoint) => {
 
 const writeApi = (method, endpoint) => async (payload) => {
   try {
+    endpoint =
+      method === "PUT"
+        ? `${endpoint}/${payload[TEST_RUN.id]}`
+        : endpoint;
     const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
       method,
       headers: {

@@ -179,32 +179,36 @@ const ResultsOverviewPage = () => {
                     hoverColor="var(--c-neutral-lightest)"
                   />
                 </A>
-                <button
-                  className="unset deleterun"
-                  type="button"
-                  onClick={handleDeleteTestRun(testId, testName)}
-                  onKeyDown={handleDeleteTestRun(testId, testName)}
-                  aria-label="Delete Test Run"
-                >
-                  <TrashIcon
-                    width="2em"
-                    fillColor="var(--c-neutral-light)"
-                    hoverColor="var(--c-neutral-lightest)"
-                  />
-                </button>
-                <button
-                  className="unset stoprun"
-                  type="button"
-                  onClick={handleStopTestRun(testId, testName)}
-                  onKeyDown={handleStopTestRun(testId, testName)}
-                  aria-label="Stop Test Run"
-                >
-                  <StopIcon
-                    width="2em"
-                    fillColor="var(--c-neutral-light)"
-                    hoverColor="var(--c-neutral-lightest)"
-                  />
-                </button>
+                {finalCompletionTime ? (
+                  <button
+                    className="unset deleterun"
+                    type="button"
+                    onClick={handleDeleteTestRun(testId, testName)}
+                    onKeyDown={handleDeleteTestRun(testId, testName)}
+                    aria-label="Delete Test Run"
+                  >
+                    <TrashIcon
+                      width="2em"
+                      fillColor="var(--c-neutral-light)"
+                      hoverColor="var(--c-neutral-lightest)"
+                    />
+                  </button>
+                ) : (
+                  <button
+                    className="unset stoprun"
+                    type="button"
+                    onClick={handleStopTestRun(testId, testName)}
+                    onKeyDown={handleStopTestRun(testId, testName)}
+                    aria-label="Stop Test Run"
+                  >
+                    <StopIcon
+                      width="2em"
+                      fillColor="var(--c-neutral-light)"
+                      hoverColor="var(--c-neutral-lightest)"
+                    />
+                  </button>
+                )
+                }
               </div>
             </div>
           );
