@@ -102,6 +102,7 @@ const ResultsOverviewPage = () => {
           [TEST_RUN.createdTime]: createdTime,
           [TEST_RUN.scheduledStartTime]: scheduledStartTime,
           [TEST_RUN.finalCompletionTime]: finalCompletionTime,
+          [TEST_RUN.hardStop]: hardStop,
           [TEST_RUN.results]: clientResults,
           [TEST_RUN.config]: {
             [CONFIG.runLoop]: isRunLoop,
