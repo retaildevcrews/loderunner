@@ -1,5 +1,3 @@
-import { TEST_RUN } from "../models";
-
 const STATUS_CODE_NO_CONTENT = 204;
 
 let { REACT_APP_SERVER } = process.env;
@@ -63,10 +61,10 @@ const getApi = async (endpoint) => {
 };
 
 const writeApi = (method, endpoint) => async (payload) => {
-  const resourceId = method === "PUT" ? `/${payload[TEST_RUN.id]}` : "";
+  console.log(payload);
   try {
     const res = await fetch(
-      `${REACT_APP_SERVER}/api/${endpoint}${resourceId}`,
+      `${REACT_APP_SERVER}/api/${endpoint}`,
       {
         method,
         headers: {
@@ -81,7 +79,7 @@ const writeApi = (method, endpoint) => async (payload) => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(
-      `Issue with ${method} request at ${endpoint}${resourceId}`,
+      `Issue with ${method} request at ${endpoint}`,
       err
     );
     throw err;
