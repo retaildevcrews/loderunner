@@ -183,7 +183,7 @@ const ResultsOverviewPage = () => {
                     hoverColor="var(--c-neutral-lightest)"
                   />
                 </A>
-                {finalCompletionTime ? (
+                {finalCompletionTime || hardStop ? (
                   <button
                     className="unset deleterun"
                     type="button"
