@@ -131,10 +131,10 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="expectedCancellationErrorMessage">The Expected Cancellation Error Message.</param>
         /// <param name="loadClientCount">The loadClient Count.</param>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
-        [Trait("Category", "Integration")]
+        [Trait("Category", "HighIntensityIntegration")]
         [Theory]
-        [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 5)]
-        [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 5)]
+        [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 10)]
+        [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 10)]
         public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop, string expectedCancellationErrorMessage, int loadClientCount)
         {
             await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs, runLoop, loadClientCount: loadClientCount, async (HttpClient httpClient, TestRun postedTestRun, LRClientModeProcessContextCollection lrClientModeProcessContextCollection, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
@@ -375,7 +375,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     Assert.True(lrClientProcessContext.Errors.IsEmpty, $"Errors found in LodeRunner Client - Instance {instanceId} Output.{Environment.NewLine}{string.Join(",", lrClientProcessContext.Errors)}");
 
                     // Get LodeRunner Client Status Id when Initializing Client
-                    var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, instanceIdentifier, "Unable to get ClientStatusId when Initializing Client.");
+                    var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output, instanceIdentifier, "Unable to get ClientStatusId when Initializing Client.", loadClientCount * 2000);
 
                     // Get LodeRunner LoadClient Id when Initializing Client
                     var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lrClientProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.InitializingClient, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output, instanceIdentifier, "Unable to get loadClientId when Initializing Client.");

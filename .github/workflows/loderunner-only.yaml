@@ -82,6 +82,12 @@ jobs:
         cd src/LodeRunner.API.Test
         dotnet test --filter "Category=Integration"
 
+    - name: LodeRunner.API High Intensity Integration Testing
+      if: ${{ inputs.run_and_test }}
+      run: |
+        cd src/LodeRunner.API.Test
+        dotnet test --filter "Category=HighIntensityIntegration"
+
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}
       run: |
