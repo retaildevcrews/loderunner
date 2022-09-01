@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>port number. 0 if not found.</returns>
-        public static async Task<int> TryParseProcessOutputAndGetAPIListeningPort(List<string> outputList, ITestOutputHelper output, int maxRetries = 20, int timeBetweenTriesMs = 1000)
+        public static async Task<int> TryParseProcessOutputAndGetAPIListeningPort(ConcurrentBag<string> outputList, ITestOutputHelper output, int maxRetries = 20, int timeBetweenTriesMs = 1000)
         {
             int portNumber = 0;
 
@@ -67,7 +68,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>The Task with the FieldValue.</returns>
-        public static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        public static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(ConcurrentBag<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             string fieldValue = null;
             var taskSource = new CancellationTokenSource();
@@ -115,7 +116,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>Task value whether errors found.</returns>
-        public static async Task<bool> TryParseProcessErrors(List<string> errorsList, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        public static async Task<bool> TryParseProcessErrors(ConcurrentBag<string> errorsList, ITestOutputHelper output, int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             bool errorsFound = false;
             var taskSource = new CancellationTokenSource();
@@ -124,7 +125,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Extensions
             {
                 await Task.Run(() =>
                 {
-                    if (errorsList.Count > 0)
+                    if (!errorsList.IsEmpty)
                     {
                         output.WriteLine($"UTC Time:{DateTime.UtcNow}\tParsing LodeRunner.API Errors.\tErrors Found.\tErrors Count: '{errorsList.Count}'\tAttempts: {attemptCount} [{timeBetweenTriesMs}ms between requests]");
                         errorsFound = true;

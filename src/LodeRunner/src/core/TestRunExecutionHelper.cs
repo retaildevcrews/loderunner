@@ -63,6 +63,38 @@ namespace LodeRunner
             }
         }
 
+        /// <summary>
+        /// Reusable try-catch block to encapsulate PreconditionFailed Exception for taskExecution.
+        /// </summary>
+        /// <param name="logger">The ILogger.</param>
+        /// <param name="methodName">String containing caller member name to improve logging.</param>
+        /// <param name="taskToExecute">Task to be executed in try block</param>
+        /// <returns>A task indicating whether or not an exception was thrown.</returns>
+        public static async Task<bool> TryCatchPreconditionFailedException(ILogger logger, string methodName, Func<Task<bool>> taskToExecute)
+        {
+            try
+            {
+                return await taskToExecute();
+            }
+            catch (CosmosException ce)
+            {
+                if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+                {
+                    return true;
+                }
+                else
+                {
+                    logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ce, SystemConstants.CosmosException);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ex, SystemConstants.Exception);
+                return false;
+            }
+        }
+
         public void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -93,50 +125,6 @@ namespace LodeRunner
                 }
 
                 return true;
-            });
-        }
-
-        /// <summary>
-        /// Determines whether the TestRun has HardStopTime set and logs an information message..
-        /// </summary>
-        /// <returns>Whether or not HardStopTim log succeded.</returns>
-        public async Task RetryLogHardStopTime()
-        {
-            var taskSource = new CancellationTokenSource();
-
-            await Common.RunAndRetry(maxRetries: 15, maxDelay: 1000, taskSource, async (int attemptCount) =>
-            {
-                bool logged = await TryCatchException(logger, nameof(RetryLogHardStopTime), async () =>
-                {
-                    // get current TestRun document
-                    var testRun = await this.testRunService.Get(this.testRunId);
-
-                    if (testRun.HardStop && cancellationRequestReceived)
-                    {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(RetryLogHardStopTime)), SystemConstants.LoggerMessageAttributeName, $"Log HardStop Time  - Attempt: {attemptCount}");
-
-                        // Check if HardStop was requested and CancellationWas Received and HardStopTime was set.
-                        if (testRun.HardStopTime != null)
-                        {
-                            logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {this.testRunId}");
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        taskSource.Cancel();
-                        return false;
-                    }
-                });
-
-                if (logged)
-                {
-                    taskSource.Cancel();
-                }
             });
         }
     }

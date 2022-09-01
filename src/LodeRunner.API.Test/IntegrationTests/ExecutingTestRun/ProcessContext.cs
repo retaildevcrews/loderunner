@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -42,7 +43,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <value>
         /// The errors.
         /// </value>
-        public List<string> Errors { get; private set; } = new List<string>();
+        public ConcurrentBag<string> Errors { get; private set; } = new ConcurrentBag<string>();
 
         /// <summary>
         /// Gets the output.
@@ -50,7 +51,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <value>
         /// The output.
         /// </value>
-        public List<string> Output { get; private set; } = new List<string>();
+        public ConcurrentBag<string> Output { get; private set; } = new ConcurrentBag<string>();
 
         /// <summary>
         /// Gets a value indicating whether this instance started.

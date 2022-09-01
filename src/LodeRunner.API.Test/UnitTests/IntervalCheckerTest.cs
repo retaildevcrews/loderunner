@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestNotInitiated()
         {
-            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(true), IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(true), IntervalSeconds, RetryLimit, expectedValue: false);
 
             // Validate Cancellation Request
             Assert.False(cancellationRequested, "Request cancellation is not expected.");
@@ -60,7 +61,7 @@ namespace LodeRunner.API.Test.UnitTests
         [Trait("Category", "Unit")]
         public async Task CanValidateCancellationRequestInitiated()
         {
-            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(false), IntervalSeconds, RetryLimit);
+            bool cancellationRequested = await this.RunIntervalCheckerWaitAndGetCancellationStatus(ReturnScalarValueAsFunctionTask(false), IntervalSeconds, RetryLimit, expectedValue: true);
 
             // Validate Cancellation Request
             Assert.True(cancellationRequested, "Request cancellation expected.");
@@ -70,19 +71,20 @@ namespace LodeRunner.API.Test.UnitTests
         /// Calculate the maximum waiting time.
         /// </summary>
         /// <param name="interval">The interval.</param>
+        /// <param name="retryLimit">The retry limit.</param>
         /// <returns>the max waiting time.</returns>
-        private static int CalculateTimeout(int interval)
+        private static int CalculateTimeout(int interval, int retryLimit)
         {
             int newInterval = interval;
 
-            for (int i = 1; i < 3; i++)
+            for (int i = 1; i < retryLimit; i++)
             {
                 newInterval /= 2;
                 interval += newInterval;
             }
 
-            // We will wait for Max Interval time plus 1 extra second.
-            return interval + 1;
+            // We will wait for Max Interval + 2.
+            return interval + 2;
         }
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace LodeRunner.API.Test.UnitTests
         /// <param name="intervalSeconds">The interval seconds.</param>
         /// <param name="retryLimit">The retry limit.</param>
         /// <returns>The cancellationToken status and the outputAsStringList.</returns>
-        private async Task<bool> RunIntervalCheckerWaitAndGetCancellationStatus(Func<Task<bool>> taskToExecute, int intervalSeconds = 4, int retryLimit = 3)
+        private async Task<bool> RunIntervalCheckerWaitAndGetCancellationStatus(Func<Task<bool>> taskToExecute, int intervalSeconds, int retryLimit, bool expectedValue)
         {
             CancellationTokenSource cancellationTokenSource = new();
 
@@ -112,22 +114,40 @@ namespace LodeRunner.API.Test.UnitTests
 
             intervalChecker.Start();
 
-            return await this.WaitForTimeoutAndGetCancellationRequestStatus(cancellationTokenSource, intervalSeconds);
-        }
+            int maxWaitingTimeSecs = CalculateTimeout(intervalSeconds, retryLimit);
 
-        /// <summary>
-        /// Waits until timeout is reached and determines if Cancellation request is in place.
-        /// </summary>
-        /// <param name="cancellationTokenSource">The cancellation token source.</param>
-        /// <param name="intervalSeconds">The interval seconds.</param>
-        /// <returns>Whether the cancellation was requested or not.</returns>
-        private async Task<bool> WaitForTimeoutAndGetCancellationRequestStatus(CancellationTokenSource cancellationTokenSource, int intervalSeconds)
-        {
-            int maxWaitingTime = CalculateTimeout(intervalSeconds);
-            await Task.Delay(maxWaitingTime * 1000).ConfigureAwait(false);
+            this.output.WriteLine($"Total Calculated Wait time: {maxWaitingTimeSecs} secs.");
+
+            CancellationTokenSource runRetryCancellationToken = new();
+
+            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}: Before RunAndRetry\tExpected Value:{expectedValue}");
+
+            Stopwatch sw = new();
+            sw.Start();
+
+            await Common.RunAndRetry(maxRetries: maxWaitingTimeSecs, 1000, runRetryCancellationToken, (int attemptCount) =>
+            {
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tAttempt: {attemptCount}\tIsCancellationRequested: {cancellationTokenSource.IsCancellationRequested}\tElapsed.Seconds: {sw.Elapsed.Seconds}");
+
+                // Request cancel RunRetry if either of the two conditions is met
+                // 1) if IntervalChecker is not expected to be cancelled and elapsed time has exceed the max calculated wait time
+                // OR
+                // 2) if in fact IntervalChecker is expected to be cancelled and actually CancellationRequested was issued for IntervalChecker cancellationTokenSource.
+                // Note: for Case 2) it may take longer until CancellationRequested triggered and the timeout is really managed by RunAndRetry number of attempts driven by (maxWaitingTimeSecs)
+                if ((!expectedValue && sw.Elapsed.Seconds > maxWaitingTimeSecs) || (expectedValue && cancellationTokenSource.IsCancellationRequested == expectedValue))
+                {
+                    this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tTest Conditions met, will cancel RunRetry!");
+                    runRetryCancellationToken.Cancel();
+                }
+
+                return Task.CompletedTask;
+            });
+
+            sw.Stop();
+            this.output.WriteLine($"UTC Time:{DateTime.UtcNow}: After RunAndRetry");
 
             bool cancellationRequested = cancellationTokenSource.IsCancellationRequested;
-            this.output.WriteLine($"Total Wait time: {maxWaitingTime} secs.\tCancellation Requested: {cancellationRequested}\t");
+            this.output.WriteLine($"Cancellation Requested: {cancellationRequested}\t");
             return cancellationRequested;
         }
     }

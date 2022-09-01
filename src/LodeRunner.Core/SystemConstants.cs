@@ -286,6 +286,11 @@ namespace LodeRunner.Core
         public const string TestRunHardStopCompletedMessage = "TestRun Hard Stop completed for TestRunId:";
 
         /// <summary>
+        ///  Test Run Hard Stop completed.
+        /// </summary>
+        public const string TestRunCompletedMessage = "TestRun completed.";
+
+        /// <summary>
         ///  Test Run Cancellation Request received message.
         /// </summary>
         public const string TestRunCancellationRequestReceivedMessage = "TestRun Cancellation request received for TestRunId:";

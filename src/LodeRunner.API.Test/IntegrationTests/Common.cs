@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>The field value.</returns>
-        public static async Task<string> ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(string appName, List<string> outputList, string logName, string outputMarker, string fieldName, ITestOutputHelper output, string instanceId = "", string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        public static async Task<string> ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(string appName, ConcurrentBag<string> outputList, string logName, string outputMarker, string fieldName, ITestOutputHelper output, string instanceId = "", string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             var fieldValue = await TryParseProcessOutputAndGetValueFromFieldName(outputList, logName, outputMarker, fieldName, output, instanceId, maxRetries, timeBetweenTriesMs);
             if (string.IsNullOrEmpty(failErrorMessage))
@@ -39,6 +40,36 @@ namespace LodeRunner.API.Test.IntegrationTests
             }
 
             Assert.False(string.IsNullOrEmpty(fieldValue), failErrorMessage);
+
+            return fieldValue;
+        }
+
+        /// <summary>
+        /// Parses the Output and validates and logs the Value for a given field is not null.
+        /// </summary>
+        /// <param name="appName">The name of the application that the log is from.</param>
+        /// <param name="outputList">The Process outputList.</param>
+        /// <param name="logName">The logName to identify the line be parsed.</param>
+        /// <param name="outputMarker">The marker string to identify the line be parsed.</param>
+        /// <param name="fieldName">The name of the field to get the value from..</param>
+        /// <param name="output">The output.</param>
+        /// <param name="instanceId">The intance identifier.</param>
+        /// <param name="failErrorMessage">The message to display when validation fails.</param>
+        /// <param name="maxRetries">The maximum retries.</param>
+        /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
+        /// <returns>The field value.</returns>
+        public static async Task<string> ParseOutputGetFieldValueAndLogIfIsNotNullOrEmpty(string appName, ConcurrentBag<string> outputList, string logName, string outputMarker, string fieldName, ITestOutputHelper output, string instanceId, string failErrorMessage = null, int maxRetries = 10, int timeBetweenTriesMs = 500)
+        {
+            var fieldValue = await TryParseProcessOutputAndGetValueFromFieldName(outputList, logName, outputMarker, fieldName, output, instanceId, maxRetries, timeBetweenTriesMs);
+            if (string.IsNullOrEmpty(failErrorMessage))
+            {
+                failErrorMessage = $"Unable to get {fieldName} from {appName}-Command output";
+            }
+
+            if (string.IsNullOrEmpty(fieldValue))
+            {
+                output.WriteLine($"{instanceId} - {failErrorMessage}");
+            }
 
             return fieldValue;
         }
@@ -55,7 +86,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         /// <param name="maxRetries">The maximum retries.</param>
         /// <param name="timeBetweenTriesMs">The time between tries ms.</param>
         /// <returns>The Task with the FieldValue.</returns>
-        private static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(List<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, string instanceId = "", int maxRetries = 10, int timeBetweenTriesMs = 500)
+        private static async Task<string> TryParseProcessOutputAndGetValueFromFieldName(ConcurrentBag<string> outputList, string logName, string marker, string fieldName, ITestOutputHelper output, string instanceId = "", int maxRetries = 10, int timeBetweenTriesMs = 500)
         {
             string fieldValue = null;
             var taskSource = new CancellationTokenSource();
