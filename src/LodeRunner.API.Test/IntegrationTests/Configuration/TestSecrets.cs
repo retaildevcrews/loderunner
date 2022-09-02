@@ -122,7 +122,7 @@ namespace LodeRunner.API.Test.IntegrationTests.Configuration
 
                     Assert.True(apiProcessContext.Started, $"Unable to start LodeRunner API Context for Host {hostId}.");
 
-                    bool errorsFound = await LogOutputExtension.TryParseProcessErrors(apiProcessContext.Errors, this.output);
+                    bool errorsFound = await LogOutputExtension.TryParseProcessErrors(apiProcessContext.Errors, this.output, 10, 1000);
 
                     Assert.True(errorsFound, $"Expected errors, but no Errors found in LodeRunner API - Host {hostId} Output.");
 
