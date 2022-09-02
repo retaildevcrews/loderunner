@@ -131,7 +131,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="expectedCancellationErrorMessage">The Expected Cancellation Error Message.</param>
         /// <param name="loadClientCount">The loadClient Count.</param>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
-        [Trait("Category", "HighIntensityIntegration")]
+        [Trait("Category", "Integration")]
         [Theory]
         [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 5)]
         [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 5)]

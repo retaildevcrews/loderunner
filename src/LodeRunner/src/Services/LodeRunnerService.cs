@@ -242,7 +242,7 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            DateTime dt = DateTime.Now;
+            //DateTime dt = DateTime.Now;
 
             var runRetryTaskSource = new CancellationTokenSource();
 
@@ -268,7 +268,7 @@ namespace LodeRunner.Services
                     }
                 }
 
-                bool preconditionFailedExceptionThown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
                 {
                     // post updates
                     _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, testRunResponse.ETag);
@@ -288,7 +288,7 @@ namespace LodeRunner.Services
                 });
 
                 // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-                if (!preconditionFailedExceptionThown)
+                if (!preconditionFailedExceptionThrown)
                 {
                     runRetryTaskSource.Cancel();
                 }
