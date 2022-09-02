@@ -64,9 +64,9 @@ namespace LodeRunner.Data.Interfaces
         /// </summary>
         /// <param name="entity">The object to add to the database.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="eTag">The entity tag associated with the resource.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>The Updated clientStatus entity.</returns>
-        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken, string eTag = "");
+        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken, ItemRequestOptions requestOptions = null);
 
         /// <summary>
         /// Gets the specified identifier.

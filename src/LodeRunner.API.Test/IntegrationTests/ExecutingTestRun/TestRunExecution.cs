@@ -156,9 +156,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 foreach (var clientResult in readyTestRun.ClientResults)
                 {
                     Assert.True(clientResult.ErrorMessage == expectedCancellationErrorMessage, $"Actual error message found '{clientResult.ErrorMessage}', instead of expected message '{expectedCancellationErrorMessage}'");
-                    Assert.True(clientResult.TotalRequests == 0, "Total Requests should be equals to 0.");
-                    Assert.True(clientResult.FailedRequests == 0, "Failed Requests should be equals to 0.");
-                    Assert.True(clientResult.SuccessfulRequests == 0, "Successful Requests should be equals to 0.");
                 }
 
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating HardStop request...");

@@ -124,14 +124,14 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="entityToCreate">New object.</param>
         /// <param name="cancellationToken">So operation may be cancelled.</param>
-        /// <param name="eTag">The entity tag associated with the resource.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
-        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken, string eTag = "")
+        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken, ItemRequestOptions requestOptions = null)
         {
             // Update Entity if CosmosDB connection is ready
             if (this.CosmosDBRepository.IsCosmosDBReady)
             {
-                return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken, eTag);
+                return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken, requestOptions);
             }
 
             throw new Exception($"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}");

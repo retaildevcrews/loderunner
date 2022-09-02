@@ -258,16 +258,15 @@ namespace LodeRunner
             }
             finally
             {
+                string errorMessage = string.Empty;
+
                 if (token.IsCancellationRequested)
                 {
-                    // fire event
-                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TestRunExecutionStoppedMessage));
+                    errorMessage = SystemConstants.TestRunExecutionStoppedMessage;
                 }
-                else
-                {
-                    // fire event
-                    TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
-                }
+
+                // fire event
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount, errorMessage));
             }
 
             // return non-zero exit code on failure
@@ -398,15 +397,15 @@ namespace LodeRunner
                 totalRequests += state.Count;
             }
 
+            string errorMessage = string.Empty;
+
             if (token.IsCancellationRequested)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TestRunExecutionStoppedMessage));
+                errorMessage = SystemConstants.TestRunExecutionStoppedMessage;
             }
-            else
-            {
-                // fire event
-                TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures));
-            }
+
+            // fire event
+            TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures, errorMessage));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;
