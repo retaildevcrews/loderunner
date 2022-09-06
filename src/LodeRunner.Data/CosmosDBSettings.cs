@@ -25,6 +25,7 @@ namespace LodeRunner.Data
             this.Uri = config.Secrets.CosmosServer;
             this.Key = config.Secrets.CosmosKey;
             this.DatabaseName = config.Secrets.CosmosDatabase;
+            this.ApplicationName = config.ApplicationName;
         }
 
         /// <summary>
@@ -90,6 +91,14 @@ namespace LodeRunner.Data
         /// The cosmos database connection retry limit.
         /// </value>
         public int CosmosDbConnectionCheckRetryLimit { get; } = 3; // 3 is the max expected value as per requirement.
+
+        /// <summary>
+        /// Gets or sets the Application information to be added to the default user-agent for the Azure Cosmos DB service.
+        /// </summary>
+        /// <value>
+        /// The cosmos client application name.
+        /// </value>
+        public string ApplicationName { get; set; }
 
         /// <summary>
         /// Validates this instance.

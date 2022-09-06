@@ -309,5 +309,10 @@ namespace LodeRunner.Core
         ///  Lode Runner App Name.
         /// </summary>
         public const string LodeRunnerAppName = "LodeRunner";
+
+        /// <summary>
+        ///  Lode Runner App Name.
+        /// </summary>
+        public const string LodeRunnerAPIAppName = "LodeRunner.API";
     }
 }

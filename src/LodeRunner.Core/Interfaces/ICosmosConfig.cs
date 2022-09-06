@@ -43,5 +43,13 @@ namespace LodeRunner.Core.Interfaces
         /// <summary>Gets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds.</value>
         int CosmosTimeout { get; }
+
+        /// <summary>
+        /// Gets or sets the Application information to be added to the default user-agent for the Azure Cosmos DB service.
+        /// </summary>
+        /// <value>
+        /// The cosmos client application name.
+        /// </value>
+        string ApplicationName { get; set; }
     }
 }

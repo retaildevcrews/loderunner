@@ -55,72 +55,72 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
             this.jsonOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
-        ///// <summary>
-        ///// Determines whether this instance [can create and execute test run with a given number of API hosts].
-        ///// </summary>
-        ///// <param name="apiHostCount">The number API hosts to utilized.</param>
-        ///// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
-        //[Trait("Category", "Integration")]
-        //[Theory]
-        //[InlineData(1)]
-        //[InlineData(2)]
-        //public async Task CanCreateAndExecuteTestRun(int apiHostCount)
-        //{
-        //    // NOTE: We only need to create one loadClient for this test, since this test method does not create/test for HardStop.
-        //    int loadClientCount = 1;
+        /// <summary>
+        /// Determines whether this instance [can create and execute test run with a given number of API hosts].
+        /// </summary>
+        /// <param name="apiHostCount">The number API hosts to utilized.</param>
+        /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
+        [Trait("Category", "Integration")]
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task CanCreateAndExecuteTestRun(int apiHostCount)
+        {
+            // NOTE: We only need to create one loadClient for this test, since this test method does not create/test for HardStop.
+            int loadClientCount = 1;
 
-        //    await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs: 0, runLoop: false, loadClientCount: loadClientCount, async (HttpClient httpClient, TestRun postedTestRun, LRClientModeProcessContextCollection lrClientModeProcessContextCollection, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
-        //    {
-        //        // Attempt to get TestRun for N retries or until condition has met.
-        //        (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 3000);
+            await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs: 0, runLoop: false, loadClientCount: loadClientCount, async (HttpClient httpClient, TestRun postedTestRun, LRClientModeProcessContextCollection lrClientModeProcessContextCollection, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
+            {
+                // Attempt to get TestRun for N retries or until condition has met.
+                (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 3000);
 
-        //        var lodeRunnerAppContext = lrClientModeProcessContextCollection.FirstOrDefault();
+                var lodeRunnerAppContext = lrClientModeProcessContextCollection.FirstOrDefault();
 
-        //        Assert.True(loadClientCount == 1 && lodeRunnerAppContext != null, "Unable to get FirstOrDefault from lrClientModeProcessContextCollection.");
+                Assert.True(loadClientCount == 1 && lodeRunnerAppContext != null, "Unable to get FirstOrDefault from lrClientModeProcessContextCollection.");
 
-        //        // Get LodeRunner TestRun Id when Executing
-        //        var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, string.Empty, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
+                // Get LodeRunner TestRun Id when Executing
+                var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ExecutingTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, string.Empty, "Unable to get TestRunId when Executing TestRun.", 10, apiHostCount * 3000);
 
-        //        // Validate that all 3 ids were logged in LodeRunner-Command output.
-        //        this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.ClientStatusIdFieldName}, {LodeRunner.Core.SystemConstants.LoadClientIdFieldName}  and {LodeRunner.Core.SystemConstants.TestRunIdFieldName} for LodeRunner-Command Log");
-        //        string lodeRunnerCmdOutputMarker = string.Format(SystemConstants.BaseUriLocalHostPort, portList[0]);
+                // Validate that all 3 ids were logged in LodeRunner-Command output.
+                this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.ClientStatusIdFieldName}, {LodeRunner.Core.SystemConstants.LoadClientIdFieldName}  and {LodeRunner.Core.SystemConstants.TestRunIdFieldName} for LodeRunner-Command Log");
+                string lodeRunnerCmdOutputMarker = string.Format(SystemConstants.BaseUriLocalHostPort, portList[0]);
 
-        //        var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output);
+                var clientStatusId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.ClientStatusIdFieldName, this.output);
 
-        //        var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output);
+                var loadClientId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.LoadClientIdFieldName, this.output);
 
-        //        testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output);
+                testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output);
 
-        //        // Validate that TraceId and SpanId were logged in LodeRunner-Command output.
-        //        this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner-Command Log");
+                // Validate that TraceId and SpanId were logged in LodeRunner-Command output.
+                this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner-Command Log");
 
-        //        var traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
+                var traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
-        //        var spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
+                var spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
 
-        //        // Validate traceId and SpanId were logged in LodeRunner.API log
-        //        foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
-        //        {
-        //            this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner API Log for Host {hostId}.");
+                // Validate traceId and SpanId were logged in LodeRunner.API log
+                foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
+                {
+                    this.output.WriteLine($"Validating {LodeRunner.Core.SystemConstants.B3TraceIdFieldName} and {LodeRunner.Core.SystemConstants.B3SpanIdFieldName} for LodeRunner API Log for Host {hostId}.");
 
-        //            string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
+                    string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
 
-        //            traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
+                    traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
-        //            spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
-        //        }
+                    spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
+                }
 
-        //        // Validate results
-        //        ValidateTestRunResults(readyTestRun, testRunResponse, loadClientCount);
+                // Validate results
+                ValidateTestRunResults(readyTestRun, testRunResponse, loadClientCount);
 
-        //        var clientResult = readyTestRun.ClientResults[0];
+                var clientResult = readyTestRun.ClientResults[0];
 
-        //        Assert.True(clientResult.TotalRequests > 0, $"Total requests should be grater that zero.");
-        //        Assert.True(clientResult.TotalRequests == clientResult.FailedRequests + clientResult.SuccessfulRequests, $"TotalRequests {clientResult.TotalRequests} does not match expected value {clientResult.FailedRequests + clientResult.SuccessfulRequests}");
+                Assert.True(clientResult.TotalRequests > 0, $"Total requests should be grater that zero.");
+                Assert.True(clientResult.TotalRequests == clientResult.FailedRequests + clientResult.SuccessfulRequests, $"TotalRequests {clientResult.TotalRequests} does not match expected value {clientResult.FailedRequests + clientResult.SuccessfulRequests}");
 
-        //        this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tTestRun passed validation.");
-        //    });
-        //}
+                this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tTestRun passed validation.");
+            });
+        }
 
         /// <summary>
         /// Determines whether this instance [can create and execute test run with a given number of API hosts].

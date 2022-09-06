@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core;
+using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
 using Microsoft.Azure.Cosmos;
@@ -124,6 +125,7 @@ namespace LodeRunner.Data
                                                         Indented = false,
                                                         IgnoreNullValues = true,
                                                     })
+                                                    .WithApplicationName($"ApplicationName/{this.settings.ApplicationName}")
                                                     .Build();
 
         /// <summary>

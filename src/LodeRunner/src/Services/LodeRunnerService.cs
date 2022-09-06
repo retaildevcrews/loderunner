@@ -244,8 +244,6 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            //DateTime dt = DateTime.Now;
-
             var runRetryTaskSource = new CancellationTokenSource();
 
             await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
