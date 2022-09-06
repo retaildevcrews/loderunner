@@ -9,24 +9,25 @@ on:
         required: true
 
 jobs:
-  runs-on: ubuntu-20.04
+  run-integration-testing:
+    runs-on: ubuntu-20.04
 
-  steps:
-  - uses: actions/checkout@v2
-  
-  - name: Set Secrets
-    run: |
-      mkdir -p /tmp/secrets
-      echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
-      echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
-      echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
-      echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+    steps:
+    - uses: actions/checkout@v2
 
-  - name: LodeRunner.API Integration Testing
-    run: |
-      cd src/LodeRunner.API.Test
-      dotnet test --filter "Category=Integration"
+    - name: Set Secrets
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
-  - name: Delete Secrets
-    run: |
-      rm -rf /tmp/secrets        
+    - name: LodeRunner.API Integration Testing
+      run: |
+        cd src/LodeRunner.API.Test
+        dotnet test --filter "Category=Integration"
+
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets        
