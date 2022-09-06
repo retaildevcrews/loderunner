@@ -121,7 +121,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-ui:
-    needs: needs: [evaluate-changes, integration-test]
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-ui.yaml
