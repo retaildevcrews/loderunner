@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  run-integration-testing:
+  run:
     runs-on: ubuntu-20.04
 
     steps:
