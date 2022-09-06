@@ -125,7 +125,7 @@ namespace LodeRunner.Data
                                                         Indented = false,
                                                         IgnoreNullValues = true,
                                                     })
-                                                    .WithApplicationName($"ApplicationName/{this.settings.ApplicationName}")
+                                                    .WithApplicationName($"/ApplicationName/{this.settings.ApplicationName}")
                                                     .Build();
 
         /// <summary>

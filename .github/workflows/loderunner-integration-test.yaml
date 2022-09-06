@@ -1,0 +1,44 @@
+name: Build LodeRunner Integration Test
+
+on:
+  workflow_call:
+    secrets:
+      cosmos_rw_key:
+        required: true
+      cosmos_url:
+        required: true
+      ghcr_id:
+        description: 'GHCR_ID used for autogitops deploy'
+        required: false
+      ghcr_pat:
+        description: 'GHCR_PAT used for autogitops deploy'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_REPO: ghcr.io/retaildevcrews/ngsa-lr
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set Secrets
+      if: ${{ inputs.run_and_test }}
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+
+    - name: LodeRunner.API Integration Testing
+      if: ${{ inputs.run_and_test }}
+      run: |
+        cd src/LodeRunner.API.Test
+        dotnet test --filter "Category=Integration"
+
+    - name: Delete Secrets
+      if: ${{ inputs.run_and_test }}
+      run: |
+        rm -rf /tmp/secrets        
