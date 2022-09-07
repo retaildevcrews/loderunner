@@ -40,7 +40,7 @@ namespace LodeRunner.API
 
             // add header values
             result.Add("status", IetfCheck.ToIetfStatus(healthReport.Status));
-            result.Add("serviceId", ServiceId);
+            result.Add("serviceId", LodeRunner.Core.SystemConstants.LodeRunnerAPIAppName);
             result.Add("description", Description);
 
             // add all the entries
@@ -93,7 +93,7 @@ namespace LodeRunner.API
                 new Dictionary<string, HealthReportEntry>
                 {
                     {
-                        CosmosHealthCheck.ServiceId,
+                        LodeRunner.Core.SystemConstants.LodeRunnerAPIAppName,
                         new HealthReportEntry(res.Status, res.Description, totalTime, res.Exception, res.Data)
                     },
                 },

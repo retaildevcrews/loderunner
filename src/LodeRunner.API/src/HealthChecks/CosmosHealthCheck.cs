@@ -26,11 +26,6 @@ namespace LodeRunner.API
     public partial class CosmosHealthCheck : IHealthCheck
     {
         /// <summary>
-        /// The service identifier.
-        /// </summary>
-        public const string ServiceId = "LodeRunner.API";
-
-        /// <summary>
         /// The description.
         /// </summary>
         public const string Description = "LodeRunner.API Health Check";

@@ -34,7 +34,7 @@ namespace LodeRunner.API
     /// </summary>
     public class Startup
     {
-        private const string SwaggerTitle = "LodeRunner.API";
+        private const string SwaggerTitle = LodeRunner.Core.SystemConstants.LodeRunnerAPIAppName;
         private static readonly string SwaggerPath = "/swagger/v1/swagger.json";
 
         /// <summary>

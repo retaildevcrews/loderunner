@@ -26,8 +26,6 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
     /// </summary>
     public class TestRunExecution : IClassFixture<ApiWebApplicationFactory<Startup>>
     {
-        private const string LodeRunnerAPIAppName = "LodeRunner.API";
-
         private readonly ApiWebApplicationFactory<Startup> factory;
 
         private readonly JsonSerializerOptions jsonOptions;
@@ -105,9 +103,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                     string lodeRunnerAPIOutputMarker = $"localhost:{portNumber}";
 
-                    traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
+                    traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
-                    spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
+                    spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAPIAppName, apiProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerAPIRequestLogName, lodeRunnerAPIOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
                 }
 
                 // Validate results
