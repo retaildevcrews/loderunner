@@ -69,6 +69,9 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs: 0, runLoop: false, loadClientCount: loadClientCount, async (HttpClient httpClient, TestRun postedTestRun, LRClientModeProcessContextCollection lrClientModeProcessContextCollection, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
             {
+
+                Console.WriteLine($"Attempt to get TestRun for N retries or until condition has met.");
+
                 // Attempt to get TestRun for N retries or until condition has met.
                 (HttpResponseMessage testRunResponse, TestRun readyTestRun) = await httpClient.GetEntityByIdRetries<TestRun>(SystemConstants.CategoryTestRunsPath, postedTestRun.Id, this.jsonOptions, this.output, this.ValidateCompletedTime, 10, apiHostCount * 3000);
 
@@ -95,6 +98,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 var traceId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3TraceIdFieldName, this.output);
 
                 var spanId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerAppContext.Output, LodeRunner.Core.SystemConstants.LoadTestRequestLogName, lodeRunnerCmdOutputMarker, LodeRunner.Core.SystemConstants.B3SpanIdFieldName, this.output);
+
+                Console.WriteLine($"Validate traceId and SpanId were logged in LodeRunner.API log");
 
                 // Validate traceId and SpanId were logged in LodeRunner.API log
                 foreach (var (hostId, portNumber, apiProcessContext) in apiProcessContextCollection)
@@ -353,6 +358,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
             try
             {
+                Console.WriteLine($"Starting LodeRunner Application (client mode)");
                 this.output.WriteLine($"Starting LodeRunner Application (client mode)");
 
                 Assert.True(lrClientModeProcessContextCollection.Start(), $"Unable to start LodeRunner ProcessContext Collection.");
@@ -378,6 +384,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     lrClientIdDict.Add(clientStatusId, loadClientId);
                 }
 
+                Console.WriteLine($"Starting LodeRunner API Hosts.");
                 this.output.WriteLine($"Starting LodeRunner API Hosts.");
 
                 // Starting LodeRunner API Hosts.
@@ -406,6 +413,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     await this.VerifyLodeRunnerClientStatusIsReady(httpClient, keyValuePair.Key);
                 }
 
+                Console.WriteLine($"Create Test Run.");
+
                 // Create Test Run
                 TestRunPayload testRunPayload = new();
 
@@ -429,6 +438,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 Assert.Equal(JsonSerializer.Serialize(postedTestRun), JsonSerializer.Serialize(gottenTestRun));
                 gottenTestRunId = gottenTestRun.Id;
 
+                Console.WriteLine($"Validate TestRunId for all lodeRunner Client Mode instances.");
                 // Validate TestRunId for all lodeRunner Client Mode instances.
                 foreach (var (instanceId, lodeRunnerProcessContext) in lrClientModeProcessContextCollection)
                 {
@@ -438,6 +448,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                     var testRunId = await CommonTest.ParseOutputGetFieldValueAndValidateIsNotNullOrEmpty(LodeRunner.Core.SystemConstants.LodeRunnerAppName, lodeRunnerProcessContext.Output, LodeRunner.Core.SystemConstants.LodeRunnerServiceLogName, LodeRunner.Core.SystemConstants.ReceivedNewTestRun, LodeRunner.Core.SystemConstants.TestRunIdFieldName, this.output, instanceIdentifier, "Unable to get TestRunId when Received TestRun", 10, apiHostCount * 2000);
                 }
 
+                Console.WriteLine($"Execute Task for Concrete TestRun Implementation");
                 // Execute Task for Concrete TestRun Implementation.
                 await concreteTestRunTaskToExecute(httpClient, postedTestRun, lrClientModeProcessContextCollection, apiProcessContextCollection, portList);
 
