@@ -7,13 +7,13 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Azure;
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
@@ -34,6 +34,7 @@ namespace LodeRunner.Services
     /// <seealso cref="LodeRunner.Interfaces.ILodeRunnerService" />
     public class LodeRunnerService : IDisposable, ILodeRunnerService
     {
+        private readonly bool testRunExecutionScope = false;
         private readonly Config config;
         private readonly LoadClient loadClient;
         private readonly CancellationTokenSource cancellationTokenSource;
@@ -50,11 +51,12 @@ namespace LodeRunner.Services
         /// <param name="config">The config.</param>
         /// <param name="cancellationTokenSource">The cancellationTokenSource.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="useIdValuesFromConfig">Determines if ClientStatusId , LoadClientId and TestRun will be used instead of local assigned.</param>
-        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger, bool useIdValuesFromConfig = false)
+        /// <param name="testRunExecutionScope">Determines if TestRunExecution is the caller so ClientStatusId , LoadClientId and TestRun will be used instead of local assigned.</param>
+        public LodeRunnerService(Config config, CancellationTokenSource cancellationTokenSource, ILogger<LodeRunnerService> logger, bool testRunExecutionScope = false)
         {
             Debug.WriteLine("* LodeRunnerService Constructor *");
 
+            this.testRunExecutionScope = testRunExecutionScope;
             this.logger = logger;
 
             this.config = config ?? throw new Exception("CommandOptions is null");
@@ -67,10 +69,10 @@ namespace LodeRunner.Services
                 LoadClient = this.loadClient,
             };
 
-            // Note: A new LodeRunnerService (CommandMode) is created when we Execute a New TestRun and all, config.TestRunId , config.LoadClientId and
-            // config.ClientStatusId are set before calling this constructor, so we check useIdValuesFromConfig to utilize same Id from Parent LR Client (Caller).
+            // Note: A new LodeRunnerService (CommandMode) is created when we Execute a New TestRun; and all Ids, config.TestRunId , config.LoadClientId and config.ClientStatusId
+            // are set before calling this constructor, so we check whether testRunExecution is true to determine if should utilize same Ids from Parent LR Client.
 
-            if (useIdValuesFromConfig)
+            if (this.testRunExecutionScope)
             {
                 this.clientStatus.Id = config.ClientStatusId;
                 this.loadClient.Id = config.LoadClientId;
@@ -230,44 +232,69 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            try
+            // Create loadResult for this loadClient.
+            LoadResult loadResult = new()
             {
-                // get TestRun document to update
-                var testRun = await GetTestRunService().Get(args.TestRunId);
+                CompletedTime = args.CompletedTime,
+                FailedRequests = args.FailedRequests,
+                SuccessfulRequests = args.SuccessfulRequests,
+                TotalRequests = args.TotalRequests,
+                LoadClient = this.loadClient,
+                StartTime = args.StartTime,
+                ErrorMessage = args.ErrorMessage,
+            };
 
-                LoadResult loadResult = new()
+            var runRetryTaskSource = new CancellationTokenSource();
+
+            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            {
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
+
+                // get TestRun document to update.
+                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
+                // Add ClientResults reported by this LodeRunner Client Instance.
+                testRunResponse.Resource.ClientResults.Add(loadResult);
+
+                // Update TestRun CompletedTime if last client to report results
+                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
                 {
-                    CompletedTime = args.CompletedTime,
-                    FailedRequests = args.FailedRequests,
-                    SuccessfulRequests = args.SuccessfulRequests,
-                    TotalRequests = args.TotalRequests,
-                    LoadClient = this.loadClient,
-                    StartTime = args.StartTime,
-                    ErrorMessage = args.ErrorMessage,
-                };
+                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
-                testRun.ClientResults.Add(loadResult);
-
-                // update TestRun CompletedTime if last client to report results
-                if (testRun.ClientResults.Count == testRun.LoadClients.Count)
-                {
-                    testRun.CompletedTime = args.CompletedTime;
+                    // Only set HardStopTime if all loadClients completed
+                    if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
+                    {
+                        testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
+                    }
                 }
 
-                // post updates
-                _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+                {
+                    ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
-                // remove TestRun from pending list since upload is complete
-                this.pendingTestRuns.Remove(testRun.Id);
-            }
-            catch (CosmosException ce)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
-            }
+                    // post updates
+                    _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+
+                    // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
+                    if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
+                    {
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
+                    }
+
+                    // remove TestRun from pending list since upload is complete
+                    this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
+
+                    runRetryTaskSource.Cancel();
+
+                    return true;
+                });
+
+                // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
+                if (!preconditionFailedExceptionThrown)
+                {
+                    runRetryTaskSource.Cancel();
+                }
+            });
         }
 
         /// <summary>
@@ -569,22 +596,17 @@ namespace LodeRunner.Services
         private async Task<List<TestRun>> PollForTestRunsAsync()
         {
             List<TestRun> testRuns = new();
-            try
+
+            bool success = await TestRunExecutionHelper.TryCatchException(logger, nameof(PollForTestRunsAsync), async () =>
             {
                 var polledRuns = await GetTestRunService().GetNewTestRunsByLoadClientId(this.loadClient.Id);
                 foreach (var item in polledRuns)
                 {
                     testRuns.Add((TestRun)item);
                 }
-            }
-            catch (CosmosException ce)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(PollForTestRunsAsync)), ce, SystemConstants.CosmosException);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(PollForTestRunsAsync)), ex, SystemConstants.Exception);
-            }
+
+                return true;
+            });
 
             return testRuns;
         }
@@ -602,11 +624,19 @@ namespace LodeRunner.Services
             string[] args = LoadTestConfigExtensions.GetArgs(testRun.LoadTestConfig);
             DateTime startTime = DateTime.UtcNow;
 
-            CancellationTokenSource cancel = new();
+            CancellationTokenSource cancelTestRunExecution = new();
+
+            using var testRunExecutionHelper = new TestRunExecutionHelper(GetTestRunService(), this.logger, cancelTestRunExecution, testRun.Id);
+
+            // NOTE: We create a new dummy Cancellation token for IntervalChecker to prevent to cancel the execution in the case testRunExecutionChecker.HardStopCheck has reached out the retry limit.
+            // In any case, the current implementation of testRunExecutionChecker.HardStopCheck function will never return 'false'
+            using var intervalChecker = new IntervalChecker(testRunExecutionHelper.HardStopCheck, this.logger, new(), interval: this.config.HardStopCheckInterval);
+            intervalChecker.Start();
+
             try
             {
                 // can be updated accordingly
-                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, this.loadClient.Id, testRun.Id, cancel, (ILogger<LodeRunnerService>)this.logger);
+                _ = await ClientModeExtensions.CreateAndStartLodeRunnerCommandMode(args, this.ClientStatusId, this.loadClient.Id, testRun.Id, cancelTestRunExecution, (ILogger<LodeRunnerService>)this.logger);
             }
             catch (Exception ex)
             {

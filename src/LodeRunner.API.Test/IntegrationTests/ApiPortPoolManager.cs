@@ -43,10 +43,7 @@ namespace LodeRunner.API.Test.IntegrationTests
         {
             lock (GetInstanceLock)
             {
-                if (instance == null)
-                {
-                    instance = new ApiPortPoolManager();
-                }
+                instance ??= new ApiPortPoolManager();
             }
 
             return instance;

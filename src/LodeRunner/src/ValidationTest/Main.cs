@@ -467,6 +467,7 @@ namespace LodeRunner
 
                     // Get the Burst header value from HTTP Headers
                     resp.Headers.TryGetValues(SystemConstants.XBurstLoadFeedback, out var burstHeaderValue);
+
                     // check the performance
                     perfLog = this.CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
 

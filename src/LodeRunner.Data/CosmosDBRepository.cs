@@ -202,10 +202,11 @@ namespace LodeRunner.Data
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
         /// <param name="cancellationToken">The Cancellation Token.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>An instance of the document.</returns>
-        public async Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default)
+        public async Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default, ItemRequestOptions requestOptions = null)
         {
-            return await this.Container<TEntity>().UpsertItemAsync(newDocument, this.ResolvePartitionKey(newDocument), null, cancellationToken).ConfigureAwait(false);
+            return await this.Container<TEntity>().UpsertItemAsync(newDocument, this.ResolvePartitionKey(newDocument), requestOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

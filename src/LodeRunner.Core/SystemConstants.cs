@@ -279,5 +279,15 @@ namespace LodeRunner.Core
         /// Secrets validation InvalidCosmosKey.
         /// </summary>
         public const string InvalidCosmosKey = "Invalid value for CosmosKey:";
+
+        /// <summary>
+        ///  Test Run Hard Stop completed.
+        /// </summary>
+        public const string TestRunHardStopCompletedMessage = "TestRun Hard Stop completed for TestRunId:";
+
+        /// <summary>
+        ///  Test Run Cancellation Request received message.
+        /// </summary>
+        public const string TestRunCancellationRequestReceivedMessage = "TestRun Cancellation request received for TestRunId:";
     }
 }

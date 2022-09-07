@@ -79,8 +79,9 @@ namespace LodeRunner.Data.Interfaces
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="newDocument">The new document.</param>
         /// <param name="cancellationToken">The Cancellation Token.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>An instance of the document or null.</returns>
-        Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default);
+        Task<TEntity> UpsertDocumentAsync<TEntity>(TEntity newDocument, CancellationToken cancellationToken = default, ItemRequestOptions requestOptions = null);
 
         /// <summary>
         /// Deletes the document asynchronous.

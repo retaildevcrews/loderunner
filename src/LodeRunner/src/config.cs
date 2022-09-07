@@ -28,6 +28,11 @@ namespace LodeRunner
         public int PollingInterval { get; set; } = 10;
 
         /// <summary>
+        /// gets or sets the hardstop check interval in seconds.
+        /// </summary>
+        public int HardStopCheckInterval { get; set; } = 5;
+
+        /// <summary>
         /// gets or sets the server / url.
         /// </summary>
         public List<string> Server { get; set; }
