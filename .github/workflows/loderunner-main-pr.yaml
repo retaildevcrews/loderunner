@@ -96,35 +96,35 @@ jobs:
       cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
-  loderunner-only:
-    needs: [evaluate-changes, integration-test]
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  # loderunner-only:
+  #   needs: [evaluate-changes, integration-test]
+  #   if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: ./.github/workflows/loderunner-only.yaml
-    with:
-      tag_and_push: false
-      run_and_test: true    
-    secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
+  #   uses: ./.github/workflows/loderunner-only.yaml
+  #   with:
+  #     tag_and_push: false
+  #     run_and_test: true    
+  #   secrets:
+  #     cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+  #     cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
-  loderunner-api:
-    needs: [evaluate-changes, integration-test]
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  # loderunner-api:
+  #   needs: [evaluate-changes, integration-test]
+  #   if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: ./.github/workflows/loderunner-api.yaml
-    with:
-      tag_and_push: false
-      run_and_test: true    
-    secrets:
-      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
-      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
+  #   uses: ./.github/workflows/loderunner-api.yaml
+  #   with:
+  #     tag_and_push: false
+  #     run_and_test: true    
+  #   secrets:
+  #     cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+  #     cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
-  loderunner-ui:
-    needs: [evaluate-changes, integration-test]
-    if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
+  # loderunner-ui:
+  #   needs: [evaluate-changes, integration-test]
+  #   if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
-    uses: ./.github/workflows/loderunner-ui.yaml
-    with:
-      tag_and_push: false 
-      run_and_test: true   
+  #   uses: ./.github/workflows/loderunner-ui.yaml
+  #   with:
+  #     tag_and_push: false 
+  #     run_and_test: true   
