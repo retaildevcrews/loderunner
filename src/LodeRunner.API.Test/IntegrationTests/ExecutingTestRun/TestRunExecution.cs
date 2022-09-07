@@ -134,14 +134,15 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
         /// <param name="expectedCancellationErrorMessage">The Expected Cancellation Error Message.</param>
         /// <param name="loadClientCount">The loadClient Count.</param>
         /// <returns><see cref="Task"/> representing the asynchronous integration test.</returns>
-        //[Trait("Category", "Integration")]
-        //[Theory]
-        //[InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 5)]
-        //[InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 5)]
+        [Trait("Category", "Integration")]
+        [Theory]
+        [InlineData(1, 5000, false, LodeRunner.Core.SystemConstants.TestRunExecutionStoppedMessage, 5)]
+        [InlineData(1, 5000, true, LodeRunner.Core.SystemConstants.OperationCanceledException, 5)]
         public async Task CanCreateExecuteAndStopTestRun(int apiHostCount, int sleepMs, bool runLoop, string expectedCancellationErrorMessage, int loadClientCount)
         {
             await this.TryCreateExecuteDisposeTestRun(apiHostCount, sleepMs, runLoop, loadClientCount: loadClientCount, async (HttpClient httpClient, TestRun postedTestRun, LRClientModeProcessContextCollection lrClientModeProcessContextCollection, ApiProcessContextCollection apiProcessContextCollection, List<int> portList) =>
             {
+                Console.WriteLine($"Requesting Test Run Cancellation...");
                 // Async method to set HardStop to true.
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tRequesting Test Run Cancellation...");
 
@@ -155,6 +156,7 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
                 // Validate Completed TestRun results
                 ValidateTestRunResults(readyTestRun, testRunResponse, loadClientCount);
 
+                Console.WriteLine($"Requesting Test Run Cancellation...");
                 this.output.WriteLine($"UTC Time:{DateTime.UtcNow}\tValidating ClientResults...");
                 foreach (var clientResult in readyTestRun.ClientResults)
                 {
@@ -170,6 +172,8 @@ namespace LodeRunner.API.Test.IntegrationTests.ExecutingTestRun
 
                 //// Validate LodeRunner Clients output
                 bool hardStopCompletedMessageFoundInAnyLoadClient = false;
+
+                Console.WriteLine($"foreach LodeRunner...");
 
                 foreach (var (instanceId, lodeRunnerProcessContext) in lrClientModeProcessContextCollection)
                 {
