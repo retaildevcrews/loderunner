@@ -278,13 +278,14 @@ namespace LodeRunner.Services
             try
             {
                 CancellationTokenSource cancellationTokenSource = new();
-                await StopWatchAsync(cancellationTokenSource, 5);
+                await StopWatchAsync(cancellationTokenSource);
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
                     // Console.WriteLine("Post TestRun...");
 
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before post");
                     // post updates
                     _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
@@ -296,11 +297,12 @@ namespace LodeRunner.Services
 
                     // Console.WriteLine("Remove TestRun from Pending list...");
 
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before remove");
                     // remove TestRun from pending list since upload is complete
                     this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method completed");
                     cancellationTokenSource.Cancel();
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method complete");
 
                     //runRetryTaskSource.Cancel();
 
@@ -331,10 +333,11 @@ namespace LodeRunner.Services
         {
             await Task.Run(async () =>
             {
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken before await");
                 await Task.Delay(delaySecs * 1000).ConfigureAwait(false);
 
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken cancelled");
                 taskSource.Cancel();
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken cancelled");
             });
         }
 
