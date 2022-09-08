@@ -232,7 +232,7 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            Console.WriteLine("Begin UpdateTestRun...");
+            //Console.WriteLine("Begin UpdateTestRun...");
 
             // Create loadResult for this loadClient.
             LoadResult loadResult = new()
@@ -252,7 +252,7 @@ namespace LodeRunner.Services
             //{
             //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
 
-            Console.WriteLine("Get TestRun...");
+            //Console.WriteLine("Get TestRun...");
 
             // get TestRun document to update.
             var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
@@ -263,7 +263,7 @@ namespace LodeRunner.Services
             // Update TestRun CompletedTime if last client to report results
             if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
             {
-                Console.WriteLine("Set CompletedTime...");
+                //Console.WriteLine("Set CompletedTime...");
                 testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
                 // Only set HardStopTime if all loadClients completed
@@ -304,7 +304,7 @@ namespace LodeRunner.Services
             //        runRetryTaskSource.Cancel();
             //    }
             //});
-            Console.WriteLine("Ends UpdateTestRun...");
+            //Console.WriteLine("Ends UpdateTestRun...");
         }
 
         /// <summary>
