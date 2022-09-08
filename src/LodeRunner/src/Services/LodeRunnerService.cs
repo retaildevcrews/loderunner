@@ -278,7 +278,7 @@ namespace LodeRunner.Services
             try
             {
                 CancellationTokenSource cancellationTokenSource = new();
-                await StopWatchAsync(cancellationTokenSource);
+                //await StopWatchAsync(cancellationTokenSource);
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
