@@ -273,30 +273,50 @@ namespace LodeRunner.Services
                 //}
             }
 
-            bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            // bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            // {
+            try
             {
-                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+                CancellationTokenSource cancellationTokenSource = new();
+                await StopWatchAsync(cancellationTokenSource, 5);
+                while (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
-                Console.WriteLine("Post TestRun...");
+                    // Console.WriteLine("Post TestRun...");
 
-                // post updates
-                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+                    // post updates
+                    _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
-                // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
-                //if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
-                //{
-                //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
-                //}
+                    // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
+                    //if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
+                    //{
+                    //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
+                    //}
 
-                Console.WriteLine("Remove TestRun from Pending list...");
+                    // Console.WriteLine("Remove TestRun from Pending list...");
 
-                // remove TestRun from pending list since upload is complete
-                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
+                    // remove TestRun from pending list since upload is complete
+                    this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-            //runRetryTaskSource.Cancel();
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method completed");
+                    cancellationTokenSource.Cancel();
 
-                return true;
-            });
+                    //runRetryTaskSource.Cancel();
+
+                    // return true;
+                }
+            }
+            catch (CosmosException ce)
+            {
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
+            }
+
+            // });
 
             //    // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
             //    if (!preconditionFailedExceptionThrown)
@@ -305,6 +325,17 @@ namespace LodeRunner.Services
             //    }
             //});
             //Console.WriteLine("Ends UpdateTestRun...");
+        }
+
+        private async Task StopWatchAsync(CancellationTokenSource taskSource, int delaySecs = 5)
+        {
+            await Task.Run(async () =>
+            {
+                await Task.Delay(delaySecs * 1000).ConfigureAwait(false);
+
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken cancelled");
+                taskSource.Cancel();
+            });
         }
 
         /// <summary>
