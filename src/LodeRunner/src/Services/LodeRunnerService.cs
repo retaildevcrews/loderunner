@@ -262,32 +262,32 @@ namespace LodeRunner.Services
                 testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
                 // Only set HardStopTime if all loadClients completed
-                if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
-                {
-                    testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
-                }
+                //if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
+                //{
+                //    testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
+                //}
             }
 
-            bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
-            {
-                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+            //bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            //{
+            ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
-                // post updates
-                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+            // post updates
+            _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
-                // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
-                if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
-                {
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
-                }
+            // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
+            //if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
+            //{
+            //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
+            //}
 
-                // remove TestRun from pending list since upload is complete
-                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
+            // remove TestRun from pending list since upload is complete
+            this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
                 //runRetryTaskSource.Cancel();
 
-                return true;
-            });
+            //    return true;
+            //});
 
             //    // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
             //    if (!preconditionFailedExceptionThrown)
