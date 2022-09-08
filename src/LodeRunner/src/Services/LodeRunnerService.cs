@@ -331,10 +331,18 @@ namespace LodeRunner.Services
 
         private async Task StopWatchAsync(CancellationTokenSource taskSource, int delaySecs = 5)
         {
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
                 logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken before await");
-                await Task.Delay(delaySecs * 1000).ConfigureAwait(false);
+
+                Stopwatch watch = Stopwatch.StartNew();
+                watch.Start();
+
+                while (watch.Elapsed.Seconds <= delaySecs)
+                {
+                }
+
+                watch.Stop();
 
                 taskSource.Cancel();
                 logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken cancelled");
