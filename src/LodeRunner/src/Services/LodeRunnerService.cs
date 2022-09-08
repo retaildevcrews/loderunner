@@ -232,8 +232,6 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            //Console.WriteLine("Begin UpdateTestRun...");
-
             // Create loadResult for this loadClient.
             LoadResult loadResult = new()
             {
@@ -246,14 +244,6 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            //var runRetryTaskSource = new CancellationTokenSource();
-
-            //await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
-            //{
-            //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
-
-            //Console.WriteLine("Get TestRun...");
-
             // get TestRun document to update.
             var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
 
@@ -263,51 +253,25 @@ namespace LodeRunner.Services
             // Update TestRun CompletedTime if last client to report results
             if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
             {
-                //Console.WriteLine("Set CompletedTime...");
                 testRunResponse.Resource.CompletedTime = args.CompletedTime;
-
-                // Only set HardStopTime if all loadClients completed
-                //if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
-                //{
-                //    testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
-                //}
             }
 
-            // bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
-            // {
             try
             {
-                CancellationTokenSource cancellationTokenSource = new();
-                //await StopWatchAsync(cancellationTokenSource);
-                while (!cancellationTokenSource.IsCancellationRequested)
-                {
-                    ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
-                    // Console.WriteLine("Post TestRun...");
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before post");
 
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before post");
-                    // post updates
-                    _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+                // post updates
+                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
-                    // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
-                    //if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
-                    //{
-                    //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
-                    //}
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before remove");
 
-                    // Console.WriteLine("Remove TestRun from Pending list...");
+                // remove TestRun from pending list since upload is complete
+                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun before remove");
-                    // remove TestRun from pending list since upload is complete
-                    this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-
-                    cancellationTokenSource.Cancel();
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method complete");
-
-                    //runRetryTaskSource.Cancel();
-
-                    // return true;
-                }
+                cancellationTokenSource.Cancel();
+                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method complete");
             }
             catch (CosmosException ce)
             {
@@ -317,36 +281,6 @@ namespace LodeRunner.Services
             {
                 logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
             }
-
-            // });
-
-            //    // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-            //    if (!preconditionFailedExceptionThrown)
-            //    {
-            //        runRetryTaskSource.Cancel();
-            //    }
-            //});
-            //Console.WriteLine("Ends UpdateTestRun...");
-        }
-
-        private async Task StopWatchAsync(CancellationTokenSource taskSource, int delaySecs = 5)
-        {
-            await Task.Run(() =>
-            {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken before await");
-
-                Stopwatch watch = Stopwatch.StartNew();
-                watch.Start();
-
-                while (watch.Elapsed.Seconds <= delaySecs)
-                {
-                }
-
-                watch.Stop();
-
-                taskSource.Cancel();
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(StopWatchAsync)), SystemConstants.LoggerMessageAttributeName, "CancellationToken cancelled");
-            });
         }
 
         /// <summary>
