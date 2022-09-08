@@ -232,6 +232,8 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
+            Console.WriteLine("Begin UpdateTestRun...");
+
             // Create loadResult for this loadClient.
             LoadResult loadResult = new()
             {
@@ -250,6 +252,8 @@ namespace LodeRunner.Services
             //{
             //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
 
+            Console.WriteLine("Get TestRun...");
+
             // get TestRun document to update.
             var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
 
@@ -259,6 +263,7 @@ namespace LodeRunner.Services
             // Update TestRun CompletedTime if last client to report results
             if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
             {
+                Console.WriteLine("Set CompletedTime...");
                 testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
                 // Only set HardStopTime if all loadClients completed
@@ -272,6 +277,8 @@ namespace LodeRunner.Services
             //{
             ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
+            Console.WriteLine("Post TestRun...");
+
             // post updates
             _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
@@ -281,10 +288,12 @@ namespace LodeRunner.Services
             //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
             //}
 
+            Console.WriteLine("Remove TestRun from Pending list...");
+
             // remove TestRun from pending list since upload is complete
             this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                //runRetryTaskSource.Cancel();
+            //runRetryTaskSource.Cancel();
 
             //    return true;
             //});
@@ -295,6 +304,7 @@ namespace LodeRunner.Services
             //        runRetryTaskSource.Cancel();
             //    }
             //});
+            Console.WriteLine("Ends UpdateTestRun...");
         }
 
         /// <summary>
