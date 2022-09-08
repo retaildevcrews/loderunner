@@ -626,12 +626,12 @@ namespace LodeRunner.Services
 
             CancellationTokenSource cancelTestRunExecution = new();
 
-            using var testRunExecutionHelper = new TestRunExecutionHelper(GetTestRunService(), this.logger, cancelTestRunExecution, testRun.Id);
+            //using var testRunExecutionHelper = new TestRunExecutionHelper(GetTestRunService(), this.logger, cancelTestRunExecution, testRun.Id);
 
-            // NOTE: We create a new dummy Cancellation token for IntervalChecker to prevent to cancel the execution in the case testRunExecutionChecker.HardStopCheck has reached out the retry limit.
-            // In any case, the current implementation of testRunExecutionChecker.HardStopCheck function will never return 'false'
-            using var intervalChecker = new IntervalChecker(testRunExecutionHelper.HardStopCheck, this.logger, new(), interval: this.config.HardStopCheckInterval);
-            intervalChecker.Start();
+            //// NOTE: We create a new dummy Cancellation token for IntervalChecker to prevent to cancel the execution in the case testRunExecutionChecker.HardStopCheck has reached out the retry limit.
+            //// In any case, the current implementation of testRunExecutionChecker.HardStopCheck function will never return 'false'
+            //using var intervalChecker = new IntervalChecker(testRunExecutionHelper.HardStopCheck, this.logger, new(), interval: this.config.HardStopCheckInterval);
+            //intervalChecker.Start();
 
             try
             {

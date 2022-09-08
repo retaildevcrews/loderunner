@@ -110,18 +110,21 @@ namespace LodeRunner
         {
             return await TryCatchException(logger, nameof(HardStopCheck), async () =>
             {
-                // get current TestRun document
-                var testRun = await this.testRunService.Get(this.testRunId);
-
-                // Check if hardStop was requested.
-                if (testRun.HardStop && testRun.HardStopTime == null && !cancellationRequestReceived)
+                if (!cancellationRequestReceived)
                 {
-                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestReceivedMessage} {this.testRunId}");
+                    // get current TestRun document
+                    var testRun = await this.testRunService.Get(this.testRunId);
 
-                    //Initiate Cancellation.
-                    this.cancelTestRunExecution.Cancel(false);
+                    // Check if hardStop was requested.
+                    if (testRun.HardStop && testRun.HardStopTime == null)
+                    {
+                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(HardStopCheck)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunCancellationRequestReceivedMessage} {this.testRunId}");
 
-                    cancellationRequestReceived = true;
+                        //Initiate Cancellation.
+                        this.cancelTestRunExecution.Cancel(false);
+
+                        cancellationRequestReceived = true;
+                    }
                 }
 
                 return true;
