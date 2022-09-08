@@ -244,57 +244,57 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            var runRetryTaskSource = new CancellationTokenSource();
+            //var runRetryTaskSource = new CancellationTokenSource();
 
-            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            //await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            //{
+            //    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
+
+            // get TestRun document to update.
+            var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
+            // Add ClientResults reported by this LodeRunner Client Instance.
+            testRunResponse.Resource.ClientResults.Add(loadResult);
+
+            // Update TestRun CompletedTime if last client to report results
+            if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
             {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
+                testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
-                // get TestRun document to update.
-                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
-
-                // Add ClientResults reported by this LodeRunner Client Instance.
-                testRunResponse.Resource.ClientResults.Add(loadResult);
-
-                // Update TestRun CompletedTime if last client to report results
-                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
+                // Only set HardStopTime if all loadClients completed
+                if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
                 {
-                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
+                    testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
+                }
+            }
 
-                    // Only set HardStopTime if all loadClients completed
-                    if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
-                    {
-                        testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
-                    }
+            bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            {
+                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+
+                // post updates
+                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+
+                // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
+                if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
+                {
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
                 }
 
-                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
-                {
-                    ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+                // remove TestRun from pending list since upload is complete
+                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                    // post updates
-                    _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
+                //runRetryTaskSource.Cancel();
 
-                    // Check if TestRun Completed as result of this LoadClient if so then check if HardStop was requested and HardStopTime was set, then log message
-                    if (testRunResponse.Resource.CompletedTime != null && testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime != null)
-                    {
-                        logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.TestRunHardStopCompletedMessage} {testRunResponse.Resource.Id}");
-                    }
-
-                    // remove TestRun from pending list since upload is complete
-                    this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-
-                    runRetryTaskSource.Cancel();
-
-                    return true;
-                });
-
-                // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-                if (!preconditionFailedExceptionThrown)
-                {
-                    runRetryTaskSource.Cancel();
-                }
+                return true;
             });
+
+            //    // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
+            //    if (!preconditionFailedExceptionThrown)
+            //    {
+            //        runRetryTaskSource.Cancel();
+            //    }
+            //});
         }
 
         /// <summary>
