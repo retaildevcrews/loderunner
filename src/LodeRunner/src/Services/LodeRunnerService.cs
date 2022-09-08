@@ -270,8 +270,7 @@ namespace LodeRunner.Services
                 // remove TestRun from pending list since upload is complete
                 this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                cancellationTokenSource.Cancel();
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method complete");
+                    logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, "UpdateTestRun method complete");
             }
             catch (CosmosException ce)
             {
