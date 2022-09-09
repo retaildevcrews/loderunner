@@ -244,25 +244,24 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            int maxRetries = 1;
-            for (int attemptCount = 1; attemptCount <= maxRetries; attemptCount++)
+            CancellationTokenSource runRetryTaskSource = new CancellationTokenSource();
+
+            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
             {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
-
-                // get TestRun document to update.
-                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
-
-                // Add ClientResults reported by this LodeRunner Client Instance.
-                testRunResponse.Resource.ClientResults.Add(loadResult);
-
-                // Update TestRun CompletedTime if last client to report results
-                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
-                {
-                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
-                }
-
                 try
                 {
+                    // get TestRun document to update.
+                    var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
+                    // Add ClientResults reported by this LodeRunner Client Instance.
+                    testRunResponse.Resource.ClientResults.Add(loadResult);
+
+                    // Update TestRun CompletedTime if last client to report results
+                    if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
+                    {
+                        testRunResponse.Resource.CompletedTime = args.CompletedTime;
+                    }
+
                     ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
                     // post updates
@@ -270,29 +269,24 @@ namespace LodeRunner.Services
 
                     // remove TestRun from pending list since upload is complete
                     this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-
-                    // Break retry.
-                    break;
                 }
                 catch (CosmosException ce)
                 {
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
                     if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
                     {
-                        // do a retry.
-                        continue;
-                    }
-                    else
-                    {
-                        logger.LogError(new EventId((int)LogLevel.Error, $"{UpdateTestRun}"), ce, SystemConstants.CosmosException);
-                        break;
+                        return;
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(new EventId((int)LogLevel.Error, $"{UpdateTestRun}"), ex, SystemConstants.Exception);
-                    break;
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
                 }
-            }
+                finally
+                {
+                    runRetryTaskSource.Cancel();
+                }
+            });
         }
 
         /// <summary>
