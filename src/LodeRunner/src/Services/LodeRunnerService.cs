@@ -7,13 +7,13 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+
 using LodeRunner.Core;
 using LodeRunner.Core.CommandLine;
 using LodeRunner.Core.Events;
 using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
-
 using LodeRunner.Data;
 using LodeRunner.Data.Interfaces;
 using LodeRunner.Interfaces;
@@ -233,7 +233,7 @@ namespace LodeRunner.Services
             try
             {
                 // get TestRun document to update
-                var testRun = await GetTestRunService().Get(args.TestRunId);
+                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
 
                 LoadResult loadResult = new()
                 {
@@ -246,19 +246,22 @@ namespace LodeRunner.Services
                     ErrorMessage = args.ErrorMessage,
                 };
 
-                testRun.ClientResults.Add(loadResult);
+                // Add ClientResults reported by this LodeRunner Client Instance.
+                testRunResponse.Resource.ClientResults.Add(loadResult);
 
-                // update TestRun CompletedTime if last client to report results
-                if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+                // Update TestRun CompletedTime if last client to report results
+                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
                 {
-                    testRun.CompletedTime = args.CompletedTime;
+                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
                 }
 
+                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
+
                 // post updates
-                _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
                 // remove TestRun from pending list since upload is complete
-                this.pendingTestRuns.Remove(testRun.Id);
+                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
             }
             catch (CosmosException ce)
             {
