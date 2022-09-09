@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -242,9 +244,8 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            var runRetryTaskSource = new CancellationTokenSource();
-
-            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            int maxRetries = 10;
+            for (int attemptCount = 1; attemptCount <= maxRetries; attemptCount++)
             {
                 logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
 
@@ -260,7 +261,7 @@ namespace LodeRunner.Services
                     testRunResponse.Resource.CompletedTime = args.CompletedTime;
                 }
 
-                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+                try
                 {
                     ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
@@ -270,17 +271,28 @@ namespace LodeRunner.Services
                     // remove TestRun from pending list since upload is complete
                     this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                    runRetryTaskSource.Cancel();
-
-                    return true;
-                });
-
-                // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-                if (!preconditionFailedExceptionThrown)
-                {
-                    runRetryTaskSource.Cancel();
+                    // Break retry.
+                    break;
                 }
-            });
+                catch (CosmosException ce)
+                {
+                    if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+                    {
+                        // do a retry.
+                        continue;
+                    }
+                    else
+                    {
+                        logger.LogError(new EventId((int)LogLevel.Error, $"{UpdateTestRun}"), ce, SystemConstants.CosmosException);
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(new EventId((int)LogLevel.Error, $"{UpdateTestRun}"), ex, SystemConstants.Exception);
+                    break;
+                }
+            }
         }
 
         /// <summary>
