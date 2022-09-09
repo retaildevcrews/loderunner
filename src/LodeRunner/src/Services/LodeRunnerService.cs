@@ -244,7 +244,7 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            int maxRetries = 10;
+            int maxRetries = 1;
             for (int attemptCount = 1; attemptCount <= maxRetries; attemptCount++)
             {
                 logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
