@@ -244,32 +244,30 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            var runRetryTaskSource = new CancellationTokenSource();
+            CancellationTokenSource runRetryTaskSource = new CancellationTokenSource();
 
             await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
             {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
-
-                // get TestRun document to update.
-                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
-
-                // Add ClientResults reported by this LodeRunner Client Instance.
-                testRunResponse.Resource.ClientResults.Add(loadResult);
-
-                // Update TestRun CompletedTime if last client to report results
-                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
+                try
                 {
-                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
+                    // get TestRun document to update.
+                    var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
 
-                    // Only set HardStopTime if all loadClients completed
-                    if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
+                    // Add ClientResults reported by this LodeRunner Client Instance.
+                    testRunResponse.Resource.ClientResults.Add(loadResult);
+
+                    // Update TestRun CompletedTime if last client to report results
+                    if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
                     {
-                        testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
-                    }
-                }
+                        testRunResponse.Resource.CompletedTime = args.CompletedTime;
 
-                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
-                {
+                        // Only set HardStopTime if all loadClients completed
+                        if (testRunResponse.Resource.HardStop && testRunResponse.Resource.HardStopTime == null)
+                        {
+                            testRunResponse.Resource.HardStopTime = DateTime.UtcNow;
+                        }
+                    }
+
                     ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
                     // post updates
@@ -283,17 +281,21 @@ namespace LodeRunner.Services
 
                     // remove TestRun from pending list since upload is complete
                     this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-
-                    runRetryTaskSource.Cancel();
-
-                    return true;
-                });
-
-                // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-                if (!preconditionFailedExceptionThrown)
-                {
-                    runRetryTaskSource.Cancel();
                 }
+                catch (CosmosException ce)
+                {
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
+                    if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
+                }
+
+                runRetryTaskSource.Cancel();
             });
         }
 

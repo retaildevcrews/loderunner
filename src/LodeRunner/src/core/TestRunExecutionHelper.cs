@@ -63,37 +63,37 @@ namespace LodeRunner
             }
         }
 
-        /// <summary>
-        /// Reusable try-catch block to encapsulate PreconditionFailed Exception for taskExecution.
-        /// </summary>
-        /// <param name="logger">The ILogger.</param>
-        /// <param name="methodName">String containing caller member name to improve logging.</param>
-        /// <param name="taskToExecute">Task to be executed in try block</param>
-        /// <returns>A task indicating whether or not an exception was thrown.</returns>
-        public static async Task<bool> TryCatchPreconditionFailedException(ILogger logger, string methodName, Func<Task<bool>> taskToExecute)
-        {
-            try
-            {
-                return await taskToExecute();
-            }
-            catch (CosmosException ce)
-            {
-                if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
-                {
-                    return true;
-                }
-                else
-                {
-                    logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ce, SystemConstants.CosmosException);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ex, SystemConstants.Exception);
-                return false;
-            }
-        }
+        ///// <summary>
+        ///// Reusable try-catch block to encapsulate PreconditionFailed Exception for taskExecution.
+        ///// </summary>
+        ///// <param name="logger">The ILogger.</param>
+        ///// <param name="methodName">String containing caller member name to improve logging.</param>
+        ///// <param name="taskToExecute">Task to be executed in try block</param>
+        ///// <returns>A task indicating whether or not an exception was thrown.</returns>
+        //public static async Task<bool> TryCatchPreconditionFailedException(ILogger logger, string methodName, Func<Task<bool>> taskToExecute)
+        //{
+        //    try
+        //    {
+        //        return await taskToExecute();
+        //    }
+        //    catch (CosmosException ce)
+        //    {
+        //        if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+        //        {
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ce, SystemConstants.CosmosException);
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(new EventId((int)LogLevel.Error, $"{methodName}"), ex, SystemConstants.Exception);
+        //        return false;
+        //    }
+        //}
 
         public void Dispose()
         {
