@@ -230,7 +230,9 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            // Create loadResult for this loadClient.
+            // get TestRun document to update
+            var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
             LoadResult loadResult = new()
             {
                 CompletedTime = args.CompletedTime,
@@ -242,44 +244,26 @@ namespace LodeRunner.Services
                 ErrorMessage = args.ErrorMessage,
             };
 
-            var runRetryTaskSource = new CancellationTokenSource();
+            // Add ClientResults reported by this LodeRunner Client Instance.
+            testRunResponse.Resource.ClientResults.Add(loadResult);
 
-            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            // Update TestRun CompletedTime if last client to report results
+            if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
             {
-                logger.LogInformation(new EventId((int)LogLevel.Information, nameof(UpdateTestRun)), SystemConstants.LoggerMessageAttributeName, $"{SystemConstants.LoadClientIdFieldName}: {this.clientStatus.LoadClient.Id} - UpdateTestRun RunAndRetry Attempt: {attemptCount}");
+                testRunResponse.Resource.CompletedTime = args.CompletedTime;
+            }
 
-                // get TestRun document to update.
-                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+            bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            {
+                ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
-                // Add ClientResults reported by this LodeRunner Client Instance.
-                testRunResponse.Resource.ClientResults.Add(loadResult);
+                // post updates
+                _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
 
-                // Update TestRun CompletedTime if last client to report results
-                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
-                {
-                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
-                }
+                // remove TestRun from pending list since upload is complete
+                this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
 
-                bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
-                {
-                    ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
-
-                    // post updates
-                    _ = await GetTestRunService().Post(testRunResponse.Resource, this.cancellationTokenSource.Token, requestOptions);
-
-                    // remove TestRun from pending list since upload is complete
-                    this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-
-                    runRetryTaskSource.Cancel();
-
-                    return true;
-                });
-
-                // if preconditionFailedExceptionThown was NOT Thrown, then either the Post operation above succeed or a different exception was thrown in any case we want to Cancel the runRetryTask.
-                if (!preconditionFailedExceptionThrown)
-                {
-                    runRetryTaskSource.Cancel();
-                }
+                return true;
             });
         }
 
