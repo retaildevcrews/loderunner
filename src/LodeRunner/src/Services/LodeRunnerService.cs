@@ -230,31 +230,31 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            try
+            // get TestRun document to update
+            var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
+            LoadResult loadResult = new()
             {
-                // get TestRun document to update
-                var testRunResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+                CompletedTime = args.CompletedTime,
+                FailedRequests = args.FailedRequests,
+                SuccessfulRequests = args.SuccessfulRequests,
+                TotalRequests = args.TotalRequests,
+                LoadClient = this.loadClient,
+                StartTime = args.StartTime,
+                ErrorMessage = args.ErrorMessage,
+            };
 
-                LoadResult loadResult = new()
-                {
-                    CompletedTime = args.CompletedTime,
-                    FailedRequests = args.FailedRequests,
-                    SuccessfulRequests = args.SuccessfulRequests,
-                    TotalRequests = args.TotalRequests,
-                    LoadClient = this.loadClient,
-                    StartTime = args.StartTime,
-                    ErrorMessage = args.ErrorMessage,
-                };
+            // Add ClientResults reported by this LodeRunner Client Instance.
+            testRunResponse.Resource.ClientResults.Add(loadResult);
 
-                // Add ClientResults reported by this LodeRunner Client Instance.
-                testRunResponse.Resource.ClientResults.Add(loadResult);
+            // Update TestRun CompletedTime if last client to report results
+            if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
+            {
+                testRunResponse.Resource.CompletedTime = args.CompletedTime;
+            }
 
-                // Update TestRun CompletedTime if last client to report results
-                if (testRunResponse.Resource.ClientResults.Count == testRunResponse.Resource.LoadClients.Count)
-                {
-                    testRunResponse.Resource.CompletedTime = args.CompletedTime;
-                }
-
+            bool preconditionFailedExceptionThrown = await TestRunExecutionHelper.TryCatchPreconditionFailedException(logger, nameof(UpdateTestRun), async () =>
+            {
                 ItemRequestOptions requestOptions = new() { IfMatchEtag = testRunResponse.ETag };
 
                 // post updates
@@ -262,15 +262,9 @@ namespace LodeRunner.Services
 
                 // remove TestRun from pending list since upload is complete
                 this.pendingTestRuns.Remove(testRunResponse.Resource.Id);
-            }
-            catch (CosmosException ce)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
-            }
+
+                return true;
+            });
         }
 
         /// <summary>
