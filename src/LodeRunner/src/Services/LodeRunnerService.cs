@@ -282,10 +282,8 @@ namespace LodeRunner.Services
                 {
                     logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
                 }
-                finally
-                {
-                    runRetryTaskSource.Cancel();
-                }
+
+                runRetryTaskSource.Cancel();
             });
         }
 
