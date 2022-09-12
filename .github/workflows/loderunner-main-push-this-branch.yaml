@@ -92,7 +92,7 @@ jobs:
     #   LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
   integration-test:
-    # needs: evaluate-changes
+    needs: evaluate-changes
     uses: ./.github/workflows/loderunner-integration-test.yaml
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
