@@ -10,6 +10,7 @@ on:
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/loderunner-main-pr.yaml'
+      - '.github/workflows/loderunner-integration-test.yaml'
       - '.github/workflows/loderunner-api.yaml'
       - '.github/workflows/loderunner-ui.yaml'
       - '.github/workflows/loderunner-only.yaml'
@@ -31,7 +32,6 @@ on:
       - 'src/LodeRunner.UI/**.css'
       - 'src/LodeRunner.UI/*.csproj'
       - 'src/LodeRunner.UI/**.cs'
-
 
 jobs:
   evaluate-changes:
