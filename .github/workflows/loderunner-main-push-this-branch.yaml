@@ -1,4 +1,4 @@
-name: Test LodeRunner-PR
+name: Test LodeRunner-Integration-Testing-ONLY
 
 on:
   push:
