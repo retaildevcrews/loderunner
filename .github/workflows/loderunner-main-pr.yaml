@@ -89,7 +89,7 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
- integration-test:
+  integration-test:
     needs: evaluate-changes
     uses: ./.github/workflows/loderunner-integration-test.yaml
     secrets:
