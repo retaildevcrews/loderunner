@@ -247,7 +247,9 @@ namespace LodeRunner.Services
                 try
                 {
                     // get TestRun document to update
-                    var testRun = await GetTestRunService().Get(args.TestRunId);
+                    var itemResponse = await GetTestRunService().GetWithMeta(args.TestRunId);
+
+                    var testRun = itemResponse.Resource;
 
                     testRun.ClientResults.Add(loadResult);
 
@@ -257,8 +259,10 @@ namespace LodeRunner.Services
                         testRun.CompletedTime = args.CompletedTime;
                     }
 
+                    ItemRequestOptions requestOptions = new() { IfMatchEtag = itemResponse.ETag };
+
                     // post updates
-                    _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+                    _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token, requestOptions);
 
                     // remove TestRun from pending list since upload is complete
                     this.pendingTestRuns.Remove(testRun.Id);
