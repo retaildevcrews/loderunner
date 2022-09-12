@@ -41,57 +41,57 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Check and get what changed  
-      id: code_changes
-      run: |
-          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
-          echo $URL
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
-          echo $FILES
+    # - name: Check and get what changed  
+    #   id: code_changes
+    #   run: |
+    #       URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+    #       echo $URL
+    #       FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+    #       echo $FILES
 
-          if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
-            echo "LodeRunnerChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner source code changed!!"
-          else
-            echo "LodeRunnerChanged=false" >> $GITHUB_ENV
-          fi
+    #       if [[ "$FILES" == *"src/LodeRunner/"* ]] ; then
+    #         echo "LodeRunnerChanged=true" >> $GITHUB_ENV
+    #         echo "LodeRunner source code changed!!"
+    #       else
+    #         echo "LodeRunnerChanged=false" >> $GITHUB_ENV
+    #       fi
           
-          if [[ "$FILES" == *"src/LodeRunner.API/"* ]] ; then
-            echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner.API source code changed!!"
-          else
-            echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
-          fi
+    #       if [[ "$FILES" == *"src/LodeRunner.API/"* ]] ; then
+    #         echo "LodeRunnerAPIChanged=true" >> $GITHUB_ENV
+    #         echo "LodeRunner.API source code changed!!"
+    #       else
+    #         echo "LodeRunnerAPIChanged=false" >> $GITHUB_ENV
+    #       fi
           
-          if [[ "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
-            echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner Libraries source code changed!!"
-          else
-            echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
-          fi
+    #       if [[ "$FILES" == *"src/LodeRunner.Core/"* || "$FILES" == *"src/LodeRunner.Data/"* ]] ; then
+    #         echo "LodeRunnerLIBChanged=true" >> $GITHUB_ENV
+    #         echo "LodeRunner Libraries source code changed!!"
+    #       else
+    #         echo "LodeRunnerLIBChanged=false" >> $GITHUB_ENV
+    #       fi
 
-          if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
-            echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
-            echo "LodeRunner.UI source code changed!!"
-          else
-            echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
-          fi
+    #       if [[ "$FILES" == *"src/LodeRunner.UI/"* ]] ; then
+    #         echo "LodeRunnerUIChanged=true" >> $GITHUB_ENV
+    #         echo "LodeRunner.UI source code changed!!"
+    #       else
+    #         echo "LodeRunnerUIChanged=false" >> $GITHUB_ENV
+    #       fi
 
-          if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
-            echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
-            echo "LodeRunner Workflow changed!!"
-          else
-            echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
-          fi
-    outputs:
-      LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
-      LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
-      LodeRunnerLIBChanged: ${{ env.LodeRunnerLIBChanged }}
-      LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
-      LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
+    #       if [[ "$FILES" == *".github/workflows/"*".yaml"* ]]; then
+    #         echo "LodeRunnerWorkflowChaged=true" >> $GITHUB_ENV
+    #         echo "LodeRunner Workflow changed!!"
+    #       else
+    #         echo "LodeRunnerWorkflowChaged=false" >> $GITHUB_ENV
+    #       fi
+    # outputs:
+    #   LodeRunnerChanged: ${{ env.LodeRunnerChanged }}
+    #   LodeRunnerAPIChanged: ${{ env.LodeRunnerAPIChanged }}
+    #   LodeRunnerLIBChanged: ${{ env.LodeRunnerLIBChanged }}
+    #   LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
+    #   LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
   integration-test:
-    needs: evaluate-changes
+    # needs: evaluate-changes
     uses: ./.github/workflows/loderunner-integration-test.yaml
     secrets:
       cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
