@@ -101,12 +101,6 @@ jobs:
       run: |
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
 
-    # - name: LodeRunner.API Integration Testing
-    #   if: ${{ inputs.run_and_test }}
-    #   run: |
-    #     cd src/LodeRunner.API.Test
-    #     dotnet test --filter "Category=Integration"
-        
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}    
       run: |

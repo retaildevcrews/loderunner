@@ -76,12 +76,6 @@ jobs:
 
         echo "LodeRunner Await mode container was successfully terminated after it ran for 30 seconds."
 
-    # - name: LodeRunner.API Integration Testing
-    #   if: ${{ inputs.run_and_test }}
-    #   run: |
-    #     cd src/LodeRunner.API.Test
-    #     dotnet test --filter "Category=Integration"
-
     - name: Delete Secrets
       if: ${{ inputs.run_and_test }}
       run: |
