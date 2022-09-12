@@ -10,10 +10,11 @@ on:
       - 'src/LodeRunner/Dockerfile'
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
-      - '.github/workflows/loderunner-main-pr.yaml'
-      - '.github/workflows/loderunner-api.yaml'
-      - '.github/workflows/loderunner-ui.yaml'
-      - '.github/workflows/loderunner-only.yaml'
+      - '.github/workflows/loderunner-main-push-this-branch.yaml'
+      # - '.github/workflows/loderunner-main-pr.yaml'
+      # - '.github/workflows/loderunner-api.yaml'
+      # - '.github/workflows/loderunner-ui.yaml'
+      # - '.github/workflows/loderunner-only.yaml'
 
       # API source
       - 'src/LodeRunner.API/Dockerfile'
