@@ -230,44 +230,54 @@ namespace LodeRunner.Services
         /// <param name="args">The <see cref="LoadResultEventArgs"/> instance containing the event data.</param>
         public async void UpdateTestRun(object sender, LoadResultEventArgs args)
         {
-            try
+            LoadResult loadResult = new()
             {
-                // get TestRun document to update
-                var testRun = await GetTestRunService().Get(args.TestRunId);
+                CompletedTime = args.CompletedTime,
+                FailedRequests = args.FailedRequests,
+                SuccessfulRequests = args.SuccessfulRequests,
+                TotalRequests = args.TotalRequests,
+                LoadClient = this.loadClient,
+                StartTime = args.StartTime,
+                ErrorMessage = args.ErrorMessage,
+            };
 
-                LoadResult loadResult = new()
+            CancellationTokenSource runRetryTaskSource = new();
+            await Common.RunAndRetry(10, 500, runRetryTaskSource, async (int attemptCount) =>
+            {
+                try
                 {
-                    CompletedTime = args.CompletedTime,
-                    FailedRequests = args.FailedRequests,
-                    SuccessfulRequests = args.SuccessfulRequests,
-                    TotalRequests = args.TotalRequests,
-                    LoadClient = this.loadClient,
-                    StartTime = args.StartTime,
-                    ErrorMessage = args.ErrorMessage,
-                };
+                    // get TestRun document to update
+                    var testRun = await GetTestRunService().Get(args.TestRunId);
 
-                testRun.ClientResults.Add(loadResult);
+                    testRun.ClientResults.Add(loadResult);
 
-                // update TestRun CompletedTime if last client to report results
-                if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+                    // update TestRun CompletedTime if last client to report results
+                    if (testRun.ClientResults.Count == testRun.LoadClients.Count)
+                    {
+                        testRun.CompletedTime = args.CompletedTime;
+                    }
+
+                    // post updates
+                    _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
+
+                    // remove TestRun from pending list since upload is complete
+                    this.pendingTestRuns.Remove(testRun.Id);
+                }
+                catch (CosmosException ce)
                 {
-                    testRun.CompletedTime = args.CompletedTime;
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
+                    if (ce.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
                 }
 
-                // post updates
-                _ = await GetTestRunService().Post(testRun, this.cancellationTokenSource.Token);
-
-                // remove TestRun from pending list since upload is complete
-                this.pendingTestRuns.Remove(testRun.Id);
-            }
-            catch (CosmosException ce)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ce, SystemConstants.CosmosException);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(new EventId((int)LogLevel.Error, nameof(UpdateTestRun)), ex, SystemConstants.Exception);
-            }
+                runRetryTaskSource.Cancel();
+            });
         }
 
         /// <summary>
