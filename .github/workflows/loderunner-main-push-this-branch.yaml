@@ -99,7 +99,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-only:
-    needs: evaluate-changes
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-only.yaml
@@ -111,7 +111,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-api:
-    needs: evaluate-changes
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-api.yaml
@@ -123,7 +123,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-ui:
-    needs: evaluate-changes
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-ui.yaml
