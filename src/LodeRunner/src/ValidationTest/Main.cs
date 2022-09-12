@@ -258,8 +258,15 @@ namespace LodeRunner
             }
             finally
             {
+                string errorMessage = string.Empty;
+
+                if (token.IsCancellationRequested)
+                {
+                    errorMessage = SystemConstants.TestRunExecutionStoppedMessage;
+                }
+
                 // fire event
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, requestCount, validationFailureCount + errorCount, errorMessage));
             }
 
             // return non-zero exit code on failure
@@ -344,7 +351,7 @@ namespace LodeRunner
             }
             catch (TaskCanceledException tce)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, tce.Message));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.TaskCanceledException));
 
                 // log exception
                 if (!tce.Task.IsCompleted)
@@ -359,7 +366,7 @@ namespace LodeRunner
             }
             catch (OperationCanceledException oce)
             {
-                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, oce.Message));
+                TestRunComplete(null, new LoadResultEventArgs(startTime, DateTime.UtcNow, config.TestRunId, 0, 0, SystemConstants.OperationCanceledException));
 
                 // log exception
                 if (!token.IsCancellationRequested)
@@ -390,8 +397,15 @@ namespace LodeRunner
                 totalRequests += state.Count;
             }
 
+            string errorMessage = string.Empty;
+
+            if (token.IsCancellationRequested)
+            {
+                errorMessage = SystemConstants.TestRunExecutionStoppedMessage;
+            }
+
             // fire event
-            TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures));
+            TestRunComplete(null, new LoadResultEventArgs(startTime, completedTime, config.TestRunId, (int)totalRequests, totalFailures, errorMessage));
 
             // graceful exit
             return Core.SystemConstants.ExitSuccess;
@@ -467,6 +481,7 @@ namespace LodeRunner
 
                     // Get the Burst header value from HTTP Headers
                     resp.Headers.TryGetValues(SystemConstants.XBurstLoadFeedback, out var burstHeaderValue);
+
                     // check the performance
                     perfLog = this.CreatePerfLog(server, request, valid, duration, (long)resp.Content.Headers.ContentLength, (int)resp.StatusCode);
 
