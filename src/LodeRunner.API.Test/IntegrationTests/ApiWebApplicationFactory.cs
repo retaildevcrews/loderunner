@@ -26,15 +26,13 @@ namespace LodeRunner.API.Test.IntegrationTests
     public class ApiWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-        private readonly ApiPortPoolManager apiPortPoolManager = new();
-
         /// <summary>
         /// Gets the next available port.
         /// </summary>
         /// <returns>NextAvailablePort.</returns>
         public int GetNextAvailablePort()
         {
-            return this.apiPortPoolManager.GetNextAvailablePort();
+            return ApiPortPoolManager.GetInstance().GetNextAvailablePort();
         }
 
         /// <summary>

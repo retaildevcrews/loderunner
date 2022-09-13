@@ -1,0 +1,33 @@
+name: Run LodeRunner Integration Test
+
+on:
+  workflow_call:
+    secrets:
+      cosmos_rw_key:
+        required: true
+      cosmos_url:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set Secrets
+      run: |
+        mkdir -p /tmp/secrets
+        echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
+        echo -n ${{ secrets.cosmos_url }} >| /tmp/secrets/CosmosUrl
+        echo -n 'LodeRunner' >| /tmp/secrets/CosmosCollection
+        echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
+
+    - name: LodeRunner.API Integration Testing
+      run: |
+        cd src/LodeRunner.API.Test
+        dotnet test --filter "Category=Integration"
+
+    - name: Delete Secrets
+      run: |
+        rm -rf /tmp/secrets        

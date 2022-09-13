@@ -10,6 +10,7 @@ using LodeRunner.Core.Extensions;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
+using Microsoft.Azure.Cosmos;
 
 namespace LodeRunner.Services
 {
@@ -56,6 +57,16 @@ namespace LodeRunner.Services
         public virtual async Task<TEntity> Get(string id)
         {
             return await this.CosmosDBRepository.GetByIdAsync<TEntity>(id, this.entityType.ToString());
+        }
+
+        /// <summary>
+        /// Gets the by identifier with meta asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>An instance of the document or null.</returns>
+        public virtual async Task<ItemResponse<TEntity>> GetWithMeta(string id)
+        {
+            return await this.CosmosDBRepository.GetByIdWithMetaAsync<TEntity>(id, this.entityType.ToString());
         }
 
         /// <summary>
@@ -113,13 +124,14 @@ namespace LodeRunner.Services
         /// </summary>
         /// <param name="entityToCreate">New object.</param>
         /// <param name="cancellationToken">So operation may be cancelled.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>Task<TEntity/> that is the resulting object from the data storage.</returns>
-        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken)
+        public virtual async Task<TEntity> Post(TEntity entityToCreate, CancellationToken cancellationToken, ItemRequestOptions requestOptions = null)
         {
             // Update Entity if CosmosDB connection is ready
             if (this.CosmosDBRepository.IsCosmosDBReady)
             {
-                return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken);
+                return await this.CosmosDBRepository.UpsertDocumentAsync<TEntity>(entityToCreate, cancellationToken, requestOptions);
             }
 
             throw new Exception($"CosmosDB returned a not ready status when attempting to post the document: {entityToCreate}");

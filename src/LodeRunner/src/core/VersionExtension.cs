@@ -29,10 +29,7 @@ namespace LodeRunner
                 if (context.Request.Path.Value.Equals("/version", StringComparison.OrdinalIgnoreCase))
                 {
                     // cache the version info for performance
-                    if (responseBytes == null)
-                    {
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Core.Version.AssemblyVersion);
-                    }
+                    responseBytes ??= System.Text.Encoding.UTF8.GetBytes(Core.Version.AssemblyVersion);
 
                     // return the version info
                     context.Response.ContentType = "text/plain";

@@ -1,35 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{gitops.lrApiName}}
+  name: {{gitops.lrClientName}}
   namespace: {{gitops.namespace}}
   labels:
-    app.kubernetes.io/name: {{gitops.lrApiName}}
+    app.kubernetes.io/name: {{gitops.lrClientName}}
+  annotations:
+    checkov.io/skip1: CKV_K8S_8=LR Client does not have liveness endpoint
+    checkov.io/skip2: CKV_K8S_9=LR Client does not have readiness endpoint
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: {{gitops.lrApiName}}
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
+      app: {{gitops.lrClientName}}
   template:
     metadata:
       labels:
-        app: {{gitops.lrApiName}}
+        app: {{gitops.lrClientName}}
         aadpodidbinding: {{gitops.lrMiName}}
         deploy: {{gitops.deploy}}
         version: beta-{{gitops.version}}
     spec:
       containers:
         - name: app
-          image: {{gitops.lrApiImage}}
+          image: {{gitops.lrImage}}
           imagePullPolicy: Always
-          args:
-          - --url-prefix
-          - /api
           ports:
             - name: http
               containerPort: 8080
@@ -41,25 +36,21 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "500m"
-          env:
-          - name: "ASPNETCORE_ENVIRONMENT"
-            value: "Production"
+          args: 
+          - --mode 
+          - Client
+          - --secrets-volume
+          - /app/secrets
+          - --prometheus
+          - --zone
+          - {{gitops.config.zone}}
+          - --region
+          - {{gitops.config.region}}
           volumeMounts:
             - name: secrets
               mountPath: "/app/secrets"
             - mountPath: /tmp
               name: tmp
-          readinessProbe:
-            initialDelaySeconds: 5
-            httpGet:
-              path: /version
-              port: 8080
-          livenessProbe:
-            initialDelaySeconds: 60
-            periodSeconds: 300
-            httpGet:
-              path: /healthz
-              port: 8080
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
@@ -89,14 +80,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{gitops.lrApiName}}
+  name: {{gitops.lrClientName}}
   namespace: {{gitops.namespace}}
 spec:
   type: ClusterIP
   ports:
     - port: 8080
-      targetPort: http
+      targetPort: http 
       protocol: TCP
       name: http
   selector:
-    app: {{gitops.lrApiName}}
+    app: {{gitops.lrClientName}}

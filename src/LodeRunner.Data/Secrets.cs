@@ -108,37 +108,37 @@ namespace LodeRunner.Core
         {
             if (sec == null)
             {
-                throw new Exception($"Unable to read secrets from volume: {volume}");
+                throw new Exception($"{SystemConstants.UnableToReadSecretsFromVolume} {volume}");
             }
 
             if (string.IsNullOrWhiteSpace(sec.CosmosCollection))
             {
-                throw new Exception($"CosmosCollection cannot be empty");
+                throw new Exception($"{SystemConstants.CosmosCollectionCannotBeEmpty}");
             }
 
             if (string.IsNullOrWhiteSpace(sec.CosmosDatabase))
             {
-                throw new Exception($"CosmosDatabase cannot be empty");
+                throw new Exception($"{SystemConstants.CosmosDatabaseCannotBeEmpty}");
             }
 
             if (string.IsNullOrWhiteSpace(sec.CosmosKey))
             {
-                throw new Exception($"CosmosKey cannot be empty");
+                throw new Exception($"{SystemConstants.CosmosKeyCannotBeEmpty}");
             }
 
             if (string.IsNullOrWhiteSpace(sec.CosmosServer))
             {
-                throw new Exception($"CosmosUrl cannot be empty");
+                throw new Exception($"{SystemConstants.CosmosUrlCannotBeEmpty}");
             }
 
             if (!sec.CosmosServer.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception($"Invalid value for CosmosUrl: {sec.CosmosServer}");
+                throw new Exception($"{SystemConstants.InvalidCosmosUrl} {sec.CosmosServer}");
             }
 
             if (sec.CosmosKey.Length < 64)
             {
-                throw new Exception($"Invalid value for CosmosKey: {sec.CosmosKey}");
+                throw new Exception($"{SystemConstants.InvalidCosmosKey} {sec.CosmosKey}");
             }
         }
 
