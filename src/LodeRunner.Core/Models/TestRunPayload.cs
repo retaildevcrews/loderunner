@@ -61,5 +61,19 @@ namespace LodeRunner.Core.Models
         /// The CompletedTime.
         /// </value>
         public DateTime? CompletedTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Hard Stop the Test Run.
+        /// </summary>
+        public bool HardStop { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets hard stop time for this TestRun.
+        /// If null, this property won't exist on serialization.
+        /// </summary>
+        /// <value>
+        /// HardStopTime.
+        /// </value>
+        public DateTime? HardStopTime { get; set; } = null;
     }
 }
