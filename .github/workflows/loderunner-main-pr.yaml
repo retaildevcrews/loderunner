@@ -10,6 +10,7 @@ on:
       - 'src/LodeRunner/*.csproj'
       - 'src/LodeRunner/src/**.cs'
       - '.github/workflows/loderunner-main-pr.yaml'
+      - '.github/workflows/loderunner-integration-test.yaml'
       - '.github/workflows/loderunner-api.yaml'
       - '.github/workflows/loderunner-ui.yaml'
       - '.github/workflows/loderunner-only.yaml'
@@ -31,7 +32,6 @@ on:
       - 'src/LodeRunner.UI/**.css'
       - 'src/LodeRunner.UI/*.csproj'
       - 'src/LodeRunner.UI/**.cs'
-
 
 jobs:
   evaluate-changes:
@@ -89,8 +89,15 @@ jobs:
       LodeRunnerUIChanged: ${{ env.LodeRunnerUIChanged }}
       LodeRunnerWorkflowChaged: ${{ env.LodeRunnerWorkflowChaged }}
 
-  loderunner-only:
+  integration-test:
     needs: evaluate-changes
+    uses: ./.github/workflows/loderunner-integration-test.yaml
+    secrets:
+      cosmos_rw_key: ${{ secrets.NGSA_TEST_COSMOS_RW_KEY }}
+      cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
+
+  loderunner-only:
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-only.yaml
@@ -102,7 +109,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-api:
-    needs: evaluate-changes
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerAPIChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-api.yaml
@@ -114,7 +121,7 @@ jobs:
       cosmos_url: ${{ secrets.NGSA_TEST_COSMOS_URL }}
 
   loderunner-ui:
-    needs: evaluate-changes
+    needs: [evaluate-changes, integration-test]
     if: ${{ needs.evaluate-changes.outputs.LodeRunnerUIChanged == 'true'|| needs.evaluate-changes.outputs.LodeRunnerLIBChanged == 'true' || needs.evaluate-changes.outputs.LodeRunnerWorkflowChaged == 'true'}}
     
     uses: ./.github/workflows/loderunner-ui.yaml

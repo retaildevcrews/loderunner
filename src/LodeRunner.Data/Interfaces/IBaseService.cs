@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Core.Models;
+using Microsoft.Azure.Cosmos;
 
 namespace LodeRunner.Data.Interfaces
 {
@@ -33,6 +34,13 @@ namespace LodeRunner.Data.Interfaces
         Task<TEntity> Get(string id);
 
         /// <summary>
+        /// Gets the by identifier with meta asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>An instance of the document or null.</returns>
+        Task<ItemResponse<TEntity>> GetWithMeta(string id);
+
+        /// <summary>
         /// Gets all.
         /// </summary>
         /// <returns>all items for a given type.</returns>
@@ -56,8 +64,9 @@ namespace LodeRunner.Data.Interfaces
         /// </summary>
         /// <param name="entity">The object to add to the database.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="requestOptions">The request Options associated with the resource.</param>
         /// <returns>The Updated clientStatus entity.</returns>
-        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken);
+        Task<TEntity> Post(TEntity entity, CancellationToken cancellationToken, ItemRequestOptions requestOptions = null);
 
         /// <summary>
         /// Gets the specified identifier.

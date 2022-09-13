@@ -50,7 +50,7 @@ namespace LodeRunner.Services.Extensions
                 lrConfig.TestRunId = testRunId;
                 lrConfig.ClientStatusId = clientStatusId;
                 lrConfig.LoadClientId = loadClientId;
-                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource, logger, useIdValuesFromConfig: true);
+                using var l8rService = new LodeRunnerService(lrConfig, cancellationTokenSource, logger, testRunExecutionScope: true);
 
                 return await l8rService.StartService();
             });
