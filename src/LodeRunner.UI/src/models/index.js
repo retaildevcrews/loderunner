@@ -58,6 +58,8 @@ export const TEST_RUN = {
   scheduledStartTime: "startTime",
   finalCompletionTime: "completedTime",
   results: "clientResults",
+  hardStop: "hardStop",
+  hardStopTime: "hardStopTime",
 };
 
 export const RESULT = {

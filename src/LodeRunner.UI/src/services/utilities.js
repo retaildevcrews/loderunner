@@ -62,19 +62,25 @@ const getApi = async (endpoint) => {
 
 const writeApi = (method, endpoint) => async (payload) => {
   try {
-    const res = await fetch(`${REACT_APP_SERVER}/api/${endpoint}`, {
-      method,
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        ...generatePropagationHeaders(),
-      },
-      body: JSON.stringify(payload),
-    });
+    const res = await fetch(
+      `${REACT_APP_SERVER}/api/${endpoint}`,
+      {
+        method,
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          ...generatePropagationHeaders(),
+        },
+        body: JSON.stringify(payload),
+      }
+    );
     return await getResponseBody(res);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(`Issue with ${method} request at ${endpoint}`, err);
+    console.error(
+      `Issue with ${method} request at ${endpoint}`,
+      err
+    );
     throw err;
   }
 };
