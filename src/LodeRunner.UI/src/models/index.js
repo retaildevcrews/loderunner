@@ -59,6 +59,7 @@ export const TEST_RUN = {
   finalCompletionTime: "completedTime",
   results: "clientResults",
   hardStop: "hardStop",
+  hardStopTime: "hardStopTime",
 };
 
 export const RESULT = {

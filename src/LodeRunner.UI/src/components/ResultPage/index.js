@@ -137,6 +137,18 @@ const TestRun = ({ test, setModalContent }) => (
       <th>Total Completion Time:</th>
       <td>{getMMMDYYYYhmma(test[TEST_RUN.finalCompletionTime]) || "--"}</td>
     </tr>
+    <tr>
+      <td />
+      <td />
+      <th>Cancellation Requested:</th>
+      <td>{test[TEST_RUN.hardStop]?.toString() || "false"}</td>
+    </tr>
+    <tr>
+      <td />
+      <td />
+      <th>Cancellation Time:</th>
+      <td>{getMMMDYYYYhmma(test[TEST_RUN.hardStopTime]) || "--"}</td>
+    </tr>
     {!test[TEST_RUN.finalCompletionTime] &&
       test[TEST_RUN.config][CONFIG.runLoop] && (
         <tr>

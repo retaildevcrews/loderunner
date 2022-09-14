@@ -61,7 +61,6 @@ const getApi = async (endpoint) => {
 };
 
 const writeApi = (method, endpoint) => async (payload) => {
-  console.log(payload);
   try {
     const res = await fetch(
       `${REACT_APP_SERVER}/api/${endpoint}`,
