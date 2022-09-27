@@ -40,11 +40,11 @@ spec:
               protocol: TCP
           resources:
             limits:
-              memory: "512Mi"
+              memory: "256Mi"
               cpu: "1000m"
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "64Mi"
+              cpu: "50m"
           env:
           - name: "LRAPI_DNS"
             value: "https://{{gitops.name}}-{{gitops.config.region}}-dev.{{gitops.config.domain}}/api"
