@@ -72,8 +72,12 @@ namespace LodeRunner.Services
             string sql = $"SELECT * FROM e WHERE e.entityType='TestRun' ";
             sql += $"and array_contains(e.loadClients, {{ \"id\": \"{loadClientId}\"}}, true) ";
 
-            // sql + = $"and NOT array_contains(e.ClientResults, {{\"id\": \"{clientId}\"}}, true)";
             sql += $"and (NOT IS_DEFINED(e.completedTime) or IS_NULL(e.completedTime) or e.completedTime = '') ";
+
+            sql += $"and (NOT IS_DEFINED(e.hardStopTime) or IS_NULL(e.hardStopTime) or e.hardStopTime = '') ";
+
+            sql += $"and (NOT IS_DEFINED(e.hardStop) or IS_NULL(e.hardStop) or e.hardStop = '' or e.hardStop = false)";
+
             sql += $"ORDER BY e.startTime ASC";
 
             return await this.CosmosDBRepository.InternalCosmosDBSqlQuery<TestRun>(sql).ConfigureAwait(false);
