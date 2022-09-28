@@ -22,14 +22,19 @@
 
 1. Open codespaces in <https://github.com/retaildevcrews/loderunner>
 2. Verify in the loderunner directory `pwd`
-3. Set the endpoint LodeRunner.UI makes API calls to
+3. Set LodeRunner.API and LodeRunner.UI port visibility to public
+   - In Codespaces, navigate to the `PORTS` terminal
+   - Identify port `LodeRunner API (k8s nodeport) : 32088` and right-click on the `Visibility`
+   - Hover over `Port Visibility` and select `Public`
+   - Repeat the instructions above for port `LodeRunner UI (k8s nodeport) : 32080`
+4. Set the endpoint LodeRunner.UI makes API calls to
    - In Codespaces, navigate to the `PORTS` terminal
    - Identify port `LodeRunner API (k8s nodeport) : 32088` and hover over the `Local Address`
    - Click on the clipboard icon to copy the local address
    - Open `deploy/loderunner/local/4-loderunner-ui.yaml`
    - Under `env` > `name: "LRAPI_DNS"`, set the `value` to copied LodeRunner.API URL
    - Prevent accidental commits with `git update-index --assume-unchanged deploy/loderunner/local/4-loderunner-ui.yaml`
-4. Set environmental variables with CosmosDB values for K8S generic secret
+5. Set environmental variables with CosmosDB values for K8S generic secret
    - Set CosmosDB: `export LR_DB=LodeRunnerDB`
    - Set CosmosDB Collection: `export LR_COL=LodeRunner`
    - Setup either **shared dev DB** or **CosmosDB Emulator**
@@ -48,18 +53,14 @@
           export LR_KEY=$(docker top ${COSMOS_EMULATOR_NAME} |grep  -oP '/Key=(\w.*) '|head -n 1 | awk -F' ' '{print $1}' | awk -F 'Key=' '{print $2}')
           ```
 
-5. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
-6. Start the k3d cluster `make create`
-7. Deploy pods
+6. Save environmental variables for future re-run via `./deploy/loderunner/local/saveenv.sh`
+7. Start the k3d cluster `make create`
+8. Deploy pods
    - ~~`make all`: LodeRunner, LodeRunner.API, LodeRunner.UI, ngsa-app, prometheus, grafana, fluentbit, jumpbox~~ Note: monitoring and fluentbit namespaces are not ready
    - `make deploy-burst`: Deploy burst metrics and ngsa with burst wasm sidecar filter
    - `make lr-local`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos in Azure
    - `make lr-local-emul`: LodeRunner, LodeRunner.API, LodeRunner.UI with Cosmos Emulator
    - `make lr-local-emul-api-only`: Only LodeRunner.API with Cosmos Emulator
-8. Set LodeRunner.API port visibility to public
-   - In Codespaces, navigate to the `PORTS` terminal
-   - Identify port `LodeRunner API (k8s nodeport) : 32088` and right-click on the `Visibility`
-   - Hover over `Port Visibility` and select `Public`
 
 ## Developing in Codespaces
 
