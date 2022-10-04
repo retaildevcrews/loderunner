@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -141,6 +142,12 @@ namespace LodeRunner.API
                 }
 
                 options.RoutePrefix = string.Empty;
+
+                // additional setting to prevent Swagger UI from crashing when GET request returns a large number of items
+                options.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
+                {
+                    ["activated"] = false
+                };
             })
             .UseEndpoints(ep =>
                 {
