@@ -24,24 +24,24 @@ const ConfigPage = ({ configId }) => {
   const tagFlagRef = useRef();
   const timeoutFlagRef = useRef();
 
+  // declare boolean references
+  const dryRunFlagRef = useRef();
+  const randomizeFlagRef = useRef();
+  const runLoopFlagRef = useRef();
+  const strictJsonFlagRef = useRef();
+  const verboseErrorsFlagRef = useRef();
+
   // handle boolean input references
-  const dryRunFlagRef = useRef(
-    openedConfig?.[CONFIG.dryRun] ?? CONFIG_OPTIONS[CONFIG.dryRun].default
-  );
-  const randomizeFlagRef = useRef(
-    openedConfig?.[CONFIG.randomize] ?? CONFIG_OPTIONS[CONFIG.randomize].default
-  );
-  const runLoopFlagRef = useRef(
-    openedConfig?.[CONFIG.runLoop] ?? CONFIG_OPTIONS[CONFIG.runLoop].default
-  );
-  const strictJsonFlagRef = useRef(
-    openedConfig?.[CONFIG.strictJson] ??
-      CONFIG_OPTIONS[CONFIG.strictJson].default
-  );
-  const verboseErrorsFlagRef = useRef(
-    openedConfig?.[CONFIG.verboseErrors] ??
-      CONFIG_OPTIONS[CONFIG.verboseErrors].default
-  );
+  dryRunFlagRef.current =
+    openedConfig?.[CONFIG.dryRun] ?? CONFIG_OPTIONS[CONFIG.dryRun].default;
+  randomizeFlagRef.current =
+    openedConfig?.[CONFIG.randomize] ?? CONFIG_OPTIONS[CONFIG.randomize].default;
+  runLoopFlagRef.current =
+    openedConfig?.[CONFIG.runLoop] ?? CONFIG_OPTIONS[CONFIG.runLoop].default;
+  strictJsonFlagRef.current =
+    openedConfig?.[CONFIG.strictJson] ?? CONFIG_OPTIONS[CONFIG.strictJson].default;
+  verboseErrorsFlagRef.current =
+    openedConfig?.[CONFIG.verboseErrors] ?? CONFIG_OPTIONS[CONFIG.verboseErrors].default;
 
   useEffect(() => {
     setIsPending(true);
