@@ -76,10 +76,9 @@ Note: After the Cosmos DB and containers have been set up using the steps above,
     - This should reveal an `Input Parameters` panel near the right side of the screen
 5. In the `Input Parameters` panel, enter the parameters for which the `bulkDelete` Stored Procedure should receive. Refer to the following explanations of each field:
     - **Partition Key Value**
-        - The `Partition Key Value` field can be populated with one of the three following values:
-            1. ClientStatus
-            2. LoadTestConfig
-            3. TestRun
+        - The `Partition Key Value` field should be populated with one of the two following values:
+            1. LoadTestConfig
+            2. TestRun
         - To do a full data cleanup, the Stored Procedure must be run three separate times - one for each `Partition Key Value`
     - **Enter input parameters (if any)**
         - The `Enter input parameters (if any)` field requires a SQL select query that the `bulkDelete` Stored Procedure will use to delete values
