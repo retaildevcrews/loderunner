@@ -64,6 +64,28 @@ Note: After the Cosmos DB and containers have been set up using the steps above,
     az cosmosdb delete -n $LR_COSMOS_ACCOUNT -g $LR_RG --subscription $LR_SUBSCRIPTION -y
 ```
 
+## Create Bulk Delete Stored Procedure Manually
+
+```bash
+
+    # Set existing resource group name
+    export LR_RG=""
+    
+    # Set CosmosDB values
+    export LR_COSMOS_ACCOUNT="${LR_NAME}-cosmos"
+    export LR_COSMOS_DB="LodeRunnerDB"
+    export LR_COSMOS_COL="LodeRunner"
+
+
+    # Navigate to stored procedure source directory 
+    
+    cd scripts/stored-procedures
+
+    # Create CosmosDB account
+    az cosmosdb sql stored-procedure create -g $LR_RG -a $LR_COSMOS_ACCOUNT -d $LR_COSMOS_DB -c $LR_COSMOS_COL -n bulkDelete -b @spBulkDelete.json
+
+```
+
 ## Run Stored Procedure for Data Cleanup
 
 1. Navigate to the Data Explorer in the Azure Cosmos DB account (ngsa-asb-dev-cosmos)
