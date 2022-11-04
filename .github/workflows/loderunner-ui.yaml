@@ -53,8 +53,8 @@ jobs:
       with:
         image: "imageui"
         severity-cutoff: critical
-        acs-report-enable: true
         fail-build: true
+        output-format: sarif
 
     - name: Upload LodeRunner.UI Grype Vulnerability SARIF report
       if: always()
