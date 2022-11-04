@@ -47,8 +47,8 @@ jobs:
       with:
         image: "imageapi"
         severity-cutoff: critical
-        acs-report-enable: true
         fail-build: true
+        output-format: sarif
 
     - name: Upload LodeRunner.API Grype Vulnerability SARIF report
       if: always()
