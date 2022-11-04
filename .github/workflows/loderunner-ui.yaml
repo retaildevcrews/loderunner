@@ -1,18 +1,21 @@
-name: Build LodeRunner.UI 
+name: Build LodeRunner.UI
 
 on:
+  push:
+    branches:
+      - "aakindele/grype-issues"
   workflow_call:
     inputs:
       tag_and_push:
         description: 'Determines if image will be pushed'
         default: false
         required: true
-        type: boolean 
-      run_and_test: 
+        type: boolean
+      run_and_test:
         description: 'Determines if image will be tested.'
         default: false
         required: true
-        type: boolean 
+        type: boolean
     secrets:
       ghcr_id:
         description: 'GHCR_ID used for autogitops deploy'
@@ -37,13 +40,13 @@ jobs:
     - name: Install npm packages
       run: npm install --prefix ./src/LodeRunner.UI
 
-    - name: Run Linter on ./src/LodeRunner.UI 
-      run: npm run lint --prefix ./src/LodeRunner.UI      
+    - name: Run Linter on ./src/LodeRunner.UI
+      run: npm run lint --prefix ./src/LodeRunner.UI
 
     - name: Docker Build LodeRunner.UI
       run: |
         docker build ./src/LodeRunner.UI --target nginx-prod -t imageui
-    
+
     - name: Grype Scan LodeRunner.UI for Vulnerabilities
       uses: anchore/scan-action@v3
       id: grype
@@ -64,11 +67,11 @@ jobs:
       run: |
 
         # LRAPI_DNS here is a dummy variable just to run LRUI
-        docker run --name l8rui -d -p 8080:80 -e LRAPI_DNS="http://localhost:9090" imageui 
+        docker run --name l8rui -d -p 8080:80 -e LRAPI_DNS="http://localhost:9090" imageui
 
         echo "Waiting for web server to start ..."
-    
-        wait_time=10        
+
+        wait_time=10
         sleep $wait_time
         # wait up to 30 seconds for web server to start
         while true
@@ -88,11 +91,11 @@ jobs:
               echo -e "\n timeout waiting for LodeRunner-UI to start"
               exit 1
             fi
-            
+
             sleep 1
             ((wait_time=wait_time+1))
-        done    
-        
+        done
+
     - name: Login to Container Registry
       if: ${{ inputs.tag_and_push }}
       uses: docker/login-action@v1
@@ -103,7 +106,7 @@ jobs:
 
     - name: Docker Tag and Push
       if: ${{ inputs.tag_and_push }}
-      run: | 
+      run: |
         echo Docker Tag and Push because tag_and_push is- ${{ inputs.tag_and_push }}
 
         # tag the repo with :beta
