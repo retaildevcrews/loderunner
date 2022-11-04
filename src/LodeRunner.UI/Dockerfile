@@ -22,8 +22,10 @@ RUN npm run build-prod
 ###########################################################
 
 ### build prod nginx container
-FROM nginx:1.23.2-alpine AS nginx-prod
+FROM nginx:stable-alpine AS nginx-prod
 LABEL nginx=prod
+
+RUN apk update && apk upgrade
 
 COPY --from=build /app/build /usr/share/nginx/html
 COPY ./start-nginx.sh /
