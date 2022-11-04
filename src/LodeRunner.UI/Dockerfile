@@ -22,7 +22,7 @@ RUN npm run build-prod
 ###########################################################
 
 ### build prod nginx container
-FROM nginx:1.23-alpine AS nginx-prod
+FROM nginx:1.23.2-alpine AS nginx-prod
 LABEL nginx=prod
 
 COPY --from=build /app/build /usr/share/nginx/html
