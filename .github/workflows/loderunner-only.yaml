@@ -1,6 +1,9 @@
 name: Build LodeRunner Only
 
 on:
+  push:
+    branches:
+      - "aakindele/grype-issues"
   workflow_call:
     inputs:
       tag_and_push:
@@ -49,8 +52,8 @@ jobs:
       with:
         image: "image"
         severity-cutoff: critical
+        acs-report-enable: true
         fail-build: true
-        output-format: sarif
 
     - name: Upload LodeRunner Grype Vulnerability SARIF report
       if: always()
