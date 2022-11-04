@@ -13,8 +13,8 @@ COPY ["package.json", "package-lock.json", "./"]
 # install dependencies
 RUN npm ci --only=production
 
-# copy app 
-COPY . ./ 
+# copy app
+COPY . ./
 
 # build release app
 RUN npm run build-prod
@@ -22,7 +22,7 @@ RUN npm run build-prod
 ###########################################################
 
 ### build prod nginx container
-FROM nginx:stable-alpine AS nginx-prod
+FROM nginx:1.23-alpine AS nginx-prod
 LABEL nginx=prod
 
 COPY --from=build /app/build /usr/share/nginx/html
