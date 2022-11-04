@@ -25,7 +25,7 @@ RUN npm run build-prod
 FROM nginx:stable-alpine AS nginx-prod
 LABEL nginx=prod
 
-RUN apk update && apk upgrade
+RUN apk update && apk add curl libcurl
 
 COPY --from=build /app/build /usr/share/nginx/html
 COPY ./start-nginx.sh /
