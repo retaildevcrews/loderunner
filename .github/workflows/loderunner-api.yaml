@@ -1,9 +1,6 @@
 name: Build LodeRunner.API
 
 on:
-  push:
-    branches:
-      - "aakindele/grype-issues"
   workflow_call:
     inputs:
       tag_and_push:
