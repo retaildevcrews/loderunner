@@ -8,11 +8,11 @@ on:
         default: false
         required: true
         type: boolean
-      run_and_test: 
+      run_and_test:
         description: 'Determines if image will be tested.'
         default: false
         required: true
-        type: boolean        
+        type: boolean
     secrets:
       cosmos_rw_key:
         required: true
@@ -53,7 +53,7 @@ jobs:
         sarif_file: ${{ steps.grype.outputs.sarif }}
 
     - name: Set Secrets
-      if: ${{ inputs.run_and_test }}    
+      if: ${{ inputs.run_and_test }}
       run: |
         mkdir -p /tmp/secrets
         echo -n ${{ secrets.cosmos_rw_key }} >| /tmp/secrets/CosmosKey
@@ -62,7 +62,7 @@ jobs:
         echo -n 'LodeRunnerTestDB' >| /tmp/secrets/CosmosDatabase
 
     - name: Docker Run and Test LodeRunner API
-      if: ${{ inputs.run_and_test }}    
+      if: ${{ inputs.run_and_test }}
       run: |
 
         docker run -d --name loderunnerAPI --net=host -v /tmp/secrets:/app/secrets imageapi
@@ -101,7 +101,7 @@ jobs:
         docker build ./src -t image -f ./src/LodeRunner/Dockerfile
 
     - name: Delete Secrets
-      if: ${{ inputs.run_and_test }}    
+      if: ${{ inputs.run_and_test }}
       run: |
         rm -rf /tmp/secrets
 
