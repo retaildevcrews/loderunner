@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Configuration;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using LodeRunner.Data.Interfaces;
 
@@ -25,7 +26,13 @@ namespace LodeRunner.Data
             this.Uri = config.Secrets.CosmosServer;
             this.Key = config.Secrets.CosmosKey;
             this.DatabaseName = config.Secrets.CosmosDatabase;
-        }
+            this.CosmosAuthType = config.CosmosAuthType;
+            }
+
+        /// <summary>
+        /// Gets or sets cosmosAuthType.
+        /// </summary>
+        public CosmosAuthType CosmosAuthType { get; set; }
 
         /// <summary>
         /// Gets or sets the cosmos maximum retries.
@@ -101,7 +108,7 @@ namespace LodeRunner.Data
                 throw new ConfigurationErrorsException($"{this.GetType().Name}: Uri is invalid");
             }
 
-            if (string.IsNullOrWhiteSpace(this.Key))
+            if (this.CosmosAuthType == CosmosAuthType.SecretKey && string.IsNullOrWhiteSpace(this.Key))
             {
                 throw new ConfigurationErrorsException($"{this.GetType().Name}: Key is invalid");
             }

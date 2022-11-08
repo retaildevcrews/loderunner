@@ -204,8 +204,6 @@ namespace LodeRunner.API
         // validate combinations of parameters
         private static string ValidateDependencies(CommandResult result)
         {
-            // TODO:  Implement MI check
-
             string msg = string.Empty;
 
             if (EnvVarErrors.Count > 0)
