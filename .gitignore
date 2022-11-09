@@ -324,3 +324,4 @@ build
 ### OSX ###
 # General
 .DS_Store
+~ .gitconfig
