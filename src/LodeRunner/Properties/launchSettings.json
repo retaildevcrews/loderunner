@@ -2,7 +2,7 @@
   "profiles": {
     "Dev - Client Mode": {
       "commandName": "Project",
-      "commandLineArgs": "--mode Client --secrets-volume secrets",
+      "commandLineArgs": "--mode Client --secrets-volume secrets --cosmos-auth-type SecretKey",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

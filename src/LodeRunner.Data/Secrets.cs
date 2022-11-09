@@ -59,7 +59,7 @@ namespace LodeRunner.Core
         /// <param name="config">The configuration.</param>
         public static void LoadSecrets(ICosmosConfig config)
         {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
+            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume, skipCosmosKey: config.CosmosAuthType != CosmosAuthType.SecretKey);
 
             // set the Cosmos server name for logging
             config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
