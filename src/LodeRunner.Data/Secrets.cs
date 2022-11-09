@@ -74,7 +74,7 @@ namespace LodeRunner.Core
         /// Get the secrets from the k8s volume.
         /// </summary>
         /// <param name="volume">k8s volume name.</param>
-        /// <param name="skipCosmosKey ">Skip reading and validating CosmosKey</param>
+        /// <param name="skipCosmosKey ">Skip reading and validating CosmosKey.</param>
         /// <returns>Secrets or null.</returns>
         private static Secrets GetSecretsFromVolume(string volume, bool skipCosmosKey = false)
         {
@@ -94,7 +94,7 @@ namespace LodeRunner.Core
             {
                 Volume = volume,
                 CosmosCollection = GetSecretFromFile(volume, "CosmosCollection"),
-                CosmosDatabase = GetSecretFromFile(volume, "CosmosDatabase"),                
+                CosmosDatabase = GetSecretFromFile(volume, "CosmosDatabase"),
                 CosmosServer = GetSecretFromFile(volume, "CosmosUrl"),
             };
 

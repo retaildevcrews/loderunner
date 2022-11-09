@@ -14,7 +14,7 @@ namespace LodeRunner.Core
         SecretKey,
 
         /// <summary>
-        /// Indicates to use Managed Idenity
+        /// Indicates to use Managed Identity.
         /// </summary>
         ManagedIdentity,
     }

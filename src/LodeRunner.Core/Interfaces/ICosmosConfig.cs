@@ -47,6 +47,6 @@ namespace LodeRunner.Core.Interfaces
         /// <summary>
         /// Gets or sets cosmosAuthType.
         /// </summary>
-        public CosmosAuthType CosmosAuthType { get; set; }
+        CosmosAuthType CosmosAuthType { get; set; }
     }
 }

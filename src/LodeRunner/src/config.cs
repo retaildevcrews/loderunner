@@ -227,6 +227,7 @@ namespace LodeRunner
         /// The URL prefix.
         /// </value>
         public string UrlPrefix { get; set; }
+        CosmosAuthType ICosmosConfig.CosmosAuthType { get; set; } = CosmosAuthType.SecretKey;
 
         /// <summary>
         /// Gets the log values.
