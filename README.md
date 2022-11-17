@@ -90,7 +90,7 @@ To select a project/solution:
 ### To debug
 
 - Go to `Run and Debug` tab on the left side of VSCode
-- At the top of that pane, select the prjoect you want to debug from the dropdown
+- At the top of that pane, select the project you want to debug from the dropdown
 - Click the `Run` &#9658; button or press `F5` to start debugging
 
 ### To run unit/integration tests from the GUI
