@@ -13,6 +13,9 @@ docker network connect k3d k3d-registry.localhost
 # update packages
 sudo apt-get update
 
+# Install dotnet-sdk-6.0, since by default sdk is dotnet-sdk-7.0
+sudo apt install -y --no-install-recommends dotnet-sdk-6.0
+
 # start CosmosDB Emulator & setup nginx
 echo "  Build CosmosDB Emulator & nginx" | tee -a ~/status
 sudo ./$(dirname $0)/cosmos-emulator/start-cosmos-emulator.sh
