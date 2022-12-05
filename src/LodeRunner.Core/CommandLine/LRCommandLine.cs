@@ -257,7 +257,6 @@ namespace LodeRunner.Core.CommandLine
         /// <returns> empty string if no issues found.</returns>
         private static string ValidateClientModeDependencies(CommandResult result)
         {
-            // TODO:  Update this for check of MI or not.
             string msg = string.Empty;
 
             OptionResult secretsRes = result.Children.FirstOrDefault(c => c.Symbol.Name == "secrets-volume") as OptionResult;
