@@ -14,7 +14,8 @@
     <LangVersion>Latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>  
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
