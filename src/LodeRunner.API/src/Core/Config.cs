@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System.Collections.Generic;
+using LodeRunner.Core;
 using LodeRunner.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -121,6 +122,7 @@ namespace LodeRunner.API
         /// <summary>Gets or sets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds.</value>
         public int CosmosTimeout { get; set; } = 60;
+        public CosmosAuthType CosmosAuthType { get; set; }
 
         /// <summary>
         /// Gets the log values.

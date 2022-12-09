@@ -2,10 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>$(NoWarn),1591,SA0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>$(NoWarn),1591,SA0001</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
@@ -34,5 +40,4 @@
     <ProjectReference Include="..\LodeRunner.API\LodeRunner.API.csproj" />
     <ProjectReference Include="..\LodeRunner\LodeRunner.csproj" />
   </ItemGroup>
-
 </Project>

@@ -12,7 +12,7 @@ using Microsoft.Azure.Cosmos;
 namespace LodeRunner.Data.Interfaces
 {
     /// <summary>
-    /// BaseService Interface. 
+    /// BaseService Interface.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     public interface IBaseService<TEntity>

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using LodeRunner.Core;
+
 namespace LodeRunner.Data.Interfaces
 {
     /// <summary>
@@ -8,6 +10,14 @@ namespace LodeRunner.Data.Interfaces
     /// </summary>
     public interface ICosmosDBSettings : ISettingsValidator
     {
+        /// <summary>
+        /// Gets or sets cosmosAuthType.
+        /// </summary>
+        /// <value>
+        /// The CosmosAuthType.
+        /// </value>
+        public CosmosAuthType CosmosAuthType { get; set; }
+
         /// <summary>
         /// Gets the retries.
         /// </summary>

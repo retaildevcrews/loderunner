@@ -43,5 +43,10 @@ namespace LodeRunner.Core.Interfaces
         /// <summary>Gets the cosmos max retry wait time for cosmos requests in seconds.</summary>
         /// <value>Time in seconds.</value>
         int CosmosTimeout { get; }
+
+        /// <summary>
+        /// Gets or sets cosmosAuthType.
+        /// </summary>
+        CosmosAuthType CosmosAuthType { get; set; }
     }
 }

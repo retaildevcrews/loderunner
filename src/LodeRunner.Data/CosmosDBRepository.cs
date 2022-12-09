@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Identity;
 using LodeRunner.Core;
 using LodeRunner.Core.Models;
 using LodeRunner.Data.Interfaces;
@@ -115,7 +116,12 @@ namespace LodeRunner.Data
         /// <value>
         /// The client.
         /// </value>
-        private CosmosClient Client => client ??= new CosmosClientBuilder(this.settings.Uri, this.settings.Key)
+        private CosmosClient Client => client ??= (
+                                                    this.settings.CosmosAuthType switch
+                                                    {
+                                                        CosmosAuthType.ManagedIdentity => new CosmosClientBuilder(this.settings.Uri, new DefaultAzureCredential()),
+                                                        CosmosAuthType.SecretKey or _ => new CosmosClientBuilder(this.settings.Uri, this.settings.Key),
+                                                    })
                                                     .WithRequestTimeout(TimeSpan.FromSeconds(this.settings.Timeout))
                                                     .WithThrottlingRetryOptions(TimeSpan.FromSeconds(this.settings.Timeout), this.settings.Retries)
                                                     .WithSerializerOptions(new CosmosSerializationOptions

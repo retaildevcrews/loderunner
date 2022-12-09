@@ -59,7 +59,7 @@ namespace LodeRunner.Core
         /// <param name="config">The configuration.</param>
         public static void LoadSecrets(ICosmosConfig config)
         {
-            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume);
+            config.Secrets = Secrets.GetSecretsFromVolume(config.SecretsVolume, skipCosmosKey: config.CosmosAuthType != CosmosAuthType.SecretKey);
 
             // set the Cosmos server name for logging
             config.CosmosName = config.Secrets.CosmosServer.Replace("https://", string.Empty, StringComparison.OrdinalIgnoreCase).Replace("http://", string.Empty, StringComparison.OrdinalIgnoreCase);
@@ -74,8 +74,9 @@ namespace LodeRunner.Core
         /// Get the secrets from the k8s volume.
         /// </summary>
         /// <param name="volume">k8s volume name.</param>
+        /// <param name="skipCosmosKey ">Skip reading and validating CosmosKey.</param>
         /// <returns>Secrets or null.</returns>
-        private static Secrets GetSecretsFromVolume(string volume)
+        private static Secrets GetSecretsFromVolume(string volume, bool skipCosmosKey = false)
         {
             if (string.IsNullOrWhiteSpace(volume))
             {
@@ -94,17 +95,22 @@ namespace LodeRunner.Core
                 Volume = volume,
                 CosmosCollection = GetSecretFromFile(volume, "CosmosCollection"),
                 CosmosDatabase = GetSecretFromFile(volume, "CosmosDatabase"),
-                CosmosKey = GetSecretFromFile(volume, "CosmosKey"),
                 CosmosServer = GetSecretFromFile(volume, "CosmosUrl"),
             };
 
-            ValidateSecrets(volume, sec);
+            // Skip if we're using Managed Identity instead of CosmosKey
+            if (!skipCosmosKey)
+            {
+                sec.CosmosKey = GetSecretFromFile(volume, "CosmosKey");
+            }
+
+            ValidateSecrets(volume, sec, skipCosmosKey);
 
             return sec;
         }
 
         // basic validation of Cosmos values
-        private static void ValidateSecrets(string volume, Secrets sec)
+        private static void ValidateSecrets(string volume, Secrets sec, bool skipCosmosKeyValidation)
         {
             if (sec == null)
             {
@@ -121,7 +127,7 @@ namespace LodeRunner.Core
                 throw new Exception($"{SystemConstants.CosmosDatabaseCannotBeEmpty}");
             }
 
-            if (string.IsNullOrWhiteSpace(sec.CosmosKey))
+            if (!skipCosmosKeyValidation && string.IsNullOrWhiteSpace(sec.CosmosKey))
             {
                 throw new Exception($"{SystemConstants.CosmosKeyCannotBeEmpty}");
             }
@@ -136,7 +142,7 @@ namespace LodeRunner.Core
                 throw new Exception($"{SystemConstants.InvalidCosmosUrl} {sec.CosmosServer}");
             }
 
-            if (sec.CosmosKey.Length < 64)
+            if (!skipCosmosKeyValidation && sec.CosmosKey.Length < 64)
             {
                 throw new Exception($"{SystemConstants.InvalidCosmosKey} {sec.CosmosKey}");
             }

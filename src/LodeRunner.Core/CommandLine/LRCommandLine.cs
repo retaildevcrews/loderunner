@@ -72,6 +72,7 @@ namespace LodeRunner.Core.CommandLine
             root.AddOption(new Option<int>(new string[] { "--max-errors" }, Parsers.ParseIntGTZero, true, "Max validation errors"));
             root.AddOption(new Option<int>(new string[] { "--delay-start" }, Parsers.ParseIntGEZero, true, "Delay test start (seconds)"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
+            root.AddOption(new Option<string>(new string[] { "--cosmos-auth-type", "-c" }, Parsers.ParseString, true, "CosmosDB Authentication type"));
             root.AddOption(new Option<string>(new string[] { "--secrets-volume" }, Parsers.ParseString, true, "Secrets Volume Path"));
 
             // validate dependencies
@@ -100,6 +101,7 @@ namespace LodeRunner.Core.CommandLine
             root.AddOption(new Option<bool>(new string[] { "-p", "--prometheus" }, Parsers.ParseBool, true, "Send metrics to Prometheus"));
             root.AddOption(new Option<string>(new string[] { "--tag" }, Parsers.ParseString, true, "Tag for logging"));
             root.AddOption(new Option<bool>(new string[] { "-d", "--dry-run" }, "Validates configuration"));
+            root.AddOption(new Option<string>(new string[] { "--cosmos-auth-type", "-c" }, Parsers.ParseString, true, "CosmosDB Authentication type"));
             root.AddOption(new Option<string>(new string[] { "--secrets-volume" }, Parsers.ParseString, true, "Secrets Volume Path"));
 
             // validate dependencies
