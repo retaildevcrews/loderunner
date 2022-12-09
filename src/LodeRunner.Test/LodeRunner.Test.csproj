@@ -2,10 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
 
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>$(NoWarn),1701,1702,SA0001,1573,1591,1712</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>$(NoWarn),1701,1702,SA0001,1573,1591,1712</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,5 +44,4 @@
   <ItemGroup>
     <ProjectReference Include="..\LodeRunner\LodeRunner.csproj" />
   </ItemGroup>
-
 </Project>
