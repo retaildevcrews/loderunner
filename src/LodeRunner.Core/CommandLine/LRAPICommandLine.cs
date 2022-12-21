@@ -47,6 +47,7 @@ namespace LodeRunner.API
             root.AddOption(GetOption(new string[] { "--secrets-volume", "-v" }, "Secrets Volume Path", "secrets"));
             root.AddOption(GetOption(new string[] { "--log-level", "-l" }, "Log Level", LogLevel.Warning));
             root.AddOption(GetOption(new string[] { "--request-log-level", "-q" }, "Request Log Level", LogLevel.Information));
+            root.AddOption(GetOption(new string[] { "--cosmos-auth-type", "-c" }, "CosmosDB Authentication type", CosmosAuthType.SecretKey));
 
             // validate dependencies
             root.AddValidator(ValidateDependencies);

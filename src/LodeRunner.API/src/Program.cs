@@ -133,6 +133,12 @@ namespace LodeRunner.API
                     GetLogger().LogError(new EventId((int)HttpStatusCode.InternalServerError, nameof(RunApp)), ex, "Exception");
                 }
 
+                if (AppConfigurationHelper.IsDevelopmentEnvironment())
+                {
+                    //NOTE: Writing a message to a console when in DevMode will prevent the CMD window to close right away, allowing the Developer to actually see the exception message.
+                    Console.WriteLine("An unexpected exception occurred when starting the Application. Please review log messages...");
+                }
+
                 return -1;
             }
         }

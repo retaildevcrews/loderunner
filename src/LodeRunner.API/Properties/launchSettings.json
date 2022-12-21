@@ -2,6 +2,7 @@
   "profiles": {
     "LodeRunner.API - Development": {
       "commandName": "Project",
+      "commandLineArgs": "--cosmos-auth-type ManagedIdentity",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

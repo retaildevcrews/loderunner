@@ -146,7 +146,7 @@ namespace LodeRunner.API
                 // additional setting to prevent Swagger UI from crashing when GET request returns a large number of items
                 options.ConfigObject.AdditionalItems["syntaxHighlight"] = new Dictionary<string, object>
                 {
-                    ["activated"] = false
+                    ["activated"] = false,
                 };
             })
             .UseEndpoints(ep =>

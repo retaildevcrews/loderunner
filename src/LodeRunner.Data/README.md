@@ -32,7 +32,7 @@ If running in codespaces, the emulator should be running in devcontainer on defa
 
 ### Using shared Cosmos DB
 
-Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) require a Read-Write key from CosmosDB.
+Certain loderunner applications (i.e. LodeRunner, LodeRunner.API) require a Read-Write key from CosmosDB or the use of a user assigned managed identity.  If managed identity is specified for the --cosmos-auth-type the key can be omitted.  
 
 The rest of the required files in the `/secrets` folder are already included (i.e. `CosmosCollection`, `CosmosDatabase`, `CosmosTestDatabase`, `CosmosUrl`).  You may set them up manually by:
 
