@@ -52,7 +52,7 @@ spec:
       key: key
   parameters:
     usePodIdentity: "true"
-    keyvaultName: "kv-aks-fykg5bqasutle"
+    keyvaultName: {{gitops.keyvaultNamePreprod}}
     objects: |
       array:
         - |
