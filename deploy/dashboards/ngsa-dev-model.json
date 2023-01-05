@@ -3237,8 +3237,8 @@
           "options": [
             {
               "selected": false,
-              "text": "Az-WestUS2",
-              "value": "Az-WestUS2"
+              "text": "Az-WestUS3",
+              "value": "Az-WestUS3"
             },
             {
               "selected": false,
@@ -3247,16 +3247,16 @@
             },
             {
               "selected": false,
-              "text": "Az-CentralUS",
-              "value": "Az-CentralUS"
+              "text": "Az-NorthCentralUS",
+              "value": "Az-NorthCentralUS"
             },
             {
               "selected": true,
-              "text": "centralus",
-              "value": "centralus"
+              "text": "northcentralus",
+              "value": "northcentralus"
             }
           ],
-          "query": "Az-WestUS2,Az-EastUS2,Az-CentralUS,centralus",
+          "query": "Az-WestUS3,Az-EastUS,Az-NorthCentralUS,northcentralus",
           "queryValue": "",
           "skipUrlSync": false,
           "type": "custom"
