@@ -1,7 +1,7 @@
 {
     "name": "loderunner",
     "namespace": "loderunner",
-    "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus2","pre-ngsa-asb-centralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus2"],
+    "targets": ["dev-ngsa-asb-eastus","dev-ngsa-asb-westus3","pre-ngsa-asb-northcentralus","pre-ngsa-asb-eastus","pre-ngsa-asb-westus3"],
     "tenantid": "16b3c013-d300-468d-ac64-7eda0820b6d3",
     "subscriptionid": "5dc45b2f-bf13-4281-b763-a53f57290aa3",
     "resourceGroup": "rg-wcnp-dev",

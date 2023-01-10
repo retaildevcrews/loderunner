@@ -152,7 +152,7 @@ It will create a K3d cluster with NGSA deployed. Afterwards, we can use this NGS
 Follow, [individual component development section](#development-of-individual-loderunner-components) and use <http://localhost:30080> as NGSA server.
 
 <!-- markdown-link-check-disable-next-line -->
-We can also use a pre-prod deployment which has burst metrics. For example: ngsa-cosmos deployment in WestUS2 dev cluster (Link: <https://ngsa-cosmos-westus2-dev.cse.ms>).
+We can also use a pre-prod deployment which has burst metrics. For example: ngsa-cosmos deployment in WestUS3 dev cluster (Link: <https://ngsa-cosmos-westus3-dev.cse.ms>).
 
 ### Setting Port Visibility
 
