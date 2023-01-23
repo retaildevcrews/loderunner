@@ -1,8 +1,6 @@
 name: Scheduled Check for Dead Markdown Links
 
 on:
-  push:
-    branches: [ nudoyen/md-link-fix ] 
   schedule:
     # Run weekly at 3:00 AM
     - cron: "0 3 * * 1"
