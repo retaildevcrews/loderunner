@@ -89,7 +89,7 @@ This object is primarily for conveying the curent status, time of that status, a
 | Status          |   String   | Current status of load client      |    Yes   | [`Unknown`, `Starting`, `Ready`, `Testing`, `Terminating`] |
 | Message         |   String   | Additional information conveyed as part of the status update | No | |
 | LoadClient      | `LoadClient` | A nested object holding the information about the particular client in this status message | Yes | |
-| Ttl             |    Int     | Initial time to live in seconds | Yes |  [Expire data in Azure Cosmos DB with Time to Live Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/time-to-live) |
+| Ttl             |    Int     | Initial time to live in seconds | Yes |  [Expire data in Azure Cosmos DB with Time to Live Docs](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/time-to-lives) |
 
 `Table 04: ClientStatus Properties`
 
