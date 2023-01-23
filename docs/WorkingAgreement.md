@@ -74,7 +74,7 @@ Our crews are distributed across timezones and across the world. Where possible,
 
 #### User Story Guidelines
 
-> Sourced from <http://www.scrumtraining.com>
+> Sourced from <https://innovel.net>
 
 ##### User Story Guideline
 
