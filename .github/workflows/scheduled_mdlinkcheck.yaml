@@ -1,6 +1,8 @@
 name: Scheduled Check for Dead Markdown Links
 
-on: 
+on:
+  push:
+    branches: [ nudoyen/md-link-fix ] 
   schedule:
     # Run weekly at 3:00 AM
     - cron: "0 3 * * 1"
@@ -19,7 +21,7 @@ jobs:
     - name: Create Issue From File
       if: ${{ failure() }}
       id: ciff
-      uses: peter-evans/create-issue-from-file@v2
+      uses: peter-evans/create-issue-from-file@v4
       with:
         title: Remove dead links from repository
         content-filepath: ./.github/ISSUE_TEMPLATE/found-dead-links.md
