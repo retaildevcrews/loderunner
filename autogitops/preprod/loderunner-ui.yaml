@@ -64,7 +64,7 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       nodeSelector:
-        agentpool: npuser01
+        kubernetes.azure.com/mode: user
         
 ---
 
