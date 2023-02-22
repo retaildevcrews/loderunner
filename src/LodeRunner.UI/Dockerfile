@@ -26,7 +26,7 @@ FROM nginx:stable-alpine AS nginx-prod
 LABEL nginx=prod
 
 RUN apk update && \
-  apk add --no-cache curl=7.83.1-r4 libcurl=7.83.1-r4
+  apk add --no-cache curl=7.83.1-r6 libcurl=7.83.1-r6
 
 COPY --from=build /app/build /usr/share/nginx/html
 COPY ./start-nginx.sh /
